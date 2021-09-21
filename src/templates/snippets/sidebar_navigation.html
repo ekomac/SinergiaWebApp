@@ -1,0 +1,147 @@
+<style>
+    #sidebar-container {
+        min-height: 100%;
+        height: 100%;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 100;
+        padding: 0 0 0;
+    }
+</style>
+
+
+<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+
+    <!-- Main nav container -->
+    <div id="sidebar-container" class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark fill"
+        style="width: 280px;">
+
+        <!-- Header -->
+        <a href="/" class="d-none d-md-flex align-items-center mb-1 mb-md-0">
+            <svg class="bi me-2" width="100%" height="40">
+                <use xlink:href="#sinergia" /></svg>
+
+        </a>
+
+        <hr class="d-none d-md-flex">
+
+        <!-- Menu items container -->
+        <ul class="nav nav-pills flex-column mb-auto">
+
+            <!-- START Dashboard -->
+            <li class="nav-item">
+                <a href="#" class="nav-link active" aria-current="page">
+                    <i class="bi bi-house-door"></i>
+                    Inicio
+                </a>
+            </li>
+            <!-- END Dashboard -->
+
+
+            <!-- START Escáner -->
+            <li class="nav-item">
+                <a href="#" class="nav-link text-white" aria-current="page">
+                    <i class="bi bi-upc-scan"></i>
+                    Escáner
+                </a>
+            </li>
+            <!-- END Escáner -->
+
+
+            <!-- START Envíos -->
+            <li>
+                <a href="#" class="nav-link text-white">
+                    <i class="bi bi-truck"></i>
+                    Envíos
+                </a>
+            </li>
+            <!-- END Envíos -->
+
+            <!-- START Clientes -->
+            <li>
+                <a href="#" class="nav-link text-white">
+                    <i class="bi bi-people"></i>
+                    Clientes
+                </a>
+            </li>
+            <!-- END Clientes -->
+
+            <!-- START Legajos -->
+            <li>
+                <a href="#" class="nav-link text-white">
+                    <i class="bi bi-file-earmark-text"></i>
+                    Legajos
+                </a>
+            </li>
+            <!-- END Legajos -->
+
+            <!-- START Facturación -->
+            <li>
+                <a href="#" class="nav-link text-white">
+                    <i class="bi bi-receipt"></i>
+                    Facturación
+                </a>
+            </li>
+            <!-- END Facturación -->
+
+            <!-- START Liquidación -->
+            <li>
+                <a href="#" class="nav-link text-white">
+                    <i class="bi bi-calendar-event"></i>
+                    Liquidación
+                </a>
+            </li>
+            <!-- END Liquidación -->
+
+            <!-- START Contables -->
+            <li>
+                <a href="#" class="nav-link text-white">
+                    <i class="bi bi-currency-euro"></i>
+                    Contables
+                </a>
+            </li>
+            <!-- END Contables -->
+
+        </ul>
+        <!-- END Menu items container -->
+
+        <hr>
+
+        <!-- START ACCOUNT CONTAINER -->
+        <div class="dropdown">
+
+            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+                id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+
+                <!-- PROFILE PIC -->
+                <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
+
+                <!-- USERNAME -->
+                <strong>{{request.user.username}}</strong>
+
+            </a>
+
+            <!-- START USER RELATED ACTIONS -->
+            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+
+                <!-- Account -->
+                <li><a class="dropdown-item" href="#">Cuenta</a></li>
+
+                <!-- Divider -->
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+
+                <!-- Sign Out -->
+                <li><a class="dropdown-item" href="#">Cerrar sesión</a></li>
+            </ul>
+            <!-- END USER RELATED ACTIONS -->
+        </div>
+        <!-- END ACCOUNT CONTAINER -->
+    </div>
+</nav>
