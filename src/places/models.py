@@ -1,9 +1,82 @@
 from django.db import models
+from django.conf import settings
+
+
+class Zone(models.Model):
+
+    name = models.CharField(
+        verbose_name='Name', max_length=50, blank=False, null=False)
+    asigned_to = models.ForeignKey(
+        settings.AUTH_USER_MODEL, null=True,
+        blank=True, on_delete=models.SET_NULL)
+
+    class Meta:
+        verbose_name = "Zona"
+        verbose_name_plural = "Zonas"
 
 
 class Partido(models.Model):
-    pass
+
+    PROVINCES = [
+        ('BA', 'Buenos Aaires'),
+        ('CAB', 'CABA'),
+        ('CA', 'Catamarca'),
+        ('CH', 'Chaco'),
+        ('CT', 'Chubut'),
+        ('CR', 'Corrientes'),
+        ('CB', 'Córdoba'),
+        ('ER', 'Entre Ríos'),
+        ('FO', 'Formosa'),
+        ('JY', 'Jujuy'),
+        ('LP', 'La Pampa'),
+        ('LR', 'La Rioja'),
+        ('MZ', 'Mendoza'),
+        ('MI', 'Misiones'),
+        ('NQN', 'Neuquén'),
+        ('RN', 'Río Negro'),
+        ('SA', 'Salta'),
+        ('SJ', 'San Juan'),
+        ('SL', 'San Luis'),
+        ('SC', 'Santa Cruz'),
+        ('SF', 'Santa Fe'),
+        ('SE', 'Santiago del Estero'),
+        ('TF', 'Tierra del Fuego...'),
+        ('TU', 'Tucumán'),
+    ]
+
+    name = models.CharField(
+        verbose_name='Name', max_length=50, blank=False, null=False)
+    province = models.CharField(
+        verbose_name='Province', max_length=3,
+        choices=PROVINCES, blank=False, null=False, default='BA')
+    amba_zone = models.ForeignKey(
+        Zone, blank=True, null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Partido'
+        verbose_name_plural = 'Partidos'
 
 
 class Town(models.Model):
-    pass
+
+    name = models.CharField(
+        verbose_name='Name', max_length=70, blank=False, null=False)
+    partido = models.ForeignKey(
+        Partido, verbose_name='Partido',
+        on_delete=models.CASCADE, blank=False, null=False)
+    delivery_code = models.ForeignKey(
+        'prices.DeliveryCode', verbose_name="Delivery code",
+        blank=True, null=True, on_delete=models.SET_NULL)
+    flex_code = models.ForeignKey(
+        'prices.FlexCode', verbose_name="Flex code",
+        blank=True, null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Localidad'
+        verbose_name_plural = 'Localidades'

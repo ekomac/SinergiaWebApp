@@ -45,6 +45,14 @@ class MyAccountManager(BaseUserManager):
         return user
 
 
+def doc_upload_location(instance, filename, *args, **kwargs):
+    account_id = str(instance.id)
+    dni = str(instance.dni)
+    first_name = str(instance.first_name)
+    last_name = str(instance.last_name)
+    return f'account/{account_id}/{dni}-{last_name}, {first_name}-{filename}'
+
+
 class Account(AbstractBaseUser):
 
     email = models.EmailField(verbose_name="email",
@@ -67,13 +75,15 @@ class Account(AbstractBaseUser):
                            unique=True, blank=True, null=True)
     address = models.CharField(
         verbose_name="address", max_length=100, blank=True, null=True)
+    dni_img = models.ImageField(verbose_name='doc picture',
+                                upload_to=doc_upload_location,
+                                max_length=60, blank=True, null=True)
 
     # USER DOCUMENTATION
     # role (client
     # admin
     # employee)
     # drivers_license
-    # dni_img
     # criminal_record
     # vtv
     # insurance
