@@ -1,3 +1,5 @@
+{% load static %}
+
 <style>
     #sidebar-container {
         min-height: 100%;
@@ -21,12 +23,30 @@
     <div id="sidebar-container" class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark fill"
         style="width: 280px;">
 
+
+
         <!-- Header -->
-        <a href="/" class="d-none d-md-flex align-items-center mb-1 mb-md-0">
+        <a class="d-flex justify-content-center align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none"
+            href="{% url 'home' %}">
+            <img class="rounded mx-auto d-block" src="{% static 'sinergia-software-logo.svg' %}" width="50" height="50"
+                alt="Sinergia Logo">
+            <span class="fs-6">
+                &nbsp;Sinergia Software
+            </span>
+        </a>
+
+
+        {% comment %} <a href="/"
+            class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+            <svg class="bi me-2" width="40" height="32">
+                <use xlink:href="#bootstrap" /></svg>
+            <span class="fs-4">Sidebar</span>
+        </a> {% endcomment %}
+        {% comment %} <a href="/" class="d-none d-md-flex align-items-center mb-1 mb-md-0">
             <svg class="bi me-2" width="100%" height="40">
                 <use xlink:href="#sinergia" /></svg>
 
-        </a>
+        </a> {% endcomment %}
 
         <hr class="d-none d-md-flex">
 
@@ -98,14 +118,14 @@
             </li>
             <!-- END Liquidación -->
 
-            <!-- START Contables -->
+            <!-- START Contable -->
             <li>
                 <a href="#" class="nav-link text-white">
                     <i class="bi bi-currency-euro"></i>
-                    Contables
+                    Contable
                 </a>
             </li>
-            <!-- END Contables -->
+            <!-- END Contable -->
 
         </ul>
         <!-- END Menu items container -->

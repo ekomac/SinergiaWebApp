@@ -31,7 +31,7 @@ class Envio(models.Model):
 
     date_created = models.DateTimeField(
         verbose_name="date joined", auto_now_add=True)
-    register = models.ForeignKey(
+    created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
         verbose_name="user", blank=False, null=False)
     status = models.CharField(verbose_name="status",
@@ -80,9 +80,9 @@ class Envio(models.Model):
 
     def __str__(self):
         address = self.recipient_address
-        city = self.recipient_city.name
+        town = self.recipient_town.name
         client = self.client
-        return f'{address}, {city} from {client}'
+        return f'{address}, {town} from {client}'
 
     class Meta:
         verbose_name = 'Envío'

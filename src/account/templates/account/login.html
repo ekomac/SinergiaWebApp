@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block content %}
 
 
 <style type="text/css">
     .form-signin {
         width: 100%;
-        max-width: 330px;
+        max-width: 600px;
         padding: 15px;
         margin: auto;
     }
@@ -30,9 +32,18 @@
         border-top-left-radius: 0;
         border-top-right-radius: 0;
     }
+
+
+    .img-responsive {
+        display: inline-block;
+    }
 </style>
 
 <main class="form-signin">
+    <div class="d-flex flex-column pb-3" style="text-align: center;">
+        <img class="rounded image-fluid mx-auto d-block" src="{% static 'sinergia-software-logo.svg' %}" width="40%"
+            height="40%" alt="Sinergia Logo">
+    </div>
     <form method="post">{% csrf_token %}
 
         <h1 class="h3 mb-3 fw-normal">Iniciar sesión</h1>
