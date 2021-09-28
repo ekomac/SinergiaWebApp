@@ -24,7 +24,6 @@
         style="width: 280px;">
 
 
-
         <!-- Header -->
         <a class="d-flex justify-content-center align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none"
             href="{% url 'home' %}">
@@ -36,18 +35,6 @@
         </a>
 
 
-        {% comment %} <a href="/"
-            class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
-            <svg class="bi me-2" width="40" height="32">
-                <use xlink:href="#bootstrap" /></svg>
-            <span class="fs-4">Sidebar</span>
-        </a> {% endcomment %}
-        {% comment %} <a href="/" class="d-none d-md-flex align-items-center mb-1 mb-md-0">
-            <svg class="bi me-2" width="100%" height="40">
-                <use xlink:href="#sinergia" /></svg>
-
-        </a> {% endcomment %}
-
         <hr class="d-none d-md-flex">
 
         <!-- Menu items container -->
@@ -55,7 +42,7 @@
 
             <!-- START Dashboard -->
             <li class="nav-item">
-                <a href="#" class="nav-link active" aria-current="page">
+                <a id="home-tab" href="{% url 'home' %}" class="nav-link tab text-white active" aria-current="page">
                     <i class="bi bi-house-door"></i>
                     Inicio
                 </a>
@@ -65,7 +52,7 @@
 
             <!-- START Escáner -->
             <li class="nav-item">
-                <a href="#" class="nav-link text-white" aria-current="page">
+                <a id="scanner-tab" href="#" class="nav-link tab text-white" aria-current="page">
                     <i class="bi bi-upc-scan"></i>
                     Escáner
                 </a>
@@ -75,7 +62,7 @@
 
             <!-- START Envíos -->
             <li>
-                <a href="#" class="nav-link text-white">
+                <a id="shipments-tab" href="{% url 'envios:envios-list' %}" class="nav-link tab text-white">
                     <i class="bi bi-truck"></i>
                     Envíos
                 </a>
@@ -84,7 +71,7 @@
 
             <!-- START Clientes -->
             <li>
-                <a href="#" class="nav-link text-white">
+                <a id="clients-tab" href="#" class="nav-link tab text-white">
                     <i class="bi bi-people"></i>
                     Clientes
                 </a>
@@ -93,7 +80,7 @@
 
             <!-- START Legajos -->
             <li>
-                <a href="#" class="nav-link text-white">
+                <a id="staff-tab" href="#" class="nav-link tab text-white">
                     <i class="bi bi-file-earmark-text"></i>
                     Legajos
                 </a>
@@ -102,7 +89,7 @@
 
             <!-- START Facturación -->
             <li>
-                <a href="#" class="nav-link text-white">
+                <a id="billing-tab" href="#" class="nav-link tab text-white">
                     <i class="bi bi-receipt"></i>
                     Facturación
                 </a>
@@ -111,7 +98,7 @@
 
             <!-- START Liquidación -->
             <li>
-                <a href="#" class="nav-link text-white">
+                <a id="settlement-tab" href="#" class="nav-link tab text-white">
                     <i class="bi bi-calendar-event"></i>
                     Liquidación
                 </a>
@@ -120,7 +107,7 @@
 
             <!-- START Contable -->
             <li>
-                <a href="#" class="nav-link text-white">
+                <a id="accounting-tab" href="#" class="nav-link tab text-white">
                     <i class="bi bi-currency-euro"></i>
                     Contable
                 </a>
@@ -165,3 +152,14 @@
         <!-- END ACCOUNT CONTAINER -->
     </div>
 </nav>
+
+<script>
+    $(document).ready(function () {
+        var selected_tab_id = "{{ selected_tab }}";
+        if (selected_tab_id != undefined && selected_tab_id != null && selected_tab_id != "") {
+            $(".tab").removeClass("active");
+            $("tab").attr('disabled', 'disabled');
+            $("#" + selected_tab_id).addClass("active");
+        }
+    });
+</script>
