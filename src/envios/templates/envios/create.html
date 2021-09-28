@@ -3,525 +3,256 @@
 {% block content %}
 
 <form action='.' method='POST' id="custom_form" class="row justify-content-md-center needs-validation"
-    name="custom_form" style="height: 100%; padding-top: 5px;" target="_top" novalidate>{% csrf_token %}
-    {{ form.as_p }}
-    <div class="row justify-content-md-center" style="height: 100%; padding-top: 5px;">
-        <div class="col-md-12 col-lg-8" style="height: 100%;">
+    name="custom_form" target="_top" novalidate>{% csrf_token %}
+    <div class="row justify-content-md-center">
+        <div class="col-md-12 col-lg-8 offset-lg-2">
 
-            <div class="row mb-3">
-                <div class="col">
-                    <img src="<?!= logoImg; ?>"></img>
-                    <h3 class='text-center mt-2'>Registrar un nuevo pedido</h3>
-                </div>
-            </div>
-
-
-            <!-- START CLIENT INFO -->
-            <div class="row g-3 mt-2">
-                <div class="col">
-                    <h4>¿Quién sos?</h4>
-                </div>
-            </div>
-
-            <!-- START CHOOSE IS NEW/OLD CLIENT -->
-            <div class="row mt-1">
-                <div class="form-group col">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" value="" id="isNewClient"></input>
-                        <label class="form-check-label" for="isNewClient">Es mi primer pedido</label>
-                    </div>
-                </div>
-            </div>
-            <!-- END CHOOSE IS NEW/OLD CLIENT -->
-
-
-            <!-- START CLIENTE SEARCH BOX -->
-            <div class="row mt-1 validate-me" id="oldClientDiv">
-                <div class="form-group col">
-                    <label for="client" class="form-label">Seleccioná tu alias</label>
-                    <input class="form-control" list="clienteSearchList" id="client"
-                        placeholder="Empezá a escribir tu alias para comenzar buscar..." pattern="^\d{7,30}$" required>
-                    <datalist id="clienteSearchList">
-                        <?!= clientesHTML; ?>
-                    </datalist>
-                    <div class="invalid-feedback">
-                        Este campo es obligatorio. No importa lo que busques, tiene que quedar el ID.
-                    </div>
-                </div>
-            </div>
-            <!-- END CLIENTE SEARCH BOX -->
-
-
-            <!-- NEW CLIENT -->
-            <div id="newClientDiv">
-                <div class="row mt-1">
-                    <div class="form-group col-md-12" id="newClientNameFormGroup">
-                        <label for="newClientName" class="form-label">Nombre o de tu empresa/emprendimiento</label>
-                        <input type="text" class="form-control" id="newClientName"></input>
-                        <div class="invalid-feedback">
-                            Si sos nuevo/a, ingresá tu nombre.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-1">
-                    <div class="form-group col-md-7" id="newClientEmailFormGroup">
-                        <label for="newClientEmail" class="form-label">Correo electrónico</label>
-                        <input type="email" class="form-control" id="newClientEmail"></input>
-                        <div class="invalid-feedback">
-                            Por favor, ingresá un e-mail válido.
-                        </div>
-                    </div>
-                    <div class="form-group col-md-5" id="newClientTelFormGroup">
-                        <label for="newClientTel" class="form-label">Teléfono</label>
-                        <div class="input-group has-validation">
-                            <span class="input-group-text">+54</span>
-                            <input type="text" class="form-control" id="newClientTel" pattern="^\d{7,13}$"></input>
-                            <div class="invalid-feedback">
-                                Por favor, ingresá un teléfono válido, sin puntos, paréntesis, signos ni
-                                guiones.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mt-1">
-                    <div class="form-group col-md-6" id="newClientAddressFormGroup">
-                        <label for="newClientAddress" class="form-label">Domicilio</label>
-                        <input type="text" class="form-control" id="newClientAddress"
-                            aria-label="Domicilio del nuevo cliente"></input>
-                        <div class="invalid-feedback">
-                            Por favor, ingresá un domicilio válido.
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="newClientInBetween" class="form-label">Entre calles</label>
-                        <input type="text" class="form-control" id="newClientInBetween"
-                            aria-label="Entrecalles dle domicilio del nuevo cliente"></input>
-                    </div>
-                </div>
-
-                <div class="form-group row mt-1">
-                    <div class="form-group col-md-5" id="newClientZoneFormGroup">
-                        <label for="newClientInZone" class="form-label">Partido</label>
-                        <select type="text" class="form-select" id="newClientZone" disabled>
-                            <option value="" disabled selected>Seleccioná una opción</option>
-                            <option id='San Miguel' val='San Miguel' selected>San Miguel</option>
-                        </select>
-                        <div class="invalid-feedback">
-                            Por favor, ingresá un partido válido.
-                        </div>
-                    </div>
-                    <div class="form-group col-md-5" id="newClientSubzoneFormGroup">
-                        <label for="newClientSubzone" class="form-label">Localidad</label>
-                        <select type="text" class="form-select" id="newClientSubzone">
-                            <option value="Bella Vista">Bella Vista</option>
-                            <option value="Campo De Mayo">Campo De Mayo</option>
-                            <option value="Muniz">Muniz</option>
-                            <option value="San Miguel">San Miguel</option>
-                            <option value="San Miguel Oeste">San Miguel Oeste</option>
-                        </select>
-                        <div class="invalid-feedback">
-                            Por favor, ingresá una localidad válida.
-                        </div>
-                    </div>
-                    <div class="form-group col-md-2" id="newClientZipcodeFormGroup">
-                        <label for="newClientZipcode" class="form-label">CP</label>
-                        <input type="text" class="form-control" id="newClientZipcode" pattern="^\d{4,5,6}$"></input>
-                        <div class="invalid-feedback">
-                            Obligatorio.
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-            <!-- END NEW CLIENT -->
-
-            <!-- START SHIPMENT DATA -->
-            <div class="row g-3 mt-3">
-                <div class="col">
-                    <h4>Detalles del envío</h4>
-                    <h6>¿Qué llevamos?</h6>
-                </div>
-            </div>
-
-            <!-- START CHOOSE IS MERCADO LIBRE -->
-            <div class="row mt-1">
-                <div class="form-group col">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="typeToShip">
-                        <label class="form-check-label" for="typeToShip">Un paquete de MercadoLibre</label>
-                    </div>
-                </div>
-            </div>
-            <!-- END CHOOSE IS MERCADO LIBRE -->
-
-            <!-- START ID MERCADO LIBRE -->
-            <div class="row mt-1" id="flexDataDiv">
-                <div class="col-md-5" id="flexFormGroup">
-                    <label for="flexID" class="form-label">Tracking ID de Mercado Libre</label>
-                    <input type="text" class="form-control" id="flexID" pattern="^\d{6,45}$"></input>
+            <!-- CLIENT SELECTION -->
+            <div class="row mt-3">
+                <div class="col-md-6 form-group">
+                    <label for="id_client" class="form-label">Cliente</label>
+                    <select id="id_client" name="client" class="form-select" aria-label="Seleccionar cliente" required>
+                        {% for id, name in form.client.field.choices %}
+                        <option value="{{ id }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
                     <div class="invalid-feedback">
                         Este campo es obligatorio.
                     </div>
                 </div>
             </div>
-            <!-- END ID MERCADO LIBRE -->
 
+            <!-- DETAILS IS NOT VISIBLE -->
+            <div class="form-group row invisible">
+                <div class="col-md-6">
+                    {{form.details.errors}}
+                    <label for="{{ form.datail.id_for_label }}">
+                        {{ form.detail.label }}<span class="text-danger">*</span>
+                    </label>
+                    {{ form.detail }}
+                    <div class="invalid-feedback">
+                        Este campo es obligatorio.
+                    </div>
+                </div>
+            </div>
+            <!-- END DETAILS IS NOT VISIBLE -->
 
-            <!-- START DETAIL -->
-            <style>
-                tr.on-body {
-                    min-height: 55px;
-                    vertical-align: middle;
-                }
-
-                td {
-                    min-width: 100px;
-                }
-            </style>
+            <!-- DETAIL -->
 
             <div class="form-group row" id="detailDiv">
-                <div class="col">
+                <div class="col-lg-8 offset-lg-2">
                     <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>Tipo</th>
-                                <th style="min-width: 50px;">1</th>
-                                <th style="min-width: 50px;">2</th>
-                                <th style="min-width: 50px;">3</th>
-                                <th style="min-width: 50px;">4</th>
-                                <th style="width: 15px;"></th>
+                                <th style="min-width: 50px;">Cantidad</th>
+                                <th style="width: 25px;"></th>
                             </tr>
                         </thead>
                         <tbody>
 
-
-                            <!-- START ROW 1 -->
+                            <!-- Max 5 kg package -->
                             <tr class="on-body">
                                 <td>Paquete / commerce hasta 5 kg</td>
-                                <td><input class="form-check-input" type="radio" name="row0RadioOptions"
-                                        id="row0RadioOptions0" value="0-1"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row0RadioOptions"
-                                        id="row0RadioOptions1" value="0-2"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row0RadioOptions"
-                                        id="row0RadioOptions2" value="0-3"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row0RadioOptions"
-                                        id="row0RadioOptions3" value="0-4"></input>
+                                <td>
+                                    <input type="number" max="20" min="0" step="1" class="form-control"
+                                        id="detailInput0" pattern="^\d+$"></input>
+                                    <div class="invalid-feedback">
+                                        Obligatorio.
+                                    </div>
                                 </td>
                                 <td>
-                                    <div id="clearRow0">
-                                        <button id="btnClearRow0" type="button" class="btn btn-danger"><i
-                                                class="fa fa-close"></i></button>
+                                    <div id="clearRowMax5">
+                                        <button id="btnClear0" type="button"
+                                            class="btn btn-danger clear-amount-button invisible"><i
+                                                class="bi bi-x"></i></button>
                                     </div>
                                 </td>
                             </tr>
-                            <!-- END ROW 1 -->
-
-
-                            <!-- START ROW 2 -->
+                            <!-- Max 10 kg package -->
                             <tr class="on-body">
                                 <td>Bulto hasta 10 kg</td>
-                                <td><input class="form-check-input" type="radio" name="row1RadioOptions"
-                                        id="row1RadioOptions0" value="1-1"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row1RadioOptions"
-                                        id="row1RadioOptions1" value="1-2"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row1RadioOptions"
-                                        id="row1RadioOptions2" value="1-3"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row1RadioOptions"
-                                        id="row1RadioOptions3" value="1-4"></input>
+                                <td>
+                                    <input type="number" max="20" min="0" step="1" class="form-control"
+                                        id="detailInput1" pattern="^\d+$"></input>
+                                    <div class="invalid-feedback">
+                                        Obligatorio.
+                                    </div>
                                 </td>
                                 <td>
-                                    <div id="clearRow1">
-                                        <button id="btnClearRow1" type="button" class="btn btn-danger"><i
-                                                class="fa fa-close"></i></button>
+                                    <div id="clearRowMax10">
+                                        <button id="btnClear1" type="button"
+                                            class="btn btn-danger clear-amount-button invisible"><i
+                                                class="bi bi-x"></i></button>
                                     </div>
                                 </td>
                             </tr>
-                            <!-- END ROW 2 -->
 
-                            <!-- START ROW 3 -->
+                            <!-- Max 20 kg package -->
                             <tr class="on-body">
                                 <td>Bulto hasta 20 kg</td>
-                                <td><input class="form-check-input" type="radio" name="row2RadioOptions"
-                                        id="row2RadioOptions0" value="2-1"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row2RadioOptions"
-                                        id="row2RadioOptions1" value="2-2"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row2RadioOptions"
-                                        id="row2RadioOptions2" value="2-3"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row2RadioOptions"
-                                        id="row2RadioOptions3" value="2-4"></input>
+                                <td>
+                                    <input type="number" max="20" min="0" step="1" class="form-control"
+                                        id="detailInput2" pattern="^\d+$"></input>
+                                    <div class="invalid-feedback">
+                                        Obligatorio.
+                                    </div>
                                 </td>
                                 <td>
-                                    <div id="clearRow2">
-                                        <button id="btnClearRow2" type="button" class="btn btn-danger"><i
-                                                class="fa fa-close"></i></button>
+                                    <div id="clearRowMax20">
+                                        <button id="btnClear2" type="button"
+                                            class="btn btn-danger clear-amount-button invisible"><i
+                                                class="bi bi-x"></i></button>
                                     </div>
                                 </td>
                             </tr>
-                            <!-- END ROW 3 -->
 
-                            <!-- START ROW 4 -->
+                            <!-- Miniflete -->
                             <tr class="on-body">
                                 <td>Miniflete</td>
-                                <td><input class="form-check-input" type="radio" name="row3RadioOptions"
-                                        id="row3RadioOptions0" value="3-1"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row3RadioOptions"
-                                        id="row3RadioOptions1" value="3-2"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row3RadioOptions"
-                                        id="row3RadioOptions2" value="3-3"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row3RadioOptions"
-                                        id="row3RadioOptions3" value="3-4"></input>
+                                <td>
+                                    <input type="number" max="20" min="0" step="1" class="form-control"
+                                        id="detailInput3" pattern="^\d+$"></input>
                                 </td>
                                 <td>
-                                    <div id="clearRow3">
-                                        <button id="btnClearRow3" type="button" class="btn btn-danger"><i
-                                                class="fa fa-close"></i></button>
+                                    <div id="clearRowMiniflete">
+                                        <button id="btnClear3" type="button"
+                                            class="btn btn-danger clear-amount-button invisible"><i
+                                                class="bi bi-x"></i></button>
                                     </div>
                                 </td>
                             </tr>
-                            <!-- END ROW 4 -->
 
-                            <!-- START ROW 5 -->
+                            <!-- Urgent -->
                             <tr class="on-body">
                                 <td>Urgente</td>
-                                <td><input class="form-check-input" type="radio" name="row4RadioOptions"
-                                        id="row4RadioOptions0" value="4-1"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row4RadioOptions"
-                                        id="row4RadioOptions1" value="4-2"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row4RadioOptions"
-                                        id="row4RadioOptions2" value="4-3"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row4RadioOptions"
-                                        id="row4RadioOptions3" value="4-4"></input>
+                                <td>
+                                    <input type="number" max="20" min="0" step="1" class="form-control"
+                                        id="detailInput4" pattern="^\d+$"></input>
                                 </td>
                                 <td>
-                                    <div id="clearRow4">
-                                        <button id="btnClearRow4" type="button" class="btn btn-danger"><i
-                                                class="fa fa-close"></i></button>
+                                    <div id="clearRowUrgent">
+                                        <button id="btnClear4" type="button"
+                                            class="btn btn-danger clear-amount-button invisible"><i
+                                                class="bi bi-x"></i></button>
                                     </div>
                                 </td>
                             </tr>
-                            <!-- END ROW 5 -->
-
-                            <!-- START ROW 6 -->
+                            <!-- Tramite -->
                             <tr class="on-body">
                                 <td>Trámite</td>
-                                <td><input class="form-check-input" type="radio" name="row5RadioOptions"
-                                        id="row5RadioOptions0" value="5-1"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row5RadioOptions"
-                                        id="row5RadioOptions1" value="5-2"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row5RadioOptions"
-                                        id="row5RadioOptions2" value="5-3"></input>
-                                </td>
-                                <td><input class="form-check-input" type="radio" name="row5RadioOptions"
-                                        id="row5RadioOptions3" value="5-4"></input>
+                                <td>
+                                    <input type="number" max="20" min="0" step="1" class="form-control"
+                                        id="detailInput5" pattern="^\d+$"></input>
                                 </td>
                                 <td>
-                                    <div id="clearRow5">
-                                        <button id="btnClearRow5" type="button" class="btn btn-danger"><i
-                                                class="fa fa-close"></i></button>
+                                    <div id="clearRowTramite">
+                                        <button id="btnClear5" type="button"
+                                            class="btn btn-danger clear-amount-button invisible"><i
+                                                class="bi bi-x"></i></button>
                                     </div>
                                 </td>
                             </tr>
-                            <!-- END ROW 6 -->
+
                         </tbody>
                     </table>
                 </div>
             </div>
-            <!-- END SHIPMENT DATA -->
+            <!-- END DETAIL -->
 
-            <div class="row mt-3">
-                <div class="col">
-                    <h6>Destino</h6>
-                </div>
+            <!-- DETAILS IS NOT VISIBLE -->
+            <div class="form-group row invisible">
+                <h4>Datos del destinatario</h4>
             </div>
-
-            <div class="row">
-                <div class="col">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="deliver_to_fetch_at" id="isDeliverAt"
-                            value="ENTREGA" checked></input>
-                        <label class="form-check-label" for="isDeliverAt">Entregar en</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="deliver_to_fetch_at" id="isFetchAt"
-                            value="RETIRO"></input>
-                        <label class="form-check-label" for="isFetchAt">Buscar en</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group row g-2 mt-1">
-                <div class="form-group col-md-6 validate-me" id="addresseAddressFormGroup">
-                    <label for="addresseAddress" class="form-label">Domicilio</label>
-                    <input type="text" class="form-control" id="addresseAddress" aria-label="Domicilio del destinatario"
-                        required></input>
-                    <div class="invalid-feedback">
-                        Por favor, ingresá un domicilio válido.
-                    </div>
-                </div>
-                <div class="form-group col-md-6" id="addresseInBetweenFormGroup">
-                    <label for="addresseInBetween" class="form-label">Entrecalles, teléfono</label>
-                    <input type="text" class="form-control" id="addresseInBetween"></input>
-                </div>
-            </div>
-
-            <div class="form-group row g-2 mt-1">
-                <div class="form-group col-xl-5 validate-me">
-                    <label for="addresseZone" class="form-label">Partido</label>
-
-                    <input type="text" class="form-control" list="searchZone" id="addresseZone"
-                        placeholder="Escribí para buscar..." required>
-                    <datalist id="searchZone">
-                        <?!= zonasHtml; ?>
-                    </datalist>
-                    <div class="invalid-feedback">
-                        Por favor, ingresá un partido válido.
-                    </div>
-                </div>
-                <div class="form-group col-md-5 validate-me">
-                    <label for="addresseSubzone" class="form-label">Localidad</label>
-                    <select type="text" class="form-select" id="addresseSubzone" required>
-                    </select>
-                    <div class="invalid-feedback">
-                        Por favor, ingresá una localidad válida.
-                    </div>
-                </div>
-                <div class="form-group col-md-2 validate-me">
-                    <label for="addresseZipcode" class="form-label">CP</label>
-                    <input type="text" class="form-control" id="addresseZipcode" pattern="^\d{4,6}$"></input>
-                    <div class="invalid-feedback">
-                        Ingresá un código postal válido.
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group row g-2 mt-1 validate-me">
-                <div class="col-lg-6">
-                    <label for="addresseName" class="form-label">Apellido(s) y nombre(s)</label>
-                    <input type="text" class="form-control" id="addresseName" required></input>
-                    <div class="invalid-feedback">
-                        Por favor, ingresá apellido(s) y nombre(s) válidos.
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <label for="addresseDocType" class="form-label">Tipo doc</label>
-                    <select class="form-select" id="addresseDocType" aria-label="addresseDocType" disabled>
-                        <option value="doc_type_dni">DNI</option>
-                        <option value="doc_type_lcle">LC/LE</option>
-                    </select>
-                </div>
-                <div class="col-md-4 validate-me">
-                    <label for="addresseDocId" class="form-label">N° Documento</label>
-                    <input type="text" class="form-control" id="addresseDocId" aria-label="addresseDocId"
-                        pattern="^\d{7,8}$"></input>
-                    <div class="invalid-feedback">
-                        Por favor, ingresá un documento válido, sin comas ni puntos ni guiones, entre 7 y 8
-                        números.
-                    </div>
-                </div>
-            </div>
-            <!-- END ADDRESSE INFO -->
-
-
-            <!-- START TIME ZONE DATA -->
-            <div class="row g-3 mt-3">
-                <div class="col">
-                    <h4>Horario</h4>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <label for="timeZone" class="form-label">Franja horaria de entrega</label>
-                    <select class="form-select" id="timeZone" aria-label="timeZone">
-                        <option value="Ninguna" selected>Ninguna</option>
-                        <option value="7h a 10h">7h a 10h</option>
-                        <option value="10h a 13h">10h a 13h</option>
-                        <option value="13h a 16h">13h a 16h</option>
-                        <option value="Pasadas las 16h">Pasadas las 16h</option>
-                    </select>
-                </div>
-            </div>
-            <!-- END TIME ZONE DATA -->
-
-
-            <!-- START PAYMENT DATA -->
-            <div class="row g-3 mt-3">
-                <div class="col">
-                    <h4>Cobro</h4>
-                </div>
-            </div>
-
-            <!-- START CHOOSE IS MERCADO LIBRE -->
-            <div class="row mt-1">
-                <div class="form-group col">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="chargeAddresse">
-                        <label class="form-check-label" for="chargeAddresse">Cobrar viaje al cliente</label>
-                    </div>
-                </div>
-            </div>
-            <!-- END CHOOSE IS MERCADO LIBRE -->
-
-            <!-- COBRO EN EFECTIVO DEL VIAJE -->
-            <div class="form-group row g-2 validate-me">
-                <div class="col">
-                    <label for="cash" class="form-label">Si debemos cobrar algo en el domicilio a orden y cuenta tuya,
-                        indicalo acá:</label>
-                    <div class="input-group  has-validation">
-                        <span class="input-group-text">$</span>
-                        <input type="number" step="1" value="0" min="0" id="cash" class="form-control"
-                            aria-label="Amount (to the nearest dollar)" required></input>
-                        <span class="input-group-text">.00</span>
-                        <div class="invalid-feedback">
-                            En caso de no cobrar dejar valor 0.
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- START SUBMIT BUTTON -->
-            <div class="form-group row g-3 mt-3 mb-5 justify-content-md-center">
-                <div class="col">
-                    <button id="btn_save" type="submit" class="btn btn-primary w-100">Solicitar</button>
-                </div>
-            </div>
-            <!-- END SUBMIT BUTTON -->
-
-            <!-- ALERTS -->
-            <div class="row mt-3 mb-3 success_div">
-                <div class="col">
-                    <div class="alert alert-success mt-10" role="alert">
-                        Tu pedido se envió correctamente. Hacé <a href="<?= ScriptApp.getService().getUrl(); ?>">click
-                            acá</a> para cargar otro.
-                    </div>
-                </div>
-            </div>
-            <!-- ALERTS -->
 
         </div>
-    </div>
-    <input type='submit' value='Save' />
 </form>
 
+<script>
+    const detailInputs = {
+        0: "max-5-package",
+        1: "max-10-package",
+        2: "max-20-package",
+        3: "miniflete",
+        4: "urgent",
+        5: "tramite",
+    };
 
+
+    function isNumeric(value) {
+        return /^\d+$/.test(value);
+    }
+
+    $(document).ready(function () {
+
+        $('#custom_form').submit(function (event) {
+            event.preventDefault(); //this will prevent the default submit
+            updateDetails();
+            $(this).unbind('submit').submit(); // continue the submit unbind preventDefault
+        });
+        $.event.special.inputchange = {
+            setup: function () {
+                var self = this,
+                    val;
+                $.data(this, 'timer', window.setInterval(function () {
+                    val = self.value;
+                    if ($.data(self, 'cache') != val) {
+                        $.data(self, 'cache', val);
+                        $(self).trigger('inputchange');
+                    }
+                }, 20));
+            },
+            teardown: function () {
+                window.clearInterval($.data(this, 'timer'));
+            },
+            add: function () {
+                $.data(this, 'cache', this.value);
+            }
+        };
+
+        setDetailsListeners();
+    });
+
+    function setDetailsListeners() {
+        for (let i = 0; i < 6; i++) {
+            $('#detailInput' + i).on('inputchange', function () {
+                var currentValue = this.value.toString();
+                if (currentValue != "" && currentValue != "0" && isNumeric(currentValue)) {
+                    $('#btnClear' + i).removeClass("invisible");
+                }
+                if (currentValue == "" || currentValue == "0" || !isNumeric(currentValue)) {
+                    $('#btnClear' + i).addClass("invisible");
+                }
+            });
+            $('#btnClear' + i).on('click', function () {
+                $('#detailInput' + i).val("0");
+            });
+        }
+    }
+
+    function updateDetails() {
+        try {
+            var detailsArray = [];
+            for (var i = 0; i < 6; i++) {
+                var amount = $("#detailInput" + i).val();
+                if (isNumeric(amount) && amount != "0") {
+                    detailsArray.push(i.toString() + "-" + amount.toString());
+                }
+            }
+            var details = detailsArray.join(",");
+            details = details == "" ? "0-1" : details;
+            // $(".detail-input").val(details);
+            document.getElementById("id_detail").value = details
+        } catch (e) {
+            alert(e);
+        }
+    }
+
+    function myFunction() {
+        //alert("hola");
+        updateDetails();
+    }
+</script>
 
 
 {% endblock %}

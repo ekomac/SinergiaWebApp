@@ -1,8 +1,23 @@
 from django import forms
 from envios.models import Envio
+from clients.models import Client
 
 
 class CreateEnvioForm(forms.ModelForm):
+    detail = forms.CharField(label='Detalle', required=True,
+                             id="details",
+                             widget=forms.TextInput(attrs={
+                                 'class': 'form-control',
+                                 'type': 'text',
+                             }),)
+
+    client = forms.ModelChoiceField(
+        label='Producto', required=True,
+        queryset=Client.objects.all(),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+        }),
+    )
 
     class Meta:
         model = Envio
@@ -12,6 +27,48 @@ class CreateEnvioForm(forms.ModelForm):
                   'recipient_zipcode', 'recipient_charge', 'max_delivery_date',
                   'is_flex', 'flex_id', 'delivery_schedule',
                   ]
+
+    # customer_last_name = forms.CharField(label='Apellido', required=False,
+    #                                      widget=forms.TextInput(attrs={
+    #                                          'class': 'form-control',
+    #                                          'type': 'text',
+    #                                      }))
+    # customer_email = forms.EmailField(label='Email', required=False,
+    #                                   widget=forms.EmailInput(attrs={
+    #                                       'class': 'form-control',
+    #                                       'placeholder': 'nombre@ejemplo.com',
+    #                                   }))
+    # customer_tel = forms.CharField(label='Teléfono', required=False,
+    #                                widget=forms.TextInput(attrs={
+    #                                    'class': 'form-control',
+    #                                    'placeholder': '+54 11 1234-5678',
+    #                                    'pattern': '^\\d{6,17}$'
+    #                                }))
+    # customer_city = forms.CharField(label='Localidad', required=False,
+    #                                 widget=forms.TextInput(attrs={
+    #                                     'class': 'form-control',
+    #                                     'placeholder': 'Bella Vista',
+    #                                 }))
+    # customer_zip_code = forms.CharField(label='CP', required=False,
+    #                                     widget=forms.TextInput(attrs={
+    #                                         'class': 'form-control',
+    #                                         'placeholder': '1661',
+    #                                         'pattern': '^\\d{4,7}$'
+    #                                     }))
+    # customer_state = forms.CharField(label='Provincia', required=False,
+    #                                  widget=forms.TextInput(attrs={
+    #                                      'class': 'form-control',
+    #                                      'placeholder': 'Buenos Aires',
+    #                                      'value': 'Buenos Aires',
+    #                                  }))
+    # discount = forms.CharField(label='Descuento confección', required=True,
+    #                            widget=forms.TextInput(attrs={
+    #                                'class': 'form-control',
+    #                                'type': 'number',
+    #                                'min': '0.00',
+    #                                'value': '0',
+    #                                'step': '0.01',
+    #                            }))
 
     # def save(self, commit=True):
     # envio = self.instance

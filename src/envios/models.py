@@ -36,7 +36,7 @@ class Envio(models.Model):
         verbose_name="user", blank=False, null=False)
     status = models.CharField(verbose_name="status",
                               max_length=2, choices=STATUSES)
-    detail = models.CharField(verbose_name="datail",
+    detail = models.CharField(verbose_name="detail",
                               max_length=2000, default='0-1')
     client = models.ForeignKey(
         Client, on_delete=models.CASCADE, verbose_name="client",
