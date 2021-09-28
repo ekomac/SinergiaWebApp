@@ -40,14 +40,13 @@ def download_qr_code_label(request):
 
 class EnvioCreate(EnvioContextMixin, CreateView):
 
-    template_name = "envios/create_envio_admin.html"
+    template_name = "envios/create.html"
     model = Envio
     fields = ['detail', 'client', 'recipient_name', 'recipient_doc',
               'recipient_phone', 'recipient_address',
               'recipient_entrances', 'recipient_town',
               'recipient_zipcode', 'recipient_charge', 'max_delivery_date',
               'is_flex', 'flex_id', 'delivery_schedule', ]
-    context = {'hola': 'hola'}
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user

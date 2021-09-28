@@ -32,3 +32,8 @@ def login_view(request):
     context['login_form'] = form
 
     return render(request, 'account/login.html', context)
+
+
+def edit_account_view(request):
+    context = {}
+    return render(request, 'account/edit.html', context)

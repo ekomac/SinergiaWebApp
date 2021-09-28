@@ -71,15 +71,28 @@
             <!-- START Envíos -->
             <li>
                 {% if selected_tab == "shipments-tab" %}
-                <a id="shipments-tab" href="{% url 'envios:envios-list' %}" class="nav-link tab text-white active">
+                <a id="shipments-tab" href="{% url 'envios:envios' %}" class="nav-link tab text-white active">
                     {% else %}
-                    <a id="shipments-tab" href="{% url 'envios:envios-list' %}" class="nav-link tab text-white">
+                    <a id="shipments-tab" href="{% url 'envios:envios' %}" class="nav-link tab text-white">
                         {% endif %}
                         <i class="bi bi-truck"></i>
                         Envíos
                     </a>
             </li>
             <!-- END Envíos -->
+
+            <!-- START Lugares -->
+            <li>
+                {% if selected_tab == "places-tab" %}
+                <a id="places-tab" href="#" class="nav-link tab text-white active">
+                    {% else %}
+                    <a id="places-tab" href="#" class="nav-link tab text-white">
+                        {% endif %}
+                        <i class="bi bi-map"></i>
+                        Localidades
+                    </a>
+            </li>
+            <!-- END Lugares -->
 
             <!-- START Clientes -->
             <li>
@@ -158,7 +171,8 @@
                 id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
 
                 <!-- PROFILE PIC -->
-                <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
+                <img src="{{ request.user.profile_picture.url }}" alt="Avatar" width="32" height="32"
+                    class="rounded-circle me-2">
 
                 <!-- USERNAME -->
                 <strong>{{request.user.username}}</strong>
@@ -169,7 +183,7 @@
             <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
 
                 <!-- Account -->
-                <li><a class="dropdown-item" href="#">Cuenta</a></li>
+                <li><a class="dropdown-item" href="{% url 'account:edit' %}">Cuenta</a></li>
 
                 <!-- Divider -->
                 <li>

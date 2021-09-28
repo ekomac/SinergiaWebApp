@@ -47,10 +47,12 @@ class MyAccountManager(BaseUserManager):
 
 def doc_upload_location(instance, filename, *args, **kwargs):
     account_id = str(instance.id)
-    dni = str(instance.dni)
-    first_name = str(instance.first_name)
-    last_name = str(instance.last_name)
-    return f'account/{account_id}/{dni}-{last_name}, {first_name}-{filename}'
+    return f'account/{account_id}/dni-{account_id}'
+
+
+def profile_pic_upload_location(instance, filename, *args, **kwargs):
+    account_id = str(instance.id)
+    return f'account/{account_id}/profile-{account_id}'
 
 
 class Account(AbstractBaseUser):
@@ -65,6 +67,9 @@ class Account(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
+    profile_picture = models.ImageField(verbose_name="profile picture",
+                                        upload_to=profile_pic_upload_location,
+                                        blank=True, null=True)
 
     # USER INFO
     first_name = models.CharField(verbose_name="first name", max_length=30)
@@ -77,7 +82,7 @@ class Account(AbstractBaseUser):
         verbose_name="address", max_length=100, blank=True, null=True)
     dni_img = models.ImageField(verbose_name='doc picture',
                                 upload_to=doc_upload_location,
-                                max_length=60, blank=True, null=True)
+                                blank=True, null=True)
 
     # USER DOCUMENTATION
     # role (client

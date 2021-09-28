@@ -51,7 +51,7 @@ class Envio(models.Model):
         verbose_name="recipient's phone num", max_length=14,
         blank=True, null=True)
     recipient_address = models.CharField(
-        verbose_name="recipient's addresse", max_length=100,
+        verbose_name="recipient's address", max_length=100,
         blank=False, null=False)
     recipient_entrances = models.CharField(
         verbose_name="recipient's entrances", max_length=100,
