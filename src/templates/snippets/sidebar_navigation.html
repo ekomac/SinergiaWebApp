@@ -71,9 +71,9 @@
             <!-- START Envíos -->
             <li>
                 {% if selected_tab == "shipments-tab" %}
-                <a id="shipments-tab" href="{% url 'envios:envios' %}" class="nav-link tab text-white active">
+                <a id="shipments-tab" href="{% url 'envios:list' %}" class="nav-link tab text-white active">
                     {% else %}
-                    <a id="shipments-tab" href="{% url 'envios:envios' %}" class="nav-link tab text-white">
+                    <a id="shipments-tab" href="{% url 'envios:list' %}" class="nav-link tab text-white">
                         {% endif %}
                         <i class="bi bi-truck"></i>
                         Envíos
@@ -122,7 +122,7 @@
 
             <!-- START Facturación -->
             <li>
-                {% if selected_tab == "staff-tab" %}
+                {% if selected_tab == "billing-tab" %}
                 <a id="billing-tab" href="#" class="nav-link tab text-white active">
                     {% else %}
                     <a id="billing-tab" href="#" class="nav-link tab text-white">

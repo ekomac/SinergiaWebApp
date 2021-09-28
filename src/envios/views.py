@@ -1,4 +1,5 @@
 from django.views.generic.base import View
+from django.shortcuts import render
 from .models import Envio
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView
@@ -55,4 +56,12 @@ class EnvioCreate(EnvioContextMixin, CreateView):
 
 class EnviosList(EnvioContextMixin, ListView):
     model = Envio
-    template_name = "envios/envio_list.html"
+    template_name = "envios/list.html"
+
+
+def update_envio(request):
+    return render(request, 'envios/update.html', {})
+
+
+def delete_envio(request):
+    return render(request, 'envios/delete.html', {})
