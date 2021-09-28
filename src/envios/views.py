@@ -1,3 +1,4 @@
+from django.views.generic.base import View
 from .models import Envio
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView
@@ -25,10 +26,10 @@ from django.views.generic import ListView
 #     return render(request, "envios/create_envio_admin.html", context)
 
 
-class EnvioContextMixin(object):
+class EnvioContextMixin(View):
 
     def get_context_data(self, **kwargs):
-        ctx = super(EnvioCreate, self).get_context_data(**kwargs)
+        ctx = super(EnvioContextMixin, self).get_context_data(**kwargs)
         ctx['selected_tab'] = 'shipments-tab'
         return ctx
 
@@ -52,12 +53,7 @@ class EnvioCreate(EnvioContextMixin, CreateView):
         form.instance.created_by = self.request.user
         return super().form_valid(form)
 
-    def get_context_data(self, **kwargs):
-        ctx = super(EnvioCreate, self).get_context_data(**kwargs)
-        ctx['selected_tab'] = 'shipments-tab'
-        return ctx
 
-
-class EnviosList(ListView):
+class EnviosList(EnvioContextMixin, ListView):
     model = Envio
     template_name = "envios/envio_list.html"

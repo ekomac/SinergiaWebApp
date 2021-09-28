@@ -42,75 +42,107 @@
 
             <!-- START Dashboard -->
             <li class="nav-item">
+                {% if selected_tab == "home-tab" or selected_tab == None or selected_tab == "" %}
                 <a id="home-tab" href="{% url 'home' %}" class="nav-link tab text-white active" aria-current="page">
-                    <i class="bi bi-house-door"></i>
-                    Inicio
-                </a>
+                    {% else %}
+                    <a id="home-tab" href="{% url 'home' %}" class="nav-link tab text-white" aria-current="page">
+                        {% endif %}
+                        <i class="bi bi-house-door"></i>
+                        Inicio
+                    </a>
             </li>
             <!-- END Dashboard -->
 
 
             <!-- START Escáner -->
             <li class="nav-item">
-                <a id="scanner-tab" href="#" class="nav-link tab text-white" aria-current="page">
-                    <i class="bi bi-upc-scan"></i>
-                    Escáner
-                </a>
+                {% if selected_tab == "scanner-tab" %}
+                <a id="scanner-tab" href="#" class="nav-link tab text-white active" aria-current="page">
+                    {% else %}
+                    <a id="scanner-tab" href="#" class="nav-link tab text-white" aria-current="page">
+                        {% endif %}
+                        <i class="bi bi-upc-scan"></i>
+                        Escáner
+                    </a>
             </li>
             <!-- END Escáner -->
 
 
             <!-- START Envíos -->
             <li>
-                <a id="shipments-tab" href="{% url 'envios:envios-list' %}" class="nav-link tab text-white">
-                    <i class="bi bi-truck"></i>
-                    Envíos
-                </a>
+                {% if selected_tab == "shipments-tab" %}
+                <a id="shipments-tab" href="{% url 'envios:envios-list' %}" class="nav-link tab text-white active">
+                    {% else %}
+                    <a id="shipments-tab" href="{% url 'envios:envios-list' %}" class="nav-link tab text-white">
+                        {% endif %}
+                        <i class="bi bi-truck"></i>
+                        Envíos
+                    </a>
             </li>
             <!-- END Envíos -->
 
             <!-- START Clientes -->
             <li>
-                <a id="clients-tab" href="#" class="nav-link tab text-white">
-                    <i class="bi bi-people"></i>
-                    Clientes
-                </a>
+                {% if selected_tab == "clients-tab" %}
+                <a id="clients-tab" href="#" class="nav-link tab text-white active">
+                    {% else %}
+                    <a id="clients-tab" href="#" class="nav-link tab text-white">
+                        {% endif %}
+                        <i class="bi bi-people"></i>
+                        Clientes
+                    </a>
             </li>
             <!-- END Clientes -->
 
             <!-- START Legajos -->
             <li>
-                <a id="staff-tab" href="#" class="nav-link tab text-white">
-                    <i class="bi bi-file-earmark-text"></i>
-                    Legajos
-                </a>
+                {% if selected_tab == "staff-tab" %}
+                <a id="staff-tab" href="#" class="nav-link tab text-white active">
+                    {% else %}
+                    <a id="staff-tab" href="#" class="nav-link tab text-white">
+                        {% endif %}
+                        <i class="bi bi-file-earmark-text"></i>
+                        Legajos
+                    </a>
             </li>
             <!-- END Legajos -->
 
             <!-- START Facturación -->
             <li>
-                <a id="billing-tab" href="#" class="nav-link tab text-white">
-                    <i class="bi bi-receipt"></i>
-                    Facturación
-                </a>
+                {% if selected_tab == "staff-tab" %}
+                <a id="billing-tab" href="#" class="nav-link tab text-white active">
+                    {% else %}
+                    <a id="billing-tab" href="#" class="nav-link tab text-white">
+                        {% endif %}
+                        <i class="bi bi-receipt"></i>
+                        Facturación
+                    </a>
             </li>
             <!-- END Facturación -->
 
             <!-- START Liquidación -->
             <li>
-                <a id="settlement-tab" href="#" class="nav-link tab text-white">
-                    <i class="bi bi-calendar-event"></i>
-                    Liquidación
-                </a>
+                {% if selected_tab == "settlement-tab" %}
+                <a id="settlement-tab" href="#" class="nav-link tab text-white active">
+                    {% else %}
+                    <a id="settlement-tab" href="#" class="nav-link tab text-white">
+                        {% endif %}
+                        <i class="bi bi-calendar-event"></i>
+                        Liquidación
+                    </a>
             </li>
             <!-- END Liquidación -->
 
             <!-- START Contable -->
             <li>
-                <a id="accounting-tab" href="#" class="nav-link tab text-white">
-                    <i class="bi bi-currency-euro"></i>
-                    Contable
-                </a>
+                {% if selected_tab == "accounting-tab" %}
+                <a id="accounting-tab" href="#" class="nav-link tab text-white active">
+                    {% else %}
+                    <a id="accounting-tab" href="#" class="nav-link tab text-white">
+                        {% endif %}
+                        <i class="bi bi-currency-euro"></i>
+                        Contable
+                    </a>
             </li>
             <!-- END Contable -->
 
@@ -152,14 +184,3 @@
         <!-- END ACCOUNT CONTAINER -->
     </div>
 </nav>
-
-<script>
-    $(document).ready(function () {
-        var selected_tab_id = "{{ selected_tab }}";
-        if (selected_tab_id != undefined && selected_tab_id != null && selected_tab_id != "") {
-            $(".tab").removeClass("active");
-            $("tab").attr('disabled', 'disabled');
-            $("#" + selected_tab_id).addClass("active");
-        }
-    });
-</script>
