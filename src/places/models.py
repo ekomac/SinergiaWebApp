@@ -10,6 +10,9 @@ class Zone(models.Model):
         settings.AUTH_USER_MODEL, null=True,
         blank=True, on_delete=models.SET_NULL)
 
+    def __str__(self):
+        return self.name.title()
+
     class Meta:
         verbose_name = "Zona"
         verbose_name_plural = "Zonas"
@@ -51,9 +54,10 @@ class Partido(models.Model):
         choices=PROVINCES, blank=False, null=False, default='BA')
     amba_zone = models.ForeignKey(
         Zone, blank=True, null=True, on_delete=models.SET_NULL)
+    is_amba = models.BooleanField(default=False, blank=False, null=False)
 
     def __str__(self):
-        return self.name
+        return self.title()
 
     class Meta:
         verbose_name = 'Partido'
@@ -75,7 +79,7 @@ class Town(models.Model):
         blank=True, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
-        return self.name
+        return self.name.title()
 
     class Meta:
         verbose_name = 'Localidad'

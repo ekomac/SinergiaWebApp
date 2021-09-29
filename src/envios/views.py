@@ -1,8 +1,12 @@
+from django.shortcuts import render, redirect
 from django.views.generic.base import View
-from django.shortcuts import render
-from .models import Envio
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView
+
+from envios.forms import CreateEnvioForm
+from places.models import Partido, Town
+from .models import Envio
+from account.models import Account
 
 
 # def create_envio_view(request):
@@ -39,19 +43,42 @@ def download_qr_code_label(request):
     pass
 
 
-class EnvioCreate(EnvioContextMixin, CreateView):
+class EnvioCreate(CreateView):
 
     template_name = "envios/create.html"
-    model = Envio
-    fields = ['detail', 'client', 'recipient_name', 'recipient_doc',
-              'recipient_phone', 'recipient_address',
-              'recipient_entrances', 'recipient_town',
-              'recipient_zipcode', 'recipient_charge', 'max_delivery_date',
-              'is_flex', 'flex_id', 'delivery_schedule', ]
+    form_class = CreateEnvioForm
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(EnvioCreate, self).get_context_data(**kwargs)
+        ctx['selected_tab'] = 'shipments-tab'
+        ctx['partidos'] = Partido.objects.all()
+        ctx['localidades'] = Town.objects.all()
+        return ctx
+
+
+def create_envio_view(request):
+
+    context = {}
+
+    user = request.user
+    if not user.is_authenticated:
+        return redirect('login')
+
+    form = CreateEnvioForm(request.POST or None, request.FILES or None)
+    if form.is_valid():
+        obj = form.save(commit=False)
+        created_by = Account.objects.filter(email=user.email).first()
+        obj.created_by = created_by
+        obj.save()
+        form = CreateEnvioForm()
+
+    context['form'] = form
+
+    return render(request, "envios/create.html", context)
 
 
 class EnviosList(EnvioContextMixin, ListView):

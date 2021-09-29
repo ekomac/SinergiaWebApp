@@ -4,29 +4,89 @@ from clients.models import Client
 
 
 class CreateEnvioForm(forms.ModelForm):
+    client = forms.ModelChoiceField(
+        label="Cliente", required=True,
+        queryset=Client.objects.all(),
+        widget=forms.Select(attrs={
+            'class': ' form-select',
+        }),
+    )
     detail = forms.CharField(label='Detalle', required=True,
-                             id="details",
                              widget=forms.TextInput(attrs={
-                                 'class': 'form-control',
+                                 'class': 'form-control invisible',
                                  'type': 'text',
                              }),)
 
-    client = forms.ModelChoiceField(
-        label='Producto', required=True,
-        queryset=Client.objects.all(),
-        widget=forms.Select(attrs={
-            'class': 'form-select',
-        }),
+    recipent_name = forms.CharField(
+        label='Nombre del destinatario', required=False,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': 'Juan Pérez',
+            }),
+    )
+
+    recipent_doc = forms.CharField(
+        label='DNI', required=False,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': '30.123.567',
+                'pattern': r'^\d{7,8}$',
+            }),
+    )
+
+    recipient_phone = forms.CharField(
+        label='Teléfono', required=False,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': '11 1234-5678',
+                'pattern': r'^\d{4,15}$'
+            })
+    )
+
+    recipient_address = forms.CharField(
+        label='Domicilio', required=True,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': 'Av. del Libertador 256',
+            })
+    )
+
+    recipient_entrances = forms.CharField(
+        label='Domicilio', required=True,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': 'Portones negros',
+            })
     )
 
     class Meta:
         model = Envio
-        fields = ['detail', 'client', 'recipient_name', 'recipient_doc',
-                  'recipient_phone', 'recipient_address',
-                  'recipient_entrances', 'recipient_town',
-                  'recipient_zipcode', 'recipient_charge', 'max_delivery_date',
-                  'is_flex', 'flex_id', 'delivery_schedule',
-                  ]
+        fields = [
+            'client',
+            'detail',
+            'recipient_name',
+            'recipient_doc',
+            'recipient_phone',
+            'recipient_address',
+            'recipient_entrances',
+            'recipient_town',
+            'recipient_zipcode',
+            'recipient_charge',
+            'max_delivery_date',
+            'is_flex',
+            'flex_id',
+            'delivery_schedule',
+        ]
 
     # customer_last_name = forms.CharField(label='Apellido', required=False,
     #                                      widget=forms.TextInput(attrs={

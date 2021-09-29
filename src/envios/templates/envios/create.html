@@ -1,35 +1,27 @@
-{% extends 'base_system.html' %}
+{% extends 'base_system.html' %} {% block content %} {% load places_extras %}
 
-{% block content %}
+<style>
+    td {
+        vertical-align: middle;
+    }
+
+    .hola {
+        background-color: red;
+    }
+</style>
 
 <form action='.' method='POST' id="custom_form" class="row justify-content-md-center needs-validation"
     name="custom_form" target="_top" novalidate>{% csrf_token %}
     <div class="row justify-content-md-center">
-        <div class="col-md-12 col-lg-8 offset-lg-2">
-
-            <!-- CLIENT SELECTION -->
-            <div class="row mt-3">
-                <div class="col-md-6 form-group">
-                    <label for="id_client" class="form-label">Cliente</label>
-                    <select id="id_client" name="client" class="form-select" aria-label="Seleccionar cliente" required>
-                        {% for id, name in form.client.field.choices %}
-                        <option value="{{ id }}">{{ name }}</option>
-                        {% endfor %}
-                    </select>
-                    <div class="invalid-feedback">
-                        Este campo es obligatorio.
-                    </div>
-                </div>
-            </div>
+        <div class="col">
 
             <!-- DETAILS IS NOT VISIBLE -->
             <div class="form-group row invisible">
                 <div class="col-md-6">
                     {{form.details.errors}}
-                    <label for="{{ form.datail.id_for_label }}">
-                        {{ form.detail.label }}<span class="text-danger">*</span>
-                    </label>
-                    {{ form.detail }}
+                    <label for="{{ form.details.id_for_label }}">
+                        {{ form.details.label }}<span class="text-danger">*</span>
+                    </label> {{ form.detail }}
                     <div class="invalid-feedback">
                         Este campo es obligatorio.
                     </div>
@@ -160,15 +152,76 @@
             </div>
             <!-- END DETAIL -->
 
-            <!-- DETAILS IS NOT VISIBLE -->
-            <div class="form-group row invisible">
+            <div class="form-group row">
                 <h4>Datos del destinatario</h4>
             </div>
 
+
+            <div class="row mt-2">
+                <div class="col">
+                    {{ form.client}}
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-5">
+                    <label for="{{form.recipent_name.id_for_label}}" class="form-label">Destinatario</label>
+                    {{ form.recipent_name}}
+                </div>
+                <div class="col-3">
+                    <label for="{{form.recipent_doc.id_for_label}}" class="form-label">N° de DNI</label>
+                    {{ form.recipent_doc}}
+                </div>
+                <div class="col-4">
+                    <label for="{{form.recipent_phone.id_for_label}}" class="form-label">N° de Teléfono</label>
+                    {{ form.recipient_phone}}
+
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-6">
+                    <label for="{{form.recipient_address.id_for_label}}" class="form-label">Domicilio</label>
+                    {{ form.recipient_address }}
+                </div>
+                <div class="col-6">
+                    <label for="{{form.recipient_entrances.id_for_label}}" class="form-label">Entrecalles
+                        (observaciones)</label> {{ form.recipient_entrances}}
+                </div>
+            </div>
+
+
+            <div class="row mt-2">
+                <div class="col-6">
+                    <label for="inputPartido" class="form-label">State</label>
+                    <select id="inputPartido" class="form-select">
+                        <option selected>---------</option>
+                        {% for partido in partidos %}
+                        <option id="{{partido.id}}">{{partido.name | title}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-6">
+
+
+
+                </div>
+            </div>
+
         </div>
+    </div>
+
 </form>
 
 <script>
+    var places_tree = {
+        {
+            localidades
+        }
+    };
     const detailInputs = {
         0: "max-5-package",
         1: "max-10-package",
@@ -178,13 +231,16 @@
         5: "tramite",
     };
 
-
     function isNumeric(value) {
         return /^\d+$/.test(value);
     }
 
     $(document).ready(function () {
-
+        try {
+            alert(places_tree);
+        } catch (e) {
+            alert(e);
+        }
         $('#custom_form').submit(function (event) {
             event.preventDefault(); //this will prevent the default submit
             updateDetails();
@@ -241,7 +297,6 @@
             }
             var details = detailsArray.join(",");
             details = details == "" ? "0-1" : details;
-            // $(".detail-input").val(details);
             document.getElementById("id_detail").value = details
         } catch (e) {
             alert(e);
