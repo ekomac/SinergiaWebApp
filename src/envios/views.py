@@ -3,6 +3,8 @@ from django.views.generic.base import View
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView
 
+import json
+
 from envios.forms import CreateEnvioForm
 from places.models import Partido, Town
 from .models import Envio
@@ -56,8 +58,22 @@ class EnvioCreate(CreateView):
         ctx = super(EnvioCreate, self).get_context_data(**kwargs)
         ctx['selected_tab'] = 'shipments-tab'
         ctx['partidos'] = Partido.objects.all()
-        ctx['localidades'] = Town.objects.all()
+        ctx['places'] = get_localidades_as_JSON()
         return ctx
+
+
+def get_localidades_as_JSON():
+    query = Town.objects.all()
+    mapped = list(map(map_town_to_dict, query))
+    return json.dumps(mapped)
+
+
+def map_town_to_dict(town):
+    return {
+        'id': town.id,
+        'name': town.name.title(),
+        'partido_id': town.partido.id,
+    }
 
 
 def create_envio_view(request):

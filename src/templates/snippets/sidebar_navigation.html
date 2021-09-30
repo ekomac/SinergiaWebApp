@@ -8,7 +8,6 @@
         left: 0;
         z-index: 100;
         /* Behind the navbar */
-        padding: 48px 0 0;
         /* Height of navbar */
         box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
     }
@@ -77,11 +76,10 @@
     }
 </style>
 
-<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse">
-    <div class="position-sticky pt-3">
-
+<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar collapse" style="width: 280px;">
+    <div class="position-sticky pt-3 ">
         <!-- Menu items container -->
-        <ul class="nav nav-pills flex-column mb-auto">
+        <ul class="nav flex-column nav-pills">
 
             <!-- START Dashboard -->
             <li class="nav-item">
@@ -166,6 +164,7 @@
             <!-- START Facturación -->
             <li>
                 {% if selected_tab == "billing-tab" %}
+
                 <a id="billing-tab" href="#" class="nav-link tab text-white active">
                     {% else %}
                     <a id="billing-tab" href="#" class="nav-link tab text-white">
@@ -205,39 +204,43 @@
         </ul>
         <!-- END Menu items container -->
 
-        <hr>
+        <hr class="bg-light">
 
         <!-- START ACCOUNT CONTAINER -->
-        <div class="dropdown">
+        <div class="d-flex align-items-end">
+            <div></div>
+            <div class="dropdown flex-grow-1 align-self-end">
 
-            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
-                id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+                <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+                    id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
 
-                <!-- PROFILE PIC -->
-                <img src="{{ request.user.profile_picture.url }}" alt="Avatar" width="32" height="32"
-                    class="rounded-circle me-2">
+                    <!-- PROFILE PIC -->
+                    <img src="{{ request.user.profile_picture.url }}" alt="Avatar" width="32" height="32"
+                        class="rounded-circle me-2">
 
-                <!-- USERNAME -->
-                <strong>{{request.user.username}}</strong>
+                    <!-- USERNAME -->
+                    <strong>{{request.user.username}}</strong>
 
-            </a>
+                </a>
 
-            <!-- START USER RELATED ACTIONS -->
-            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+                <!-- START USER RELATED ACTIONS -->
+                <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
 
-                <!-- Account -->
-                <li><a class="dropdown-item" href="{% url 'account:edit' %}">Cuenta</a></li>
+                    <!-- Account -->
+                    <li><a class="dropdown-item" href="{% url 'account:edit' %}">Cuenta</a></li>
 
-                <!-- Divider -->
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
+                    <!-- Divider -->
+                    <li>
+                        <hr class="dropdown-divider">
+                    </li>
 
-                <!-- Sign Out -->
-                <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
-            </ul>
-            <!-- END USER RELATED ACTIONS -->
+                    <!-- Sign Out -->
+                    <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+                </ul>
+                <!-- END USER RELATED ACTIONS -->
+            </div>
         </div>
         <!-- END ACCOUNT CONTAINER -->
+
     </div>
 </nav>

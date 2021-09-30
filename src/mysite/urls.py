@@ -18,7 +18,7 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from home.views import (home_screen_view)
+from home.views import (home_screen_view, prueba_view)
 from account.views import (
     login_view,
     logout_view,
@@ -31,6 +31,7 @@ urlpatterns = [
     path('login/', login_view, name="login"),
     path('logout/', logout_view, name="logout"),
     path('envios/', include('envios.urls')),
+    path('prueba/', prueba_view, name='prueba')
 ]
 
 if settings.DEBUG:
