@@ -1,28 +1,16 @@
-{% load static %}
+ {% load static %}
 
-<style>
-    .navbar-brand {
-        padding-top: .75rem;
-        padding-bottom: .75rem;
-        font-size: 1rem;
-    }
-
-    .navbar .navbar-toggler {
-        top: .25rem;
-        right: 1rem;
-    }
-</style>
-
-<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap align-items-center p-0 shadow">
-    <a class="d-flex align-items-center p-2 mb-md-0 me-md-auto text-white text-decoration-none" href="{% url 'home' %}">
-        <img class="rounded mx-auto d-block" src="{% static 'sinergia-software-logo.svg' %}" width="50" height="50"
-            alt="Sinergia Logo">
-        <span class="fs-6">
-            &nbsp;Sinergia Software
-        </span>
-    </a>
-    <button class="navbar-toggler d-xs-none m-3 collapsed" type="button" data-bs-toggle="collapse"
-        data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-</header>
+ <header class="navbar navbar-dark sticky-top bg-dark position-sticky flex-md-nowrap align-items-center p-1 shadow"
+     style="position: relative; top: 0; right: 0; left: 0;">
+     <a class="d-flex align-items-center ps-3 p-2 mb-md-0 text-white text-decoration-none" href="{% url 'home' %}">
+         <img class="rounded mx-auto d-block" src="{% static 'sinergia-software-logo.svg' %}" width="50px" height="50px"
+             alt="Sinergia Logo">
+         <span class="fw-bold fs-3 ms-2 d-none d-sm-block text-uppercase">
+             &nbsp;Sinergia Software
+         </span>
+     </a>
+     <button class="navbar-toggler d-md-none m-3 collapsed" type="button" data-bs-toggle="collapse"
+         data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+         <span class="navbar-toggler-icon"></span>
+     </button>
+ </header>

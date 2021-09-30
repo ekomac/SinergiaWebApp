@@ -1,0 +1,124 @@
+<nav id="sidebarMenu" class="col-12 col-md-auto d-md-flex flex-column bg-dark sidebar collapse">
+
+    <div class="vertical-scroll d-flex flex-column flex-grow-1 position-relative nav nav-pills p-3 overflow-auto">
+        <!-- Menu items container -->
+        <ul class="d-flex flex-column nav nav-pills">
+
+
+            <!-- START Dashboard -->
+            <li class="nav-item activetab">
+                <a id="home-tab" href="{% url 'home' %}" class="nav-link tab" aria-current="page">
+                    <i class="bi bi-house-door"></i> Inicio
+                </a>
+            </li>
+            <!-- END Dashboard -->
+
+            <!-- START Escáner -->
+            <li class="nav-item">
+                <a id="scanner-tab" href="#" class="nav-link tab" aria-current="page">
+                    <i class="bi bi-upc-scan"></i> Escáner
+                </a>
+            </li>
+            <!-- END Escáner -->
+
+
+            <!-- START Envíos -->
+            <li>
+                <a id="shipments-tab" href="{% url 'envios:list' %}" class="nav-link tab">
+                    <i class="bi bi-truck"></i> Envíos
+                </a>
+            </li>
+            <!-- END Envíos -->
+
+            <!-- START Lugares -->
+            <li>
+                <a id="places-tab" href="#" class="nav-link tab">
+                    <i class="bi bi-map"></i> Localidades
+                </a>
+            </li>
+            <!-- END Lugares -->
+
+            <!-- START Clientes -->
+            <li>
+                <a id="clients-tab" href="#" class="nav-link tab">
+                    <i class="bi bi-people"></i> Clientes
+                </a>
+            </li>
+            <!-- END Clientes -->
+
+            <!-- START Legajos -->
+            <li>
+                <a id="staff-tab" href="#" class="nav-link tab">
+                    <i class="bi bi-file-earmark-text"></i> Legajos
+                </a>
+            </li>
+            <!-- END Legajos -->
+
+            <!-- START Facturación -->
+            <li>
+                <a id="billing-tab" href="#" class="nav-link tab">
+                    <i class="bi bi-receipt"></i> Facturación
+                </a>
+            </li>
+            <!-- END Facturación -->
+
+            <!-- START Liquidación -->
+            <li>
+                <a id="settlement-tab" href="#" class="nav-link tab">
+                    <i class="bi bi-calendar-event"></i> Liquidación
+                </a>
+            </li>
+            <!-- END Liquidación -->
+
+            <!-- START Contable -->
+            <li>
+                <a id="accounting-tab" href="#" class="nav-link tab">
+                    <i class="bi bi-currency-euro"></i> Contable
+                </a>
+            </li>
+            <!-- END Contable -->
+
+        </ul>
+        <!-- END Menu items container -->
+    </div>
+
+    <div class="position-md-sticky sticky-md-bottom mx-3">
+        <hr class="bg-light">
+    </div>
+
+    <!-- START ACCOUNT CONTAINER -->
+    <div class="d-flex align-items-end position-md-sticky sticky-md-bottom mx-3">
+
+        <div class="dropdown align-items-end pb-3">
+
+            <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
+                id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
+
+                <!-- PROFILE PIC -->
+                <img src="{{request.user.profile_picture.url}}" alt="Avatar" width="32" height="32"
+                    class="rounded-circle me-2">
+
+                <!-- USERNAME -->
+                <strong class="ps-2">{{request.user.username}}</strong>
+
+            </a>
+
+            <!-- START USER RELATED ACTIONS -->
+            <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
+
+                <!-- Account -->
+                <li><a class="dropdown-item" href="{% url 'account:edit' %}">Cuenta</a></li>
+
+                <!-- Divider -->
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+
+                <!-- Sign Out -->
+                <li><a class="dropdown-item" href="{% url 'logout' %}">Cerrar sesión</a></li>
+            </ul>
+            <!-- END USER RELATED ACTIONS -->
+        </div>
+    </div>
+    <!-- END ACCOUNT CONTAINER -->
+</nav>
