@@ -8,252 +8,319 @@
     .hola {
         background-color: red;
     }
+
+    div .hidden {
+        display: none;
+    }
+
+    #create_form {
+        margin: 5;
+        padding: 15px;
+        background-color: white;
+        border-radius: 0.5em;
+    }
 </style>
+<div class="row d-flex justify-content-center">
+    <div class="col-md-12 col-lg-8 col-xl-7 d-flex">
+        <form action='.' method='POST' id="create_form" class="row flex-fill my-3 g-3 needs-validation"
+            name="create_form" target="_top" enctype="multipart/form-data">{% csrf_token %}
 
-<form action='.' method='POST' id="custom_form" class="d-flex row justify-content-md-center needs-validation"
-    name="custom_form" target="_top" novalidate>{% csrf_token %}
-    <div class="row justify-content-md-center">
-        <div class="col">
 
-            <!-- DETAILS IS NOT VISIBLE -->
-            <div class="form-group row invisible">
-                <div class="col-md-6">
-                    {{form.details.errors}}
-                    <label for="{{ form.details.id_for_label }}">
-                        {{ form.details.label }}<span class="text-danger">*</span>
-                    </label> {{ form.detail }}
-                    <div class="invalid-feedback">
-                        Este campo es obligatorio.
-                    </div>
-                </div>
+            <!-- START MAIN TITLE -->
+            <div class="form-group col-12 mt-2 text-center">
+                <h2>CREAR NUEVO ENVÍO</h2>
             </div>
-            <!-- END DETAILS IS NOT VISIBLE -->
-
-            <!-- DETAIL -->
-
-            <div class="form-group row" id="detailDiv">
-                <div class="col-lg-8 offset-lg-2">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Tipo</th>
-                                <th style="min-width: 50px;">Cantidad</th>
-                                <th style="width: 25px;"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                            <!-- Max 5 kg package -->
-                            <tr class="on-body">
-                                <td>Paquete / commerce hasta 5 kg</td>
-                                <td>
-                                    <input type="number" max="20" min="0" step="1" class="form-control"
-                                        id="detailInput0" pattern="^\d+$"></input>
-                                    <div class="invalid-feedback">
-                                        Obligatorio.
-                                    </div>
-                                </td>
-                                <td>
-                                    <div id="clearRowMax5">
-                                        <button id="btnClear0" type="button"
-                                            class="btn btn-danger clear-amount-button invisible"><i
-                                                class="bi bi-x"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Max 10 kg package -->
-                            <tr class="on-body">
-                                <td>Bulto hasta 10 kg</td>
-                                <td>
-                                    <input type="number" max="20" min="0" step="1" class="form-control"
-                                        id="detailInput1" pattern="^\d+$"></input>
-                                    <div class="invalid-feedback">
-                                        Obligatorio.
-                                    </div>
-                                </td>
-                                <td>
-                                    <div id="clearRowMax10">
-                                        <button id="btnClear1" type="button"
-                                            class="btn btn-danger clear-amount-button invisible"><i
-                                                class="bi bi-x"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- Max 20 kg package -->
-                            <tr class="on-body">
-                                <td>Bulto hasta 20 kg</td>
-                                <td>
-                                    <input type="number" max="20" min="0" step="1" class="form-control"
-                                        id="detailInput2" pattern="^\d+$"></input>
-                                    <div class="invalid-feedback">
-                                        Obligatorio.
-                                    </div>
-                                </td>
-                                <td>
-                                    <div id="clearRowMax20">
-                                        <button id="btnClear2" type="button"
-                                            class="btn btn-danger clear-amount-button invisible"><i
-                                                class="bi bi-x"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- Miniflete -->
-                            <tr class="on-body">
-                                <td>Miniflete</td>
-                                <td>
-                                    <input type="number" max="20" min="0" step="1" class="form-control"
-                                        id="detailInput3" pattern="^\d+$"></input>
-                                </td>
-                                <td>
-                                    <div id="clearRowMiniflete">
-                                        <button id="btnClear3" type="button"
-                                            class="btn btn-danger clear-amount-button invisible"><i
-                                                class="bi bi-x"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- Urgent -->
-                            <tr class="on-body">
-                                <td>Urgente</td>
-                                <td>
-                                    <input type="number" max="20" min="0" step="1" class="form-control"
-                                        id="detailInput4" pattern="^\d+$"></input>
-                                </td>
-                                <td>
-                                    <div id="clearRowUrgent">
-                                        <button id="btnClear4" type="button"
-                                            class="btn btn-danger clear-amount-button invisible"><i
-                                                class="bi bi-x"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Tramite -->
-                            <tr class="on-body">
-                                <td>Trámite</td>
-                                <td>
-                                    <input type="number" max="20" min="0" step="1" class="form-control"
-                                        id="detailInput5" pattern="^\d+$"></input>
-                                </td>
-                                <td>
-                                    <div id="clearRowTramite">
-                                        <button id="btnClear5" type="button"
-                                            class="btn btn-danger clear-amount-button invisible"><i
-                                                class="bi bi-x"></i></button>
-                                    </div>
-                                </td>
-                            </tr>
-
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <!-- END DETAIL -->
-
-            <div class="form-group row mt-4">
-                <h4>Datos del destinatario</h4>
-            </div>
+            <!-- END MAIN TITLE -->
 
 
-            <div class="row mt-2">
-                <div class="col">
-                    {{ form.client}}
-                </div>
-            </div>
-
-            <div class="row mt-1">
-                <div class="col-5">
-                    <label for="{{form.recipent_name.id_for_label}}" class="form-label">Destinatario</label>
-                    {{ form.recipent_name}}
-                </div>
-                <div class="col-3">
-                    <label for="{{form.recipent_doc.id_for_label}}" class="form-label">N° de DNI</label>
-                    {{ form.recipent_doc}}
-                </div>
-                <div class="col-4">
-                    <label for="{{form.recipent_phone.id_for_label}}" class="form-label">N° de Teléfono</label>
-                    {{ form.recipient_phone}}
-
-                </div>
-            </div>
-
-
-            <div class="form-group row mt-4">
+            <!-- START TITULO -->
+            <div class="form-group col-12 mt-4">
                 <h4>Datos del envío</h4>
             </div>
+            <!-- END TITULO -->
 
-            <div class="row mt-1">
-                <div class="col-6">
-                    <label for="{{form.recipient_address.id_for_label}}" class="form-label">Domicilio</label>
-                    {{ form.recipient_address }}
-                </div>
-                <div class="col-6">
-                    <label for="{{form.recipient_entrances.id_for_label}}" class="form-label">Entrecalles
-                        (observaciones)</label> {{ form.recipient_entrances}}
+
+            <!-- START CLIENTE INPUT -->
+            <div class="col-md-12 col-lg-8">
+                <label for="{{form.client.id_for_label}}" class="form-label">Cliente</label>
+                {{ form.client}}
+            </div>
+            <!-- END CLIENT INPUT -->
+
+
+            <!-- START DEFAULT DETAIL CHECKBOX -->
+            <div class="col-12">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="defaultDetailCheckbox" checked>
+                    <label for="defaultDetailCheckbox" class="form-check-label">
+                        Es un paquete de menos de 5 kg.
+                    </label>
                 </div>
             </div>
+            <!-- END DEFAULT DETAIL CHECKBOX -->
 
 
-            <div class="row mt-1">
-                <div class="col-5">
-                    <label for="inputPartido" class="form-label">Partido</label>
-                    <select id="inputPartido" class="form-select">
-                        <option selected>---------</option>
-                        {% for partido in partidos %}
-                        <option id="option-{{partido.id}}" value="{{partido.id}}">{{partido.name | title}}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-5">
-                    <label for="recipient_town" class="form-label">Localidad</label>
-                    <select id="recipient_town" class="form-select">
-                        <option selected>---------</option>
-                    </select>
-                </div>
-                <div class="col-2">
-                    <label for="{{form.recipient_zipcode.id_for_label}}" class="form-label">Cód. postal</label>
-                    {{ form.recipient_zipcode}}
+            <!-- START CUSTOM DETAIL TABLE -->
+            <div class="col-lg-6 form-group row hidden" id="detailDiv">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th style="min-width: 50px;">Cantidad</th>
+                            <th style="width: 25px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        <!-- Max 5 kg package -->
+                        <tr class="on-body">
+                            <td>Paquete / commerce hasta 5 kg</td>
+                            <td>
+                                <input type="number" max="20" min="0" step="1" class="form-control" id="detailInput0"
+                                    pattern="^\d+$"></input>
+                                <div class="invalid-feedback">
+                                    Obligatorio.
+                                </div>
+                            </td>
+                            <td>
+                                <div id="clearRowMax5">
+                                    <button id="btnClear0" type="button"
+                                        class="btn btn-danger clear-amount-button invisible"><i
+                                            class="bi bi-x"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Max 10 kg package -->
+                        <tr class="on-body">
+                            <td>Bulto hasta 10 kg</td>
+                            <td>
+                                <input type="number" max="20" min="0" step="1" class="form-control" id="detailInput1"
+                                    pattern="^\d+$"></input>
+                                <div class="invalid-feedback">
+                                    Obligatorio.
+                                </div>
+                            </td>
+                            <td>
+                                <div id="clearRowMax10">
+                                    <button id="btnClear1" type="button"
+                                        class="btn btn-danger clear-amount-button invisible"><i
+                                            class="bi bi-x"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Max 20 kg package -->
+                        <tr class="on-body">
+                            <td>Bulto hasta 20 kg</td>
+                            <td>
+                                <input type="number" max="20" min="0" step="1" class="form-control" id="detailInput2"
+                                    pattern="^\d+$"></input>
+                                <div class="invalid-feedback">
+                                    Obligatorio.
+                                </div>
+                            </td>
+                            <td>
+                                <div id="clearRowMax20">
+                                    <button id="btnClear2" type="button"
+                                        class="btn btn-danger clear-amount-button invisible"><i
+                                            class="bi bi-x"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Miniflete -->
+                        <tr class="on-body">
+                            <td>Miniflete</td>
+                            <td>
+                                <input type="number" max="20" min="0" step="1" class="form-control" id="detailInput3"
+                                    pattern="^\d+$"></input>
+                            </td>
+                            <td>
+                                <div id="clearRowMiniflete">
+                                    <button id="btnClear3" type="button"
+                                        class="btn btn-danger clear-amount-button invisible"><i
+                                            class="bi bi-x"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Urgent -->
+                        <tr class="on-body">
+                            <td>Urgente</td>
+                            <td>
+                                <input type="number" max="20" min="0" step="1" class="form-control" id="detailInput4"
+                                    pattern="^\d+$"></input>
+                            </td>
+                            <td>
+                                <div id="clearRowUrgent">
+                                    <button id="btnClear4" type="button"
+                                        class="btn btn-danger clear-amount-button invisible"><i
+                                            class="bi bi-x"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Tramite -->
+                        <tr class="on-body">
+                            <td>Trámite</td>
+                            <td>
+                                <input type="number" max="20" min="0" step="1" class="form-control" id="detailInput5"
+                                    pattern="^\d+$"></input>
+                            </td>
+                            <td>
+                                <div id="clearRowTramite">
+                                    <button id="btnClear5" type="button"
+                                        class="btn btn-danger clear-amount-button invisible"><i
+                                            class="bi bi-x"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+            <!-- END CUSTOM DETAIL TABLE -->
+
+
+            <!-- START MAX DELIVERY DATE -->
+            <div class="col-lg-6">
+                <label for="{{form.max_delivery_date.id_for_label}}" class="form-label">Fecha máxima de
+                    entrega</label>
+                {{ form.max_delivery_date}}
+            </div>
+            <!-- END MAX DELIVERY DATE -->
+
+
+            <!-- START DELIVERY SCHEDULE -->
+            <div class="col-lg-6">
+                <label for="{{form.delivery_schedule.id_for_label}}" class="form-label">Horario de entrega</label>
+                {{ form.delivery_schedule}}
+            </div>
+            <!-- END DELIVERY SCHEDULE -->
+
+
+            <!-- START FLEX CHECKBOX -->
+            <div class="col-12">
+                <div class="form-check">
+                    {{form.is_flex}}
+                    <label for="{{form.is_flex.id_for_label}}" class="form-check-label">
+                        Es envío de Flex (Mercado Libre Envíos)
+                    </label>
                 </div>
             </div>
+            <!-- END FLEX CHECKBOX -->
 
-            <div class="row mt-1">
-                <div class="col-6">
-                    <label for="{{form.max_delivery_date.id_for_label}}" class="form-label">Fecha máxima de
-                        entrega</label>
-                    {{ form.max_delivery_date}}
-                </div>
-                <div class="col-6">
 
+            <!-- START FLEX ID -->
+            <div id="flexIdDiv" class="col-lg-6">
+                <label for="{{form.flex_id.id_for_label}}" class="form-label">Tracking ID Flex</label>
+                {{ form.flex_id}}
+            </div>
+            <!-- END FLEX ID -->
+
+
+            <!-- START DESTINATION DATA TITLE -->
+            <div class="form-group col-12 mt-4">
+                <h4>Datos del destino</h4>
+            </div>
+            <!-- END DESTINATION DATA TITLE -->
+
+
+            <!-- START ADDRESS -->
+            <div class="col-12 col-lg-6">
+                <label for="{{form.recipient_address.id_for_label}}" class="form-label">Domicilio</label>
+                {{ form.recipient_address }}
+            </div>
+            <div class="col-12 col-lg-6">
+                <label for="{{form.recipient_entrances.id_for_label}}" class="form-label">Entrecalles
+                    (observaciones)</label> {{ form.recipient_entrances}}
+            </div>
+            <!-- END ADDRESS -->
+
+
+            <!-- START EXTENDED ADDRESS INFO -->
+            <div class="col-lg-6 col-xl-5">
+                <label for="inputPartido" class="form-label">Partido</label>
+                <select id="inputPartido" class="form-select">
+                    <option selected>---------</option>
+                    {% for partido in partidos %}
+                    <option id="option-{{partido.id}}" value="{{partido.id}}">{{partido.name | title}}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-lg-6 col-xl-4">
+                <label for="recipient_town" class="form-label">Localidad</label>
+                <select id="recipient_town" class="form-select">
+                    <option selected>---------</option>
+                </select>
+            </div>
+            <div class="col-lg-4 col-xl-3">
+                <label for="{{form.recipient_zipcode.id_for_label}}" class="form-label">Cód. postal</label>
+                {{ form.recipient_zipcode}}
+            </div>
+            <!-- END EXTENDED ADDRESS INFO -->
+
+
+            <!-- START TITLE -->
+            <div class="col-12 form-group mt-4">
+                <h4>Datos del destinatario</h4>
+            </div>
+            <!-- END TITLE -->
+
+
+            <!-- START RECIPIENT'S DATA -->
+            <div class="col-12 col-md-7 col-xl-5">
+                <label for="{{form.recipent_name.id_for_label}}" class="form-label">Destinatario</label>
+                {{ form.recipent_name}}
+            </div>
+            <div class="col-12 col-md-5 col-xl-4">
+                <label for="{{form.recipent_doc.id_for_label}}" class="form-label">N° de DNI</label>
+                {{ form.recipent_doc}}
+            </div>
+            <div class="col-12 col-md-5 col-xl-3">
+                <label for="{{form.recipent_phone.id_for_label}}" class="form-label">N° de Teléfono</label>
+                {{ form.recipient_phone}}
+            </div>
+            <!-- END RECIPIENT'S DATA -->
+
+
+            <!-- START RECIPIENT'S CHARGE -->
+            <div class="col-md-6">
+                <label for="basic-url" class="form-label">Cobrarle al destinatario</label>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">$</span>
+                    {{ form.recipient_charge }}
+                    <span class="input-group-text">.00</span>
                 </div>
             </div>
+            <!-- END RECIPIENT'S CHARGE -->
 
-            <div class="row mt-1">
-                <div class="col-6">
-                    <div class="form-check">
-                        <!--<input class="form-check-input" type="checkbox" id="gridCheck">-->
-                        {{form.is_flex}}
-                        <label for="{{form.is_flex.id_for_label}}" class="form-check-label">
-                            ¿Es envío de Flex?
-                        </label>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <label for="{{form.flex_id.id_for_label}}" class="form-label">Tracking ID Flex</label>
-                    {{ form.flex_id}}
+            <!-- START DETAIL IS NOT VISIBLE -->
+            <div id="detailNotVisible" class="col-md-6 form-group hidden mt-3">
+                {{form.details.errors}}
+                <label for="{{ form.details.id_for_label }}">
+                    {{ form.details.label }}<span class="text-danger">*</span>
+                </label> {{ form.detail }}
+                <div class="invalid-feedback">
+                    Este campo es obligatorio.
                 </div>
             </div>
+            <!-- END DETAIL IS NOT VISIBLE -->
 
-        </div>
+
+            <!-- START SUMBIT BUTTON -->
+            <div class="col-12">
+                <button type="submit" class="btn w-100 btn-primary">Crear</button>
+            </div>
+            <!-- END SUMBIT BUTTON -->
+
+        </form>
     </div>
-
-</form>
+</div>
 
 <script>
     var places = JSON.parse('{{ places | escapejs }}');
-    //var recipientTownId = '#' + JSON.parse('{{ form.recipient_town.id_for_label | escapejs }}').toString();
-    //alert(recipient_town);
+
     const detailInputs = {
         0: "max-5-package",
         1: "max-10-package",
@@ -269,10 +336,13 @@
 
     $(document).ready(function () {
 
+        $("#detailNotVisible").hide();
 
-        $('#custom_form').submit(function (event) {
+
+        $('#create_form').submit(function (event) {
             event.preventDefault(); //this will prevent the default submit
             updateDetails();
+            alert("hola")
             $(this).unbind('submit').submit(); // continue the submit unbind preventDefault
         });
         $.event.special.inputchange = {
@@ -295,6 +365,29 @@
             }
         };
 
+        $('#simpleEditorCheckDiv').hide(200);
+        $("#defaultDetailCheckbox").click(function () {
+            var isDefaultSelected = $(this).is(":checked");
+            if (isDefaultSelected) {
+                document.getElementById("id_detail").value = "0-1";
+                $('#detailDiv').hide(200);
+            } else {
+                updateDetails();
+                $('#detailDiv').show(200);
+                $('#detailDiv').removeClass("hidden");
+            }
+        });
+
+        $("#id_is_flex").click(function () {
+            var isFlex = $(this).is(":checked");
+            if (isFlex) {
+                $('#id_flex_id').removeAttr('disabled');
+                //$('#flexIdDiv').removeClass("hidden");
+            } else {
+                $('#id_flex_id').attr('disabled', 'disabled');
+            }
+        });
+
         setPartidoListener();
         setDetailsListeners();
     });
@@ -310,7 +403,6 @@
                 $('#recipient_town').append('<option id="town-option-' + element.id + '" value="' + element.id +
                     '">' + element.name + '</option>');
             }
-            $('#recipient_town').focus();
         });
     }
 
@@ -349,7 +441,6 @@
     }
 
     function myFunction() {
-        //alert("hola");
         updateDetails();
     }
 </script>

@@ -100,6 +100,7 @@ class CreateEnvioForm(forms.ModelForm):
 
     is_flex = forms.BooleanField(
         label='¿Es envío de Flex?', required=False,
+        initial=False,
         widget=forms.CheckboxInput(
             attrs={
                 'class': 'form-check-input',
@@ -113,9 +114,23 @@ class CreateEnvioForm(forms.ModelForm):
             attrs={
                 'type': 'text',
                 'class': 'form-control',
-                'placeholder': '40724860749',
+                'placeholder': 'N° de ID',
+                'disabled': 'disabled'
             }
         )
+    )
+
+    recipient_charge = forms.CharField(
+        label='Cobrar al cliente', required=False,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'number',
+                'placeholder': '0',
+                'min': '0',
+                'max': '999999999',
+                'step': '1'
+            })
     )
 
     class Meta:
@@ -136,3 +151,8 @@ class CreateEnvioForm(forms.ModelForm):
             'flex_id',
             'delivery_schedule',
         ]
+        widgets = {
+            'delivery_schedule': forms.Select(attrs={
+                'class': 'form-select',
+            })
+        }

@@ -4,9 +4,8 @@
         <!-- Menu items container -->
         <ul class="d-flex flex-column nav nav-pills">
 
-
             <!-- START Dashboard -->
-            <li class="nav-item activetab">
+            <li class="nav-item {% if selected_tab == 'home-tab' %}activetab{% endif %}">
                 <a id="home-tab" href="{% url 'home' %}" class="nav-link tab" aria-current="page">
                     <i class="bi bi-house-door"></i> Inicio
                 </a>
@@ -14,7 +13,7 @@
             <!-- END Dashboard -->
 
             <!-- START Escáner -->
-            <li class="nav-item">
+            <li class="nav-item {% if selected_tab == 'scanner-tab' %}activetab{% endif %}">
                 <a id="scanner-tab" href="#" class="nav-link tab" aria-current="page">
                     <i class="bi bi-upc-scan"></i> Escáner
                 </a>
@@ -23,7 +22,7 @@
 
 
             <!-- START Envíos -->
-            <li>
+            <li class="nav-item {% if selected_tab == 'shipments-tab' %}activetab{% endif %}">
                 <a id="shipments-tab" href="{% url 'envios:list' %}" class="nav-link tab">
                     <i class="bi bi-truck"></i> Envíos
                 </a>
@@ -31,7 +30,7 @@
             <!-- END Envíos -->
 
             <!-- START Lugares -->
-            <li>
+            <li class="nav-item {% if selected_tab == 'places-tab' %}activetab{% endif %}">
                 <a id="places-tab" href="#" class="nav-link tab">
                     <i class="bi bi-map"></i> Localidades
                 </a>
@@ -39,7 +38,7 @@
             <!-- END Lugares -->
 
             <!-- START Clientes -->
-            <li>
+            <li class="nav-item {% if selected_tab == 'clients-tab' %}activetab{% endif %}">
                 <a id="clients-tab" href="#" class="nav-link tab">
                     <i class="bi bi-people"></i> Clientes
                 </a>
@@ -47,7 +46,7 @@
             <!-- END Clientes -->
 
             <!-- START Legajos -->
-            <li>
+            <li class="nav-item {% if selected_tab == 'files-tab' %}activetab{% endif %}">
                 <a id="staff-tab" href="#" class="nav-link tab">
                     <i class="bi bi-file-earmark-text"></i> Legajos
                 </a>
@@ -55,7 +54,7 @@
             <!-- END Legajos -->
 
             <!-- START Facturación -->
-            <li>
+            <li class="nav-item {% if selected_tab == 'bill-tab' %}activetab{% endif %}">
                 <a id="billing-tab" href="#" class="nav-link tab">
                     <i class="bi bi-receipt"></i> Facturación
                 </a>
@@ -63,7 +62,7 @@
             <!-- END Facturación -->
 
             <!-- START Liquidación -->
-            <li>
+            <li class="nav-item {% if selected_tab == 'settle-tab' %}activetab{% endif %}">
                 <a id="settlement-tab" href="#" class="nav-link tab">
                     <i class="bi bi-calendar-event"></i> Liquidación
                 </a>
@@ -71,7 +70,7 @@
             <!-- END Liquidación -->
 
             <!-- START Contable -->
-            <li>
+            <li class="nav-item {% if selected_tab == 'accounting-tab' %}activetab{% endif %}">
                 <a id="accounting-tab" href="#" class="nav-link tab">
                     <i class="bi bi-currency-euro"></i> Contable
                 </a>

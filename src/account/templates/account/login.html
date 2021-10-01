@@ -44,15 +44,18 @@
         <img class="rounded image-fluid mx-auto d-block" src="{% static 'sinergia-software-logo.svg' %}" width="40%"
             height="40%" alt="Sinergia Logo">
     </div>
-    <form method="post">{% csrf_token %}
+    <form method="post" class="needs-validation" novalidate>{% csrf_token %}
 
-        <h1 class="h3 mb-3 fw-normal">Iniciar sesión</h1>
+        <h1 class="h3 mb-3 fw-normal">SINERGIA SOFTWARE</h1>
+        <p class="h6 mb-3 fw-normal">Bienvenido al software de Sinergia,<br> servicio de mensajería, distribución y
+            logística.</p>
+        <p class="h6 mb-3 fw-normal"> Por favor, ingrese sus credenciales para continuar.</p>
         <div class="form-floating">
             <input type="email" name="email" id="inputEmail" class="form-control" placeholder="Correo electrónico"
                 required autofocus>
-            <label for="inputEmail" style="color: #000">Email address</label>
+            <label for="inputEmail" style="color: #000">Correo electrónico</label>
             <div class="invalid-feedback">
-                Inválido.
+
             </div>
         </div>
         <div class="form-floating">
@@ -60,7 +63,7 @@
                 required>
             <label for="inputPassword">Contraseña</label>
             <div class="invalid-feedback">
-                Inválido.
+
             </div>
         </div>
 
@@ -78,8 +81,8 @@
 
         {% endif %}
 
-        <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
-        <p class="mt-5 mb-3 text-muted">&copy; 2021</p>
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Iniciar sesión</button>
+        <p class="mt-5 mb-3 text-muted">&copy; 2021 Todos los derechos reservados - #EkoSoftware</p>
     </form>
 </main>
 

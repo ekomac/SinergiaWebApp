@@ -20,6 +20,23 @@
 
     <title>Sinergia Software</title>
 
+    <style>
+        .helper-border-yellow {
+            border: 3px solid yellow;
+        }
+
+        .helper-border-green {
+            border: 3px solid green;
+        }
+
+        .helper-border-blue {
+            border: 3px solid blue;
+        }
+
+        .helper-border-red {
+            border: 3px solid red;
+        }
+    </style>
 
 </head>
 
@@ -34,7 +51,7 @@
 
                 {% include 'snippets/navigation.html' %}
 
-                <main class="d-md-flex flex-column col-12 col-md-auto flex-grow-1 px-3">
+                <main class="d-md-flex flex-column justify-content-center flex-grow-1">
                     {% block content %}
                     {% endblock content %}
                 </main>
@@ -43,7 +60,8 @@
         </div>
     </div>
 
-    <footer class="d-flex justify-content-center align-items-center py-2 bg-light shadow text-black text-center footer">
+    <footer class=" d-flex justify-content-center align-items-center py-2 bg-light shadow text-black text-center
+                    footer">
         <!-- EMPTY FOOTER -->
     </footer>
 

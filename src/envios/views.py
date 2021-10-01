@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.views.generic.base import View
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 import json
 
@@ -45,8 +46,9 @@ def download_qr_code_label(request):
     pass
 
 
-class EnvioCreate(CreateView):
+class EnvioCreate(LoginRequiredMixin, CreateView):
 
+    login_url = '/login/'
     template_name = "envios/create.html"
     form_class = CreateEnvioForm
 
