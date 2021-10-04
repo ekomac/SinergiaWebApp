@@ -57,7 +57,7 @@ class Partido(models.Model):
     is_amba = models.BooleanField(default=False, blank=False, null=False)
 
     def __str__(self):
-        return self.title()
+        return self.name.title()
 
     class Meta:
         verbose_name = 'Partido'

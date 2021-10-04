@@ -37,8 +37,11 @@ INSTALLED_APPS = [
     'clients',
     'envios',
     'home',
-    'prices',
     'places',
+    'prices',
+    'scanner',
+    'staff',
+    'tracking',
 
     'django.contrib.admin',
     'django.contrib.auth',

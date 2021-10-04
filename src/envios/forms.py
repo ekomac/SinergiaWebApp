@@ -1,6 +1,7 @@
 from django import forms
 from envios.models import Envio
 from clients.models import Client
+from places.models import Town
 
 
 class CreateEnvioForm(forms.ModelForm):
@@ -12,12 +13,13 @@ class CreateEnvioForm(forms.ModelForm):
         }),
     )
     detail = forms.CharField(label='Detalle', required=True,
+                             initial="0-1",
                              widget=forms.TextInput(attrs={
-                                 'class': 'form-control invisible',
+                                 'class': 'form-control',
                                  'type': 'text',
                              }),)
 
-    recipent_name = forms.CharField(
+    recipient_name = forms.CharField(
         label='Nombre del destinatario', required=False,
         widget=forms.TextInput(
             attrs={
@@ -27,7 +29,7 @@ class CreateEnvioForm(forms.ModelForm):
             }),
     )
 
-    recipent_doc = forms.CharField(
+    recipient_doc = forms.CharField(
         label='DNI', required=False,
         widget=forms.TextInput(
             attrs={
@@ -69,11 +71,12 @@ class CreateEnvioForm(forms.ModelForm):
             })
     )
 
-    recipient_town = forms.ChoiceField(
+    recipient_town = forms.ModelChoiceField(
         label="Localidad", required=True,
-        choices=[],
+        queryset=Town.objects.all(),
         widget=forms.Select(attrs={
-            'class': ' form-select',
+            'class': 'form-select',
+            'required': 'required',
         }),
     )
 
@@ -120,7 +123,7 @@ class CreateEnvioForm(forms.ModelForm):
         )
     )
 
-    recipient_charge = forms.CharField(
+    recipient_charge = forms.DecimalField(
         label='Cobrar al cliente', required=False,
         widget=forms.TextInput(
             attrs={

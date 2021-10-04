@@ -126,3 +126,12 @@ li {
 .vertical-scroll::-webkit-scrollbar-thumb:hover {
     background: #0069D9;
 }
+
+#backToTopBtn {
+    display: none;
+    position: fixed;
+    bottom: 40px;
+    right: 30px;
+    z-index: 500;
+    font-size: 18px;
+}

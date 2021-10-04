@@ -1,5 +1,7 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from django.views.generic.base import View
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -42,6 +44,10 @@ class EnvioContextMixin(View):
         return ctx
 
 
+class EnvioDetailView(EnvioContextMixin, DetailView):
+    model = Envio
+
+
 def download_qr_code_label(request):
     pass
 
@@ -63,9 +69,12 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
         ctx['places'] = get_localidades_as_JSON()
         return ctx
 
+    def get_success_url(self):
+        return reverse('envios:detail', kwargs={'pk': self.object.pk})
+
 
 def get_localidades_as_JSON():
-    query = Town.objects.all()
+    query = Town.objects.all().order_by('name')
     mapped = list(map(map_town_to_dict, query))
     return json.dumps(mapped)
 

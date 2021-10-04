@@ -35,7 +35,7 @@ class Envio(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
         verbose_name="user", blank=False, null=False)
     status = models.CharField(verbose_name="status",
-                              max_length=2, choices=STATUSES)
+                              max_length=2, choices=STATUSES, default='N')
     detail = models.CharField(verbose_name="detail",
                               max_length=2000, default='0-1')
     client = models.ForeignKey(
@@ -87,6 +87,11 @@ class Envio(models.Model):
     class Meta:
         verbose_name = 'Envío'
         verbose_name_plural = 'Envíos'
+
+
+@receiver(post_delete, sender=Envio)
+def submission_delete(sender, instance, *args, **kwargs):
+    instance.qr_code.delete(False)
 
 
 class Bolson(models.Model):
@@ -175,11 +180,6 @@ class TrackingMovement(models.Model):
     class Meta:
         verbose_name = 'Movimiento'
         verbose_name_plural = 'Movimientos'
-
-
-@receiver(post_delete, sender=Envio)
-def submission_delete(sender, instance, *args, **kwargs):
-    instance.image.delete(False)
 
 
 DETAIL_CODES = {
