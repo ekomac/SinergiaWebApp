@@ -31,7 +31,8 @@ urlpatterns = [
     path('login/', login_view, name="login"),
     path('logout/', logout_view, name="logout"),
     path('envios/', include('envios.urls')),
-    path('prueba/', prueba_view, name='prueba')
+    path('prueba/', prueba_view, name='prueba'),
+    path('prices/', include('prices.urls')),
 ]
 
 if settings.DEBUG:

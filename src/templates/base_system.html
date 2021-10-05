@@ -34,7 +34,7 @@
 
                 {% include 'snippets/navigation.html' %}
 
-                <main class="d-md-flex flex-column justify-content-center flex-grow-1">
+                <main class="d-md-flex justify-content-center flex-grow-1">
                     {% block content %}
                     {% endblock content %}
                     <button onclick="topFunction()" type="button" class="btn btn-dark" id="backToTopBtn"
@@ -45,10 +45,11 @@
         </div>
     </div>
 
+
     <footer class=" d-flex justify-content-center align-items-center py-2 bg-light shadow text-black text-center
                     footer">
-        <!-- EMPTY FOOTER -->
     </footer>
+
 
     <!-- ADD BASE JS -->
     <script src="{% static 'base/base_system.js' %}"></script>

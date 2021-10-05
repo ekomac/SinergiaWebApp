@@ -37,6 +37,14 @@
             </li>
             <!-- END Lugares -->
 
+            <!-- START Precios -->
+            <li class="nav-item {% if selected_tab == 'prices-tab' %}activetab{% endif %}">
+                <a id="prices-tab" href="{% url 'prices:list' %}" class="nav-link tab">
+                    <i class="bi bi-currency-dollar"></i> Tarifas
+                </a>
+            </li>
+            <!-- END Precios -->
+
             <!-- START Clientes -->
             <li class="nav-item {% if selected_tab == 'clients-tab' %}activetab{% endif %}">
                 <a id="clients-tab" href="#" class="nav-link tab">
