@@ -1,0 +1,18 @@
+{% load price_extras %}
+
+<tr id="tr-{{obj.id}}" class="table-item"
+    onclick="onItemClicked({{ obj.id }},'{% if codetype == 'd' %}{% url 'prices:ddetail' pk=obj.id %}{% else %}{% url 'prices:fdetail' pk=obj.id %}{% endif %}');">
+    <td id=" td-{{obj.id}}" class="td-item-checker">
+        <div class="form-check">
+            <input id="item-checker-{{obj.id}}" class="form-check-input item-checker" type="checkbox" value="">
+        </div>
+    </td>
+    <td>{{ obj.code }}</td>
+    <td>{{ obj.price }}</td>
+    <td>{{ obj.price|multiplicado:1 }}</td>
+    <td>{{ obj.price|multiplicado:2 }}</td>
+    <td>{{ obj.price|multiplicado:3 }}</td>
+    <td>{{ obj.price|multiplicado:4 }}</td>
+    <td>{{ obj.price|multiplicado:5 }}</td>
+    <td><a href="#" class="edit-button" title="Editar"><i class="bi bi-pencil-square"></i></a></td>
+</tr>

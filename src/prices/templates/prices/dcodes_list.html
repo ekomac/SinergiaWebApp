@@ -1,0 +1,229 @@
+{% extends 'base_system.html' %}
+
+
+{% block content %}
+
+<style>
+    .table-striped>tbody>tr:nth-child(odd):hover,
+    .table-striped>tbody>tr:nth-child(odd):hover {
+        background-color: #0D6EFD;
+        color: white;
+        cursor: pointer;
+    }
+
+    .table-striped>tbody>tr:nth-child(even):hover,
+    .table-striped>tbody>tr:nth-child(even):hover {
+        background-color: #0D6EFD;
+        color: white;
+        cursor: pointer;
+    }
+
+    .table-scrollable {
+        overflow-x: auto;
+        max-width: 600px;
+        box-shadow: inset 0 0 5px rgba(150, 150, 150, 0.35);
+        margin: auto;
+    }
+
+    .edit-button {
+        color: black;
+    }
+
+    .edit-button:hover {
+        color: white;
+    }
+
+    th,
+    tr,
+    h5 {
+        text-align: center;
+    }
+
+    h5 {
+        margin-bottom: 10px;
+        margin-top: 20px;
+    }
+
+    .item-checker {}
+
+    .hide-on-load {
+        display: none;
+    }
+</style>
+
+<div class="col-12 d-flex">
+    <div class="card flex-fill">
+        <div class="card-body d-flex flex-column">
+            <h2 class="card-title text-center mt-2">LISTADO DE TARIFAS VIGENTES</h2>
+            <div class="d-flex justify-content-between align-items-center text-start">
+                <h5 class="card-card-subtitle flex-grow-1">Códigos de mensajería general</h5>
+            </div>
+            <hr class="bg-dark">
+            <div class="d-flex justify-content-start align-items-center text-start">
+                <button type="button" id="bulkEditDelivery" class="btn btn-primary btn-sm ms-2" disabled>
+                    Aumento general
+                </button>
+                <button type="button" id="bulkDeleteDelivery" class="btn btn-danger btn-sm ms-2" disabled>
+                    Eliminar seleccionados
+                </button>
+                <div id="selectedCount" class="ms-2">0 de {{totalCodes}} elementos seleccionados
+                </div>
+                <div>
+                    <div id="clearSelectionDiv" class="hide-on-load">
+                        &nbsp;&nbsp;|&nbsp;&nbsp;
+                        <a id="clearSelection" class="text-decoration-none" onclick="removeSelection()"
+                            style="cursor: pointer;">Quitar selección
+                            <i class="bi bi-x"></i></a>
+                    </div>
+                </div>
+                <div class="ms-auto">
+                    <a href="{% url 'prices:d-add' %}" type="button" class="btn btn-success btn-sm ms-2"
+                        onclick="createNewDCode()">
+                        <i class="bi bi-plus"></i>Crear nuevo
+                    </a>
+                </div>
+            </div>
+            <br>
+            <div class="table-responsive">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>
+                                <div class="form-check">
+                                    <input class="form-check-input checkbox-select" type="checkbox" id="checkAll">
+                                </div>
+                            </th>
+                            <th>Código</th>
+                            <th>Precio (Máx. 5kg)</th>
+                            <th>Bulto máx. 10kg</th>
+                            <th>Bulto máx. 20kg</th>
+                            <th>Miniflete</th>
+                            <th>Urgente</th>
+                            <th>Trámite</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="overrided-1" class="overrided-tbody">
+                        {% for item in dcodes %}
+                        {% include 'prices/snippets/dcode_item.html' with obj=item counter=forloop.counter codetype='d' %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    var selectionModeEnabled = false;
+    var totalCodes = JSON.parse('{{ totalCodes | escapejs }}');
+
+    $(document).ready(function () {
+        show('clearSelectionDiv', selectionModeEnabled);
+
+        $("#checkAll").click(function () {
+            $(".item-checker").prop('checked', this.checked);
+            countCheckedItems();
+        });
+
+        $(".item-checker").click(function (e) {
+            e.stopImmediatePropagation();
+            countCheckedItems();
+        });
+
+        $(".td-item-checker").click(function (e) {
+            var id = this.id.split("-")[1];
+            changeItemCheckerState('item-checker-' + id);
+            e.stopImmediatePropagation();
+            e.stopPropagation();
+            countCheckedItems();
+        });
+
+        /*
+            $(".table-item").click(function (e) {
+                e.preventDefault(); //this will prevent the default submit
+
+                var id = this.id.split("-")[1];
+                if (selectionModeEnabled) {
+                    $('#item-checker-' + id).prop('checked', !$('#item-checker-' + id).is(":checked"));
+                } else {
+                    window.location.href = "http://127.0.0.1:8000/prices/delivery/" + id + "/";
+                }
+                countCheckedItems();
+            });
+            */
+    });
+
+    function onItemClicked(id, url) {
+        if (selectionModeEnabled) {
+            $('#item-checker-' + id).prop('checked', !$('#item-checker-' + id).is(":checked"));
+        } else {
+            window.location.href = url;
+        }
+        countCheckedItems();
+    }
+
+    function countCheckedItems() {
+        // Get al checkboxes
+        var checkBoxes = Array.from(document.getElementsByClassName("item-checker"));
+        // Count total checkboxes
+        var totalCheckBoxes = checkBoxes.length;
+        // Count checked checkboxes
+        var checkedItemsCount = checkBoxes.filter(checkBox => checkBox.checked == true).length;
+        // If all checkboxes checked, check "checkAll" checkbox
+        $('#checkAll').prop('checked', checkedItemsCount == totalCheckBoxes);
+        // Update selected count
+        $('#selectedCount').text(checkedItemsCount + " de " + totalCodes + " elementos seleccionados");
+        // Enable bulk edit btn only if more than one checked
+        isEnabled('bulkEditDelivery', checkedItemsCount > 1);
+        // Enable delete btn if at least 1 checkbox is checked
+        isEnabled('bulkDeleteDelivery', checkedItemsCount > 0);
+        // Enable selection mode if at least 1 checkbox checked
+        selectionModeEnabled = checkedItemsCount > 0;
+        // hide
+        show('clearSelectionDiv', selectionModeEnabled);
+    }
+
+    function changeItemCheckerState(id) {
+        $('#' + id).prop('checked', !$('#' + id).is(":checked"));
+    }
+
+    function show(id, makeVisible = true) {
+        if (makeVisible && $('#' + id).is(":hidden")) {
+            $('#' + id).hide();
+            $('#' + id).removeClass("hide-on-load");
+            $('#' + id).show(300);
+        }
+        if (!makeVisible && $('#' + id).is(":visible")) {
+            $('#' + id).hide(300);
+        }
+    }
+
+    function isEnabled(id, enable = true) {
+        if (enable && $('#' + id).is(":disabled")) {
+            $('#' + id).removeAttr("disabled");
+        }
+        if (!enable && $('#' + id).is(":enabled")) {
+            $('#' + id).attr("disabled", true);
+        }
+    }
+
+    function itemClicked(id) {
+        if ($('#item-checker-' + id).is(":checked")) {
+            $('#item-checker-' + id).prop('checked', false);
+        } else if (selectionModeEnabled) {
+            $('#item-checker-' + id).prop('checked', true);
+        } else {
+            alert("launch detail item");
+        }
+
+    }
+
+    function removeSelection() {
+        $(".item-checker").prop('checked', false);
+        countCheckedItems();
+    }
+</script>
+
+{% endblock content %}

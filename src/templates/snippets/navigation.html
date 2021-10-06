@@ -38,12 +38,90 @@
             <!-- END Lugares -->
 
             <!-- START Precios -->
-            <li class="nav-item {% if selected_tab == 'prices-tab' %}activetab{% endif %}">
-                <a id="prices-tab" href="{% url 'prices:list' %}" class="nav-link tab">
-                    <i class="bi bi-currency-dollar"></i> Tarifas
+            <li class="nav-item">
+
+                <!-- START OPTION 1: A price tab is selected-->
+                {% if selected_tab == 'dprices-tab' or selected_tab == 'fprices-tab' or selected_tab == 'prices-tab' %}
+                <a class="parent-nav nav-link align-items-center rounded tab" data-bs-toggle="collapse"
+                    data-bs-target="#orders-collapse" aria-expanded="true">
+                    Tarifas
                 </a>
+                <div class="collapse show" id="orders-collapse">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal">
+                        <!-- START Precios Delivery -->
+                        <li class="nav-item {% if selected_tab == 'dprices-tab' %}activetab{% endif %}">
+                            <a id="prices-tab" href="{% url 'prices:dlist' %}" class="nav-link tab">
+                                <i class="bi bi-currency-dollar"></i> Generales
+                            </a>
+                        </li>
+                        <!-- END Precios Delivery -->
+                        <!-- START Precios Flex -->
+                        <li class="nav-item {% if selected_tab == 'fprices-tab' %}activetab{% endif %}">
+                            <a id="prices-tab" href="{% url 'prices:flist' %}" class="nav-link tab">
+                                <i class="bi bi-currency-dollar"></i> Flex
+                            </a>
+                        </li>
+                        <!-- END Precios Flex -->
+                    </ul>
+                </div>
+                {% else %}
+                <!-- END OPTION 1: A price tab is selected-->
+                <!-- START OPTION 2: No price tab is selected -->
+                <a class="parent-nav nav-link align-items-center rounded tab collapsed" data-bs-toggle="collapse"
+                    data-bs-target="#orders-collapse" aria-expanded="false">
+                    Tarifas
+                </a>
+                <div class="collapse" id="orders-collapse">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal">
+                        <!-- START Precios Delivery -->
+                        <li class="nav-item {% if selected_tab == 'dprices-tab' %}activetab{% endif %}">
+                            <a id="prices-tab" href="{% url 'prices:dlist' %}" class="nav-link tab">
+                                <i class="bi bi-currency-dollar"></i> Generales
+                            </a>
+                        </li>
+                        <!-- END Precios Delivery -->
+                        <!-- START Precios Flex -->
+                        <li class="nav-item {% if selected_tab == 'fprices-tab' %}activetab{% endif %}">
+                            <a id="prices-tab" href="{% url 'prices:flist' %}" class="nav-link tab">
+                                <i class="bi bi-currency-dollar"></i> Flex
+                            </a>
+                        </li>
+                        <!-- END Precios Flex -->
+                    </ul>
+                </div>
+                {% endif %}
+                <!-- END START OPTION 2: No price tab is selected -->
+
+
+                <!--
+                <a id="prices-main-tab" class="nav-link tab" style="cursor: pointer;">
+                    <i id="openPrices" class="bi bi-chevron-down"></i>
+                    <i id="closePrices" class="bi bi-chevron-up"></i>
+                    Tarifas
+                </a>
+                -->
             </li>
             <!-- END Precios -->
+
+            <!-- START Precios Delivery -->
+            <!--
+            <li class="nav-item {% if selected_tab == 'prices-tab' %}activetab{% endif %}">
+                <a id="prices-tab" href="{% url 'prices:dlist' %}" class="nav-link tab">
+                    <i class="bi bi-currency-dollar"></i> Generales
+                </a>
+            </li>
+            -->
+            <!-- END Precios Delivery -->
+
+            <!-- START Precios Flex -->
+            <!--
+            <li class="nav-item {% if selected_tab == 'fprices-tab' %}activetab{% endif %}">
+                <a id="prices-tab" href="{% url 'prices:dlist' %}" class="nav-link tab">
+                    <i class="bi bi-currency-dollar"></i> Flex
+                </a>
+            </li>
+            -->
+            <!-- END Precios Flex -->
 
             <!-- START Clientes -->
             <li class="nav-item {% if selected_tab == 'clients-tab' %}activetab{% endif %}">
@@ -129,3 +207,23 @@
     </div>
     <!-- END ACCOUNT CONTAINER -->
 </nav>
+
+
+<script>
+    var pricesAreOpened = false;
+
+    $(document).ready(function () {
+        togglePricesTopMenu();
+    });
+
+    function togglePricesTopMenu() {
+        if (pricesAreOpened) {
+            $('#closePrices').show();
+            $('#openPrices').hide();
+        } else {
+            $('#closePrices').hide();
+            $('#openPrices').show();
+        }
+        pricesAreOpened = !pricesAreOpened;
+    }
+</script>
