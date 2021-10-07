@@ -14,315 +14,65 @@
     }
 
     #create_form {
-        margin: 5;
-        padding: 15px;
         background-color: white;
-        border-radius: 0.5em;
     }
 </style>
-<div class="row d-flex justify-content-center bg-light">
-    <div class="col-md-12 col-lg-8 col-xl-7 d-flex">
-        <form action='.' method='POST' id="create_form" class="row flex-fill my-3 g-3" name="create_form" target="_top"
-            enctype="multipart/form-data">{% csrf_token %}
 
-
-            <!-- START MAIN TITLE -->
-            <div class="form-group col-12 mt-2 text-center">
-                <h2>CREAR NUEVO ENVÍO</h2>
+<div class="col-md-12 col-lg-6 col-xl-5 d-flex">
+    <form action='.' method='POST' id="create_form" class="card flex-fill" name="create_form" target="_top"
+        enctype="multipart/form-data">{% csrf_token %}
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Crear objeto
             </div>
-            <!-- END MAIN TITLE -->
-
-
-            <!-- START TITULO -->
-            <div class="form-group col-12 mt-4">
-                <h4>Datos del envío</h4>
+            <div class="">
+                <a href=".."><i class="bi bi-arrow-left-short"></i>Volver</a>
             </div>
-            <!-- END TITULO -->
+        </div>
+        <div class="card-body">
+            <h3 class="card-title text-center mt-3">CREAR NUEVO CÓDIGO DE FLEX</h3>
+            <h4 class="card-title mt-2">Datos del código</h4>
+            <div class="row g-3">
 
-
-            <!-- START CLIENTE INPUT -->
-            <div class="col-md-12 col-lg-8">
-                <label for="{{form.client.id_for_label}}" class="form-label">Cliente</label>
-                {{ form.client}}
-            </div>
-            <!-- END CLIENT INPUT -->
-
-
-            <!-- START DEFAULT DETAIL CHECKBOX -->
-            <div class="col-12">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="defaultDetailCheckbox" checked>
-                    <label for="defaultDetailCheckbox" class="form-check-label">
-                        Es un paquete de menos de 5 kg.
-                    </label>
+                <!-- START CODE NAME INPUT -->
+                <div class="col">
+                    <label for="{{form.code.id_for_label}}" class="form-label">Cliente</label>
+                    {{ form.code}}
                 </div>
-            </div>
-            <!-- END DEFAULT DETAIL CHECKBOX -->
+                <!-- END CLIENT INPUT -->
 
 
-            <!-- START CUSTOM DETAIL TABLE -->
-            <div class="col-lg-12 form-group row hidden" id="detailDiv">
-                <div class="row d-flex justify-content-center">
-                    <div class="col-lg-8">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Tipo</th>
-                                    <th style="min-width: 50px;">Cantidad</th>
-                                    <th style="width: 25px;"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-
-                                <!-- Max 5 kg package -->
-                                <tr class="on-body">
-                                    <td>Paquete / commerce hasta 5 kg</td>
-                                    <td>
-                                        <input type="number" max="20" min="0" step="1" class="form-control"
-                                            id="detailInput0" pattern="^\d+$"></input>
-                                        <div class="invalid-feedback">
-                                            Obligatorio.
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div id="clearRowMax5">
-                                            <button id="btnClear0" type="button"
-                                                class="btn btn-danger clear-amount-button invisible"><i
-                                                    class="bi bi-x"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- Max 10 kg package -->
-                                <tr class="on-body">
-                                    <td>Bulto hasta 10 kg</td>
-                                    <td>
-                                        <input type="number" max="20" min="0" step="1" class="form-control"
-                                            id="detailInput1" pattern="^\d+$"></input>
-                                        <div class="invalid-feedback">
-                                            Obligatorio.
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div id="clearRowMax10">
-                                            <button id="btnClear1" type="button"
-                                                class="btn btn-danger clear-amount-button invisible"><i
-                                                    class="bi bi-x"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Max 20 kg package -->
-                                <tr class="on-body">
-                                    <td>Bulto hasta 20 kg</td>
-                                    <td>
-                                        <input type="number" max="20" min="0" step="1" class="form-control"
-                                            id="detailInput2" pattern="^\d+$"></input>
-                                        <div class="invalid-feedback">
-                                            Obligatorio.
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div id="clearRowMax20">
-                                            <button id="btnClear2" type="button"
-                                                class="btn btn-danger clear-amount-button invisible"><i
-                                                    class="bi bi-x"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Miniflete -->
-                                <tr class="on-body">
-                                    <td>Miniflete</td>
-                                    <td>
-                                        <input type="number" max="20" min="0" step="1" class="form-control"
-                                            id="detailInput3" pattern="^\d+$"></input>
-                                    </td>
-                                    <td>
-                                        <div id="clearRowMiniflete">
-                                            <button id="btnClear3" type="button"
-                                                class="btn btn-danger clear-amount-button invisible"><i
-                                                    class="bi bi-x"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- Urgent -->
-                                <tr class="on-body">
-                                    <td>Urgente</td>
-                                    <td>
-                                        <input type="number" max="20" min="0" step="1" class="form-control"
-                                            id="detailInput4" pattern="^\d+$"></input>
-                                    </td>
-                                    <td>
-                                        <div id="clearRowUrgent">
-                                            <button id="btnClear4" type="button"
-                                                class="btn btn-danger clear-amount-button invisible"><i
-                                                    class="bi bi-x"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <!-- Tramite -->
-                                <tr class="on-body">
-                                    <td>Trámite</td>
-                                    <td>
-                                        <input type="number" max="20" min="0" step="1" class="form-control"
-                                            id="detailInput5" pattern="^\d+$"></input>
-                                    </td>
-                                    <td>
-                                        <div id="clearRowTramite">
-                                            <button id="btnClear5" type="button"
-                                                class="btn btn-danger clear-amount-button invisible"><i
-                                                    class="bi bi-x"></i></button>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                            </tbody>
-                        </table>
+                <!-- START RECIPIENT'S CHARGE -->
+                <div class="col">
+                    <label for="{{form.price.id_for_label}}" class="form-label">Cobrarle al destinatario</label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">$</span>
+                        {{ form.price }}
+                        <span class="input-group-text">.00</span>
                     </div>
                 </div>
-            </div>
-            <!-- END CUSTOM DETAIL TABLE -->
+                <!-- END RECIPIENT'S CHARGE -->
 
-
-            <!-- START MAX DELIVERY DATE -->
-            <div class="col-lg-6">
-                <label for="{{form.max_delivery_date.id_for_label}}" class="form-label">Fecha máxima de
-                    entrega</label>
-                {{ form.max_delivery_date}}
-            </div>
-            <!-- END MAX DELIVERY DATE -->
-
-
-            <!-- START DELIVERY SCHEDULE -->
-            <div class="col-lg-6">
-                <label for="{{form.delivery_schedule.id_for_label}}" class="form-label">Horario de entrega</label>
-                {{ form.delivery_schedule}}
-            </div>
-            <!-- END DELIVERY SCHEDULE -->
-
-
-            <!-- START FLEX CHECKBOX -->
-            <div class="col-12">
-                <div class="form-check">
-                    {{form.is_flex}}
-                    <label for="{{form.is_flex.id_for_label}}" class="form-check-label">
-                        Es envío de Flex (Mercado Libre Envíos)
-                    </label>
-                </div>
-            </div>
-            <!-- END FLEX CHECKBOX -->
-
-
-            <!-- START FLEX ID -->
-            <div id="flexIdDiv" class="col-lg-6">
-                <label for="{{form.flex_id.id_for_label}}" class="form-label">Tracking ID Flex</label>
-                {{ form.flex_id}}
-            </div>
-            <!-- END FLEX ID -->
-
-
-            <!-- START DESTINATION DATA TITLE -->
-            <div class="form-group col-12 mt-4">
-                <h4>Datos del destino</h4>
-            </div>
-            <!-- END DESTINATION DATA TITLE -->
-
-
-            <!-- START ADDRESS -->
-            <div class="col-12 col-lg-6">
-                <label for="{{form.recipient_address.id_for_label}}" class="form-label">Domicilio</label>
-                {{ form.recipient_address }}
-            </div>
-            <div class="col-12 col-lg-6">
-                <label for="{{form.recipient_entrances.id_for_label}}" class="form-label">Entrecalles
-                    (observaciones)</label> {{ form.recipient_entrances}}
-            </div>
-            <!-- END ADDRESS -->
-
-
-            <!-- START EXTENDED ADDRESS INFO -->
-            <div class="col-lg-6 col-xl-5">
-                <label for="inputPartido" class="form-label">Partido</label>
-                <select id="inputPartido" class="form-select">
-                    <option selected>---------</option>
-                    {% for partido in partidos %}
-                    <option id="option-{{partido.id}}" value="{{partido.id}}">{{partido.name | title}}
-                    </option>
+                <div class="col-12">
+                    {% for error in form.errors %}
+                    <p style="color: red;">{{error}}</p>
                     {% endfor %}
-                </select>
-            </div>
-            <div class="col-lg-6 col-xl-4">
-                <label for="{{ form.recipient_town.id_for_label }}" class="form-label">Localidad</label>
-                {{ form.recipient_town }}
-            </div>
-            <div class="col-lg-4 col-xl-3">
-                <label for="{{form.recipient_zipcode.id_for_label}}" class="form-label">Cód. postal</label>
-                {{ form.recipient_zipcode}}
-            </div>
-            <!-- END EXTENDED ADDRESS INFO -->
-
-
-            <!-- START TITLE -->
-            <div class="col-12 form-group mt-4">
-                <h4>Datos del destinatario</h4>
-            </div>
-            <!-- END TITLE -->
-
-
-            <!-- START RECIPIENT'S DATA -->
-            <div class="col-12 col-md-7 col-xl-5">
-                <label for="{{form.recipient_name.id_for_label}}" class="form-label">Destinatario</label>
-                {{ form.recipient_name}}
-            </div>
-            <div class="col-12 col-md-5 col-xl-4">
-                <label for="{{form.recipient_doc.id_for_label}}" class="form-label">N° de DNI</label>
-                {{ form.recipient_doc}}
-            </div>
-            <div class="col-12 col-md-5 col-xl-3">
-                <label for="{{form.recipient_phone.id_for_label}}" class="form-label">N° de Teléfono</label>
-                {{ form.recipient_phone}}
-            </div>
-            <!-- END RECIPIENT'S DATA -->
-
-
-            <!-- START RECIPIENT'S CHARGE -->
-            <div class="col-md-6">
-                <label for="{{form.recipient_charge.id_for_label}}" class="form-label">Cobrarle al destinatario</label>
-                <div class="input-group mb-3">
-                    <span class="input-group-text">$</span>
-                    {{ form.recipient_charge }}
-                    <span class="input-group-text">.00</span>
                 </div>
-            </div>
-            <!-- END RECIPIENT'S CHARGE -->
 
-            <!-- START DETAIL IS NOT VISIBLE -->
-            <div id="detailNotVisible" class="col-md-6 form-group mt-3">
-                <label for="{{ form.detail.id_for_label }}">
-                    {{ form.detail.label }}<span class="text-danger">*</span>
-                </label> {{ form.detail }}
-                <div class="invalid-feedback">
-                    Este campo es obligatorio.
+
+                <!-- START SUMBIT BUTTON -->
+                <div class="col-12">
+                    <input type="submit" value="Crear" class="btn w-100 btn-primary">
                 </div>
-            </div>
-            <!-- END DETAIL IS NOT VISIBLE -->
-
-            <div class="col-12">
-                {% for error in form.errors %}
-                <p style="color: red;">{{error}}</p>
-                {% endfor %}
+                <!-- END SUMBIT BUTTON -->
             </div>
 
-
-            <!-- START SUMBIT BUTTON -->
-            <div class="col-12">
-                <input type="submit" value="Crear" class="btn w-100 btn-primary">
+            <div class="d-flex justify-content-end">
+                <a href=".." type="button" class="btn btn-link"><i class="bi bi-arrow-left-short"></i>Volver</a>
             </div>
-            <!-- END SUMBIT BUTTON -->
+        </div>
+    </form>
 
-        </form>
-    </div>
 </div>
 
 <script>

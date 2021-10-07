@@ -23,24 +23,25 @@
         <div class="card-body">
             <h4 class="card-title text-decoration-underline">Código: {{ object.code }}</h4>
             <div class="text-center">Ultima vez actualizado por {{ object.updated_by.first_name }}
-                {{ object.updated_by.last_name }} en {{ object.last_update }}</div>
+                {{ object.updated_by.last_name }} el {{ object.last_update }}</div>
             <div class="fw-bolder mt-3">Precio actual: <span class="fw-normal">$ {{ object.price }}</span></div>
             <p class="card-text mt-2">
-                Este código incluye {{ total_towns }} localidades y son:
+                Este código incluye {{ total_towns }} localidades:
             </p>
             <div class="table-responsive mt-3">
                 <table class="table table-striped align-middle">
                     <thead>
                         <tr>
-                            <th>Localidad</th>
+                            <th>#</th>
                             <th>Partido</th>
+                            <th>Localidad</th>
                             <th>¿Es amba?</th>
                             <th>Zona del amba</th>
                         </tr>
                     </thead>
                     <tbody id="overrided-1" class="overrided-tbody">
                         {% for town in towns %}
-                        {% include 'prices/snippets/town_item.html' with obj=town %}
+                        {% include 'prices/snippets/town_item.html' with obj=town counter=forloop.counter%}
                         {% endfor %}
                     </tbody>
                 </table>

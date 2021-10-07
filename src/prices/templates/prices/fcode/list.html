@@ -5,6 +5,8 @@
 {% include 'snippets/base_tables_css.html' %}
 
 <style>
+    th,
+    tr,
     h5 {
         text-align: center;
     }
@@ -60,6 +62,7 @@
                             </th>
                             <th class="">Código</th>
                             <th class="">Precio</th>
+                            <th class="">Localidades</th>
                             <th class="">Última edición</th>
                             <th class="">Editor</th>
                             <th class="col-lg-5 col-xl-6 col-xxl-7"></th>
@@ -67,7 +70,7 @@
                     </thead>
                     <tbody id="overrided-1" class="overrided-tbody">
                         {% for item in fcodes %}
-                        {% include 'prices/snippets/fcode_item.html' with obj=item counter=forloop.counter codetype='f' %}
+                        {% include 'prices/snippets/fcode/item.html' with obj=item counter=forloop.counter codetype='f' %}
                         {% endfor %}
                     </tbody>
                 </table>

@@ -13,11 +13,17 @@
     .bool-div-false {
         background-color: red;
     }
+
+    td {
+        overflow: auto;
+        white-space: nowrap;
+    }
 </style>
 
 <tr id="tr-{{obj.id}}" class="table-item" onclick="window.location.href='{% url 'places:town-detail' pk=obj.id %}';">
-    <td>{{ obj.name | title}}</td>
+    <td>{{ counter }}</td>
     <td>{{ obj.partido.name | title}}</td>
+    <td>{{ obj.name | title}}</td>
     <td class="td-bool-div">
         {% if obj.partido.is_amba %}
         <i class="d-inline-flex rounded-circle bool-div bool-div-true bi bi-check-circle"></i>

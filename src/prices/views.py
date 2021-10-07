@@ -52,7 +52,7 @@ def dcodes_view(request, *args, **kwargs):
         context['totalCodes'] = len(dcodes)
         context['selected_tab'] = 'dprices-tab'
 
-    return render(request, "prices/dcodes_list.html", context)
+    return render(request, "prices/dcode/list.html", context)
 
 
 def fcodes_view(request, *args, **kwargs):
@@ -70,10 +70,7 @@ def fcodes_view(request, *args, **kwargs):
         context['totalCodes'] = len(fcodes)
         context['selected_tab'] = 'fprices-tab'
 
-        # del request.session['alerts']
-        # print(request.session['alerts'])
-
-    return render(request, "prices/fcodes_list.html", context)
+    return render(request, "prices/fcode/list.html", context)
 
 
 class AddDCodeView(DPricesContextMixin, LoginRequiredMixin, CreateView):
@@ -90,7 +87,7 @@ class AddDCodeView(DPricesContextMixin, LoginRequiredMixin, CreateView):
 
 
 class AddFCodeView(FPricesContextMixin, LoginRequiredMixin, CreateView):
-    model = FlexCode
+    login_url = '/login/'
     template_name = "prices/fcode/add.html"
     form_class = CreateFCodeForm
 
@@ -109,7 +106,8 @@ class DCodeDetailView(DPricesContextMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['selected_tab'] = 'dprices-tab'
-        towns = Town.objects.filter(delivery_code=kwargs['object'])
+        towns = Town.objects.filter(
+            delivery_code=kwargs['object']).order_by('partido__name', 'name')
         context['towns'] = towns
         context['total_towns'] = len(towns)
         return context
@@ -117,12 +115,13 @@ class DCodeDetailView(DPricesContextMixin, DetailView):
 
 class FCodeDetailView(FPricesContextMixin, DetailView):
     model = FlexCode
-    template_name = "prices/fcode_detail.html"
+    template_name = "prices/fcode/detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['selected_tab'] = 'fprices-tab'
-        towns = Town.objects.filter(flex_code=kwargs['object'])
+        towns = Town.objects.filter(
+            flex_code=kwargs['object']).order_by('partido__name', 'name')
         context['towns'] = towns
         context['total_towns'] = len(towns)
         return context

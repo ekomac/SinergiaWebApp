@@ -1,4 +1,5 @@
 from django import template
+from places.models import Town
 
 register = template.Library()
 
@@ -16,3 +17,15 @@ def multiplicado(value, arg):
     result = int(value) * multipliers[arg]
     result = int(result)
     return f'{result},00'
+
+
+@register.filter()
+def dtowncount(value):
+    """Return how many town has got given delivery code"""
+    return Town.objects.filter(delivery_code__code=value).count()
+
+
+@register.filter()
+def ftowncount(value):
+    """Return how many town has got given flex code"""
+    return Town.objects.filter(flex_code__code=value).count()
