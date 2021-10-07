@@ -1,0 +1,34 @@
+{% extends 'base_system.html' %}
+
+{% block content %}
+<style>
+    h4 {
+        text-align: center;
+        margin-bottom: 10px;
+        margin-top: 20px;
+    }
+</style>
+
+<div class="col-md-12 col-lg-8 col-xl-7 d-flex">
+    <div class="card">
+        <div class="card-header">
+            Eliminación
+        </div>
+        <div class="card-body">
+            <h3 class="card-title mt-3">¿Estás seguro/a?</h3>
+            <p class="card-text mt-2 fs-5"> Estás a punto de eliminar {{ what_to_delete }}. ¿Estás seguro de querer
+                continuar
+                con
+                la operación? Se
+                {% if total_count == 1 %}eliminará el siguiente objeto{% else %}eliminarán los siguientes
+                objetos{% endif %} y todos los objetos relacionados a él:</p>
+            {% block deletion_specs %}
+            {% endblock deletion_specs %}
+        </div>
+
+    </div>
+
+</div>
+
+
+{% endblock content %}

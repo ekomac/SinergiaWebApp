@@ -1,53 +1,23 @@
 {% extends 'base_system.html' %}
 
-
 {% block content %}
 
+{% include 'snippets/base_tables_css.html' %}
+
 <style>
-    .table-striped>tbody>tr:nth-child(odd):hover,
-    .table-striped>tbody>tr:nth-child(odd):hover {
-        background-color: #0D6EFD;
-        color: white;
-        cursor: pointer;
-    }
-
-    .table-striped>tbody>tr:nth-child(even):hover,
-    .table-striped>tbody>tr:nth-child(even):hover {
-        background-color: #0D6EFD;
-        color: white;
-        cursor: pointer;
-    }
-
-    .table-scrollable {
-        overflow-x: auto;
-        max-width: 600px;
-        box-shadow: inset 0 0 5px rgba(150, 150, 150, 0.35);
-        margin: auto;
-    }
-
-    .edit-button {
-        color: black;
-    }
-
-    .edit-button:hover {
-        color: white;
-    }
-
     th,
     tr,
     h5 {
         text-align: center;
     }
 
+    edit-column {
+        text-align: start;
+    }
+
     h5 {
         margin-bottom: 10px;
         margin-top: 20px;
-    }
-
-    .item-checker {}
-
-    .hide-on-load {
-        display: none;
     }
 </style>
 
@@ -59,43 +29,46 @@
                 <h5 class="card-card-subtitle flex-grow-1">Códigos de mensajería general</h5>
             </div>
             <hr class="bg-dark">
-            <div class="d-flex justify-content-start align-items-center text-start">
-                <button type="button" id="bulkEditDelivery" class="btn btn-primary btn-sm ms-2" disabled>
+            <div
+                class="d-grid gap-1 d-xl-flex flex-xl-row gap-md-0 justify-content-xl-start align-items-xl-center text-xl-start">
+                <button type="button" id="bulkEditDelivery" class="btn btn-primary btn-sm m-2 m-xl-0 ms-xl-2" disabled>
                     Aumento general
                 </button>
-                <button type="button" id="bulkDeleteDelivery" class="btn btn-danger btn-sm ms-2" disabled>
+                <button type="button" id="bulkDeleteDelivery" class="btn btn-danger btn-sm m-2 m-xl-0 ms-xl-2"
+                    onclick="deleteSelectedItems()" disabled>
                     Eliminar seleccionados
                 </button>
                 <div id="selectedCount" class="ms-2">0 de {{totalCodes}} elementos seleccionados
                 </div>
-                <div>
+                <div class="my-1 mx-xl-3">
                     <div id="clearSelectionDiv" class="hide-on-load">
-                        &nbsp;&nbsp;|&nbsp;&nbsp;
-                        <a id="clearSelection" class="text-decoration-none" onclick="removeSelection()"
-                            style="cursor: pointer;">Quitar selección
+                        <span class="d-none d-xl-inline">|</span>
+                        <a id="clearSelection" type="button" class="ms-2 text-decoration-none"
+                            onclick="removeSelection()" style="cursor: pointer;">Quitar selección
                             <i class="bi bi-x"></i></a>
                     </div>
                 </div>
-                <div class="ms-auto">
-                    <a href="{% url 'prices:d-add' %}" type="button" class="btn btn-success btn-sm ms-2"
+                <div class="d-flex d-xl-inline ms-xl-auto">
+                    <a href="{% url 'prices:d-add' %}" type="button" class="flex-fill btn btn-success btn-sm m-2"
                         onclick="createNewDCode()">
                         <i class="bi bi-plus"></i>Crear nuevo
                     </a>
                 </div>
             </div>
             <br>
-            <div class="table-responsive col-md-12 col-lg-6 col-xl-4">
+            <div class="table-responsive">
                 <table class="table table-striped align-middle">
                     <thead>
                         <tr>
-                            <th>
+                            <th class="col-lg-1 col-xl-1">
                                 <div class="form-check">
                                     <input class="form-check-input checkbox-select" type="checkbox" id="checkAll">
                                 </div>
                             </th>
-                            <th>Código</th>
-                            <th>Precio</th>
-                            <th></th>
+                            <th class="col-lg-2 col-xl-1">Código</th>
+                            <th class="col-lg-2 col-xl-1">Precio</th>
+                            <th class="col-lg-2 col-xl-1 edit-column"></th>
+                            <th class="col-sm-0 col-lg-5 col-xl-8 edit-column"></th>
                         </tr>
                     </thead>
                     <tbody id="overrided-1" class="overrided-tbody">
@@ -134,26 +107,9 @@
             e.stopPropagation();
             countCheckedItems();
         });
-
-        /*
-        $(".table-item").click(function (e) {
-            alert("item!!");
-            e.preventDefault(); //this will prevent the default submit
-
-            var id = this.id.split("-")[1];
-            if (selectionModeEnabled) {
-                $('#item-checker-' + id).prop('checked', !$('#item-checker-' + id).is(":checked"));
-            } else {
-                $(this).unbind('submit').submit(); // continue the submit unbind preventDefault
-            }
-            countCheckedItems();
-        });*/
     });
 
-    function onItemClicked(url) {
-        alert("item!!");
-
-        var id = this.id.split("-")[1];
+    function onItemClicked(id, url) {
         if (selectionModeEnabled) {
             $('#item-checker-' + id).prop('checked', !$('#item-checker-' + id).is(":checked"));
         } else {
@@ -163,7 +119,7 @@
     }
 
     function countCheckedItems() {
-        // Get al checkboxes
+        // Get all checkboxes
         var checkBoxes = Array.from(document.getElementsByClassName("item-checker"));
         // Count total checkboxes
         var totalCheckBoxes = checkBoxes.length;
@@ -221,6 +177,19 @@
     function removeSelection() {
         $(".item-checker").prop('checked', false);
         countCheckedItems();
+    }
+
+    function deleteSelectedItems() {
+        // Get all checked checkboxes
+        var checkBoxesIds = Array.from(document.getElementsByClassName("item-checker"))
+            .filter(checkBox => checkBox.checked == true).map(function (checkbox) {
+                var id = checkbox.id;
+                return id.split("-checker-")[1];
+            }).join("-");
+        console.log(checkBoxesIds);
+        var url_mask = "{% url 'prices:delete-fcodes' 12345 %}".replace(/12345/, checkBoxesIds);
+        console.log("url -> " + url_mask);
+        window.location.href = url_mask;
     }
 </script>
 

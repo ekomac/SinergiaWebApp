@@ -1,0 +1,41 @@
+{% load places_extras %}
+
+<style>
+    .bool-div {
+        color: white;
+        padding: 1px;
+    }
+
+    .bool-div-true {
+        background-color: green;
+    }
+
+    .bool-div-false {
+        background-color: red;
+    }
+</style>
+
+<tr id="tr-{{obj.id}}" class="table-item" onclick="window.location.href='{% url 'places:town-detail' pk=obj.id %}';">
+    <td>{{ obj.name | title}}</td>
+    <td>{{ obj.partido.name | title}}</td>
+    <td class="td-bool-div">
+        {% if obj.partido.is_amba %}
+        <i class="d-inline-flex rounded-circle bool-div bool-div-true bi bi-check-circle"></i>
+        {% else %}
+        <i class="d-inline-flex rounded-circle bool-div bool-div-false bi bi-x-circle"></i>
+        {% endif %}
+    </td>
+    <td>
+        {% if obj.partido.is_amba %}
+
+        {% if obj.partido.amba_zone %}
+        {{ obj.partido.amba_zone  }}
+        {% else %}
+        No especificada
+        {% endif %}
+
+        {% else %}
+        No aplica
+        {% endif %}
+    </td>
+</tr>

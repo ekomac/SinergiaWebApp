@@ -22,7 +22,7 @@ class PartidoAdmin(admin.ModelAdmin):
 
 class TownAdmin(admin.ModelAdmin):
     list_display = ('name', 'partido', 'delivery_code', 'flex_code')
-    search_fields = ('name', 'partido', 'delivery_code', 'flex_code')
+    search_fields = ('name',)
 
     filter_horizontal = ()
     list_filter = ()

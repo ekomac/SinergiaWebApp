@@ -6,6 +6,7 @@ from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CreateDCodeForm, CreateFCodeForm
 from .models import DeliveryCode, FlexCode
+from places.models import Town
 # from django.views.generic.edit import CreateView
 # from django.views.generic import ListView
 
@@ -44,7 +45,7 @@ def dcodes_view(request, *args, **kwargs):
 
     if request.method == 'GET':
 
-        dcodes = DeliveryCode.objects.all()
+        dcodes = DeliveryCode.objects.all().order_by('code')
         context['dcodes'] = dcodes
         context['totalCodes'] = len(dcodes)
         context['selected_tab'] = 'dprices-tab'
@@ -62,7 +63,7 @@ def fcodes_view(request, *args, **kwargs):
 
     if request.method == 'GET':
 
-        fcodes = FlexCode.objects.all()
+        fcodes = FlexCode.objects.all().order_by('code')
         context['fcodes'] = fcodes
         context['totalCodes'] = len(fcodes)
         context['selected_tab'] = 'fprices-tab'
@@ -100,7 +101,69 @@ class DCodeDetailView(DPricesContextMixin, DetailView):
     model = DeliveryCode
     template_name = "prices/dcode_detail.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['selected_tab'] = 'dprices-tab'
+        towns = Town.objects.filter(delivery_code=kwargs['object'])
+        context['towns'] = towns
+        context['total_towns'] = len(towns)
+        return context
+
 
 class FCodeDetailView(FPricesContextMixin, DetailView):
     model = FlexCode
     template_name = "prices/fcode_detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['selected_tab'] = 'fprices-tab'
+        towns = Town.objects.filter(flex_code=kwargs['object'])
+        context['towns'] = towns
+        context['total_towns'] = len(towns)
+        return context
+
+
+def confirm_delete_dcode(request, *args, **kwargs):
+
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    context = {}
+
+    if request.method == 'GET':
+        dcodesids = kwargs['dcodeids'].split("-")
+        dcodes = DeliveryCode.objects.filter(pk__in=dcodesids)
+        context['dcodes'] = dcodes
+        total_count = len(dcodes)
+        context['total_count'] = total_count
+        if total_count == 1:
+            context['obj'] = dcodes[0]
+        context['what_to_delete'] = str(
+            total_count) + ' códigos de mensajería general'
+        context['what_to_delete'] = str(
+            total_count) + ' códigos de mensajería general'
+
+    return render(request, "prices/confirm_ddelete.html", context)
+
+
+def confirm_delete_fcode(request, *args, **kwargs):
+
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    context = {}
+
+    if request.method == 'GET':
+        fcodesids = kwargs['fcodeids'].split("-")
+        fcodes = FlexCode.objects.filter(pk__in=fcodesids)
+        context['fcodes'] = fcodes
+        total_count = len(fcodes)
+        context['total_count'] = total_count
+        context['selected_tab'] = 'fprices-tab'
+        what = ' códigos de flex'
+        if total_count == 1:
+            what = ' código de flex'
+            context['obj'] = fcodes[0]
+        context['what_to_delete'] = str(total_count) + what
+
+    return render(request, "prices/confirm_fdelete.html", context)

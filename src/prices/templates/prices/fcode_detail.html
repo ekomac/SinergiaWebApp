@@ -1,3 +1,149 @@
 {% extends 'base_system.html' %}
 
-{% block content %}FCODE DETAIL{% endblock content %}
+{% block content %}
+<style>
+    h4 {
+        text-align: center;
+        margin-bottom: 10px;
+        margin-top: 20px;
+    }
+</style>
+
+<div class="col-md-12 col-lg-8 col-xl-7 d-flex">
+    <div class="card flex-fill">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Detalle de código de flex
+            </div>
+            <div class="">
+                <a href=".."><i class="bi bi-arrow-left-short"></i>Volver a lista
+                    completa</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <h4 class="card-title text-decoration-underline">Código: {{ object.code }}</h4>
+            <div class="text-center">Ultima vez actualizado por {{ object.updated_by.first_name }}
+                {{ object.updated_by.last_name }} en {{ object.last_update }}</div>
+            <div class="fw-bolder mt-3">Precio actual: <span class="fw-normal">$ {{ object.price }}</span></div>
+            <p class="card-text mt-2">
+                Este código incluye {{ total_towns }} localidades y son:
+            </p>
+            <div class="table-responsive mt-3">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>Localidad</th>
+                            <th>Partido</th>
+                            <th>¿Es amba?</th>
+                            <th>Zona del amba</th>
+                        </tr>
+                    </thead>
+                    <tbody id="overrided-1" class="overrided-tbody">
+                        {% for town in towns %}
+                        {% include 'prices/snippets/town_item.html' with obj=town %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-end">
+                <a href=".." type="button" class="btn btn-link"><i class="bi bi-arrow-left-short"></i>Volver a lista
+                    completa</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    var selectionModeEnabled = false;
+    var totalCodes = JSON.parse('{{ totalCodes | escapejs }}');
+
+    $(document).ready(function () {
+        show('clearSelectionDiv', selectionModeEnabled);
+
+        $("#checkAll").click(function () {
+            $(".item-checker").prop('checked', this.checked);
+            countCheckedItems();
+        });
+
+        $(".item-checker").click(function (e) {
+            e.stopImmediatePropagation();
+            countCheckedItems();
+        });
+
+        $(".td-item-checker").click(function (e) {
+            var id = this.id.split("-")[1];
+            changeItemCheckerState('item-checker-' + id);
+            e.stopImmediatePropagation();
+            e.stopPropagation();
+            countCheckedItems();
+        });
+    });
+
+    function onItemClicked(url) {
+        window.location.href = url;
+    }
+
+    function countCheckedItems() {
+        // Get al checkboxes
+        var checkBoxes = Array.from(document.getElementsByClassName("item-checker"));
+        // Count total checkboxes
+        var totalCheckBoxes = checkBoxes.length;
+        // Count checked checkboxes
+        var checkedItemsCount = checkBoxes.filter(checkBox => checkBox.checked == true).length;
+        // If all checkboxes checked, check "checkAll" checkbox
+        $('#checkAll').prop('checked', checkedItemsCount == totalCheckBoxes);
+        // Update selected count
+        $('#selectedCount').text(checkedItemsCount + " de " + totalCodes + " elementos seleccionados");
+        // Enable bulk edit btn only if more than one checked
+        isEnabled('bulkEditDelivery', checkedItemsCount > 1);
+        // Enable delete btn if at least 1 checkbox is checked
+        isEnabled('bulkDeleteDelivery', checkedItemsCount > 0);
+        // Enable selection mode if at least 1 checkbox checked
+        selectionModeEnabled = checkedItemsCount > 0;
+        // hide
+        show('clearSelectionDiv', selectionModeEnabled);
+    }
+
+    function changeItemCheckerState(id) {
+        $('#' + id).prop('checked', !$('#' + id).is(":checked"));
+    }
+
+    function show(id, makeVisible = true) {
+        if (makeVisible && $('#' + id).is(":hidden")) {
+            $('#' + id).hide();
+            $('#' + id).removeClass("hide-on-load");
+            $('#' + id).show(300);
+        }
+        if (!makeVisible && $('#' + id).is(":visible")) {
+            $('#' + id).hide(300);
+        }
+    }
+
+    function isEnabled(id, enable = true) {
+        if (enable && $('#' + id).is(":disabled")) {
+            $('#' + id).removeAttr("disabled");
+        }
+        if (!enable && $('#' + id).is(":enabled")) {
+            $('#' + id).attr("disabled", true);
+        }
+    }
+
+    function itemClicked(id) {
+        if ($('#item-checker-' + id).is(":checked")) {
+            $('#item-checker-' + id).prop('checked', false);
+        } else if (selectionModeEnabled) {
+            $('#item-checker-' + id).prop('checked', true);
+        } else {
+            alert("launch detail item");
+        }
+
+    }
+
+    function removeSelection() {
+        $(".item-checker").prop('checked', false);
+        countCheckedItems();
+    }
+</script>
+
+{% endblock content %}

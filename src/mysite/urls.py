@@ -33,6 +33,7 @@ urlpatterns = [
     path('envios/', include('envios.urls')),
     path('prueba/', prueba_view, name='prueba'),
     path('prices/', include('prices.urls')),
+    path('places/', include('places.urls')),
 ]
 
 if settings.DEBUG:

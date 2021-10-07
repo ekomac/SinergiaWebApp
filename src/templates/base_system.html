@@ -23,18 +23,18 @@
 
 </head>
 
-<body class="d-flex flex-column h-100">
+<body class="d-flex flex-column">
     <div class="container-fluid everything">
         <div class="row">
 
             {% include 'snippets/header.html' %}
 
 
-            <div class="not-header">
+            <div id="not-header">
 
                 {% include 'snippets/navigation.html' %}
 
-                <main class="d-md-flex justify-content-center flex-grow-1 p-3">
+                <main class="d-md-flex justify-content-center flex-grow-1 p-3 overflow-auto">
                     {% block content %}
                     {% endblock content %}
                     <button onclick="topFunction()" type="button" class="btn btn-dark" id="backToTopBtn"
@@ -46,7 +46,7 @@
     </div>
 
 
-    <footer class=" d-flex justify-content-center align-items-center py-2 bg-light shadow text-black text-center
+    <footer class="d-flex py-2 bg-light shadow text-black text-center
                     footer">
     </footer>
 
