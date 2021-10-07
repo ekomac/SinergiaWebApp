@@ -6,12 +6,12 @@
 <ul>
     {% for fcode in fcodes %}
     <li class="mt-1">
-        {{fcode}} por ${{fcode.price|multiplicado:1}}.-
+        {{fcode}} por ${{fcode.price|multiplicado:0}}.-
     </li>
     {% endfor %}
 </ul>
 <div class="d-grid gap-2 col-6 mx-auto mt-4">
-    <a href="#" class="btn btn-danger">Eliminar</a>
+    <input type='submit' value='Sí, eliminar' class="btn btn-danger" />
     <a href="{% if total_count > 1 %}{% url 'prices:flist' %}{% else %}{% url 'prices:fdetail' pk=obj.id%}{% endif %}"
         class="btn btn-secondary">Cancelar</a>
 </div>

@@ -137,22 +137,6 @@ li {
     font-size: 18px;
 }
 
-.helper-1 {
-    border: 2px solid red;
-}
-
-.helper-2 {
-    border: 2px solid green;
-}
-
-.helper-3 {
-    border: 2px solid blue;
-}
-
-.helper-4 {
-    border: 2px solid yello;
-}
-
 .parent-nav {
     display: inline-flex;
     align-items: center;
@@ -181,4 +165,77 @@ li {
 
 .hide-on-load {
     display: none;
+}
+
+
+/*********** UTILITIES ***********/
+
+
+/* XS */
+
+@media (max-width: 575px) {
+    .cambiate {
+        background-color: red;
+    }
+}
+
+
+/* SM */
+
+@media (min-width: 576px) {
+    .cambiate {
+        background-color: pink;
+    }
+}
+
+
+/* MD */
+
+@media (min-width: 768px) {
+    .cambiate {
+        background-color: orange;
+    }
+}
+
+
+/* LG */
+
+@media (min-width: 992px) {
+    .cambiate {
+        background-color: yellow;
+    }
+}
+
+
+/* XL */
+
+@media (min-width: 1200px) {
+    .cambiate {
+        background-color: green;
+    }
+}
+
+
+/* XXL */
+
+@media (min-width: 1400px) {
+    .cambiate {
+        background-color: blue;
+    }
+}
+
+.helper-1 {
+    border: 2px solid red;
+}
+
+.helper-2 {
+    border: 2px solid green;
+}
+
+.helper-3 {
+    border: 2px solid blue;
+}
+
+.helper-4 {
+    border: 2px solid yello;
 }

@@ -18,7 +18,11 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 
-from home.views import (home_screen_view, prueba_view)
+from home.views import (
+    home_screen_view,
+    prueba_view,
+    delete_alert_from_session,
+)
 from account.views import (
     login_view,
     logout_view,
@@ -34,7 +38,10 @@ urlpatterns = [
     path('prueba/', prueba_view, name='prueba'),
     path('prices/', include('prices.urls')),
     path('places/', include('places.urls')),
+    path('delete-alert-from-session/<str:id>',
+         delete_alert_from_session, name='delet-alert'),
 ]
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL,

@@ -5,7 +5,8 @@ from django.conf import settings
 class DeliveryCode(models.Model):
 
     code = models.CharField(
-        verbose_name='code', max_length=5, blank=False, null=False)
+        verbose_name='code', max_length=5, blank=False,
+        null=False, unique=True)
     price = models.DecimalField(
         verbose_name="Price", max_digits=8, decimal_places=2)
     last_update = models.DateTimeField(
@@ -25,7 +26,8 @@ class DeliveryCode(models.Model):
 class FlexCode(models.Model):
 
     code = models.CharField(
-        verbose_name='Código', max_length=5, blank=False, null=False)
+        verbose_name='Código', max_length=5, blank=False,
+        null=False, unique=True)
     price = models.DecimalField(
         verbose_name="Price", max_digits=8, decimal_places=2)
     last_update = models.DateTimeField(

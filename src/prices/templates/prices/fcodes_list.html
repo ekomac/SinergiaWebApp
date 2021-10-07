@@ -5,14 +5,8 @@
 {% include 'snippets/base_tables_css.html' %}
 
 <style>
-    th,
-    tr,
     h5 {
         text-align: center;
-    }
-
-    edit-column {
-        text-align: start;
     }
 
     h5 {
@@ -22,7 +16,7 @@
 </style>
 
 <div class="col-12 d-flex">
-    <div class="card flex-fill">
+    <div class=" card flex-fill">
         <div class="card-body d-flex flex-column">
             <h2 class="card-title text-center mt-2">LISTADO DE TARIFAS VIGENTES</h2>
             <div class="d-flex justify-content-between align-items-center text-start">
@@ -30,7 +24,7 @@
             </div>
             <hr class="bg-dark">
             <div
-                class="d-grid gap-1 d-xl-flex flex-xl-row gap-md-0 justify-content-xl-start align-items-xl-center text-xl-start">
+                class="d-grid gap-1 d-lg-flex flex-lg-row gap-md-0 justify-content-lg-start align-items-lg-center text-lg-start">
                 <button type="button" id="bulkEditDelivery" class="btn btn-primary btn-sm m-2 m-xl-0 ms-xl-2" disabled>
                     Aumento general
                 </button>
@@ -40,7 +34,7 @@
                 </button>
                 <div id="selectedCount" class="ms-2">0 de {{totalCodes}} elementos seleccionados
                 </div>
-                <div class="my-1 mx-xl-3">
+                <div class="my-1mx-xl-3">
                     <div id="clearSelectionDiv" class="hide-on-load">
                         <span class="d-none d-xl-inline">|</span>
                         <a id="clearSelection" type="button" class="ms-2 text-decoration-none"
@@ -48,27 +42,27 @@
                             <i class="bi bi-x"></i></a>
                     </div>
                 </div>
-                <div class="d-flex d-xl-inline ms-xl-auto">
-                    <a href="{% url 'prices:d-add' %}" type="button" class="flex-fill btn btn-success btn-sm m-2"
-                        onclick="createNewDCode()">
+                <div class="d-flex d-lg-inline ms-lg-auto">
+                    <a href="{% url 'prices:f-add' %}" type="button" class="flex-fill btn btn-success btn-sm m-2">
                         <i class="bi bi-plus"></i>Crear nuevo
                     </a>
                 </div>
             </div>
-            <br>
+            <hr class="bg-dark">
             <div class="table-responsive">
                 <table class="table table-striped align-middle">
                     <thead>
                         <tr>
-                            <th class="col-lg-1 col-xl-1">
+                            <th class="">
                                 <div class="form-check">
                                     <input class="form-check-input checkbox-select" type="checkbox" id="checkAll">
                                 </div>
                             </th>
-                            <th class="col-lg-2 col-xl-1">Código</th>
-                            <th class="col-lg-2 col-xl-1">Precio</th>
-                            <th class="col-lg-2 col-xl-1 edit-column"></th>
-                            <th class="col-sm-0 col-lg-5 col-xl-8 edit-column"></th>
+                            <th class="">Código</th>
+                            <th class="">Precio</th>
+                            <th class="">Última edición</th>
+                            <th class="">Editor</th>
+                            <th class="col-lg-5 col-xl-6 col-xxl-7"></th>
                         </tr>
                     </thead>
                     <tbody id="overrided-1" class="overrided-tbody">

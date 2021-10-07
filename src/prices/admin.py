@@ -3,7 +3,7 @@ from prices.models import DeliveryCode, FlexCode
 
 
 class DeliveryCodeAdmin(admin.ModelAdmin):
-    list_display = ('code', 'price')
+    list_display = ('code', 'price', 'last_update', 'updated_by')
     search_fields = ('code',)
 
     filter_horizontal = ()
@@ -12,7 +12,7 @@ class DeliveryCodeAdmin(admin.ModelAdmin):
 
 
 class FlexCodeAdmin(admin.ModelAdmin):
-    list_display = ('code', 'price')
+    list_display = ('code', 'price', 'last_update', 'updated_by')
     search_fields = ('code',)
 
     filter_horizontal = ()

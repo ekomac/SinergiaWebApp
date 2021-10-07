@@ -7,6 +7,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import CreateDCodeForm, CreateFCodeForm
 from .models import DeliveryCode, FlexCode
 from places.models import Town
+from datetime import datetime
+from alerts.alert import ToastAlert
 # from django.views.generic.edit import CreateView
 # from django.views.generic import ListView
 
@@ -68,6 +70,9 @@ def fcodes_view(request, *args, **kwargs):
         context['totalCodes'] = len(fcodes)
         context['selected_tab'] = 'fprices-tab'
 
+        # del request.session['alerts']
+        # print(request.session['alerts'])
+
     return render(request, "prices/fcodes_list.html", context)
 
 
@@ -86,7 +91,7 @@ class AddDCodeView(DPricesContextMixin, LoginRequiredMixin, CreateView):
 
 class AddFCodeView(FPricesContextMixin, LoginRequiredMixin, CreateView):
     model = FlexCode
-    template_name = "prices/add_fcode.html"
+    template_name = "prices/fcode/add.html"
     form_class = CreateFCodeForm
 
     def form_valid(self, form):
@@ -99,7 +104,7 @@ class AddFCodeView(FPricesContextMixin, LoginRequiredMixin, CreateView):
 
 class DCodeDetailView(DPricesContextMixin, DetailView):
     model = DeliveryCode
-    template_name = "prices/dcode_detail.html"
+    template_name = "prices/dcode/detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -153,9 +158,10 @@ def confirm_delete_fcode(request, *args, **kwargs):
 
     context = {}
 
+    fcodesids = kwargs['fcodeids'].split("-")
+    fcodes = FlexCode.objects.filter(pk__in=fcodesids)
+
     if request.method == 'GET':
-        fcodesids = kwargs['fcodeids'].split("-")
-        fcodes = FlexCode.objects.filter(pk__in=fcodesids)
         context['fcodes'] = fcodes
         total_count = len(fcodes)
         context['total_count'] = total_count
@@ -165,5 +171,29 @@ def confirm_delete_fcode(request, *args, **kwargs):
             what = ' código de flex'
             context['obj'] = fcodes[0]
         context['what_to_delete'] = str(total_count) + what
+
+    if request.method == 'POST':
+        fcodes_names = [fcode.code for fcode in fcodes]
+        fcodes.delete()
+
+        alerts = request.session.get('alerts', [])
+        first_part = 'El código de flex "'
+        last_part = '" se eliminó correctamente'
+
+        if len(fcodes_names) > 1:
+            first_part = 'Los códigos de flex "'
+            last_part = '" se eliminaron correctamente.'
+
+        message = first_part + ", ".join(fcodes_names) + last_part
+        now = datetime.now()
+        alert = ToastAlert(
+            'delete',
+            'success',
+            'Eliminación correcta',
+            message,
+            now)
+        alerts.append(alert.get_as_dict())
+        request.session['alerts'] = alerts
+        return redirect('prices:flist')
 
     return render(request, "prices/confirm_fdelete.html", context)

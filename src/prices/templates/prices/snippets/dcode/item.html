@@ -1,13 +1,7 @@
 {% load price_extras %}
 
-<style>
-    td {
-        overflow: auto;
-        white-space: nowrap;
-    }
-</style>
-
-<tr id="tr-{{obj.id}}" class="table-item" onclick="onItemClicked({{ obj.id }},'{% url 'prices:ddetail' pk=obj.id %}');">
+<tr id="tr-{{obj.id}}" class="table-item"
+    onclick="onItemClicked({{ obj.id }},'{% if codetype == 'd' %}{% url 'prices:ddetail' pk=obj.id %}{% else %}{% url 'prices:fdetail' pk=obj.id %}{% endif %}');">
     <td id=" td-{{obj.id}}" class="td-item-checker">
         <div class="form-check">
             <input id="item-checker-{{obj.id}}" class="form-check-input item-checker" type="checkbox" value="">
@@ -15,13 +9,12 @@
     </td>
     <td>{{ obj.code }}</td>
     <td>{{ obj.price }}</td>
-    <td>{{ obj.last_update }}</td>
-    <td>{{ obj.updated_by.first_name }} {{ obj.updated_by.last_name }}</td>
+    <td>{{ obj.price }}</td>
+    <td>{{ obj.price }}</td>
     <td>{{ obj.price|multiplicado:1 }}</td>
     <td>{{ obj.price|multiplicado:2 }}</td>
     <td>{{ obj.price|multiplicado:3 }}</td>
     <td>{{ obj.price|multiplicado:4 }}</td>
     <td>{{ obj.price|multiplicado:5 }}</td>
-    <td style="text-align: start;"><a href="#" class="edit-button" title="Editar"><i
-                class="bi bi-pencil-square"></i></a></td>
+    <td><a href="#" class="edit-button" title="Editar"><i class="bi bi-pencil-square"></i></a></td>
 </tr>

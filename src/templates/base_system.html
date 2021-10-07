@@ -2,6 +2,7 @@
 <html lang="en">
 
 {% load static %}
+{% load main_extras %}
 
 <head>
     <meta charset="UTF-8">
@@ -35,10 +36,38 @@
                 {% include 'snippets/navigation.html' %}
 
                 <main class="d-md-flex justify-content-center flex-grow-1 p-3 overflow-auto">
+
+                    <!-- MAIN CONTENT LOCATION -->
                     {% block content %}
                     {% endblock content %}
+
+                    <!-- SCROLL TO TOP BUTTON -->
                     <button onclick="topFunction()" type="button" class="btn btn-dark" id="backToTopBtn"
                         title="Volver a arriba"><i class="bi bi-arrow-up-circle"></i></button>
+
+                    <!-- TOAST MESSAGES -->
+                    {% if request.session.alerts %}
+                    <div class="d-flex flex-column position-fixed bottom-0 end-0 p-2" style="z-index: 500">
+                        <div class="toast-container">
+                            {% for alert in request.session.alerts %}
+
+                            <div id="{{ alert.id }}"
+                                class="toast align-items-center text-white bg-{{ alert.status }} border-0 fade show"
+                                role="alert" aria-live="assertive" aria-atomic="true">
+                                <div class="d-flex">
+                                    <div class="toast-body">
+                                        {{ alert.message }}.
+                                    </div>
+                                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                                        data-bs-dismiss="toast" aria-label="Close"
+                                        onclick="dismissAlert('{% url 'delet-alert' id=alert.id %}');"></button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
                 </main>
             </div>
 

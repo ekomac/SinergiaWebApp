@@ -5,7 +5,8 @@ from django.conf import settings
 class Zone(models.Model):
 
     name = models.CharField(
-        verbose_name='Name', max_length=50, blank=False, null=False)
+        verbose_name='Name', max_length=50, blank=False,
+        null=False, unique=True)
     asigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True,
         blank=True, on_delete=models.SET_NULL)
