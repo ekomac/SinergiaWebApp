@@ -17,6 +17,7 @@ footer {
 
 main {
     z-index: -100;
+    min-height: calc(100vh - 89px);
     margin: 0;
     padding: 0;
 }
@@ -205,7 +206,7 @@ li {
 /* XS */
 
 @media (max-width: 575px) {
-    .cambiate {
+    .responsive-color {
         background-color: red;
     }
 }
@@ -214,7 +215,7 @@ li {
 /* SM */
 
 @media (min-width: 576px) {
-    .cambiate {
+    .responsive-color {
         background-color: pink;
     }
 }
@@ -223,7 +224,7 @@ li {
 /* MD */
 
 @media (min-width: 768px) {
-    .cambiate {
+    .responsive-color {
         background-color: orange;
     }
 }
@@ -232,7 +233,7 @@ li {
 /* LG */
 
 @media (min-width: 992px) {
-    .cambiate {
+    .responsive-color {
         background-color: yellow;
     }
 }
@@ -241,7 +242,7 @@ li {
 /* XL */
 
 @media (min-width: 1200px) {
-    .cambiate {
+    .responsive-color {
         background-color: green;
     }
 }
@@ -250,7 +251,7 @@ li {
 /* XXL */
 
 @media (min-width: 1400px) {
-    .cambiate {
+    .responsive-color {
         background-color: blue;
     }
 }
