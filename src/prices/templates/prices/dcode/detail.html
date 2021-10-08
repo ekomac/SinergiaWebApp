@@ -2,6 +2,9 @@
 
 {% block content %}
 
+{% load price_extras %}
+
+
 <style>
     h4 {
         text-align: center;
@@ -22,10 +25,33 @@
             </div>
         </div>
         <div class="card-body">
-            <h4 class="card-title text-decoration-underline">Código: {{ object.code }}</h4>
+            <h3 class="card-title d-flex align-items-center">
+                <div class="text-decoration-underline">Código:</div>
+                <div class="w-100 ms-1">{{ object.code }}</div>
+                <div class="flex-shrink-1">
+                    <a href="{% url 'prices:dcode-edit' pk=object.id%}" class="btn btn-secondary d-flex flex-nowrap"><i
+                            class="bi bi-pencil-square me-1"></i>Editar</a>
+                </div>
+            </h3>
             <div class="text-center">Ultima vez actualizado por {{ object.updated_by.first_name }}
                 {{ object.updated_by.last_name }} el {{ object.last_update }}</div>
-            <div class="fw-bolder mt-3">Precio actual: <span class="fw-normal">$ {{ object.price }}</span></div>
+            <div class="fw-bolder mt-3 d-flex">
+                <div class="text-decoration-underline">Precio base actual (máx 5kg)</div>:
+                <div class="ms-2 fw-normal">$&nbsp;{{ object.price |multiplicado:0}}</div>
+            </div>
+            <div class="fw-bold mt-1">Bulto máx. 10kg: <span
+                    class="fw-normal">$&nbsp;{{ object.price |multiplicado:1}}</span>
+            </div>
+            <div class="fw-bold mt-1">Bulto máx. 20kg: <span
+                    class="fw-normal">$&nbsp;{{ object.price |multiplicado:2}}</span>
+            </div>
+            <div class="fw-bold mt-1">Miniflete: <span class="fw-normal">$&nbsp;{{ object.price |multiplicado:3}}</span>
+            </div>
+            <div class="fw-bold mt-1">Urgente: <span class="fw-normal">$&nbsp;{{ object.price |multiplicado:4}}</span>
+            </div>
+            <div class="fw-bold mt-1 mb-3">Trámite: <span
+                    class="fw-normal">$&nbsp;{{ object.price |multiplicado:5}}</span>
+            </div>
             {% if total_towns > 0 %}
             <p class="card-text mt-2">
                 Este código incluye {{ total_towns }} localidades:
