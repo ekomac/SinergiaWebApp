@@ -17,6 +17,17 @@ from alerts.alert import ToastAlert
 # from django.views.generic.edit import CreateView
 # from django.views.generic import ListView
 
+# def decorator_factory(argument):
+#     def decorator(function):
+#         def wrapper(*args, **kwargs):
+#             funny_stuff()
+#             something_with_argument(argument)
+#             result = function(*args, **kwargs)
+#             more_funny_stuff()
+#             return result
+#         return wrapper
+#     return decorator
+
 
 class PricesContextMixin(View):
 
@@ -40,6 +51,24 @@ class FPricesContextMixin(View):
         ctx = super(FPricesContextMixin, self).get_context_data(**kwargs)
         ctx['selected_tab'] = 'fprices-tab'
         return ctx
+
+
+class CreateAlertMixin(View):
+
+    def add_alert(self, **kwargs):
+        """Adds an alert to request's session indicating the create action"""
+        # Gets current alerts
+        alerts = self.request.session.get('alerts', [])
+        # Get current time
+        now = datetime.now()
+        # Create the alert
+        alert = ToastAlert(kwargs['topic'], kwargs['status'],
+                           kwargs['title'], kwargs['msg'], now)
+        # Append it to already existing ones
+        alerts.append(alert.get_as_dict())
+        # Set them back to request's session
+        self.request.session['alerts'] = alerts
+        return
 
 
 def dcodes_view(request, *args, **kwargs):
@@ -78,17 +107,47 @@ def fcodes_view(request, *args, **kwargs):
     return render(request, "prices/fcode/list.html", context)
 
 
-class AddDCodeView(DPricesContextMixin, LoginRequiredMixin, CreateView):
-    model = DeliveryCode
+class AddDCodeView(CreateAlertMixin, LoginRequiredMixin, CreateView):
+    login_url = '/login/'
     template_name = "prices/dcode/add.html"
     form_class = CreateDCodeForm
 
     def form_valid(self, form):
+        self.add_alert(
+            topic='create',
+            status='success',
+            title='Creación correcta',
+            msg=f'El código {form.instance.code} se creó correctamente.',
+        )
         form.instance.updated_by = self.request.user
         return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('prices:ddetail', kwargs={'pk': self.object.pk})
+
+    def get_context_data(self, **kwargs):
+        ctx = super(AddDCodeView, self).get_context_data(**kwargs)
+        ctx['selected_tab'] = 'dprices-tab'
+        # Intend to pass a suggestion code name to the view
+        try:
+            # Get last code name, from querying the database
+            # with code param in descending order
+            last_code_num = DeliveryCode.objects.all().order_by(
+                '-code')[:1].get().code
+            # Look for a number in the string
+            result = re.search(r'\d.*', last_code_num)[0]
+            # If result has something
+            if result != '':
+                # Make it an int, then adding 1
+                result = int(result)+1
+                # Fill the number with zeros
+                result = f'{result}'.zfill(2)
+                # Pass it to context
+                ctx['name_suggestion'] = 'M' + result
+        # If no Flex Code exists, pass to template the base suggestion
+        except DeliveryCode.DoesNotExist:
+            ctx['name_suggestion'] = 'M01'
+        return ctx
 
 
 class AddFCodeView(LoginRequiredMixin, CreateView):
@@ -107,7 +166,7 @@ class AddFCodeView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         ctx = super(AddFCodeView, self).get_context_data(**kwargs)
         ctx['selected_tab'] = 'dprices-tab'
-        # Intend to pass a suggestion code name to de view
+        # Intend to pass a suggestion code name to the view
         try:
             # Get last code name, from querying the database
             # with code param in descending order

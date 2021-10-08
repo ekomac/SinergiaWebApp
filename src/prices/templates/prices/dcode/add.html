@@ -36,53 +36,32 @@
 
                 <!-- START CODE NAME INPUT -->
                 <div class="col">
-                    <label for="{{form.code.id_for_label}}" class="form-label">Código</label>
-                    {{ form.code}}
+                    <label for="id_code" class="form-label">Código</label>
+                    <input id="id_code" name="code" type="text" {% if form.code.value %}value="{{form.code.value}}"
+                        {% endif %} class="form-control {% if form.code.errors %}is-invalid{% endif %}"
+                        placeholder="{{ name_suggestion }}" required>
+                    <div class="invalid-feedback">
+                        {% for error in form.code.errors %}{{error}}<br>{% endfor %}
+                    </div>
                 </div>
                 <!-- END CODE NAME INPUT -->
 
-
-                <!-- START PRICE INPUT-->
+                <!-- START PRICE INPUT -->
                 <div class="col">
-                    <label for="{{form.price.id_for_label}}" class="form-label">Precio base</label>
+                    <label for="id_price" class="form-label">Precio base</label>
                     <div class="input-group mb-3">
                         <span class="input-group-text">$</span>
-                        {{ form.price }}
+                        <input type="number" name="price" id="id_price" value="{{form.price.value}}"
+                            class="form-control {% if form.price.errors %}is-invalid{% endif %}" placeholder="0" min="0"
+                            max="999999.99" step="1" required>
                         <span class="input-group-text">.00</span>
+                        <div class="invalid-feedback">
+                            {% for error in form.price.errors %}{{error}}<br>{% endfor %}
+                        </div>
                     </div>
                 </div>
                 <!-- END PRICE INPUT -->
 
-
-                {% for field in form %}
-                <p>
-                    {% for error in field.errors %}
-                    <p style="color: red">{{ error }}</p>
-                    {% endfor %}
-                </p>
-                {% endfor %}
-                {% if form.non_field_errors %}
-                <div style="color: red">
-                    <p>{{form.non_field_errors}}</p>
-                </div>
-                {% endif %}
-
-
-                <div class="col-12 {% if not form.errors %}d-none{% endif %}">
-                    {% for error in form.errors %}
-                    <p style="color: red;">{{error}}</p>
-                    {% endfor %}
-                </div>
-
-                {{ form.errors }}
-                {% for field in form %} <p>
-                    {{ field.label_tag }}<br>
-                    {{ field }}
-                    {% for error in field.errors %}
-                    {{ error }}
-                    {% endfor %}
-                </p>
-                {% endfor %}
 
                 <!-- START SUMBIT BUTTON -->
                 <div class="d-grid gap-2 d-md-flex">
@@ -95,128 +74,5 @@
     </form>
 
 </div>
-
-<script>
-    var places = JSON.parse('{{ places | escapejs }}');
-
-    const detailInputs = {
-        0: "max-5-package",
-        1: "max-10-package",
-        2: "max-20-package",
-        3: "miniflete",
-        4: "urgent",
-        5: "tramite",
-    };
-
-    function isNumeric(value) {
-        return /^\d+$/.test(value);
-    }
-
-    $(document).ready(function () {
-
-        $("#detailNotVisible").hide();
-
-        $('#id_recipient_town').find('option:not(:first)').remove();
-
-        $('#create_form').submit(function (event) {
-            event.preventDefault(); //this will prevent the default submit
-            updateDetails();
-            $(this).unbind('submit').submit(); // continue the submit unbind preventDefault
-        });
-
-        $.event.special.inputchange = {
-            setup: function () {
-                var self = this,
-                    val;
-                $.data(this, 'timer', window.setInterval(function () {
-                    val = self.value;
-                    if ($.data(self, 'cache') != val) {
-                        $.data(self, 'cache', val);
-                        $(self).trigger('inputchange');
-                    }
-                }, 20));
-            },
-            teardown: function () {
-                window.clearInterval($.data(this, 'timer'));
-            },
-            add: function () {
-                $.data(this, 'cache', this.value);
-            }
-        };
-
-        $('#simpleEditorCheckDiv').hide(200);
-        $("#defaultDetailCheckbox").click(function () {
-            var isDefaultSelected = $(this).is(":checked");
-            if (isDefaultSelected) {
-                document.getElementById("id_detail").value = "0-1";
-                $('#detailDiv').hide(200);
-            } else {
-                $('#detailDiv').show(200);
-                $('#detailDiv').removeClass("hidden");
-            }
-        });
-
-        $("#id_is_flex").click(function () {
-            var isFlex = $(this).is(":checked");
-            if (isFlex) {
-                $('#id_flex_id').removeAttr('disabled');
-            } else {
-                $('#id_flex_id').attr('disabled', 'disabled');
-            }
-        });
-
-        setPartidoListener();
-        setDetailsListeners();
-    });
-
-    function setPartidoListener() {
-        $('#inputPartido').on('inputchange', function () {
-            var selectedPartidoId = this.value.toString();
-            var placesFromPartido = places.filter(function (place) {
-                return place.partido_id == selectedPartidoId;
-            });
-            $('#id_recipient_town').find('option:not(:first)').remove();
-            for (var element of placesFromPartido) {
-                $('#id_recipient_town').append('<option value="' + element.id + '">' + element.name +
-                    '</option>');
-            }
-        });
-    }
-
-    function setDetailsListeners() {
-        for (let i = 0; i < 6; i++) {
-            $('#detailInput' + i).on('inputchange', function () {
-                var currentValue = this.value.toString();
-                if (currentValue != "" && currentValue != "0" && isNumeric(currentValue)) {
-                    $('#btnClear' + i).removeClass("invisible");
-                }
-                if (currentValue == "" || currentValue == "0" || !isNumeric(currentValue)) {
-                    $('#btnClear' + i).addClass("invisible");
-                }
-            });
-            $('#btnClear' + i).on('click', function () {
-                $('#detailInput' + i).val("0");
-            });
-        }
-    }
-
-    function updateDetails() {
-        try {
-            var detailsArray = [];
-            for (var i = 0; i < 6; i++) {
-                var amount = $("#detailInput" + i).val();
-                if (isNumeric(amount) && amount != "0") {
-                    detailsArray.push(i.toString() + "-" + amount.toString());
-                }
-            }
-            var details = detailsArray.join(",");
-            details = details == "" ? "0-1" : details;
-            document.getElementById("id_detail").value = details
-        } catch (e) {
-            alert(e);
-        }
-    }
-</script>
-
 
 {% endblock %}
