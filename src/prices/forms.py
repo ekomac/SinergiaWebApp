@@ -51,19 +51,6 @@ class CreateFCodeForm(forms.ModelForm):
     code = forms.CharField(label='Nombre del código', required=True,
                            widget=forms.TextInput(attrs=code_widget_attrs),)
 
-    # if FlexCode.objects.all().count() > 0:
-    #     try:
-    #         last_code_num = FlexCode.objects.all().order_by(
-    #             '-code')[:1].get().code
-    #         import re
-    #         result = re.search(r'\d.*', last_code_num)[0]
-    #         if result != '':
-    #             result = int(result)+1
-    #             result = f'{result}'.zfill(2)
-    #             code.initial = 'F' + result
-    #     except FlexCode.DoesNotExist as e:
-    #         print(e)
-
     price = forms.DecimalField(
         label='Precio base', required=True,
         widget=forms.TextInput(

@@ -39,7 +39,7 @@
                     <label for="id_code" class="form-label">Código</label>
                     <input id="id_code" name="code" type="text" {% if form.code.value %}value="{{form.code.value}}"
                         {% endif %} class="form-control {% if form.code.errors %}is-invalid{% endif %}"
-                        placeholder="F01" required>
+                        placeholder="{{ name_suggestion }}" required>
                     <div class="invalid-feedback">
                         {% for error in form.code.errors %}{{error}}<br>{% endfor %}
                     </div>

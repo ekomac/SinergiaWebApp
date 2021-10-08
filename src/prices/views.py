@@ -98,6 +98,22 @@ class AddFCodeView(FPricesContextMixin, LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('prices:fdetail', kwargs={'pk': self.object.pk})
 
+    def get_context_data(self, **kwargs):
+        ctx = super(AddFCodeView, self).get_context_data(**kwargs)
+        ctx['selected_tab'] = 'dprices-tab'
+        try:
+            last_code_num = FlexCode.objects.all().order_by(
+                '-code')[:1].get().code
+            import re
+            result = re.search(r'\d.*', last_code_num)[0]
+            if result != '':
+                result = int(result)+1
+                result = f'{result}'.zfill(2)
+                ctx['name_suggestion'] = 'F' + result
+        except FlexCode.DoesNotExist as e:
+            print(e)
+        return ctx
+
 
 class DCodeDetailView(DPricesContextMixin, DetailView):
     model = DeliveryCode
