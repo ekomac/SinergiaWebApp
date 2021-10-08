@@ -93,6 +93,7 @@ class AddFCodeView(FPricesContextMixin, LoginRequiredMixin, CreateView):
     form_class = CreateFCodeForm
 
     def form_valid(self, form):
+        self.__add_alert(form.instance.code)
         form.instance.updated_by = self.request.user
         return super().form_valid(form)
 
@@ -122,6 +123,27 @@ class AddFCodeView(FPricesContextMixin, LoginRequiredMixin, CreateView):
         except FlexCode.DoesNotExist:
             ctx['name_suggestion'] = 'F01'
         return ctx
+
+    def __add_alert(self, name):
+        """Adds an alert to request's session indicating the create action"""
+        # Gets current alerts
+        alerts = self.request.session.get('alerts', [])
+        # Creates the message
+        msg = f'El código {name} se creó correctamente.'
+        # Get current time
+        now = datetime.now()
+        # Create the alert
+        alert = ToastAlert(
+            'create',
+            'success',
+            'Creación correcta',
+            msg,
+            now)
+        # Append it to already existing ones
+        alerts.append(alert.get_as_dict())
+        # Set them back to request's session
+        self.request.session['alerts'] = alerts
+        return
 
 
 class DCodeDetailView(DPricesContextMixin, DetailView):
