@@ -1,23 +1,5 @@
 {% extends 'base_system.html' %} {% block content %} {% load places_extras %}
 
-<style>
-    td {
-        vertical-align: middle;
-    }
-
-    .hola {
-        background-color: red;
-    }
-
-    div .hidden {
-        display: none;
-    }
-
-    #create_form {
-        background-color: white;
-    }
-</style>
-
 <div class="col-md-12 col-lg-8 col-xl-6 col-xxl-5 d-flex-block">
     <form action='.' method='POST' id="create_form" class="card flex-fill shadow-lg" name="create_form" target="_top"
         enctype="multipart/form-data">{% csrf_token %}

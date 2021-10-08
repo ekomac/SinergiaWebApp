@@ -1,50 +1,46 @@
 from django.urls import path
 
 from .views import (
-    # Listing
-    dcodes_view,
-    fcodes_view,
 
-    # Creating
-    AddDCodeView,
-    AddFCodeView,
+    # ******** MENSAJERIA ********
+    delivery_codes_view,
+    DeliveryCodeAddView,
+    DeliveryCodeDetailView,
+    DeliveryCodeUpdateView,
+    delivery_code_confirm_delete,
+    # ******** MENSAJERIA ********
 
-    # Detailing
-    DCodeDetailView,
-    FCodeDetailView,
-
-    # Updating
-    DCodeUpdateView,
-    FCodeUpdateView,
-
-    # Deleting
-    confirm_delete_dcode,
-    confirm_delete_fcode,
+    # ********* FLEX *********
+    flex_codes_view,
+    FlexCodeAddView,
+    FlexCodeDetailView,
+    FlexCodeUpdateView,
+    flex_code_confirm_delete,
+    # ********* FLEX *********
 )
 
 app_name = 'prices'
 urlpatterns = [
-    # Listing
-    path('delivery/', dcodes_view, name="dlist"),
-    path('flex/', fcodes_view, name="flist"),
 
-    # Creating
-    path('delivery/add/', AddDCodeView.as_view(), name="dcode-add"),
-    path('flex/add/', AddFCodeView.as_view(), name="fcode-add"),
+    # **************************** MENSAJERIA ****************************
+    path('delivery/', delivery_codes_view, name="dcode-list"),
+    path('delivery/add/', DeliveryCodeAddView.as_view(), name="dcode-add"),
+    path('delivery/<int:pk>/', DeliveryCodeDetailView.as_view(),
+         name="dcode-detail"),
+    path('delivery/<int:pk>/edit', DeliveryCodeUpdateView.as_view(),
+         name="dcode-edit"),
+    path('delivery/delete/<dcodeids>/', delivery_code_confirm_delete,
+         name="dcode-delete"),
+    # **************************** MENSAJERIA ****************************
 
-    # Detailing
-    path('delivery/<int:pk>/', DCodeDetailView.as_view(), name="ddetail"),
-    path('flex/<int:pk>/', FCodeDetailView.as_view(), name="fdetail"),
 
-    # Updating
-    path('delivery/<int:pk>/edit',
-         DCodeUpdateView.as_view(), name="dcode-edit"),
-    path('flex/<int:pk>/edit', FCodeUpdateView.as_view(), name="fcode-edit"),
-
-    # Deleting
-    path('delivery/delete/<dcodesids>/',
-         confirm_delete_dcode, name="delete-dcodes"),
-    path('flex/delete/<fcodeids>/',
-         confirm_delete_fcode, name='delete-fcodes'),
-
+    # ****************************** FLEX ******************************
+    path('flex/', flex_codes_view, name="fcode-list"),
+    path('flex/add/', FlexCodeAddView.as_view(), name="fcode-add"),
+    path('flex/<int:pk>/edit', FlexCodeUpdateView.as_view(),
+         name="fcode-edit"),
+    path('flex/<int:pk>/', FlexCodeDetailView.as_view(), name="fcode-detail"),
+    path('flex/delete/<fcodeids>/', flex_code_confirm_delete,
+         name='fcode-delete'),
+    # ****************************** FLEX ******************************
 ]

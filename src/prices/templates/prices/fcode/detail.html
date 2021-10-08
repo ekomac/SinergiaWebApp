@@ -3,13 +3,6 @@
 {% block content %}
 
 {% include 'snippets/base_tables_css.html' %}
-<style>
-    h4 {
-        text-align: center;
-        margin-bottom: 10px;
-        margin-top: 20px;
-    }
-</style>
 
 <div class="col-md-12 col-xl-10 col-xxl-9 d-flex-block">
     <div class="card flex-fill shadow-lg">
@@ -23,14 +16,19 @@
             </div>
         </div>
         <div class="card-body">
-            <h3 class="card-title d-flex align-items-center">
-                <div class="text-decoration-underline">Código:</div>
-                <div class="w-100 ms-1">{{ object.code }}</div>
-                <div class="flex-shrink-1">
-                    <a href="{% url 'prices:fcode-edit' pk=object.id%}" class="btn btn-secondary d-flex flex-nowrap"><i
+            <div class="card-title d-flex d-row">
+                <h3 class="flex-grow-1 d-flex align-items-center">
+                    <div class="text-decoration-underline">Código:</div>
+                    <div class="w-100 ms-1">{{ object.code }}</div>
+                </h3>
+                <div class="d-flex gap-1 flex-nowrap">
+                    <a href="{% url 'prices:fcode-edit' pk=object.id %}" class="btn btn-secondary d-flex flex-nowrap"><i
                             class="bi bi-pencil-square me-1"></i>Editar</a>
+                    <a href="{% url 'prices:fcode-delete' object.id %}" class="btn btn-danger d-flex flex-nowrap"><i
+                            class="bi bi-pencil-square me-1"></i>Eliminar</a>
                 </div>
-            </h3>
+
+            </div>
             <div>Ultima vez actualizado por {{ object.updated_by.first_name }}
                 {{ object.updated_by.last_name }} el {{ object.last_update }}</div>
             <div class="fw-bolder mt-3">Precio actual: <span class="fw-normal">$ {{ object.price }}</span></div>
@@ -68,97 +66,5 @@
     </div>
 
 </div>
-
-<script>
-    var selectionModeEnabled = false;
-    var totalCodes = JSON.parse('{{ totalCodes | escapejs }}');
-
-    $(document).ready(function () {
-        show('clearSelectionDiv', selectionModeEnabled);
-
-        $("#checkAll").click(function () {
-            $(".item-checker").prop('checked', this.checked);
-            countCheckedItems();
-        });
-
-        $(".item-checker").click(function (e) {
-            e.stopImmediatePropagation();
-            countCheckedItems();
-        });
-
-        $(".td-item-checker").click(function (e) {
-            var id = this.id.split("-")[1];
-            changeItemCheckerState('item-checker-' + id);
-            e.stopImmediatePropagation();
-            e.stopPropagation();
-            countCheckedItems();
-        });
-    });
-
-    function onItemClicked(url) {
-        window.location.href = url;
-    }
-
-    function countCheckedItems() {
-        // Get al checkboxes
-        var checkBoxes = Array.from(document.getElementsByClassName("item-checker"));
-        // Count total checkboxes
-        var totalCheckBoxes = checkBoxes.length;
-        // Count checked checkboxes
-        var checkedItemsCount = checkBoxes.filter(checkBox => checkBox.checked == true).length;
-        // If all checkboxes checked, check "checkAll" checkbox
-        $('#checkAll').prop('checked', checkedItemsCount == totalCheckBoxes);
-        // Update selected count
-        $('#selectedCount').text(checkedItemsCount + " de " + totalCodes + " elementos seleccionados");
-        // Enable bulk edit btn only if more than one checked
-        isEnabled('bulkEditDelivery', checkedItemsCount > 1);
-        // Enable delete btn if at least 1 checkbox is checked
-        isEnabled('bulkDeleteDelivery', checkedItemsCount > 0);
-        // Enable selection mode if at least 1 checkbox checked
-        selectionModeEnabled = checkedItemsCount > 0;
-        // hide
-        show('clearSelectionDiv', selectionModeEnabled);
-    }
-
-    function changeItemCheckerState(id) {
-        $('#' + id).prop('checked', !$('#' + id).is(":checked"));
-    }
-
-    function show(id, makeVisible = true) {
-        if (makeVisible && $('#' + id).is(":hidden")) {
-            $('#' + id).hide();
-            $('#' + id).removeClass("hide-on-load");
-            $('#' + id).show(300);
-        }
-        if (!makeVisible && $('#' + id).is(":visible")) {
-            $('#' + id).hide(300);
-        }
-    }
-
-    function isEnabled(id, enable = true) {
-        if (enable && $('#' + id).is(":disabled")) {
-            $('#' + id).removeAttr("disabled");
-        }
-        if (!enable && $('#' + id).is(":enabled")) {
-            $('#' + id).attr("disabled", true);
-        }
-    }
-
-    function itemClicked(id) {
-        if ($('#item-checker-' + id).is(":checked")) {
-            $('#item-checker-' + id).prop('checked', false);
-        } else if (selectionModeEnabled) {
-            $('#item-checker-' + id).prop('checked', true);
-        } else {
-            alert("launch detail item");
-        }
-
-    }
-
-    function removeSelection() {
-        $(".item-checker").prop('checked', false);
-        countCheckedItems();
-    }
-</script>
 
 {% endblock content %}

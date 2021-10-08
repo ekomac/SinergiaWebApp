@@ -184,7 +184,7 @@
                 return id.split("-checker-")[1];
             }).join("-");
         console.log(checkBoxesIds);
-        var url_mask = "{% url 'prices:delete-fcodes' 12345 %}".replace(/12345/, checkBoxesIds);
+        var url_mask = "{% url 'prices:fcode-delete' 12345 %}".replace(/12345/, checkBoxesIds);
         console.log("url -> " + url_mask);
         window.location.href = url_mask;
     }

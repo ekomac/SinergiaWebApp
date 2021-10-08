@@ -7,7 +7,8 @@
     }
 </style>
 
-<tr id="tr-{{obj.id}}" class="table-item" onclick="onItemClicked({{ obj.id }},'{% url 'prices:ddetail' pk=obj.id %}');">
+<tr id="tr-{{obj.id}}" class="table-item"
+    onclick="onItemClicked({{ obj.id }},'{% url 'prices:dcode-detail' pk=obj.id %}');">
     <td id=" td-{{obj.id}}" class="td-item-checker">
         <div class="form-check">
             <input id="item-checker-{{obj.id}}" class="form-check-input item-checker" type="checkbox" value="">
@@ -23,6 +24,6 @@
     <td>{{ obj.price|multiplicado:3 }}</td>
     <td>{{ obj.price|multiplicado:4 }}</td>
     <td>{{ obj.price|multiplicado:5 }}</td>
-    <td style="text-align: start;"><a href="#" class="edit-button" title="Editar"><i
-                class="bi bi-pencil-square"></i></a></td>
+    <td style="text-align: start;"><a href="{% url 'prices:dcode-edit' pk=obj.id %}" class="edit-button"
+            title="Editar"><i class="bi bi-pencil-square"></i></a></td>
 </tr>

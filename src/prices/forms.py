@@ -39,7 +39,7 @@ class CleanerMixin(forms.ModelForm):
             raise OnlyUpdatesError("This method only works for updating!")
 
 
-class BaseDCodeForm(CleanerMixin):
+class BaseDeliveryCodeForm(CleanerMixin):
 
     code = forms.CharField(label='Nombre del código', required=True,
                            widget=forms.TextInput(attrs={
@@ -67,7 +67,7 @@ class BaseDCodeForm(CleanerMixin):
         ]
 
 
-class CreateDCodeForm(BaseDCodeForm, forms.ModelForm):
+class CreateDeliveryCodeForm(BaseDeliveryCodeForm, forms.ModelForm):
 
     def clean_code(self, *args, **kwargs):
         return self.clean_unique_or_error(
@@ -78,7 +78,7 @@ class CreateDCodeForm(BaseDCodeForm, forms.ModelForm):
             'price', "Ya existe un código con ese precio")
 
 
-class UpdateDCodeForm(BaseDCodeForm, forms.ModelForm):
+class UpdateDeliveryCodeForm(BaseDeliveryCodeForm, forms.ModelForm):
 
     def clean_code(self, *args, **kwargs):
         return self.clean_unique_beyond_instance_or_error(
@@ -89,7 +89,7 @@ class UpdateDCodeForm(BaseDCodeForm, forms.ModelForm):
             'price', "Ya existe un código con ese precio")
 
 
-class BaseFCodeForm(CleanerMixin):
+class BaseFlexCodeForm(CleanerMixin):
 
     code = forms.CharField(label='Nombre del código', required=True,
                            widget=forms.TextInput(attrs={
@@ -117,7 +117,7 @@ class BaseFCodeForm(CleanerMixin):
         ]
 
 
-class CreateFCodeForm(BaseFCodeForm, forms.ModelForm):
+class CreateFlexCodeForm(BaseFlexCodeForm, forms.ModelForm):
 
     def clean_code(self, *args, **kwargs):
         return self.clean_unique_or_error(
@@ -128,7 +128,7 @@ class CreateFCodeForm(BaseFCodeForm, forms.ModelForm):
             'price', "Ya existe un código flex con ese precio")
 
 
-class UpdateFCodeForm(BaseFCodeForm, forms.ModelForm):
+class UpdateFlexCodeForm(BaseFlexCodeForm, forms.ModelForm):
 
     def clean_code(self, *args, **kwargs):
         return self.clean_unique_beyond_instance_or_error(

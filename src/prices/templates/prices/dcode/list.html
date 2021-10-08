@@ -195,6 +195,19 @@
         $(".item-checker").prop('checked', false);
         countCheckedItems();
     }
+
+    function deleteSelectedItems() {
+        // Get all checked checkboxes
+        var checkBoxesIds = Array.from(document.getElementsByClassName("item-checker"))
+            .filter(checkBox => checkBox.checked == true).map(function (checkbox) {
+                var id = checkbox.id;
+                return id.split("-checker-")[1];
+            }).join("-");
+        console.log(checkBoxesIds);
+        var url_mask = "{% url 'prices:dcode-delete' 12345 %}".replace(/12345/, checkBoxesIds);
+        console.log("url -> " + url_mask);
+        window.location.href = url_mask;
+    }
 </script>
 
 {% endblock content %}

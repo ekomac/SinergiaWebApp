@@ -6,45 +6,20 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import (
-    CreateDCodeForm,
-    CreateFCodeForm,
-    UpdateDCodeForm,
-    UpdateFCodeForm,
+    CreateDeliveryCodeForm,
+    CreateFlexCodeForm,
+    UpdateDeliveryCodeForm,
+    UpdateFlexCodeForm,
 )
 from .models import DeliveryCode, FlexCode
 from places.models import Town
 from datetime import datetime
 from alerts.alert import ToastAlert
 from alerts.views import CreateAlertMixin
-# from django.views.generic.edit import CreateView
-# from django.views.generic import ListView
 
 
-class PricesContextMixin(View):
-
-    def get_context_data(self, **kwargs):
-        ctx = super(PricesContextMixin, self).get_context_data(**kwargs)
-        ctx['selected_tab'] = 'prices-tab'
-        return ctx
-
-
-class DPricesContextMixin(View):
-
-    def get_context_data(self, **kwargs):
-        ctx = super(DPricesContextMixin, self).get_context_data(**kwargs)
-        ctx['selected_tab'] = 'dprices-tab'
-        return ctx
-
-
-class FPricesContextMixin(View):
-
-    def get_context_data(self, **kwargs):
-        ctx = super(FPricesContextMixin, self).get_context_data(**kwargs)
-        ctx['selected_tab'] = 'fprices-tab'
-        return ctx
-
-
-def dcodes_view(request, *args, **kwargs):
+# ****************** MENSAJERIA ******************
+def delivery_codes_view(request, *args, **kwargs):
 
     if not request.user.is_authenticated:
         return redirect('login')
@@ -62,28 +37,18 @@ def dcodes_view(request, *args, **kwargs):
     return render(request, "prices/dcode/list.html", context)
 
 
-def fcodes_view(request, *args, **kwargs):
+class DPricesContextMixin(View):
 
-    if not request.user.is_authenticated:
-        return redirect('login')
-
-    context = {}
-    context['selected_tab'] = 'fprices-tab'
-
-    if request.method == 'GET':
-
-        fcodes = FlexCode.objects.all().order_by('code')
-        context['fcodes'] = fcodes
-        context['totalCodes'] = len(fcodes)
-        context['selected_tab'] = 'fprices-tab'
-
-    return render(request, "prices/fcode/list.html", context)
+    def get_context_data(self, **kwargs):
+        ctx = super(DPricesContextMixin, self).get_context_data(**kwargs)
+        ctx['selected_tab'] = 'dprices-tab'
+        return ctx
 
 
-class AddDCodeView(CreateAlertMixin, LoginRequiredMixin, CreateView):
+class DeliveryCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
     login_url = '/login/'
     template_name = "prices/dcode/add.html"
-    form_class = CreateDCodeForm
+    form_class = CreateDeliveryCodeForm
 
     def form_valid(self, form):
         self.add_alert(
@@ -96,10 +61,10 @@ class AddDCodeView(CreateAlertMixin, LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('prices:ddetail', kwargs={'pk': self.object.pk})
+        return reverse('prices:dcode-detail', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
-        ctx = super(AddDCodeView, self).get_context_data(**kwargs)
+        ctx = super(DeliveryCodeAddView, self).get_context_data(**kwargs)
         ctx['selected_tab'] = 'dprices-tab'
         # Intend to pass a suggestion code name to the view
         try:
@@ -123,10 +88,99 @@ class AddDCodeView(CreateAlertMixin, LoginRequiredMixin, CreateView):
         return ctx
 
 
-class AddFCodeView(CreateAlertMixin, LoginRequiredMixin, CreateView):
+class DeliveryCodeDetailView(DPricesContextMixin, DetailView):
+
+    model = DeliveryCode
+    template_name = "prices/dcode/detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['selected_tab'] = 'dprices-tab'
+        towns = Town.objects.filter(
+            delivery_code=kwargs['object']).order_by('partido__name', 'name')
+        context['towns'] = towns
+        context['total_towns'] = len(towns)
+        return context
+
+
+class DeliveryCodeUpdateView(
+        CreateAlertMixin, DPricesContextMixin, LoginRequiredMixin, UpdateView):
+    login_url = '/login/'
+    form_class = UpdateDeliveryCodeForm
+    template_name = "prices/fcode/edit.html"
+
+    def get_object(self):
+        id_ = self.kwargs.get("pk")
+        return get_object_or_404(FlexCode, id=id_)
+
+    def form_valid(self, form):
+        self.add_alert(
+            topic='create',
+            status='success',
+            title='Creación correcta',
+            msg=f'El código {form.instance.code} se actualizó correctamente.',
+        )
+        form.instance.updated_by = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('prices:ddetail', kwargs={'pk': self.object.pk})
+
+
+def delivery_code_confirm_delete(request, *args, **kwargs):
+
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    context = {}
+
+    if request.method == 'GET':
+        dcodesids = kwargs['dcodeids'].split("-")
+        dcodes = DeliveryCode.objects.filter(pk__in=dcodesids)
+        context['dcodes'] = dcodes
+        total_count = len(dcodes)
+        context['total_count'] = total_count
+        if total_count == 1:
+            context['obj'] = dcodes[0]
+        context['what_to_delete'] = str(
+            total_count) + ' códigos de mensajería general'
+        context['what_to_delete'] = str(
+            total_count) + ' códigos de mensajería general'
+
+    return render(request, "prices/confirm_ddelete.html", context)
+
+
+# ****************** FLEX ******************
+def flex_codes_view(request, *args, **kwargs):
+
+    if not request.user.is_authenticated:
+        return redirect('login')
+
+    context = {}
+    context['selected_tab'] = 'fprices-tab'
+
+    if request.method == 'GET':
+
+        fcodes = FlexCode.objects.all().order_by('code')
+        context['fcodes'] = fcodes
+        context['totalCodes'] = len(fcodes)
+        context['selected_tab'] = 'fprices-tab'
+
+    return render(request, "prices/fcode/list.html", context)
+
+
+class FPricesContextMixin(View):
+
+    def get_context_data(self, **kwargs):
+        ctx = super(FPricesContextMixin, self).get_context_data(**kwargs)
+        ctx['selected_tab'] = 'fprices-tab'
+        return ctx
+
+
+class FlexCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
     login_url = '/login/'
     template_name = "prices/fcode/add.html"
-    form_class = CreateFCodeForm
+    form_class = CreateFlexCodeForm
 
     def form_valid(self, form):
         self.add_alert(
@@ -139,10 +193,10 @@ class AddFCodeView(CreateAlertMixin, LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('prices:fdetail', kwargs={'pk': self.object.pk})
+        return reverse('prices:fcode-detail', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
-        ctx = super(AddFCodeView, self).get_context_data(**kwargs)
+        ctx = super(FlexCodeAddView, self).get_context_data(**kwargs)
         ctx['selected_tab'] = 'fprices-tab'
         # Intend to pass a suggestion code name to the view
         try:
@@ -166,21 +220,7 @@ class AddFCodeView(CreateAlertMixin, LoginRequiredMixin, CreateView):
         return ctx
 
 
-class DCodeDetailView(DPricesContextMixin, DetailView):
-    model = DeliveryCode
-    template_name = "prices/dcode/detail.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['selected_tab'] = 'dprices-tab'
-        towns = Town.objects.filter(
-            delivery_code=kwargs['object']).order_by('partido__name', 'name')
-        context['towns'] = towns
-        context['total_towns'] = len(towns)
-        return context
-
-
-class FCodeDetailView(FPricesContextMixin, DetailView):
+class FlexCodeDetailView(FPricesContextMixin, DetailView):
     model = FlexCode
     template_name = "prices/fcode/detail.html"
 
@@ -194,34 +234,10 @@ class FCodeDetailView(FPricesContextMixin, DetailView):
         return context
 
 
-class DCodeUpdateView(
-        CreateAlertMixin, DPricesContextMixin, LoginRequiredMixin, UpdateView):
-    login_url = '/login/'
-    form_class = UpdateDCodeForm
-    template_name = "prices/fcode/edit.html"
-
-    def get_object(self):
-        id_ = self.kwargs.get("pk")
-        return get_object_or_404(FlexCode, id=id_)
-
-    def form_valid(self, form):
-        self.add_alert(
-            topic='create',
-            status='success',
-            title='Creación correcta',
-            msg=f'El código {form.instance.code} se actualizó correctamente.',
-        )
-        form.instance.updated_by = self.request.user
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse('prices:ddetail', kwargs={'pk': self.object.pk})
-
-
-class FCodeUpdateView(
+class FlexCodeUpdateView(
         CreateAlertMixin, FPricesContextMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'
-    form_class = UpdateFCodeForm
+    form_class = UpdateFlexCodeForm
     template_name = "prices/fcode/edit.html"
 
     def get_object(self):
@@ -239,33 +255,10 @@ class FCodeUpdateView(
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('prices:fdetail', kwargs={'pk': self.object.pk})
+        return reverse('prices:fcode-detail', kwargs={'pk': self.object.pk})
 
 
-def confirm_delete_dcode(request, *args, **kwargs):
-
-    if not request.user.is_authenticated:
-        return redirect('login')
-
-    context = {}
-
-    if request.method == 'GET':
-        dcodesids = kwargs['dcodeids'].split("-")
-        dcodes = DeliveryCode.objects.filter(pk__in=dcodesids)
-        context['dcodes'] = dcodes
-        total_count = len(dcodes)
-        context['total_count'] = total_count
-        if total_count == 1:
-            context['obj'] = dcodes[0]
-        context['what_to_delete'] = str(
-            total_count) + ' códigos de mensajería general'
-        context['what_to_delete'] = str(
-            total_count) + ' códigos de mensajería general'
-
-    return render(request, "prices/confirm_ddelete.html", context)
-
-
-def confirm_delete_fcode(request, *args, **kwargs):
+def flex_code_confirm_delete(request, *args, **kwargs):
 
     if not request.user.is_authenticated:
         return redirect('login')
@@ -308,6 +301,7 @@ def confirm_delete_fcode(request, *args, **kwargs):
             now)
         alerts.append(alert.get_as_dict())
         request.session['alerts'] = alerts
-        return redirect('prices:flist')
+        return redirect('prices:fcode-list')
 
     return render(request, "prices/confirm_fdelete.html", context)
+# ************* END FLEX *************

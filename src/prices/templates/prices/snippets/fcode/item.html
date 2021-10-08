@@ -7,7 +7,8 @@
     }
 </style>
 
-<tr id="tr-{{obj.id}}" class="table-item" onclick="onItemClicked({{ obj.id }},'{% url 'prices:fdetail' pk=obj.id %}');">
+<tr id="tr-{{obj.id}}" class="table-item"
+    onclick="onItemClicked({{ obj.id }},'{% url 'prices:fcode-detail' pk=obj.id %}');">
     <td id="td-{{obj.id}}" class="td-item-checker">
         <div class="form-check">
             <input id="item-checker-{{obj.id}}" class="form-check-input item-checker" type="checkbox" value="">
