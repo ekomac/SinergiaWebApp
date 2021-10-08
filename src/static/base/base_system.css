@@ -93,7 +93,7 @@ main {
     }
 }
 
-li {
+.li-navigation {
     margin: 5px;
 }
 
@@ -197,6 +197,38 @@ li {
 
 .hide-on-load {
     display: none;
+}
+
+
+/************ TABLES *************/
+
+.table-striped>tbody>tr:nth-child(odd):hover,
+.table-striped>tbody>tr:nth-child(odd):hover {
+    background-color: #0D6EFD;
+    color: white;
+    cursor: pointer;
+}
+
+.table-striped>tbody>tr:nth-child(even):hover,
+.table-striped>tbody>tr:nth-child(even):hover {
+    background-color: #0D6EFD;
+    color: white;
+    cursor: pointer;
+}
+
+.table-scrollable {
+    overflow-x: auto;
+    max-width: 600px;
+    box-shadow: inset 0 0 5px rgba(150, 150, 150, 0.35);
+    margin: auto;
+}
+
+.edit-button {
+    color: black;
+}
+
+.edit-button:hover {
+    color: white;
 }
 
 

@@ -1,6 +1,8 @@
 {% extends 'base_system.html' %}
 
 {% block content %}
+
+{% include 'snippets/base_tables_css.html' %}
 <style>
     h4 {
         text-align: center;
@@ -9,8 +11,8 @@
     }
 </style>
 
-<div class="col-md-12 col-lg-8 col-xl-7 d-flex">
-    <div class="card flex-fill">
+<div class="col-md-12 col-xl-10 col-xxl-9 d-flex-block">
+    <div class="card flex-fill shadow-lg">
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
                 Detalle de código de flex
@@ -21,10 +23,11 @@
             </div>
         </div>
         <div class="card-body">
-            <h4 class="card-title text-decoration-underline">Código: {{ object.code }}</h4>
-            <div class="text-center">Ultima vez actualizado por {{ object.updated_by.first_name }}
+            <h3 class="card-title"><span class="text-decoration-underline">Código:</span> {{ object.code }}</h3>
+            <div>Ultima vez actualizado por {{ object.updated_by.first_name }}
                 {{ object.updated_by.last_name }} el {{ object.last_update }}</div>
             <div class="fw-bolder mt-3">Precio actual: <span class="fw-normal">$ {{ object.price }}</span></div>
+            {% if total_towns > 0 %}
             <p class="card-text mt-2">
                 Este código incluye {{ total_towns }} localidades:
             </p>
@@ -50,6 +53,10 @@
                 <a href=".." type="button" class="btn btn-link"><i class="bi bi-arrow-left-short"></i>Volver a lista
                     completa</a>
             </div>
+            {% else %}
+            <p>Ninguná localidad está suscripta a este código.</p>
+            {% endif %}
+
         </div>
     </div>
 

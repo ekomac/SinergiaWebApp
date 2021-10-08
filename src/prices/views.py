@@ -75,7 +75,7 @@ def fcodes_view(request, *args, **kwargs):
 
 class AddDCodeView(DPricesContextMixin, LoginRequiredMixin, CreateView):
     model = DeliveryCode
-    template_name = "prices/add_dcode.html"
+    template_name = "prices/dcode/add.html"
     form_class = CreateDCodeForm
 
     def form_valid(self, form):

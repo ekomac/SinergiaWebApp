@@ -5,7 +5,7 @@
         <ul class="d-flex flex-column nav nav-pills">
 
             <!-- START Dashboard -->
-            <li class="nav-item {% if selected_tab == 'home-tab' %}activetab{% endif %}">
+            <li class="nav-item {% if selected_tab == 'home-tab' %}activetab{% endif %} li-navigation">
                 <a id="home-tab" href="{% url 'home' %}" class="nav-link tab" aria-current="page">
                     <i class="bi bi-house-door"></i> Inicio
                 </a>
@@ -13,7 +13,7 @@
             <!-- END Dashboard -->
 
             <!-- START Escáner -->
-            <li class="nav-item {% if selected_tab == 'scanner-tab' %}activetab{% endif %}">
+            <li class="nav-item {% if selected_tab == 'scanner-tab' %}activetab{% endif %} li-navigation">
                 <a id="scanner-tab" href="#" class="nav-link tab" aria-current="page">
                     <i class="bi bi-upc-scan"></i> Escáner
                 </a>
@@ -22,7 +22,7 @@
 
 
             <!-- START Envíos -->
-            <li class="nav-item {% if selected_tab == 'shipments-tab' %}activetab{% endif %}">
+            <li class="nav-item {% if selected_tab == 'shipments-tab' %}activetab{% endif %} li-navigation">
                 <a id="shipments-tab" href="{% url 'envios:list' %}" class="nav-link tab">
                     <i class="bi bi-truck"></i> Envíos
                 </a>
@@ -30,7 +30,7 @@
             <!-- END Envíos -->
 
             <!-- START Lugares -->
-            <li class="nav-item {% if selected_tab == 'places-tab' %}activetab{% endif %}">
+            <li class="nav-item {% if selected_tab == 'places-tab' %}activetab{% endif %} li-navigation">
                 <a id="places-tab" href="#" class="nav-link tab">
                     <i class="bi bi-map"></i> Localidades
                 </a>
@@ -49,14 +49,14 @@
                 <div class="collapse show" id="orders-collapse">
                     <ul class="btn-toggle-nav list-unstyled fw-normal">
                         <!-- START Precios Delivery -->
-                        <li class="nav-item {% if selected_tab == 'dprices-tab' %}activetab{% endif %}">
+                        <li class="nav-item {% if selected_tab == 'dprices-tab' %}activetab{% endif %} li-navigation">
                             <a id="dprices-tab" href="{% url 'prices:dlist' %}" class="nav-link tab">
                                 <i class="bi bi-currency-dollar"></i> Generales
                             </a>
                         </li>
                         <!-- END Precios Delivery -->
                         <!-- START Precios Flex -->
-                        <li class="nav-item {% if selected_tab == 'fprices-tab' %}activetab{% endif %}">
+                        <li class="nav-item {% if selected_tab == 'fprices-tab' %}activetab{% endif %} li-navigation">
                             <a id="fprices-tab" href="{% url 'prices:flist' %}" class="nav-link tab">
                                 <i class="bi bi-currency-dollar"></i> Flex
                             </a>
@@ -74,14 +74,14 @@
                 <div class="collapse" id="orders-collapse">
                     <ul class="btn-toggle-nav list-unstyled fw-normal">
                         <!-- START Precios Delivery -->
-                        <li class="nav-item {% if selected_tab == 'dprices-tab' %}activetab{% endif %}">
+                        <li class="nav-item {% if selected_tab == 'dprices-tab' %}activetab{% endif %} li-navigation">
                             <a id="prices-tab" href="{% url 'prices:dlist' %}" class="nav-link tab">
                                 <i class="bi bi-currency-dollar"></i> Generales
                             </a>
                         </li>
                         <!-- END Precios Delivery -->
                         <!-- START Precios Flex -->
-                        <li class="nav-item {% if selected_tab == 'fprices-tab' %}activetab{% endif %}">
+                        <li class="nav-item {% if selected_tab == 'fprices-tab' %}activetab{% endif %} li-navigation">
                             <a id="prices-tab" href="{% url 'prices:flist' %}" class="nav-link tab">
                                 <i class="bi bi-currency-dollar"></i> Flex
                             </a>
@@ -95,7 +95,7 @@
             <!-- END Precios -->
 
             <!-- START Clientes -->
-            <li class="nav-item {% if selected_tab == 'clients-tab' %}activetab{% endif %}">
+            <li class="nav-item {% if selected_tab == 'clients-tab' %}activetab{% endif %} li-navigation">
                 <a id="clients-tab" href="#" class="nav-link tab">
                     <i class="bi bi-people"></i> Clientes
                 </a>
@@ -103,7 +103,7 @@
             <!-- END Clientes -->
 
             <!-- START Legajos -->
-            <li class="nav-item {% if selected_tab == 'files-tab' %}activetab{% endif %}">
+            <li class="nav-item {% if selected_tab == 'files-tab' %}activetab{% endif %} li-navigation">
                 <a id="staff-tab" href="#" class="nav-link tab">
                     <i class="bi bi-file-earmark-text"></i> Legajos
                 </a>
@@ -111,7 +111,7 @@
             <!-- END Legajos -->
 
             <!-- START Facturación -->
-            <li class="nav-item {% if selected_tab == 'bill-tab' %}activetab{% endif %}">
+            <li class="nav-item {% if selected_tab == 'bill-tab' %}activetab{% endif %} li-navigation">
                 <a id="billing-tab" href="#" class="nav-link tab">
                     <i class="bi bi-receipt"></i> Facturación
                 </a>
@@ -119,7 +119,7 @@
             <!-- END Facturación -->
 
             <!-- START Liquidación -->
-            <li class="nav-item {% if selected_tab == 'settle-tab' %}activetab{% endif %}">
+            <li class="nav-item {% if selected_tab == 'settle-tab' %}activetab{% endif %} li-navigation">
                 <a id="settlement-tab" href="#" class="nav-link tab">
                     <i class="bi bi-calendar-event"></i> Liquidación
                 </a>
@@ -127,7 +127,7 @@
             <!-- END Liquidación -->
 
             <!-- START Contable -->
-            <li class="nav-item {% if selected_tab == 'accounting-tab' %}activetab{% endif %}">
+            <li class="nav-item {% if selected_tab == 'accounting-tab' %}activetab{% endif %} li-navigation">
                 <a id="accounting-tab" href="#" class="nav-link tab">
                     <i class="bi bi-currency-euro"></i> Contable
                 </a>

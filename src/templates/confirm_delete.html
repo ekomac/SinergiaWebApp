@@ -18,7 +18,8 @@
             <h3 class="card-title mt-3">¿Estás seguro/a?</h3>
             <p class="card-text mt-2 fs-5"> Estás a punto de eliminar {{ what_to_delete }}. ¿Estás seguro de querer
                 continuar con la operación? Se {% if total_count == 1 %}eliminará el siguiente
-                objeto{% else %}eliminarán los siguientes objetos{% endif %} y todos los objetos relacionados a él:
+                objeto{% else %}eliminarán los siguientes objetos{% endif %} y todos los objetos relacionados a
+                {% if total_count == 1 %}él{% else %}ellos{% endif %}:
             </p>
 
             <!-- SHOULD INCLUDE INPUT BTN -->

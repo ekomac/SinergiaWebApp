@@ -27,8 +27,8 @@ urlpatterns = [
     path('flex/', fcodes_view, name="flist"),
 
     # Creating
-    path('delivery/add/', AddDCodeView.as_view(), name="d-add"),
-    path('flex/add/', AddFCodeView.as_view(), name="f-add"),
+    path('delivery/add/', AddDCodeView.as_view(), name="dcode-add"),
+    path('flex/add/', AddFCodeView.as_view(), name="fcode-add"),
 
     # Detailing
     path('delivery/<int:pk>/', DCodeDetailView.as_view(), name="ddetail"),
