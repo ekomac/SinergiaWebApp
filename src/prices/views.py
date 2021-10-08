@@ -1,3 +1,4 @@
+import re
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic.base import View
@@ -101,17 +102,25 @@ class AddFCodeView(FPricesContextMixin, LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         ctx = super(AddFCodeView, self).get_context_data(**kwargs)
         ctx['selected_tab'] = 'dprices-tab'
+        # Intend to pass a suggestion code name to de view
         try:
+            # Get last code name, from querying the database
+            # with code param in descending order
             last_code_num = FlexCode.objects.all().order_by(
                 '-code')[:1].get().code
-            import re
+            # Look for a number in the string
             result = re.search(r'\d.*', last_code_num)[0]
+            # If result has something
             if result != '':
+                # Make it an int, then adding 1
                 result = int(result)+1
+                # Fill the number with zeros
                 result = f'{result}'.zfill(2)
+                # Pass it to context
                 ctx['name_suggestion'] = 'F' + result
-        except FlexCode.DoesNotExist as e:
-            print(e)
+        # If no Flex Code exists, pass to template the base suggestion
+        except FlexCode.DoesNotExist:
+            ctx['name_suggestion'] = 'F01'
         return ctx
 
 
