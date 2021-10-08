@@ -82,6 +82,10 @@ class CreateFCodeForm(forms.ModelForm):
         return price
 
 
+class UpdateDCodeForm(forms.ModelForm):
+    pass
+
+
 class UpdateFCodeForm(forms.ModelForm):
 
     code = forms.CharField(label='Nombre del código', required=True,

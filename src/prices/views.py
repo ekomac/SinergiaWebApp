@@ -8,25 +8,16 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from .forms import (
     CreateDCodeForm,
     CreateFCodeForm,
-    UpdateFCodeForm
+    UpdateDCodeForm,
+    UpdateFCodeForm,
 )
 from .models import DeliveryCode, FlexCode
 from places.models import Town
 from datetime import datetime
 from alerts.alert import ToastAlert
+from alerts.views import CreateAlertMixin
 # from django.views.generic.edit import CreateView
 # from django.views.generic import ListView
-
-# def decorator_factory(argument):
-#     def decorator(function):
-#         def wrapper(*args, **kwargs):
-#             funny_stuff()
-#             something_with_argument(argument)
-#             result = function(*args, **kwargs)
-#             more_funny_stuff()
-#             return result
-#         return wrapper
-#     return decorator
 
 
 class PricesContextMixin(View):
@@ -51,24 +42,6 @@ class FPricesContextMixin(View):
         ctx = super(FPricesContextMixin, self).get_context_data(**kwargs)
         ctx['selected_tab'] = 'fprices-tab'
         return ctx
-
-
-class CreateAlertMixin(View):
-
-    def add_alert(self, **kwargs):
-        """Adds an alert to request's session indicating the create action"""
-        # Gets current alerts
-        alerts = self.request.session.get('alerts', [])
-        # Get current time
-        now = datetime.now()
-        # Create the alert
-        alert = ToastAlert(kwargs['topic'], kwargs['status'],
-                           kwargs['title'], kwargs['msg'], now)
-        # Append it to already existing ones
-        alerts.append(alert.get_as_dict())
-        # Set them back to request's session
-        self.request.session['alerts'] = alerts
-        return
 
 
 def dcodes_view(request, *args, **kwargs):
@@ -150,13 +123,18 @@ class AddDCodeView(CreateAlertMixin, LoginRequiredMixin, CreateView):
         return ctx
 
 
-class AddFCodeView(LoginRequiredMixin, CreateView):
+class AddFCodeView(CreateAlertMixin, LoginRequiredMixin, CreateView):
     login_url = '/login/'
     template_name = "prices/fcode/add.html"
     form_class = CreateFCodeForm
 
     def form_valid(self, form):
-        self.__add_alert(form.instance.code)
+        self.add_alert(
+            topic='create',
+            status='success',
+            title='Creación correcta',
+            msg=f'El código {form.instance.code} se creó correctamente.',
+        )
         form.instance.updated_by = self.request.user
         return super().form_valid(form)
 
@@ -187,27 +165,6 @@ class AddFCodeView(LoginRequiredMixin, CreateView):
             ctx['name_suggestion'] = 'F01'
         return ctx
 
-    def __add_alert(self, name):
-        """Adds an alert to request's session indicating the create action"""
-        # Gets current alerts
-        alerts = self.request.session.get('alerts', [])
-        # Creates the message
-        msg = f'El código {name} se creó correctamente.'
-        # Get current time
-        now = datetime.now()
-        # Create the alert
-        alert = ToastAlert(
-            'create',
-            'success',
-            'Creación correcta',
-            msg,
-            now)
-        # Append it to already existing ones
-        alerts.append(alert.get_as_dict())
-        # Set them back to request's session
-        self.request.session['alerts'] = alerts
-        return
-
 
 class DCodeDetailView(DPricesContextMixin, DetailView):
     model = DeliveryCode
@@ -237,11 +194,27 @@ class FCodeDetailView(FPricesContextMixin, DetailView):
         return context
 
 
-class DCodeUpdateView(DPricesContextMixin, LoginRequiredMixin, UpdateView):
-    pass
+class DCodeUpdateView(CreateAlertMixin, DPricesContextMixin, LoginRequiredMixin, UpdateView):
+    login_url = '/login/'
+    form_class = UpdateDCodeForm
+    template_name = "prices/fcode/edit.html"
+    
+    def get_object(self):
+        id_ = self.kwargs.get("pk")
+        return get_object_or_404(FlexCode, id=id_)
+
+    def form_valid(self, form):
+        self.add_alert(
+            topic='create',
+            status='success',
+            title='Creación correcta',
+            msg=f'El código {form.instance.code} se actualizó correctamente.',
+        )
+        form.instance.updated_by = self.request.user
+        return super().form_valid(form)
 
 
-class FCodeUpdateView(FPricesContextMixin, LoginRequiredMixin, UpdateView):
+class FCodeUpdateView(CreateAlertMixin, FPricesContextMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'
     form_class = UpdateFCodeForm
     template_name = "prices/fcode/edit.html"
@@ -251,33 +224,17 @@ class FCodeUpdateView(FPricesContextMixin, LoginRequiredMixin, UpdateView):
         return get_object_or_404(FlexCode, id=id_)
 
     def form_valid(self, form):
-        self.__add_alert(form.instance.code)
+        self.add_alert(
+            topic='create',
+            status='success',
+            title='Creación correcta',
+            msg=f'El código {form.instance.code} se actualizó correctamente.',
+        )
         form.instance.updated_by = self.request.user
         return super().form_valid(form)
 
     def get_success_url(self):
         return reverse('prices:fdetail', kwargs={'pk': self.object.pk})
-
-    def __add_alert(self, name):
-        """Adds an alert to request's session indicating the update action"""
-        # Gets current alerts
-        alerts = self.request.session.get('alerts', [])
-        # Creates the message
-        msg = f'El código {name} se actualizó correctamente.'
-        # Get current time
-        now = datetime.now()
-        # Create the alert
-        alert = ToastAlert(
-            'update',
-            'success',
-            'Edición correcta',
-            msg,
-            now)
-        # Append it to already existing ones
-        alerts.append(alert.get_as_dict())
-        # Set them back to request's session
-        self.request.session['alerts'] = alerts
-        return
 
 
 def confirm_delete_dcode(request, *args, **kwargs):
