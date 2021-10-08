@@ -1,36 +1,63 @@
 from django import forms
+from django.forms.models import model_to_dict
 from prices.models import DeliveryCode, FlexCode
 
 
-class CreateDCodeForm(forms.ModelForm):
+class OnlyUpdatesError(Exception):
+    pass
 
-    code_attrs = {
-        'class': 'form-control',
-        'type': 'text',
-        'pattern': '^[0-9]{1,3}$',
-    }
 
-    # if DeliveryCode.objects.all().count() > 0:
-    #     last_code = DeliveryCode.objects.all().order_by('code')[:1].get()
+class CleanerMixin(forms.ModelForm):
+    def clean_unique_or_error(self, key, error_msg):
+        value = self.cleaned_data.get(key)
+        if self.Meta.model.objects.filter(**{key: value}).exists():
+            error = error_msg
+            if '{' in error_msg or '}' in error_msg:
+                error = error_msg.format(value)
+            raise forms.ValidationError(error)
+        return value
 
-    #     DeliveryCode.objects..first()
-    #     code_attrs
+    def clean_unique_beyond_instance_or_error(self, key, error_msg):
+        # Cause we are updating, we need id
+        # If there isn't, this isn't an update
+        if id := self.instance.pk:
+            # Get value for given key
+            value = self.cleaned_data.get(key)
+            # If there isn't any database object with that value
+            # for given property (given by the key)
+            if self.Meta.model.objects.filter(**{key: value}).exists():
+                # If value exists beyond the instance, it's because
+                # it belongs to another instance.
+                if value != model_to_dict(FlexCode.objects.get(id=id))[key]:
+                    # So raise error
+                    error = error_msg
+                    if '{}' in error_msg:
+                        error = error_msg.format(value)
+                    raise forms.ValidationError(error)
+            return value
+        else:
+            raise OnlyUpdatesError("This method only works for updating!")
+
+
+class BaseDCodeForm(CleanerMixin):
 
     code = forms.CharField(label='Nombre del código', required=True,
-                           widget=forms.TextInput(attrs=code_attrs),)
+                           widget=forms.TextInput(attrs={
+                               'class': 'form-control',
+                               'type': 'text',
+                               'pattern': '^D[0-9]{1,3}$',
+                           }),)
 
-    price = forms.DecimalField(
-        label='Precio base', required=True,
-        widget=forms.TextInput(
-            attrs={
-                'class': 'form-control',
-                'type': 'number',
-                'placeholder': '0',
-                'min': '0',
-                'max': '999999999',
-                'step': '1'
-            })
-    )
+    price = forms.DecimalField(label='Precio base', required=True,
+                               widget=forms.TextInput(
+                                   attrs={
+                                       'class': 'form-control',
+                                       'type': 'number',
+                                       'placeholder': '0',
+                                       'min': '0',
+                                       'max': '999999.99',
+                                       'step': '1'
+                                   }),)
 
     class Meta:
         model = DeliveryCode
@@ -40,7 +67,29 @@ class CreateDCodeForm(forms.ModelForm):
         ]
 
 
-class CreateFCodeForm(forms.ModelForm):
+class CreateDCodeForm(BaseDCodeForm, forms.ModelForm):
+
+    def clean_code(self, *args, **kwargs):
+        return self.clean_unique_or_error(
+            'code', 'El código "{}" ya existe.')
+
+    def clean_price(self, *args, **kwargs):
+        return self.clean_unique_or_error(
+            'price', "Ya existe un código con ese precio")
+
+
+class UpdateDCodeForm(BaseDCodeForm, forms.ModelForm):
+
+    def clean_code(self, *args, **kwargs):
+        return self.clean_unique_beyond_instance_or_error(
+            'code', 'El código "{}" ya existe.')
+
+    def clean_price(self, *args, **kwargs):
+        return self.clean_unique_beyond_instance_or_error(
+            'price', "Ya existe un código con ese precio")
+
+
+class BaseFCodeForm(CleanerMixin):
 
     code = forms.CharField(label='Nombre del código', required=True,
                            widget=forms.TextInput(attrs={
@@ -49,18 +98,16 @@ class CreateFCodeForm(forms.ModelForm):
                                'pattern': '^F[0-9]{1,3}$',
                            }),)
 
-    price = forms.DecimalField(
-        label='Precio base', required=True,
-        widget=forms.TextInput(
-            attrs={
-                'class': 'form-control',
-                'type': 'number',
-                'placeholder': '0',
-                'min': '0',
-                'max': '999999999',
-                'step': '1'
-            })
-    )
+    price = forms.DecimalField(label='Precio base', required=True,
+                               widget=forms.TextInput(
+                                   attrs={
+                                       'class': 'form-control',
+                                       'type': 'number',
+                                       'placeholder': '0',
+                                       'min': '0',
+                                       'max': '999999.99',
+                                       'step': '1'
+                                   }),)
 
     class Meta:
         model = FlexCode
@@ -69,66 +116,24 @@ class CreateFCodeForm(forms.ModelForm):
             'price',
         ]
 
-    def clean_code(self, *args, **kwargs):
-        code = self.cleaned_data.get("code")
-        if FlexCode.objects.filter(code=code).exists():
-            raise forms.ValidationError(f'El código "{code}" ya existe.')
-        return code
 
-    def clean_price(self, *args, **kwargs):
-        price = self.cleaned_data.get("price")
-        if FlexCode.objects.filter(price=price).exists():
-            raise forms.ValidationError("Ya existe un código con ese precio.")
-        return price
-
-
-class UpdateDCodeForm(forms.ModelForm):
-    pass
-
-
-class UpdateFCodeForm(forms.ModelForm):
-
-    code = forms.CharField(label='Nombre del código', required=True,
-                           widget=forms.TextInput(attrs={
-                               'class': 'form-control',
-                               'type': 'text',
-                               'pattern': '^F[0-9]{1,3}$',
-                           }),)
-
-    price = forms.DecimalField(
-        label='Precio base', required=True,
-        widget=forms.TextInput(
-            attrs={
-                'class': 'form-control',
-                'type': 'number',
-                'placeholder': '0',
-                'min': '0',
-                'max': '999999999',
-                'step': '1'
-            })
-    )
-
-    class Meta:
-        model = FlexCode
-        fields = [
-            'code',
-            'price',
-        ]
+class CreateFCodeForm(BaseFCodeForm, forms.ModelForm):
 
     def clean_code(self, *args, **kwargs):
-        code = self.cleaned_data.get("code")
-        if FlexCode.objects.filter(code=code).exists():
-            if id := self.instance.pk:
-                if code != FlexCode.objects.get(id=id).code:
-                    raise forms.ValidationError(
-                        f'El código "{code}" ya existe.')
-        return code
+        return self.clean_unique_or_error(
+            'code', 'El código flex "{}" ya existe.')
 
     def clean_price(self, *args, **kwargs):
-        price = self.cleaned_data.get("price")
-        if FlexCode.objects.filter(price=price).exists():
-            if id := self.instance.pk:
-                if price != FlexCode.objects.get(id=id).price:
-                    raise forms.ValidationError(
-                        "Ya existe un código con ese precio.")
-        return price
+        return self.clean_unique_or_error(
+            'price', "Ya existe un código flex con ese precio")
+
+
+class UpdateFCodeForm(BaseFCodeForm, forms.ModelForm):
+
+    def clean_code(self, *args, **kwargs):
+        return self.clean_unique_beyond_instance_or_error(
+            'code', 'El código flex "{}" ya existe.')
+
+    def clean_price(self, *args, **kwargs):
+        return self.clean_unique_beyond_instance_or_error(
+            'price', "Ya existe un código flex con ese precio")

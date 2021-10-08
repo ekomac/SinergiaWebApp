@@ -29,3 +29,13 @@ def dtowncount(value):
 def ftowncount(value):
     """Return how many town has got given flex code"""
     return Town.objects.filter(flex_code__code=value).count()
+
+
+@register.filter()
+def intify(value):
+    as_str = str(value)
+    for c in ['.', ',']:
+        if c in as_str:
+            index = as_str.index(c)
+            return as_str[:index]
+    return as_str

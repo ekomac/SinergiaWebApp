@@ -1,5 +1,7 @@
 {% extends 'base_system.html' %} {% block content %} {% load places_extras %}
 
+{% load price_extras %}
+
 <div class="col-md-12 col-lg-8 col-xl-6 col-xxl-5 d-flex-block">
     <form method='POST' id="udpate_form" class="card flex-fill shadow-lg bg-white" name="udpate_form" target="_top"
         enctype="multipart/form-data">{% csrf_token %}
@@ -21,7 +23,7 @@
                     <label for="id_code" class="form-label">Código</label>
                     <input id="id_code" name="code" type="text" {% if form.code.value %}value="{{form.code.value}}"
                         {% endif %} class="form-control {% if form.code.errors %}is-invalid{% endif %}"
-                        placeholder="{{ name_suggestion }}" required>
+                        placeholder="{{ name_suggestion }}" pattern="^F[0-9]{1,3}$" required>
                     <div class="invalid-feedback">
                         {% for error in form.code.errors %}{{error}}<br>{% endfor %}
                     </div>
@@ -33,7 +35,7 @@
                     <label for="id_price" class="form-label">Precio base</label>
                     <div class="input-group mb-3">
                         <span class="input-group-text">$</span>
-                        <input type="number" name="price" id="id_price" value="{{form.price.value}}"
+                        <input type="number" name="price" id="id_price" value="{{form.price.value|intify}}"
                             class="form-control {% if form.price.errors %}is-invalid{% endif %}" placeholder="0" min="0"
                             max="999999.99" step="1" required>
                         <span class="input-group-text">.00</span>

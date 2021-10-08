@@ -143,7 +143,7 @@ class AddFCodeView(CreateAlertMixin, LoginRequiredMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         ctx = super(AddFCodeView, self).get_context_data(**kwargs)
-        ctx['selected_tab'] = 'dprices-tab'
+        ctx['selected_tab'] = 'fprices-tab'
         # Intend to pass a suggestion code name to the view
         try:
             # Get last code name, from querying the database
@@ -194,11 +194,12 @@ class FCodeDetailView(FPricesContextMixin, DetailView):
         return context
 
 
-class DCodeUpdateView(CreateAlertMixin, DPricesContextMixin, LoginRequiredMixin, UpdateView):
+class DCodeUpdateView(
+        CreateAlertMixin, DPricesContextMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'
     form_class = UpdateDCodeForm
     template_name = "prices/fcode/edit.html"
-    
+
     def get_object(self):
         id_ = self.kwargs.get("pk")
         return get_object_or_404(FlexCode, id=id_)
@@ -213,8 +214,12 @@ class DCodeUpdateView(CreateAlertMixin, DPricesContextMixin, LoginRequiredMixin,
         form.instance.updated_by = self.request.user
         return super().form_valid(form)
 
+    def get_success_url(self):
+        return reverse('prices:ddetail', kwargs={'pk': self.object.pk})
 
-class FCodeUpdateView(CreateAlertMixin, FPricesContextMixin, LoginRequiredMixin, UpdateView):
+
+class FCodeUpdateView(
+        CreateAlertMixin, FPricesContextMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'
     form_class = UpdateFCodeForm
     template_name = "prices/fcode/edit.html"
