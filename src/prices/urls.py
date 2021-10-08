@@ -14,6 +14,8 @@ from .views import (
     FCodeDetailView,
 
     # Updating
+    DCodeUpdateView,
+    FCodeUpdateView,
 
     # Deleting
     confirm_delete_dcode,
@@ -35,8 +37,9 @@ urlpatterns = [
     path('flex/<int:pk>/', FCodeDetailView.as_view(), name="fdetail"),
 
     # Updating
-    #
-    #
+    path('delivery/<int:pk>/edit',
+         DCodeUpdateView.as_view(), name="dcode-edit"),
+    path('flex/<int:pk>/edit', FCodeUpdateView.as_view(), name="fcode-edit"),
 
     # Deleting
     path('delivery/delete/<dcodesids>/',

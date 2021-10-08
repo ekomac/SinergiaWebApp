@@ -1,11 +1,15 @@
 import re
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.generic.base import View
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import CreateDCodeForm, CreateFCodeForm
+from .forms import (
+    CreateDCodeForm,
+    CreateFCodeForm,
+    UpdateFCodeForm
+)
 from .models import DeliveryCode, FlexCode
 from places.models import Town
 from datetime import datetime
@@ -87,7 +91,7 @@ class AddDCodeView(DPricesContextMixin, LoginRequiredMixin, CreateView):
         return reverse('prices:ddetail', kwargs={'pk': self.object.pk})
 
 
-class AddFCodeView(FPricesContextMixin, LoginRequiredMixin, CreateView):
+class AddFCodeView(LoginRequiredMixin, CreateView):
     login_url = '/login/'
     template_name = "prices/fcode/add.html"
     form_class = CreateFCodeForm
@@ -172,6 +176,49 @@ class FCodeDetailView(FPricesContextMixin, DetailView):
         context['towns'] = towns
         context['total_towns'] = len(towns)
         return context
+
+
+class DCodeUpdateView(DPricesContextMixin, LoginRequiredMixin, UpdateView):
+    pass
+
+
+class FCodeUpdateView(FPricesContextMixin, LoginRequiredMixin, UpdateView):
+    login_url = '/login/'
+    form_class = UpdateFCodeForm
+    template_name = "prices/fcode/edit.html"
+
+    def get_object(self):
+        id_ = self.kwargs.get("pk")
+        return get_object_or_404(FlexCode, id=id_)
+
+    def form_valid(self, form):
+        self.__add_alert(form.instance.code)
+        form.instance.updated_by = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('prices:fdetail', kwargs={'pk': self.object.pk})
+
+    def __add_alert(self, name):
+        """Adds an alert to request's session indicating the update action"""
+        # Gets current alerts
+        alerts = self.request.session.get('alerts', [])
+        # Creates the message
+        msg = f'El código {name} se actualizó correctamente.'
+        # Get current time
+        now = datetime.now()
+        # Create the alert
+        alert = ToastAlert(
+            'update',
+            'success',
+            'Edición correcta',
+            msg,
+            now)
+        # Append it to already existing ones
+        alerts.append(alert.get_as_dict())
+        # Set them back to request's session
+        self.request.session['alerts'] = alerts
+        return
 
 
 def confirm_delete_dcode(request, *args, **kwargs):

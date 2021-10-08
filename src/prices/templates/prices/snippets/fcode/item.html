@@ -18,6 +18,6 @@
     <td>{{ obj.code|ftowncount }}</td>
     <td>{{ obj.last_update }}</td>
     <td>{{ obj.updated_by.first_name }} {{ obj.updated_by.last_name }}</td>
-    <td style="text-align: start;"><a href="#" class="edit-button" title="Editar"><i
-                class="bi bi-pencil-square"></i></a></td>
+    <td style="text-align: start;"><a href="{% url 'prices:fcode-edit' pk=item.id %}" class="edit-button"
+            title="Editar"><i class="bi bi-pencil-square"></i></a></td>
 </tr>
