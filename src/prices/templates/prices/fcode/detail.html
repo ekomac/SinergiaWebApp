@@ -23,7 +23,14 @@
             </div>
         </div>
         <div class="card-body">
-            <h3 class="card-title"><span class="text-decoration-underline">Código:</span> {{ object.code }}</h3>
+            <h3 class="card-title d-flex align-items-center">
+                <div class="text-decoration-underline">Código:</div>
+                <div class="w-100 ms-1">{{ object.code }}</div>
+                <div class="flex-shrink-1">
+                    <a href="#" class="btn btn-secondary d-flex flex-nowrap"><i
+                            class="bi bi-pencil-square"></i>Editar</a>
+                </div>
+            </h3>
             <div>Ultima vez actualizado por {{ object.updated_by.first_name }}
                 {{ object.updated_by.last_name }} el {{ object.last_update }}</div>
             <div class="fw-bolder mt-3">Precio actual: <span class="fw-normal">$ {{ object.price }}</span></div>
