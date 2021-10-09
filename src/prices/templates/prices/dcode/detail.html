@@ -13,32 +13,42 @@
     }
 </style>
 
-<div class="col-md-12 col-xl-10 col-xxl-9 d-flex-inline">
-    <div class="card flex-fill">
+<div class="col-md-12 col-xl-10 col-xxl-9 d-flex-block">
+    <div class="card flex-fill shadow-lg">
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
                 Detalle de código general
             </div>
             <div class="">
-                <a href=".."><i class="bi bi-arrow-left-short"></i>Volver a lista
+                <a href="{{ request.META.HTTP_REFERER }}"><i class="bi bi-arrow-left-short"></i>Volver a lista
                     completa</a>
             </div>
         </div>
         <div class="card-body">
-            <h3 class="card-title d-flex align-items-center">
-                <div class="text-decoration-underline">Código:</div>
-                <div class="w-100 ms-1">{{ object.code }}</div>
-                <div class="flex-shrink-1">
-                    <a href="{% url 'prices:dcode-edit' pk=object.id%}" class="btn btn-secondary d-flex flex-nowrap"><i
+
+            <div class="card-title d-flex d-row">
+                <h3 class="flex-grow-1 d-flex align-items-center">
+                    <div class="text-decoration-underline">Código:</div>
+                    <div class="w-100 ms-1">{{ object.code }}</div>
+                </h3>
+                <div class="d-flex gap-1 flex-nowrap">
+                    <a href="{% url 'prices:dcode-edit' pk=object.id %}" class="btn btn-secondary d-flex flex-nowrap"><i
                             class="bi bi-pencil-square me-1"></i>Editar</a>
+                    <a href="{% url 'prices:dcode-delete' object.id %}" class="btn btn-danger d-flex flex-nowrap"><i
+                            class="bi bi-pencil-square me-1"></i>Eliminar</a>
                 </div>
-            </h3>
-            <div class="text-center">Ultima vez actualizado por {{ object.updated_by.first_name }}
+            </div>
+
+            <div>Ultima vez actualizado por {{ object.updated_by.first_name }}
                 {{ object.updated_by.last_name }} el {{ object.last_update }}</div>
+
+            {% if code_type == 'd' %}
+
             <div class="fw-bolder mt-3 d-flex">
                 <div class="text-decoration-underline">Precio base actual (máx 5kg)</div>:
                 <div class="ms-2 fw-normal">$&nbsp;{{ object.price |multiplicado:0}}</div>
             </div>
+
             <div class="fw-bold mt-1">Bulto máx. 10kg: <span
                     class="fw-normal">$&nbsp;{{ object.price |multiplicado:1}}</span>
             </div>
@@ -52,6 +62,8 @@
             <div class="fw-bold mt-1 mb-3">Trámite: <span
                     class="fw-normal">$&nbsp;{{ object.price |multiplicado:5}}</span>
             </div>
+            {% endif %}
+
             {% if total_towns > 0 %}
             <p class="card-text mt-2">
                 Este código incluye {{ total_towns }} localidades:
@@ -75,8 +87,7 @@
                 </table>
             </div>
             <div class="d-flex justify-content-end">
-                <a href=".." type="button" class="btn btn-link"><i class="bi bi-arrow-left-short"></i>Volver a lista
-                    completa</a>
+                <a href=".." type="button" class="btn btn-link"><i class="bi bi-arrow-left-short"></i>Volver</a>
             </div>
             {% else %}
             <p>Ninguná localidad está suscripta a este código.</p>

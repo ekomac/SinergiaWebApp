@@ -94,6 +94,8 @@ class DeleteObjectsUtil(DeleteAlertMixin):
             else:
                 repr_art = "lxs"
 
+        repr_art = repr_art.title()
+
         # Join names
         names = '", "'.join(self.names)
 

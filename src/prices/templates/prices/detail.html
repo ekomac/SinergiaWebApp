@@ -12,7 +12,6 @@
                 <a
                     href="{% if code_type == 'd' %}{% url 'prices:dcode-list' %}{% else %}{% url 'prices:fcode-list' %}{% endif %}">
                     <i class="bi bi-list"></i>Ver lista completa</a>
-                <a href="{{ request.META.HTTP_REFERER }}"><i class="bi bi-arrow-left-short"></i>Volver</a>
             </div>
         </div>
         <div class="card-body">
@@ -55,12 +54,6 @@
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
-            <div class="d-flex justify-content-end">
-                <a
-                    href="{% if code_type == 'd' %}{% url 'prices:dcode-list' %}{% else %}{% url 'prices:fcode-list' %}{% endif %}"><i
-                        class="bi bi-list"></i>Ver lista completa</a>
-                <a href="{{ request.META.HTTP_REFERER }}"><i class="bi bi-arrow-left-short"></i>Volver</a>
             </div>
             {% else %}
             <p>Ninguná localidad está suscripta a este código.</p>

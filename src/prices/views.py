@@ -91,7 +91,7 @@ class DeliveryCodeDetailView(
         DPricesContextMixin, LoginRequiredMixin, DetailView):
     login_url = '/login/'
     model = DeliveryCode
-    template_name = "prices/dcode/detail.html"
+    template_name = "prices/detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -145,7 +145,7 @@ def delivery_code_delete(request, *args, **kwargs):
     if request.method == 'GET':
         context = delete_utility.get_context_data()
 
-    return render(request, "prices/dcode/delete.html", context)
+    return render(request, "prices/delete.html", context)
 
 
 # ****************** FLEX ******************
@@ -220,7 +220,7 @@ class FlexCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
 class FlexCodeDetailView(FPricesContextMixin, LoginRequiredMixin, DetailView):
     login_url = '/login/'
     model = FlexCode
-    template_name = "prices/fcode/detail.html"
+    template_name = "prices/detail.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -275,5 +275,5 @@ def flex_code_delete(request, *args, **kwargs):
     if request.method == 'GET':
         context = delete_utility.get_context_data()
 
-    return render(request, "prices/fcode/delete.html", context)
+    return render(request, "prices/delete.html", context)
 # ************* END FLEX *************
