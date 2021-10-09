@@ -22,9 +22,6 @@ from alerts.views import CreateAlertMixin, UpdateAlertMixin
 @login_required(login_url='/login/')
 def delivery_codes_view(request, *args, **kwargs):
 
-    if not request.user.is_authenticated:
-        return redirect('login')
-
     context = {}
     context['selected_tab'] = 'prices-tab'
 
@@ -147,9 +144,6 @@ def delivery_code_delete(request, *args, **kwargs):
 # ****************** FLEX ******************
 @login_required(login_url='/login/')
 def flex_codes_view(request, *args, **kwargs):
-
-    if not request.user.is_authenticated:
-        return redirect('login')
 
     context = {}
     context['selected_tab'] = 'fprices-tab'
