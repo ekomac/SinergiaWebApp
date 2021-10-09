@@ -12,7 +12,6 @@
 </ul>
 <div class="d-grid gap-2 col-6 mx-auto mt-4">
     <input type='submit' value='Sí, eliminar' class="btn btn-danger" />
-    <a href="{% if total_count > 1 %}{% url 'prices:fcode-list' %}{% else %}{% url 'prices:fcode-detail' pk=obj.id%}{% endif %}"
-        class="btn btn-secondary">Cancelar</a>
+    <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-secondary">Cancelar</a>
 </div>
 {% endblock deletion_specs %}

@@ -1,5 +1,6 @@
 import re
 from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.edit import CreateView, UpdateView
@@ -220,7 +221,8 @@ class FlexCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
         return ctx
 
 
-class FlexCodeDetailView(FPricesContextMixin, DetailView):
+class FlexCodeDetailView(FPricesContextMixin, LoginRequiredMixin, DetailView):
+    login_url = '/login/'
     model = FlexCode
     template_name = "prices/fcode/detail.html"
 
@@ -258,10 +260,8 @@ class FlexCodeUpdateView(
         return reverse('prices:fcode-detail', kwargs={'pk': self.object.pk})
 
 
+@login_required(login_url='/login/')
 def flex_code_confirm_delete(request, *args, **kwargs):
-
-    if not request.user.is_authenticated:
-        return redirect('login')
 
     context = {}
 
@@ -303,5 +303,5 @@ def flex_code_confirm_delete(request, *args, **kwargs):
         request.session['alerts'] = alerts
         return redirect('prices:fcode-list')
 
-    return render(request, "prices/confirm_fdelete.html", context)
+    return render(request, "prices/fcode/delete.html", context)
 # ************* END FLEX *************

@@ -4,9 +4,9 @@
 
 {% block deletion_specs %}
 <ul>
-    {% for fcode in fcodes %}
+    {% for dcode in dcodes %}
     <li class="mt-1">
-        {{fcode}} por ${{fcode.price|multiplicado:0}}.-
+        {{dcode}} por ${{dcode.price|multiplicado:0}}.-
     </li>
     {% endfor %}
 </ul>

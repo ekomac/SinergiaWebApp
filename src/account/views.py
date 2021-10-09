@@ -24,7 +24,11 @@ def login_view(request):
 
             if user:
                 login(request, user)
-                return redirect('home')
+                next_url = 'home'
+                spec_url = request.GET.get('next', '')
+                if spec_url and spec_url != '':
+                    return redirect(spec_url)
+                return redirect(next_url)
 
     else:
         form = AccountAuthenticationForm()
