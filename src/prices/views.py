@@ -49,7 +49,7 @@ class DPricesContextMixin(View):
 
 class DeliveryCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
     login_url = '/login/'
-    template_name = "prices/dcode/add.html"
+    template_name = "prices/add.html"
     form_class = CreateDeliveryCodeForm
 
     def form_valid(self, form):
@@ -64,6 +64,7 @@ class DeliveryCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         ctx = super(DeliveryCodeAddView, self).get_context_data(**kwargs)
         ctx['selected_tab'] = 'dprices-tab'
+        ctx['code_type'] = 'd'
         # Intend to pass a suggestion code name to the view
         try:
             # Get last code name, from querying the database
@@ -177,7 +178,7 @@ class FPricesContextMixin(View):
 
 class FlexCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
     login_url = '/login/'
-    template_name = "prices/fcode/add.html"
+    template_name = "prices/add.html"
     form_class = CreateFlexCodeForm
 
     def form_valid(self, form):
@@ -193,6 +194,7 @@ class FlexCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         ctx = super(FlexCodeAddView, self).get_context_data(**kwargs)
         ctx['selected_tab'] = 'fprices-tab'
+        ctx['code_type'] = 'f'
         # Intend to pass a suggestion code name to the view
         try:
             # Get last code name, from querying the database

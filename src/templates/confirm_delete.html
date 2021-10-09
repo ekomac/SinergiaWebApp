@@ -8,7 +8,7 @@
         margin-top: 20px;
     }
 </style>
-<form method='POST' class="col-md-12 col-lg-8 col-xl-7 d-flex">{% csrf_token %}
+<form method='POST' class="col-md-12 col-lg-8 col-xl-6 col-xxl-5 d-flex-block">{% csrf_token %}
 
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -21,7 +21,7 @@
         </div>
         <div class="card-body">
             <h3 class="card-title mt-3">¿Estás seguro/a?</h3>
-            <p class="card-text mt-2 fs-5"> Estás a punto de eliminar {{ what_to_delete }}. ¿Estás seguro de querer
+            <p class="card-text mt-3 mb-4 fs-6"> Estás a punto de eliminar {{ what_to_delete }}. ¿Estás seguro de querer
                 continuar con la operación? Se {% if total_count == 1 %}eliminará el siguiente
                 objeto{% else %}eliminarán los siguientes objetos{% endif %} y todos los objetos relacionados a
                 {% if total_count == 1 %}él{% else %}ellos{% endif %}:
