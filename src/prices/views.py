@@ -35,7 +35,7 @@ def delivery_codes_view(request, *args, **kwargs):
         context['totalCodes'] = len(dcodes)
         context['selected_tab'] = 'dprices-tab'
 
-    return render(request, "prices/dcode/list.html", context)
+    return render(request, "prices/dcode-list.html", context)
 
 
 class DeliveryCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
@@ -161,7 +161,7 @@ def flex_codes_view(request, *args, **kwargs):
         context['totalCodes'] = len(fcodes)
         context['selected_tab'] = 'fprices-tab'
 
-    return render(request, "prices/fcode/list.html", context)
+    return render(request, "prices/fcode-list.html", context)
 
 
 class FlexCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
