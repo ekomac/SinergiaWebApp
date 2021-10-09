@@ -8,6 +8,7 @@ class OnlyUpdatesError(Exception):
 
 
 class CleanerMixin(forms.ModelForm):
+
     def clean_unique_or_error(self, key, error_msg):
         value = self.cleaned_data.get(key)
         if self.Meta.model.objects.filter(**{key: value}).exists():
@@ -28,7 +29,7 @@ class CleanerMixin(forms.ModelForm):
             if self.Meta.model.objects.filter(**{key: value}).exists():
                 # If value exists beyond the instance, it's because
                 # it belongs to another instance.
-                if value != model_to_dict(FlexCode.objects.get(id=id))[key]:
+                if value != model_to_dict(self.Meta.model.objects.get(id=id))[key]:
                     # So raise error
                     error = error_msg
                     if '{}' in error_msg:

@@ -22,10 +22,21 @@
                     <div class="w-100 ms-1">{{ object.code }}</div>
                 </h3>
                 <div class="d-flex gap-1 flex-nowrap">
-                    <a href="{% url 'prices:fcode-edit' pk=object.id %}" class="btn btn-secondary d-flex flex-nowrap"><i
+                    {% if code_type == 'd' %}
+
+                    <a href="{% url 'prices:dcode-edit' pk=object.id %}" class="btn btn-secondary d-flex flex-nowrap"><i
                             class="bi bi-pencil-square me-1"></i>Editar</a>
-                    <a href="{% url 'prices:fcode-delete' object.id %}" class="btn btn-danger d-flex flex-nowrap"><i
+                    <a href="{% url 'prices:dcode-delete' object.id %}" class="btn btn-danger d-flex flex-nowrap"><i
                             class="bi bi-pencil-square me-1"></i>Eliminar</a>
+
+                    {% else %}
+
+                    <a href="{% url 'prices:dcode-edit' pk=object.id %}" class="btn btn-secondary d-flex flex-nowrap"><i
+                            class="bi bi-pencil-square me-1"></i>Editar</a>
+                    <a href="{% url 'prices:dcode-delete' object.id %}" class="btn btn-danger d-flex flex-nowrap"><i
+                            class="bi bi-pencil-square me-1"></i>Eliminar</a>
+
+                    {% endif %}
                 </div>
             </div>
 

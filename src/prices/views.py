@@ -2,7 +2,6 @@ import re
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from django.views.generic.base import View
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -37,14 +36,6 @@ def delivery_codes_view(request, *args, **kwargs):
         context['selected_tab'] = 'dprices-tab'
 
     return render(request, "prices/dcode/list.html", context)
-
-
-class DPricesContextMixin(View):
-
-    def get_context_data(self, **kwargs):
-        ctx = super(DPricesContextMixin, self).get_context_data(**kwargs)
-        ctx['selected_tab'] = 'dprices-tab'
-        return ctx
 
 
 class DeliveryCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
@@ -87,8 +78,7 @@ class DeliveryCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
         return ctx
 
 
-class DeliveryCodeDetailView(
-        DPricesContextMixin, LoginRequiredMixin, DetailView):
+class DeliveryCodeDetailView(LoginRequiredMixin, DetailView):
     login_url = '/login/'
     model = DeliveryCode
     template_name = "prices/detail.html"
@@ -100,18 +90,24 @@ class DeliveryCodeDetailView(
             delivery_code=kwargs['object']).order_by('partido__name', 'name')
         context['towns'] = towns
         context['total_towns'] = len(towns)
+        context['code_type'] = 'd'
         return context
 
 
-class DeliveryCodeUpdateView(
-        UpdateAlertMixin, DPricesContextMixin, LoginRequiredMixin, UpdateView):
+class DeliveryCodeUpdateView(UpdateAlertMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'
     form_class = UpdateDeliveryCodeForm
-    template_name = "prices/fcode/edit.html"
+    template_name = "prices/edit.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super(DeliveryCodeUpdateView, self).get_context_data(**kwargs)
+        ctx['selected_tab'] = 'dprices-tab'
+        ctx['code_type'] = 'd'
+        return ctx
 
     def get_object(self):
         id_ = self.kwargs.get("pk")
-        return get_object_or_404(FlexCode, id=id_)
+        return get_object_or_404(DeliveryCode, id=id_)
 
     def form_valid(self, form):
         self.add_alert(
@@ -121,7 +117,7 @@ class DeliveryCodeUpdateView(
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('prices:ddetail', kwargs={'pk': self.object.pk})
+        return reverse('prices:dcode-detail', kwargs={'pk': self.object.pk})
 
 
 @login_required(login_url='/login/')
@@ -168,14 +164,6 @@ def flex_codes_view(request, *args, **kwargs):
     return render(request, "prices/fcode/list.html", context)
 
 
-class FPricesContextMixin(View):
-
-    def get_context_data(self, **kwargs):
-        ctx = super(FPricesContextMixin, self).get_context_data(**kwargs)
-        ctx['selected_tab'] = 'fprices-tab'
-        return ctx
-
-
 class FlexCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
     login_url = '/login/'
     template_name = "prices/add.html"
@@ -217,7 +205,7 @@ class FlexCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
         return ctx
 
 
-class FlexCodeDetailView(FPricesContextMixin, LoginRequiredMixin, DetailView):
+class FlexCodeDetailView(LoginRequiredMixin, DetailView):
     login_url = '/login/'
     model = FlexCode
     template_name = "prices/detail.html"
@@ -229,14 +217,20 @@ class FlexCodeDetailView(FPricesContextMixin, LoginRequiredMixin, DetailView):
             flex_code=kwargs['object']).order_by('partido__name', 'name')
         context['towns'] = towns
         context['total_towns'] = len(towns)
+        context['code_type'] = 'f'
         return context
 
 
-class FlexCodeUpdateView(
-        UpdateAlertMixin, FPricesContextMixin, LoginRequiredMixin, UpdateView):
+class FlexCodeUpdateView(UpdateAlertMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'
     form_class = UpdateFlexCodeForm
-    template_name = "prices/fcode/edit.html"
+    template_name = "prices/edit.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super(FlexCodeUpdateView, self).get_context_data(**kwargs)
+        ctx['selected_tab'] = 'fprices-tab'
+        ctx['code_type'] = 'f'
+        return ctx
 
     def get_object(self):
         id_ = self.kwargs.get("pk")
