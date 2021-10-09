@@ -29,7 +29,9 @@ class CleanerMixin(forms.ModelForm):
             if self.Meta.model.objects.filter(**{key: value}).exists():
                 # If value exists beyond the instance, it's because
                 # it belongs to another instance.
-                if value != model_to_dict(self.Meta.model.objects.get(id=id))[key]:
+                dict_model = model_to_dict(
+                    self.Meta.model.objects.get(id=id))[key]
+                if value != dict_model:
                     # So raise error
                     error = error_msg
                     if '{}' in error_msg:
