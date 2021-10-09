@@ -4,7 +4,7 @@
 
 {% block deletion_specs %}
 <ul>
-    {% for fcode in fcodes %}
+    {% for fcode in objects %}
     <li class="mt-1">
         {{fcode}} por ${{fcode.price|multiplicado:0}}.-
     </li>

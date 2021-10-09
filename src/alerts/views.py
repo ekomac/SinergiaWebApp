@@ -3,7 +3,7 @@ from datetime import datetime
 from alerts.alert import ToastAlert
 
 
-class CreateAlertMixin(View):
+class BaseAlertMixin(View):
 
     def add_alert(self, **kwargs):
         """Adds an alert to request's session indicating the create action"""
@@ -19,3 +19,30 @@ class CreateAlertMixin(View):
         # Set them back to request's session
         self.request.session['alerts'] = alerts
         return
+
+
+class CreateAlertMixin(BaseAlertMixin):
+
+    def add_alert(self, msg):
+        """Adds an alert to request's session indicating the create action"""
+        return super().add_alert(
+            topic='create', status='success',
+            title='Creación correcta', msg=msg)
+
+
+class UpdateAlertMixin(BaseAlertMixin):
+
+    def add_alert(self, msg):
+        """Adds an alert to request's session indicating the create action"""
+        return super().add_alert(
+            topic='update', status='success',
+            title='Actualización correcta', msg=msg)
+
+
+class DeleteAlertMixin(BaseAlertMixin):
+
+    def add_alert(self, msg):
+        """Adds an alert to request's session indicating the delete action"""
+        return super().add_alert(
+            topic='delete', status='success',
+            title='Eliminación correcta', msg=msg)

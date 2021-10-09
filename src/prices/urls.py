@@ -7,7 +7,7 @@ from .views import (
     DeliveryCodeAddView,
     DeliveryCodeDetailView,
     DeliveryCodeUpdateView,
-    delivery_code_confirm_delete,
+    delivery_code_delete,
     # ******** MENSAJERIA ********
 
     # ********* FLEX *********
@@ -15,7 +15,7 @@ from .views import (
     FlexCodeAddView,
     FlexCodeDetailView,
     FlexCodeUpdateView,
-    flex_code_confirm_delete,
+    flex_code_delete,
     # ********* FLEX *********
 )
 
@@ -29,7 +29,7 @@ urlpatterns = [
          name="dcode-detail"),
     path('delivery/<int:pk>/edit', DeliveryCodeUpdateView.as_view(),
          name="dcode-edit"),
-    path('delivery/delete/<dcodeids>/', delivery_code_confirm_delete,
+    path('delivery/delete/<dcodeids>/', delivery_code_delete,
          name="dcode-delete"),
     # **************************** MENSAJERIA ****************************
 
@@ -40,7 +40,7 @@ urlpatterns = [
     path('flex/<int:pk>/edit', FlexCodeUpdateView.as_view(),
          name="fcode-edit"),
     path('flex/<int:pk>/', FlexCodeDetailView.as_view(), name="fcode-detail"),
-    path('flex/delete/<fcodeids>/', flex_code_confirm_delete,
+    path('flex/delete/<fcodeids>/', flex_code_delete,
          name='fcode-delete'),
     # ****************************** FLEX ******************************
 ]
