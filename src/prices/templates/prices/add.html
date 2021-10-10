@@ -5,13 +5,13 @@
 {% load places_extras %}
 
 <div class="col-md-12 col-lg-8 col-xl-6 col-xxl-5 d-flex-block">
-    <form action='.' method='POST' id="create_form" class="card flex-fill shadow-lg bg-white" name="create_form"
-        target="_top" enctype="multipart/form-data">{% csrf_token %}
+    <form method='POST' id="create_form" class="card flex-fill shadow-lg bg-white" name="create_form" target="_top"
+        enctype="multipart/form-data">{% csrf_token %}
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
                 Crear objeto
             </div>
-            <div class="">
+            <div>
                 <a href="{{ request.META.HTTP_REFERER }}"><i class="bi bi-arrow-left-short"></i>Volver</a>
             </div>
         </div>
@@ -27,7 +27,7 @@
                     <input id="id_code" name="code" type="text" {% if form.code.value %}value="{{form.code.value}}"
                         {% endif %} class="form-control {% if form.code.errors %}is-invalid{% endif %}"
                         placeholder="{{ name_suggestion }}"
-                        pattern="{% if code_type == 'd' %}^M[0-9]{1,3}${% else %}^F[0-9]{1,3}${% endif %}" required>
+                        pattern={% if code_type == 'd' %}"^M[0-9]{1,3}$"{% else %}"^F[0-9]{1,3}$"{% endif %} required>
                     <div class="invalid-feedback">
                         {% for error in form.code.errors %}{{error}}<br>{% endfor %}
                     </div>
@@ -49,7 +49,6 @@
                     </div>
                 </div>
                 <!-- END PRICE INPUT -->
-
 
                 <!-- START SUMBIT BUTTON -->
                 <div class="d-grid gap-2 d-md-flex">

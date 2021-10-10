@@ -11,6 +11,7 @@ class CleanerMixin(forms.ModelForm):
 
     def clean_unique_or_error(self, key, error_msg):
         value = self.cleaned_data.get(key)
+        print(value)
         if self.Meta.model.objects.filter(**{key: value}).exists():
             error = error_msg
             if '{' in error_msg or '}' in error_msg:
@@ -112,6 +113,9 @@ class BaseFlexCodeForm(CleanerMixin):
                                        'step': '1'
                                    }),)
 
+    already_exists_code = 'El código flex "{}" ya existe.'
+    already_exists_price = "Ya existe un código flex con ese precio"
+
     class Meta:
         model = FlexCode
         fields = [
@@ -124,19 +128,19 @@ class CreateFlexCodeForm(BaseFlexCodeForm, forms.ModelForm):
 
     def clean_code(self, *args, **kwargs):
         return self.clean_unique_or_error(
-            'code', 'El código flex "{}" ya existe.')
+            'code', self.already_exists_code)
 
     def clean_price(self, *args, **kwargs):
         return self.clean_unique_or_error(
-            'price', "Ya existe un código flex con ese precio")
+            'price', self.already_exists_price)
 
 
 class UpdateFlexCodeForm(BaseFlexCodeForm, forms.ModelForm):
 
     def clean_code(self, *args, **kwargs):
         return self.clean_unique_beyond_instance_or_error(
-            'code', 'El código flex "{}" ya existe.')
+            'code', self.already_exists_code)
 
     def clean_price(self, *args, **kwargs):
         return self.clean_unique_beyond_instance_or_error(
-            'price', "Ya existe un código flex con ese precio")
+            'price', self.already_exists_price)

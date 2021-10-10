@@ -40,10 +40,15 @@ class DeliveryCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
     template_name = "prices/add.html"
     form_class = CreateDeliveryCodeForm
 
+    def form_invalid(self, form):
+        print("ups, inválido")
+        return super().form_invalid(form)
+
     def form_valid(self, form):
         self.add_alert(
             f'El código {form.instance.code} se creó correctamente.')
         form.instance.updated_by = self.request.user
+        print("valid")
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -162,6 +167,10 @@ class FlexCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
     login_url = '/login/'
     template_name = "prices/add.html"
     form_class = CreateFlexCodeForm
+
+    def form_invalid(self, form):
+        print("ups, inválido")
+        return super().form_invalid(form)
 
     def form_valid(self, form):
         self.add_alert(
