@@ -20,9 +20,9 @@
     <td>{{ obj.last_update }}</td>
     <td>{{ obj.updated_by.first_name }} {{ obj.updated_by.last_name }}</td>
     <td style="text-align: start;">
-        <a href="{% url 'prices:fcode-edit' pk=item.id %}" class="edit-button me-1" title="Editar"><i
+        <a href="{% url 'prices:fcode-edit' pk=obj.id %}" class="edit-button me-1" title="Editar"><i
                 class="bi bi-pencil-square"></i></a>
-        <a href="{% url 'prices:fcode-delete' item.id %}" class="edit-button ms-1" title="Editar"><i
+        <a href="{% url 'prices:fcode-delete' obj.id %}" class="edit-button ms-1" title="Editar"><i
                 class="bi bi-trash"></i></a>
     </td>
 </tr>

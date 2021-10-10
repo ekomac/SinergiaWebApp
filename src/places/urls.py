@@ -1,15 +1,24 @@
 from django.urls import path
 
-from .views import (
+from places.views import (
+    towns_view_2,
+    TownAddView,
     TownDetailView,
-    towns_view,
+    TownUpdateView,
+    town_delete,
 )
 
 app_name = 'places'
 urlpatterns = [
-    path('', towns_view, name="towns-list"),
-    path('<int:pk>/', TownDetailView.as_view(), name="town-detail"),
-    # path('add/', EnvioCreate.as_view(), name="create"),
-    # path('edit/', update_envio, name="edit"),
-    # path('delete/', delete_envio, name="delete"),
+
+    # **************************** TOWN ****************************
+    path('', towns_view_2, name="town-list"),
+    path('add', TownAddView.as_view(), name="town-add"),
+    path('<int:pk>', TownDetailView.as_view(),
+         name="town-detail"),
+    path('<int:pk>/edit', TownUpdateView.as_view(),
+         name="town-edit"),
+    path('delete/<townids>', town_delete,
+         name="town-delete"),
+    # **************************** TOWN ****************************
 ]

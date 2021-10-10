@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from account.models import Account
 
 
 class Zone(models.Model):
@@ -9,7 +10,14 @@ class Zone(models.Model):
         null=False, unique=True)
     asigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True,
-        blank=True, on_delete=models.SET_NULL)
+        blank=True, on_delete=models.SET_NULL,
+        related_name='asignet_to')
+    last_update = models.DateTimeField(
+        verbose_name="Última actualización", auto_now=True)
+    updated_by = models.ForeignKey(
+        Account, on_delete=models.SET_NULL,
+        verbose_name="Actualizado por", blank=True, null=True, default=None,
+        related_name='updated_by')
 
     def __str__(self):
         return self.name.title()
@@ -56,6 +64,11 @@ class Partido(models.Model):
     amba_zone = models.ForeignKey(
         Zone, blank=True, null=True, on_delete=models.SET_NULL)
     is_amba = models.BooleanField(default=False, blank=False, null=False)
+    last_update = models.DateTimeField(
+        verbose_name="Última actualización", auto_now=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        verbose_name="Actualizado por", blank=True, null=True, default=None)
 
     def __str__(self):
         return self.name.title()
@@ -78,6 +91,11 @@ class Town(models.Model):
     flex_code = models.ForeignKey(
         'prices.FlexCode', verbose_name="Flex code",
         blank=True, null=True, on_delete=models.SET_NULL)
+    last_update = models.DateTimeField(
+        verbose_name="Última actualización", auto_now=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        verbose_name="Actualizado por", blank=True, null=True, default=None)
 
     def __str__(self):
         return self.name.title()

@@ -31,7 +31,7 @@
 
             <!-- START Lugares -->
             <li class="nav-item {% if selected_tab == 'places-tab' %}activetab{% endif %} li-navigation">
-                <a id="places-tab" href="#" class="nav-link tab">
+                <a id="places-tab" href="{% url 'places:town-list' %}" class="nav-link tab">
                     <i class="bi bi-map"></i> Localidades
                 </a>
             </li>
