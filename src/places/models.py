@@ -30,7 +30,7 @@ class Zone(models.Model):
 class Partido(models.Model):
 
     PROVINCES = [
-        ('BA', 'Buenos Aaires'),
+        ('BA', 'Buenos Aires'),
         ('CAB', 'CABA'),
         ('CA', 'Catamarca'),
         ('CH', 'Chaco'),
