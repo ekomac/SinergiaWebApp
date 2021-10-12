@@ -23,7 +23,6 @@ from alerts.views import CreateAlertMixin, UpdateAlertMixin
 def delivery_codes_view(request, *args, **kwargs):
 
     context = {}
-    context['selected_tab'] = 'prices-tab'
 
     if request.method == 'GET':
 
