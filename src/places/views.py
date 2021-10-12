@@ -1,14 +1,19 @@
-from typing import List
 import unidecode
-# from django.contrib.auth.decorators import login_required
+from typing import List
+
+from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, UpdateView
-from django.views.generic.list import ListView
-from django.shortcuts import render
+from django.views.generic.edit import UpdateView
+from django.shortcuts import get_object_or_404, render
 from django.db.models import Q
+from django.urls import reverse
+
+from alerts.views import UpdateAlertMixin
+
 from places.models import Town
+from places.forms import UpdateTownForm
 
 BLOG_POSTS_PER_PAGE = 30
 ORDERING = {
@@ -20,7 +25,7 @@ ORDERING = {
     'delivery_desc': '-delivery_code__code',
     'flex': 'flex_code__code',
     'flex_desc': '-flex_code__code',
-    None: '-partido__name',
+    None: 'partido__name',
 }
 
 # ************************ TOWN ************************
@@ -48,7 +53,8 @@ def get_town_queryset(
     ).order_by(ORDERING[order_by_key]).distinct())
 
 
-def towns_view_2(request, *args, **kwargs):
+@login_required(login_url='/login/')
+def towns_view(request, *args, **kwargs):
     context = {}
 
     # Search
@@ -63,11 +69,6 @@ def towns_view_2(request, *args, **kwargs):
             context['order_by'] = str(order_by)
 
         towns = get_town_queryset(query, order_by)
-
-        for i, town in enumerate(towns):
-            if i > 30:
-                break
-            print(town, 'partido de', town.partido.name)
 
         # Pagination
         page = request.GET.get('page', 1)
@@ -87,40 +88,36 @@ def towns_view_2(request, *args, **kwargs):
     return render(request, "places/town/list.html", context)
 
 
-class TownListView(LoginRequiredMixin, ListView):
-
+class TownDetailView(LoginRequiredMixin, DetailView):
+    login_url = '/login/'
     model = Town
-    template_name = "places/towns_list.html"
+    template_name = "places/town/detail.html"
+
+
+class TownUpdateView(UpdateAlertMixin, LoginRequiredMixin, UpdateView):
+    login_url = '/login/'
+    form_class = UpdateTownForm
+    template_name = "places/town/edit.html"
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['selected_tab'] = 'places-tab'
-        return context
+        ctx = super(TownUpdateView, self).get_context_data(**kwargs)
+        ctx['selected_tab'] = 'places-tab'
+        return ctx
 
+    def get_object(self):
+        id_ = self.kwargs.get("pk")
+        return get_object_or_404(Town, id=id_)
 
-def towns_view(request, *args, **kwargs):
+    def form_valid(self, form):
+        self.add_alert(
+            msg=f'La localidad "{form.instance.name.title()}" ' +
+                'se actualizó correctamente',
+        )
+        form.instance.updated_by = self.request.user
+        return super().form_valid(form)
 
-    context = {}
-    context['selected_tab'] = 'places-tab'
-
-    if request.method == 'GET':
-        context['towns'] = Town.objects.all()
-        context['selected_tab'] = 'places-tab'
-
-    return render(request, "places/towns_list.html", context)
-
-
-class TownAddView(CreateView):
-    pass
-
-
-class TownDetailView(LoginRequiredMixin, DetailView):
-    model = Town
-    template_name = "places/town_detail.html"
-
-
-class TownUpdateView(UpdateView):
-    pass
+    def get_success_url(self):
+        return reverse('places:town-detail', kwargs={'pk': self.object.pk})
 
 
 def town_delete(request, *args):

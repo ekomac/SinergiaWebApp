@@ -88,8 +88,7 @@
 
 
             <!-- start ACTIONS -->
-            <div
-                class="d-grid gap-1 d-lg-flex flex-lg-row gap-md-0 justify-content-lg-start align-items-lg-center text-lg-start">
+            <div class="d-flex flex-wrap align-items-center">
                 <button type="button" id="bulkAsignDeliveryCode" class="btn btn-primary btn-sm m-2 m-xl-0 ms-xl-2"
                     disabled>
                     Asignar código mensajería
@@ -105,17 +104,15 @@
                             style="cursor: pointer;">Quitar selección<i class="bi bi-x"></i></a>
                     </div>
                 </div>
-                <div class="d-flex d-lg-inline ms-lg-auto"><a href="{% url 'prices:fcode-add' %}" type="button"
-                        class="flex-fill btn btn-success btn-sm m-2"><i class="bi bi-plus"></i>Crear nuevo</a>
-                </div>
             </div>
             <!-- end ACTIONS -->
 
 
             <hr class="bg-dark">
 
-
             <!-- start MAIN CONTENT -->
+            {% if towns %}
+
             <div class="table-responsive">
                 <table class="table table-striped">
                     <thead>
@@ -142,10 +139,19 @@
                     </tbody>
                 </table>
             </div>
-            <!-- end MAIN CONTENT -->
 
             <!-- Pagination -->
             {% include 'places/town/snippets/pagination.html' with towns=towns %}
+
+            {% else %}
+
+            <div>
+                <p class="card-text">No se encontraron resultados que coincidan con la búsqueda: "{{query}}"</p>
+            </div>
+
+            {% endif %}
+            <!-- end MAIN CONTENT -->
+
 
         </div>
     </div>
