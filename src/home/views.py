@@ -20,17 +20,19 @@ def prueba_view(request):
 
 
 def delete_alert_from_session(request, *args, **kwargs):
+    """
+    This function handles the deletion of alerts troughout the application.
+    It is called from an ajax request, and returns the Http response regarding
+    the result of the excecution.
+    """
     if not request.is_ajax() or not request.method == 'POST':
         return HttpResponseNotAllowed(['POST'])
-
-    # request.session['alerts'] = []
     alerts = request.session.get('alerts', [])
     filtered_alerts = []
     for alert in alerts:
         if alert['id'] != kwargs['id']:
             filtered_alerts.append(alert)
     request.session['alerts'] = filtered_alerts
-    print("se eliminó la alerta con id = ", kwargs['id'])
     return HttpResponse(
         json.dumps({'status': 'ok'}), content_type="application/json"
     )

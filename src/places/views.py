@@ -1,6 +1,5 @@
-import itertools
 from typing import List
-from operator import attrgetter
+import unidecode
 # from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -12,28 +11,41 @@ from django.db.models import Q
 from places.models import Town
 
 BLOG_POSTS_PER_PAGE = 30
+ORDERING = {
+    'town': 'name',
+    'town_desc': '-name',
+    'partido': 'partido__name',
+    'partido_desc': '-partido__name',
+    'delivery': 'delivery_code__code',
+    'delivery_desc': '-delivery_code__code',
+    'flex': 'flex_code__code',
+    'flex_desc': '-flex_code__code',
+    None: '-partido__name',
+}
 
 # ************************ TOWN ************************
 
 
-def get_town_queryset(query=None):
-    queryset = []
-    queries = query.split(" ")
-    queryset = itertools.chain(*map(map_as_town, queries))
-    return list(set(queryset))
+def get_town_queryset(
+        query: str = None, order_by_key: str = None) -> List[Town]:
+    """Get all towns that match provided query, if any. If none is given,
+    returns all towns. Also, performs the query in the specified order.
 
+    Args:
+        query (str, optional): words to match the query. Defaults to empyt str.
+        order_by_key (str, optional): to perform ordery by.
+        Defaults to None.
 
-def map_as_town(q: str = '') -> List[Town]:
+    Returns:
+        List[Town]: a list containing the towns which match at least one query.
     """
-    Returns a list of Town objects containing the q str
-    in their properties.
-    """
-    return Town.objects.filter(
-        Q(name__icontains=q) |
-        Q(partido__name__icontains=q) |
-        Q(delivery_code__code__icontains=q) |
-        Q(flex_code__code__icontains=q)
-    ).distinct()
+    query = unidecode.unidecode(query) if query else ""
+    return list(Town.objects.filter(
+        Q(name__icontains=query) |
+        Q(partido__name__icontains=query) |
+        Q(delivery_code__code__icontains=query) |
+        Q(flex_code__code__icontains=query)
+    ).order_by(ORDERING[order_by_key]).distinct())
 
 
 def towns_view_2(request, *args, **kwargs):
@@ -41,15 +53,21 @@ def towns_view_2(request, *args, **kwargs):
 
     # Search
     query = ""
-    print('get?')
     if request.method == 'GET':
-        query = request.GET.get('q', '')
-        context['query'] = str(query)
+        query = request.GET.get('q', None)
+        if query:
+            context['query'] = str(query)
 
-        towns = sorted(get_town_queryset(
-            query), key=attrgetter('name'), reverse=False)
+        order_by = request.GET.get('order_by', None)
+        if order_by:
+            context['order_by'] = str(order_by)
 
-        print(len(towns))
+        towns = get_town_queryset(query, order_by)
+
+        for i, town in enumerate(towns):
+            if i > 30:
+                break
+            print(town, 'partido de', town.partido.name)
 
         # Pagination
         page = request.GET.get('page', 1)
@@ -66,8 +84,7 @@ def towns_view_2(request, *args, **kwargs):
         context['totalTowns'] = len(towns)
         context['selected_tab'] = 'places-tab'
 
-        return render(request, "places/town/list.html", context)
-    return render(request, "places/town/list.html", {})
+    return render(request, "places/town/list.html", context)
 
 
 class TownListView(LoginRequiredMixin, ListView):
