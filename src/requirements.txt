@@ -1,5 +1,6 @@
 autopep8==1.5.7
 Django==2.2.2
+djangorestframework==3.12.4
 flake8==3.9.2
 mccabe==0.6.1
 Pillow==8.3.2

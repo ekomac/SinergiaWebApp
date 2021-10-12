@@ -37,7 +37,7 @@ urlpatterns = [
     # ****************************** FLEX ******************************
     path('flex/', flex_codes_view, name='fcode-list'),
     path('flex/add/', FlexCodeAddView.as_view(), name="fcode-add"),
-    path('flex/<int:pk>/', FlexCodeDetailView.as_view(), name="fcode-detail"),
+    path('flex/<int:pk>', FlexCodeDetailView.as_view(), name="fcode-detail"),
     path('flex/<int:pk>/edit/', FlexCodeUpdateView.as_view(),
          name="fcode-edit"),
     path('flex/delete/<fcodeids>/', flex_code_delete,
