@@ -1,22 +1,25 @@
 import unidecode
 from typing import List
+from operator import attrgetter
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import UpdateView
-from django.shortcuts import get_object_or_404, render
+from django.views.generic.edit import CreateView, UpdateView
+from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Q
 from django.urls import reverse
 
-from alerts.views import UpdateAlertMixin
+from alerts.views import CreateAlertMixin, UpdateAlertMixin
 
-from places.models import Town
-from places.forms import UpdateTownForm
+from places.models import Town, Zone
+from places.forms import AddZoneForm, UpdateTownForm, UpdateZoneForm
+from utils.views import DeleteObjectsUtil, ContextMixin
 
-BLOG_POSTS_PER_PAGE = 30
-ORDERING = {
+TOWNS_PER_PAGE = 30
+ZONES_PER_PAGE = 30
+TOWNS_ORDERING = {
     'town': 'name',
     'town_desc': '-name',
     'partido': 'partido__name',
@@ -27,30 +30,13 @@ ORDERING = {
     'flex_desc': '-flex_code__code',
     None: 'partido__name',
 }
+ZONES_ORDERING = {
+    'name': 'name',
+    'name_desc': '-name',
+    None: 'name',
+}
 
 # ************************ TOWN ************************
-
-
-def get_town_queryset(
-        query: str = None, order_by_key: str = None) -> List[Town]:
-    """Get all towns that match provided query, if any. If none is given,
-    returns all towns. Also, performs the query in the specified order.
-
-    Args:
-        query (str, optional): words to match the query. Defaults to empyt str.
-        order_by_key (str, optional): to perform ordery by.
-        Defaults to None.
-
-    Returns:
-        List[Town]: a list containing the towns which match at least one query.
-    """
-    query = unidecode.unidecode(query) if query else ""
-    return list(Town.objects.filter(
-        Q(name__icontains=query) |
-        Q(partido__name__icontains=query) |
-        Q(delivery_code__code__icontains=query) |
-        Q(flex_code__code__icontains=query)
-    ).order_by(ORDERING[order_by_key]).distinct())
 
 
 @login_required(login_url='/login/')
@@ -72,37 +58,58 @@ def towns_view(request, *args, **kwargs):
 
         # Pagination
         page = request.GET.get('page', 1)
-        towns_paginator = Paginator(towns, BLOG_POSTS_PER_PAGE)
+        towns_paginator = Paginator(towns, TOWNS_PER_PAGE)
         try:
             towns = towns_paginator.page(page)
         except PageNotAnInteger:
-            towns = towns_paginator.page(BLOG_POSTS_PER_PAGE)
+            towns = towns_paginator.page(TOWNS_PER_PAGE)
         except EmptyPage:
-            towns = towns_paginator.page(
-                towns_paginator.num_pages)
+            towns = towns_paginator.page(towns_paginator.num_pages)
 
         context['towns'] = towns
         context['totalTowns'] = len(towns)
-        context['selected_tab'] = 'places-tab'
+        context['selected_tab'] = 'town-tab'
 
     return render(request, "places/town/list.html", context)
 
 
-class TownDetailView(LoginRequiredMixin, DetailView):
+def get_town_queryset(
+        query: str = None, order_by_key: str = None) -> List[Town]:
+    """Get all towns that match provided query, if any. If none is given,
+    returns all towns. Also, performs the query in the specified order.
+
+    Args:
+        query (str, optional): words to match the query. Defaults to empyt str.
+        order_by_key (str, optional): to perform ordery by.
+        Defaults to None.
+
+    Returns:
+        List[Town]: a list containing the towns which match at least one query.
+    """
+    query = unidecode.unidecode(query) if query else ""
+    return list(Town.objects.filter(
+        Q(name__icontains=query) |
+        Q(partido__name__icontains=query) |
+        Q(delivery_code__code__icontains=query) |
+        Q(flex_code__code__icontains=query)
+    ).order_by(TOWNS_ORDERING[order_by_key]).distinct())
+
+
+class TownDetailView(ContextMixin, LoginRequiredMixin, DetailView):
     login_url = '/login/'
     model = Town
     template_name = "places/town/detail.html"
+    context = {'selected_tab': 'town-tab'}
 
 
-class TownUpdateView(UpdateAlertMixin, LoginRequiredMixin, UpdateView):
+class TownUpdateView(
+        UpdateAlertMixin, ContextMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'
     form_class = UpdateTownForm
     template_name = "places/town/edit.html"
-
-    def get_context_data(self, **kwargs):
-        ctx = super(TownUpdateView, self).get_context_data(**kwargs)
-        ctx['selected_tab'] = 'places-tab'
-        return ctx
+    context = {
+        'selected_tab': 'town-tab'
+    }
 
     def get_object(self):
         id_ = self.kwargs.get("pk")
@@ -120,11 +127,145 @@ class TownUpdateView(UpdateAlertMixin, LoginRequiredMixin, UpdateView):
         return reverse('places:town-detail', kwargs={'pk': self.object.pk})
 
 
-def town_delete(request, *args):
-    return render(request, '', {})
-
-
-# ************************ PARTIDO ************************
-
-
 # ************************ ZONE ************************
+@login_required(login_url='/login/')
+def zones_view(request, *args, **kwargs):
+    context = {}
+
+    # Search
+    query = ""
+    if request.method == 'GET':
+        query = request.GET.get('q', None)
+        if query:
+            context['query'] = str(query)
+
+        order_by = request.GET.get('order_by', None)
+        if order_by:
+            context['order_by'] = str(order_by)
+
+        reverse = order_by == 'name_desc'
+
+        zones = sorted(get_zone_queryset(query),
+                       key=attrgetter('name'), reverse=reverse)
+
+        # Pagination
+        page = request.GET.get('page', 1)
+        zones_paginator = Paginator(zones, ZONES_PER_PAGE)
+        try:
+            zones = zones_paginator.page(page)
+        except PageNotAnInteger:
+            zones = zones_paginator.page(ZONES_PER_PAGE)
+        except EmptyPage:
+            zones = zones_paginator.page(zones_paginator.num_pages)
+
+        context['zones'] = zones
+        context['totalZones'] = len(zones)
+        context['selected_tab'] = 'zone-tab'
+
+    return render(request, "places/zone/list.html", context)
+
+
+def get_zone_queryset(query: str = None) -> List[Zone]:
+    """Get all zones that match provided query, if any. If none is given,
+    returns all zones. Also, performs the query in the specified order.
+
+    Args:
+        query (str, optional): words to match the query. Defaults to empyt str.
+        order_by_key (str, optional): to perform ordery by.
+        Defaults to None.
+
+    Returns:
+        List[Zone]: a list containing the zones which match at least one query.
+    """
+    query = unidecode.unidecode(query) if query else ""
+    return list(set(Zone.objects.filter(
+        Q(name__icontains=query) |
+        Q(partido__name__icontains=query)
+    ).distinct()))
+
+
+class ZoneAddView(
+        CreateAlertMixin, ContextMixin, LoginRequiredMixin, CreateView):
+    login_url = '/login/'
+    template_name = "places/zone/add.html"
+    form_class = AddZoneForm
+    context = {'selected_tab': 'zone-tab', }
+
+    def form_invalid(self, form):
+        return super().form_invalid(form)
+
+    def form_valid(self, form):
+        self.add_alert(
+            msg=f'La zona {form.instance.name} se creó correctamente.',
+        )
+        form.instance.updated_by = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('places:zone-detail', kwargs={'pk': self.object.pk})
+
+
+class ZoneDetailView(LoginRequiredMixin, DetailView):
+    login_url = '/login/'
+    model = Zone
+    template_name = "places/zone/detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['selected_tab'] = 'zone-tab'
+        context['total_partidos'] = self.object.partido_set.count()
+        # partidos = self.object.partido_set.all()
+        context['partidos'] = self.object.partido_set.all()
+        # partidos = [partido.name.title() for partido in partidos]
+        # context['partidos'] = ', '.join(partidos)
+        # context['orfan_partidos'] = Partido.objects.filter(amba_zone=None)
+        # context['total_orfan_partidos'] = Partido.objects.filter(
+        #     amba_zone=None).count()
+        return context
+
+
+class ZoneUpdateView(
+        UpdateAlertMixin, ContextMixin, LoginRequiredMixin, UpdateView):
+    login_url = '/login/'
+    form_class = UpdateZoneForm
+    template_name = "places/zone/edit.html"
+    context = {'selected_tab': 'zone-tab'}
+
+    def get_object(self):
+        id_ = self.kwargs.get("pk")
+        return get_object_or_404(Zone, id=id_)
+
+    def form_valid(self, form):
+        msg = f'La zona "{form.instance.name.title()}" ' +\
+            'se actualizó correctamente'
+        self.add_alert(msg=msg)
+        form.instance.updated_by = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('places:zone-detail', kwargs={'pk': self.object.pk})
+
+
+@login_required(login_url='/login/')
+def zone_delete(request, *args, **kwargs):
+
+    zoneids = kwargs['zoneids'].split("-")
+
+    delete_utility = DeleteObjectsUtil(
+        model=Zone,
+        model_ids=zoneids,
+        order_by='name',
+        request=request,
+        selected_tab='zone-tab'
+    )
+
+    if request.method == 'POST':
+        delete_utility.delete_objects()
+        delete_utility.create_alert()
+        return redirect('places:zone-list')
+
+    if request.method == 'GET':
+        context = delete_utility.get_context_data()
+
+    return render(request, "places/zone/delete.html", context)
+# ************* END FLEX *************

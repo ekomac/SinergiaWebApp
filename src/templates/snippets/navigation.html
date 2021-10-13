@@ -29,24 +29,89 @@
             </li>
             <!-- END Envíos -->
 
+
             <!-- START Lugares -->
-            <li class="nav-item {% if selected_tab == 'places-tab' %}activetab{% endif %} li-navigation">
-                <a id="places-tab" href="{% url 'places:town-list' %}" class="nav-link tab">
-                    <i class="bi bi-map"></i> Localidades
+            <li class="nav-item">
+
+                <!-- START OPTION 1: A places tab is selected-->
+                {% if selected_tab == 'town-tab' or selected_tab == 'zone-tab' %}
+                <a class="parent-nav nav-link align-items-center rounded tab mt-2" data-bs-toggle="collapse"
+                    data-bs-target="#places-collapse" aria-expanded="true">
+                    Lugares
                 </a>
+                <div class="collapse show" id="places-collapse">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal">
+                        <!-- START Places Town -->
+                        <li class="nav-item {% if selected_tab == 'town-tab' %}activetab{% endif %} li-navigation">
+                            <a id="town-tab" href="{% url 'places:town-list' %}" class="nav-link tab">
+                                <i class="bi bi-geo"></i> Localidades
+                            </a>
+                        </li>
+                        <!-- END Places Town -->
+                        <!-- START Places Partidos -->
+                        <li class="nav-item {% if selected_tab == 'partido-tab' %}activetab{% endif %} li-navigation">
+                            <a id="partido-tab" href="{% url 'places:zone-list' %}" class="nav-link tab">
+                                <i class="bi bi-map"></i> Partidos
+                            </a>
+                        </li>
+                        <!-- END Places Partidos -->
+                        <!-- START Places Zone -->
+                        <li class="nav-item {% if selected_tab == 'zone-tab' %}activetab{% endif %} li-navigation">
+                            <a id="zone-tab" href="{% url 'places:zone-list' %}" class="nav-link tab">
+                                <i class="bi bi-collection"></i> Zonas
+                            </a>
+                        </li>
+                        <!-- END Places Zone -->
+                    </ul>
+                </div>
+                {% else %}
+                <!-- END OPTION 1: A palces tab is selected-->
+                <!-- START OPTION 2: No places tab is selected -->
+                <a class="parent-nav nav-link align-items-center rounded tab collapsed mt-2" data-bs-toggle="collapse"
+                    data-bs-target="#places-collapse" aria-expanded="false">
+                    Lugares
+                </a>
+                <div class="collapse" id="places-collapse">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal">
+                        <!-- START Places Town -->
+                        <li class="nav-item {% if selected_tab == 'town-tab' %}activetab{% endif %} li-navigation">
+                            <a id="town-tab" href="{% url 'places:town-list' %}" class="nav-link tab">
+                                <i class="bi bi-geo"></i> Localidades
+                            </a>
+                        </li>
+                        <!-- END Places Town -->
+                        <!-- START Places Partidos -->
+                        <li class="nav-item {% if selected_tab == 'partido-tab' %}activetab{% endif %} li-navigation">
+                            <a id="partido-tab" href="{% url 'places:zone-list' %}" class="nav-link tab">
+                                <i class="bi bi-map"></i> Partidos
+                            </a>
+                        </li>
+                        <!-- END Places Partidos -->
+                        <!-- START Places Zone -->
+                        <li class="nav-item {% if selected_tab == 'zone-tab' %}activetab{% endif %} li-navigation">
+                            <a id="zone-tab" href="{% url 'places:zone-list' %}" class="nav-link tab">
+                                <i class="bi bi-collection"></i> Zonas
+                            </a>
+                        </li>
+                        <!-- END Places Zone -->
+                    </ul>
+                </div>
+                {% endif %}
+                <!-- END START OPTION 2: No price tab is selected -->
             </li>
             <!-- END Lugares -->
+
 
             <!-- START Precios -->
             <li class="nav-item">
 
                 <!-- START OPTION 1: A price tab is selected-->
                 {% if selected_tab == 'dprices-tab' or selected_tab == 'fprices-tab' or selected_tab == 'prices-tab' %}
-                <a class="parent-nav nav-link align-items-center rounded tab" data-bs-toggle="collapse"
-                    data-bs-target="#orders-collapse" aria-expanded="true">
+                <a class="parent-nav nav-link align-items-center rounded tab mt-2" data-bs-toggle="collapse"
+                    data-bs-target="#prices-collapse" aria-expanded="true">
                     Tarifas
                 </a>
-                <div class="collapse show" id="orders-collapse">
+                <div class="collapse show" id="prices-collapse">
                     <ul class="btn-toggle-nav list-unstyled fw-normal">
                         <!-- START Precios Delivery -->
                         <li class="nav-item {% if selected_tab == 'dprices-tab' %}activetab{% endif %} li-navigation">
@@ -67,11 +132,11 @@
                 {% else %}
                 <!-- END OPTION 1: A price tab is selected-->
                 <!-- START OPTION 2: No price tab is selected -->
-                <a class="parent-nav nav-link align-items-center rounded tab collapsed" data-bs-toggle="collapse"
-                    data-bs-target="#orders-collapse" aria-expanded="false">
+                <a class="parent-nav nav-link align-items-center rounded tab collapsed mt-2" data-bs-toggle="collapse"
+                    data-bs-target="#prices-collapse" aria-expanded="false">
                     Tarifas
                 </a>
-                <div class="collapse" id="orders-collapse">
+                <div class="collapse" id="prices-collapse">
                     <ul class="btn-toggle-nav list-unstyled fw-normal">
                         <!-- START Precios Delivery -->
                         <li class="nav-item {% if selected_tab == 'dprices-tab' %}activetab{% endif %} li-navigation">

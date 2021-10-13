@@ -10,7 +10,7 @@ class Zone(models.Model):
         null=False, unique=True)
     asigned_to = models.ForeignKey(
         settings.AUTH_USER_MODEL, null=True,
-        blank=True, on_delete=models.SET_NULL,
+        blank=True, default=None, on_delete=models.SET_NULL,
         related_name='asignet_to')
     last_update = models.DateTimeField(
         verbose_name="Última actualización", auto_now=True)

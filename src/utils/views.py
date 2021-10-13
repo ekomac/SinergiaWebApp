@@ -1,6 +1,15 @@
 from alerts.views import DeleteAlertMixin
 
 
+class ContextMixin():
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        for key, value in self.context.items():
+            context[key] = value
+        return context
+
+
 class NotEnoughAttributes(Exception):
     pass
 

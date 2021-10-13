@@ -134,7 +134,7 @@
                     </thead>
                     <tbody id="overrided-1" class="overrided-tbody">
                         {% for item in towns %}
-                        {% include 'places/town/snippets/item.html' with obj=item counter=forloop.counter codetype='f' %}
+                        {% include 'places/town/snippets/item.html' with obj=item counter=forloop.counter %}
                         {% endfor %}
                     </tbody>
                 </table>

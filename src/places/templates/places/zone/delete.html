@@ -1,8 +1,13 @@
-{% extends 'base_system.html' %}
+{% extends 'confirm_delete.html' %}
 
+{% load price_extras %}
 
-{% block content %}
-
-Zone delete...
-
-{% endblock content %}
+{% block deletion_specs %}
+<ul>
+    {% for zone in objects %}
+    <li class="mt-1">
+        {{zone.name}} con {{zone.partido_set.count}} partidos.
+    </li>
+    {% endfor %}
+</ul>
+{% endblock deletion_specs %}
