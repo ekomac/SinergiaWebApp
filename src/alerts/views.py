@@ -1,3 +1,6 @@
+from typing import Any
+from django.http.response import HttpResponse, HttpResponseRedirect
+from django.shortcuts import redirect
 from django.views.generic.base import View
 from datetime import datetime
 from alerts.alert import ToastAlert
@@ -46,3 +49,31 @@ class DeleteAlertMixin(BaseAlertMixin):
         return super().add_alert(
             topic='delete', status='success',
             title='Eliminación correcta', msg=msg)
+
+
+def create_alert_and_redirect(request: HttpResponse, msg: str,
+                              url: str, id: Any) -> HttpResponseRedirect:
+    """Returns an HttpResponse form a redirect but adds an
+    alert to notify creation successful to request.
+
+    Args:
+        request (HttpResponse): the request from a django function based view.
+        msg (str): to pass to the alert (ToastAlert obj).
+        url (str): django's url formatted.
+        id (Any): the id of the object created.
+
+    Returns:
+        HttpResponseRedirect: the redirect function which returns this object.
+    """
+    # Gets current alerts
+    alerts = request.session.get('alerts', [])
+    # Get current time
+    now = datetime.now()
+    # Create the alert
+    alert = ToastAlert('create', 'success',
+                       'Creación correcta', msg, now)
+    # Append it to already existing ones
+    alerts.append(alert.get_as_dict())
+    # Set them back to request's session
+    request.session['alerts'] = alerts
+    return redirect(url, id)

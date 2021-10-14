@@ -11,5 +11,9 @@
             "password": "A5euBFju*$XR2&Ct",
             "name": "sinergia db postgresql"
         }
-    ]
+    ],
+    // Whether to run code in Integrated Terminal.
+	"code-runner.runInTerminal": true,
+
+
 }

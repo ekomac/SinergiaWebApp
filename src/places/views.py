@@ -1,6 +1,5 @@
 import unidecode
 from typing import List
-from operator import attrgetter
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -12,14 +11,18 @@ from django.db.models import Q
 from django.urls import reverse
 from account.models import Account
 
-from alerts.views import CreateAlertMixin, UpdateAlertMixin
+from alerts.views import (
+    CreateAlertMixin,
+    UpdateAlertMixin,
+    create_alert_and_redirect
+)
 
 from places.models import Partido, Town, Zone
 from places.forms import (
     AddZoneForm,
     UpdateTownForm,
     UpdateZoneForm,
-    UpdatePartidosZone,
+    # UpdatePartidosZone,
 )
 from utils.views import DeleteObjectsUtil, ContextMixin
 
@@ -215,41 +218,14 @@ def add_zone_view(request, *args, **kwargs):
                 partido.amba_zone = obj
                 partido.save()
         form = AddZoneForm()
-        return redirect('places:zone-detail', obj.pk)
+        msg = f'La zona {obj.name} se creó correctamente.'
+        return create_alert_and_redirect(
+            request, msg, 'places:zone-detail', obj.pk)
 
     context['form'] = form
     context['partidos_ids'] = ids
 
     return render(request, "places/zone/add.html", context)
-
-
-class ZoneAddView(
-        CreateAlertMixin, ContextMixin, LoginRequiredMixin, CreateView):
-    login_url = '/login/'
-    template_name = "places/zone/add.html"
-    form_class = AddZoneForm
-    context = {
-        'selected_tab': 'zone-tab',
-        'partidos': Partido.objects.all(),
-        'partidosList': list(Partido.objects.all()),
-        'partidosTotal': Partido.objects.count(),
-    }
-
-    def form_valid(self, form):
-        self.add_alert(
-            msg=f'La zona {form.instance.name} se creó correctamente.',
-        )
-        form.instance.updated_by = self.request.user
-        ids = form.cleaned_data['selected_partidos_ids']
-        if ids != '':
-            for id in ids.split("-"):
-                partido = get_object_or_404(Partido, pk=id)
-                partido.amba_zone = form.instance
-                partido.save()
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse('places:zone-detail', kwargs={'pk': self.object.pk})
 
 
 class ZoneDetailView(LoginRequiredMixin, DetailView):
