@@ -15,7 +15,7 @@ from .forms import (
 )
 from .models import DeliveryCode, FlexCode
 from places.models import Town
-from alerts.views import CreateAlertMixin, UpdateAlertMixin
+from utils.alerts.views import CreateAlertMixin, UpdateAlertMixin
 
 
 # ****************** MENSAJERIA ******************

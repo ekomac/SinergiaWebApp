@@ -5,14 +5,13 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import UpdateView
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Q
 from django.urls import reverse
 from account.models import Account
 
-from alerts.views import (
-    CreateAlertMixin,
+from utils.alerts.views import (
     UpdateAlertMixin,
     create_alert_and_redirect
 )
