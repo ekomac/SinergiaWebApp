@@ -11,6 +11,7 @@ from django.db.models import Q
 from django.urls import reverse
 from account.models import Account
 
+from utils.views import DeleteObjectsUtil, ContextMixin
 from utils.alerts.views import (
     UpdateAlertMixin,
     create_alert_and_redirect
@@ -23,7 +24,6 @@ from places.forms import (
     UpdateZoneForm,
     # UpdatePartidosZone,
 )
-from utils.views import DeleteObjectsUtil, ContextMixin
 
 TOWNS_PER_PAGE = 30
 ZONES_PER_PAGE = 30

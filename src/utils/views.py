@@ -1,4 +1,4 @@
-from alerts.views import DeleteAlertMixin
+from utils.alerts.views import DeleteAlertMixin
 
 
 class ContextMixin():
