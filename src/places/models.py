@@ -96,8 +96,6 @@ class Town(models.Model):
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         verbose_name="Actualizado por", blank=True, null=True, default=None)
-    wiki_url = models.CharField(
-        verbose_name='Wikipedia Page', max_length=200, blank=True, null=True)
 
     def __str__(self):
         return self.name.title()
