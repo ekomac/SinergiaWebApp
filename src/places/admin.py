@@ -4,7 +4,7 @@ from places.models import Partido, Town, Zone
 
 class ZoneAdmin(admin.ModelAdmin):
     list_display = ('name', 'asigned_to')
-    search_fields = ('name', 'asigned_to')
+    search_fields = ('name', 'asigned_to__first_name', 'asigned_to__last_name')
 
     filter_horizontal = ()
     list_filter = ()
@@ -13,7 +13,7 @@ class ZoneAdmin(admin.ModelAdmin):
 
 class PartidoAdmin(admin.ModelAdmin):
     list_display = ('name', 'province', 'amba_zone')
-    search_fields = ('name', 'province', 'amba_zone')
+    search_fields = ('name', 'province', 'amba_zone__name')
 
     filter_horizontal = ()
     list_filter = ()

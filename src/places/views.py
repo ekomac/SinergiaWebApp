@@ -10,11 +10,17 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import get_object_or_404, redirect, render
 from django.db.models import Q
 from django.urls import reverse
+from account.models import Account
 
 from alerts.views import CreateAlertMixin, UpdateAlertMixin
 
-from places.models import Town, Zone
-from places.forms import AddZoneForm, UpdateTownForm, UpdateZoneForm
+from places.models import Partido, Town, Zone
+from places.forms import (
+    AddZoneForm,
+    UpdateTownForm,
+    UpdateZoneForm,
+    UpdatePartidosZone,
+)
 from utils.views import DeleteObjectsUtil, ContextMixin
 
 TOWNS_PER_PAGE = 30
@@ -142,11 +148,8 @@ def zones_view(request, *args, **kwargs):
         order_by = request.GET.get('order_by', None)
         if order_by:
             context['order_by'] = str(order_by)
-
-        reverse = order_by == 'name_desc'
-
-        zones = sorted(get_zone_queryset(query),
-                       key=attrgetter('name'), reverse=reverse)
+        reverse = str(order_by) == 'name_desc'
+        zones = get_zone_queryset(query, reverse=reverse)
 
         # Pagination
         page = request.GET.get('page', 1)
@@ -165,7 +168,7 @@ def zones_view(request, *args, **kwargs):
     return render(request, "places/zone/list.html", context)
 
 
-def get_zone_queryset(query: str = None) -> List[Zone]:
+def get_zone_queryset(query: str = None, reverse: bool = False) -> List[Zone]:
     """Get all zones that match provided query, if any. If none is given,
     returns all zones. Also, performs the query in the specified order.
 
@@ -178,10 +181,46 @@ def get_zone_queryset(query: str = None) -> List[Zone]:
         List[Zone]: a list containing the zones which match at least one query.
     """
     query = unidecode.unidecode(query) if query else ""
-    return list(set(Zone.objects.filter(
+    order_by = 'name'
+    if reverse:
+        order_by = '-name'
+    return list(Zone.objects.filter(
         Q(name__icontains=query) |
-        Q(partido__name__icontains=query)
-    ).distinct()))
+        Q(asigned_to__first_name__icontains=query) |
+        Q(asigned_to__last_name__icontains=query)
+    ).order_by(order_by).distinct())
+
+
+@login_required(login_url='/login/')
+def add_zone_view(request, *args, **kwargs):
+    context = {
+        'selected_tab': 'zone-tab',
+        'partidos': Partido.objects.all(),
+        'partidosList': list(Partido.objects.all()),
+        'partidosTotal': Partido.objects.count(),
+    }
+
+    form = AddZoneForm(request.POST or None)
+    ids = request.POST.get('selected_partidos_ids', None)
+    if form.is_valid():
+        for key, value in request.POST.items():
+            print(key, ":", value)
+        obj = form.save(commit=False)
+        author = Account.objects.filter(email=request.user.email).first()
+        obj.updated_by = author
+        obj.save()
+        if ids:
+            for id in ids.split("-"):
+                partido = get_object_or_404(Partido, pk=id)
+                partido.amba_zone = obj
+                partido.save()
+        form = AddZoneForm()
+        return redirect('places:zone-detail', obj.pk)
+
+    context['form'] = form
+    context['partidos_ids'] = ids
+
+    return render(request, "places/zone/add.html", context)
 
 
 class ZoneAddView(
@@ -189,16 +228,24 @@ class ZoneAddView(
     login_url = '/login/'
     template_name = "places/zone/add.html"
     form_class = AddZoneForm
-    context = {'selected_tab': 'zone-tab', }
-
-    def form_invalid(self, form):
-        return super().form_invalid(form)
+    context = {
+        'selected_tab': 'zone-tab',
+        'partidos': Partido.objects.all(),
+        'partidosList': list(Partido.objects.all()),
+        'partidosTotal': Partido.objects.count(),
+    }
 
     def form_valid(self, form):
         self.add_alert(
             msg=f'La zona {form.instance.name} se creó correctamente.',
         )
         form.instance.updated_by = self.request.user
+        ids = form.cleaned_data['selected_partidos_ids']
+        if ids != '':
+            for id in ids.split("-"):
+                partido = get_object_or_404(Partido, pk=id)
+                partido.amba_zone = form.instance
+                partido.save()
         return super().form_valid(form)
 
     def get_success_url(self):

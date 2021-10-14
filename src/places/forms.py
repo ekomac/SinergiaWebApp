@@ -2,7 +2,7 @@ from django import forms
 from account.models import Account
 from prices.models import DeliveryCode, FlexCode
 from utils.forms import CleanerMixin
-from places.models import Town, Zone
+from places.models import Partido, Town, Zone
 
 
 class UpdateTownForm(CleanerMixin, forms.ModelForm):
@@ -32,6 +32,8 @@ class UpdateTownForm(CleanerMixin, forms.ModelForm):
 
 
 class AddZoneForm(CleanerMixin, forms.ModelForm):
+
+    selected_partidos_ids = forms.CharField(required=False)
 
     name = forms.CharField(
         label="Nombre", required=True,
@@ -87,3 +89,11 @@ class UpdateZoneForm(CleanerMixin, forms.ModelForm):
     def clean_name(self, *args, **kwargs):
         return self.clean_unique_beyond_instance_or_error(
             'name', 'Ya existe una zona con ese nombre')
+
+
+class UpdatePartidosZone(forms.ModelForm):
+
+    class Meta:
+        model = Partido
+        fields = ['is_amba', 'amba_zone']
+        exclude = ('name', 'province')

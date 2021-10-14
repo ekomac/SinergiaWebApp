@@ -11,6 +11,7 @@ from places.views import (
 
     # ******** ZONE ********
     zones_view,
+    add_zone_view,
     ZoneAddView,
     ZoneDetailView,
     ZoneUpdateView,
@@ -31,7 +32,8 @@ urlpatterns = [
 
     # **************************** ZONE ****************************
     path('zone/', zones_view, name="zone-list"),
-    path('zone/add', ZoneAddView.as_view(), name="zone-add"),
+    # path('zone/add', ZoneAddView.as_view(), name="zone-add"),
+    path('zone/add', add_zone_view, name="zone-add"),
     path('zone/<int:pk>', ZoneDetailView.as_view(), name="zone-detail"),
     path('zone/<int:pk>/edit/', ZoneUpdateView.as_view(), name="zone-edit"),
     path('zone/<zoneids>/delete', zone_delete, name="zone-delete"),
