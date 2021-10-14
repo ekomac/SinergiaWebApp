@@ -10,7 +10,8 @@ class CleanerMixin(forms.ModelForm):
 
     def clean_unique_or_error(self, key, error_msg):
         value = self.cleaned_data.get(key)
-        print(value)
+        if isinstance(value, str):
+            value = value.strip()
         if self.Meta.model.objects.filter(**{key: value}).exists():
             error = error_msg
             if '{' in error_msg or '}' in error_msg:
@@ -24,6 +25,8 @@ class CleanerMixin(forms.ModelForm):
         if id := self.instance.pk:
             # Get value for given key
             value = self.cleaned_data.get(key)
+            if isinstance(value, str):
+                value = value.strip()
             # If there isn't any database object with that value
             # for given property (given by the key)
             if self.Meta.model.objects.filter(**{key: value}).exists():
