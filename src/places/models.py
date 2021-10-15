@@ -61,7 +61,7 @@ class Partido(models.Model):
     province = models.CharField(
         verbose_name='Province', max_length=3,
         choices=PROVINCES, blank=False, null=False, default='BA')
-    amba_zone = models.ForeignKey(
+    zone = models.ForeignKey(
         Zone, blank=True, null=True, on_delete=models.SET_NULL)
     is_amba = models.BooleanField(default=False, blank=False, null=False)
     last_update = models.DateTimeField(

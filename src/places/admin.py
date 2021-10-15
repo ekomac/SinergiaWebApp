@@ -12,8 +12,8 @@ class ZoneAdmin(admin.ModelAdmin):
 
 
 class PartidoAdmin(admin.ModelAdmin):
-    list_display = ('name', 'province', 'amba_zone')
-    search_fields = ('name', 'province', 'amba_zone__name')
+    list_display = ('name', 'province', 'zone')
+    search_fields = ('name', 'province', 'zone__name')
 
     filter_horizontal = ()
     list_filter = ()

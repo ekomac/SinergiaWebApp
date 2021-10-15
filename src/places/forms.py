@@ -2,33 +2,30 @@ from django import forms
 from account.models import Account
 from prices.models import DeliveryCode, FlexCode
 from utils.forms import CleanerMixin
-from places.models import Town, Zone
+from places.models import Partido, Town, Zone
 
 
-# class UpdatePartidos(CleanerMixin, forms.ModelForm):
+class UpdatePartidos(CleanerMixin, forms.ModelForm):
 
-#     delivery_code = forms.ModelChoiceField(
-#         label="Código de mensajería", required=True,
-#         queryset=DeliveryCode.objects.all(),
-#         widget=forms.Select(attrs={
-#             'class': ' form-select',
-#         }),
-#     )
+    amba_zone = forms.ModelChoiceField(
+        label="Zona", required=True,
+        queryset=DeliveryCode.objects.all(),
+        widget=forms.Select(attrs={
+            'class': ' form-select',
+        }),
+    )
 
-#     flex_code = forms.ModelChoiceField(
-#         label="Código de flex", required=True,
-#         queryset=FlexCode.objects.all(),
-#         widget=forms.Select(attrs={
-#             'class': ' form-select',
-#         }),
-#     )
+    flex_code = forms.ModelChoiceField(
+        label="Código de flex", required=True,
+        queryset=FlexCode.objects.all(),
+        widget=forms.Select(attrs={
+            'class': ' form-select',
+        }),
+    )
 
-#     class Meta:
-#         model = Town
-#         fields = [
-#             'delivery_code',
-#             'flex_code',
-#         ]
+    class Meta:
+        model = Partido
+        fields = ['zone']
 
 
 class UpdateTownForm(CleanerMixin, forms.ModelForm):
