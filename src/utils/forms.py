@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import check_password
 from django import forms
 from django.forms.models import model_to_dict
 
@@ -43,3 +44,35 @@ class CleanerMixin(forms.ModelForm):
             return value
         else:
             raise OnlyUpdatesError("This method only works for updating!")
+
+
+class CheckPasswordForm(forms.Form):
+    """
+    A form to check for current password matching with user's current password.
+
+    Raises:
+        forms.ValidationError: when password and user input don't match.
+    """
+
+    password = forms.CharField(
+        label="Constraseña", widget=forms.PasswordInput)
+
+    def __init__(self, *args, **kwargs):
+        """
+        Grants access to the request object so
+        that we can get user's current password to match.
+        """
+        print("primer", args, kwargs)
+        self.current_password = kwargs.pop('current_password', None)
+        print("despues", args, kwargs)
+        super(CheckPasswordForm, self).__init__(*args, **kwargs)
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        if password == '':
+            raise forms.ValidationError(
+                'Esta operación requiere ser validada con contraseña')
+        if not check_password(password, self.current_password):
+            raise forms.ValidationError(
+                'La contraseña ingresada es incorrecta')
+        return password

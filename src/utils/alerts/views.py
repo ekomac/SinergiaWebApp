@@ -3,7 +3,7 @@ from django.http.response import HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.views.generic.base import View
 from datetime import datetime
-from alerts.alert import ToastAlert
+from .alert import ToastAlert
 
 
 class BaseAlertMixin(View):

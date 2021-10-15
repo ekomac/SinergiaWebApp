@@ -3,6 +3,7 @@ from typing import List
 
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+# from django.contrib.auth.hashers import check_password
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
@@ -12,6 +13,7 @@ from django.urls import reverse
 from account.models import Account
 
 from utils.views import DeleteObjectsUtil, ContextMixin
+from utils.forms import CheckPasswordForm
 from utils.alerts.views import (
     UpdateAlertMixin,
     create_alert_and_redirect
@@ -281,13 +283,19 @@ def zone_delete(request, *args, **kwargs):
         selected_tab='zone-tab'
     )
 
+    context = {}
     if request.method == 'POST':
-        delete_utility.delete_objects()
-        delete_utility.create_alert()
-        return redirect('places:zone-list')
-
-    if request.method == 'GET':
-        context = delete_utility.get_context_data()
+        form = CheckPasswordForm(request.POST or None,
+                                 current_password=request.user.password)
+        if form.is_valid():
+            delete_utility.delete_objects()
+            delete_utility.create_alert()
+            return redirect('places:zone-list')
+    else:  # Meaning is a GET request
+        form = CheckPasswordForm()
+    context = delete_utility.get_context_data()
+    context['form'] = form
+    # context['password_match'] = passwords_match
 
     return render(request, "places/zone/delete.html", context)
 # ************* END FLEX *************
