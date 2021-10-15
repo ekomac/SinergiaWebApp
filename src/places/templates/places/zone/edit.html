@@ -13,7 +13,7 @@
         </div>
         <div class="card-body">
             <h3 class="card-title text-center mt-3">EDITAR ZONA</h3>
-            <h4 class="card-title mt-3">Datos de la zona amba</h4>
+            <h4 class="card-title mt-3">Datos de la zona</h4>
             <div class="row g-3">
 
 
@@ -39,6 +39,47 @@
                 <!-- END ASIGNED TO INPUT -->
 
 
+                <!-- START PARTIDOS CONTAINER -->
+                <div id="selectedPartidosDiv" class="col-12">
+                    <label for="partidosContainer" class="form-label">Partidos en esta zona</label>
+                    <div id="partidosContainer" class="rounded-1 p-2" style="border: 1px solid #CED4DA;"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Aquí aparecerán los partidos seleccionados, en forma de botón azul. Al hacerles clic, se quitarán de este contenedor y volverán a la lista desplegable de abajo. Si algún partido ya pertenece a otra zona, será indicado entre paréntesis; si igualmente querés agregarlo, no hay problema, se quitará de la zona anterior.">
+                        <span id="nonePartidoSpan" class="m-2">Ningún partido</span>
+                    </div>
+                </div>
+                <!-- END PARTIDOS CONTAINER -->
+
+                <!-- START PARTIDOS CONTAINER -->
+                <div class="d-none">
+                    <input type="text" id="id_selected_partidos_ids" name="selected_partidos_ids"
+                        value="{% if partidos_ids %}{{partidos_ids}}{% endif %}">
+                </div>
+                <!-- END PARTIDOS CONTAINER -->
+
+
+                <!-- START PARTIDOS SELECT -->
+                <div class="col-12">
+                    <label for="selectPartido" class="form-label">Seleccioná un partido de la lista y agregalo</label>
+                    <div class="input-group">
+                        <select class="form-select" id="selectPartido" aria-label="Example select with button addon">
+                            {% if partidos %}
+                            {% for partido in partidos %}
+                            <option id="option-{{ partido.id }}" class="sortMe" value="{{ partido.id }}">
+                                {{ partido.name |title}}{% if partido.amba_zone %}&nbsp;(en
+                                zona&nbsp;{{partido.amba_zone.name}}){% endif %}
+                            </option>
+                            {% endfor %}
+                            {% endif %}
+                        </select>
+                        <button class="btn btn-outline-secondary" id="addPartidoBtn" type="button"
+                            onclick='addPartido()'>Agregar a la zona</button>
+                    </div>
+                </div>
+                <!-- END PARTIDOS SELECT -->
+
+
+
                 <!-- START SUMBIT BUTTON -->
                 <div class="d-grid gap-2 d-md-flex">
                     <input type="submit" value="Actualizar código" class="btn btn-primary">
@@ -50,5 +91,7 @@
     </form>
 
 </div>
+
+{% include 'places/zone/snippets/edit_js.html' %}
 
 {% endblock %}

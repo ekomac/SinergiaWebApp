@@ -1,0 +1,146 @@
+<script>
+    var partidosTotal = JSON.parse('{{ partidosTotal |escapejs}}');
+
+    $(document).ready(function () {
+
+        // Initializes the tooltip info that explains how to add and remove partidos.
+        var selectedPartidosDiv = document.querySelector('#partidosContainer');
+        new bootstrap.Tooltip(selectedPartidosDiv)
+
+        var selectedPartidosIds = document.getElementById('id_selected_partidos_ids').value.toString();
+        console.log("selectedPartidosIds: " + selectedPartidosIds);
+        if (selectedPartidosIds != '') {
+            bulkAddPartido(selectedPartidosIds);
+        }
+
+        $('#create_form').submit(function (event) {
+            event.preventDefault(); //this will prevent the default submit
+            updateIds();
+            $(this).unbind('submit').submit(); // continue the submit unbind preventDefault
+        });
+        sortSelectOptions('selectPartido');
+        selectFirst();
+    });
+
+    function updateIds() {
+        document.getElementById('id_selected_partidos_ids').value = getSelectedPartidosIds();
+    }
+
+    function selectFirst() {
+        try {
+            document.getElementById('selectPartido').selectedIndex = 0;
+        } catch (e) {
+            console.log("selectPartido didn't have any elements.")
+        }
+    }
+
+    function bulkAddPartido(presetIds) {
+        console.log("presetIds: " + presetIds);
+        var ids = presetIds.split("-");
+        console.log("ids: " + JSON.stringify(ids) + " with typeof " + typeof ids);
+        for (var i = 0; i < ids.length; i++) {
+            var id = ids[i];
+            console.log("id: " + id);
+            var elementId = 'option-' + id;
+            console.log("elementId: " + elementId);
+            var option = document.getElementById(elementId);
+            console.log("option: " + option);
+            var partidoName = option.text;
+            console.log("partidoName: " + partidoName);
+            appendButton(id, partidoName);
+            try {
+                option.remove();
+                console.log("deleted option");
+            } catch (e) {
+                console.log(e);
+            }
+            console.log("-----------------------\n");
+        }
+
+        var selectPartidoElem = document.getElementById("selectPartido");
+        for (var i = 0; i < selectPartidoElem.length; i++) {
+            var val = selectPartidoElem.options[i].value;
+            if (ids.includes(val)) selectPartidoElem.remove(i);
+        }
+    }
+
+    function addPartido() {
+        var selectPartido = document.getElementById('selectPartido');
+        var selectedIndex = selectPartido.selectedIndex;
+        console.log("selected index is: " + selectedIndex);
+        var htmlOptions = selectPartido.options;
+
+        var selectedId = htmlOptions[selectedIndex].value;
+        var selectedText = htmlOptions[selectedIndex].text;
+
+        selectPartido.remove(selectedIndex);
+        appendButton(selectedId, selectedText);
+        console.log("selectedPartidos: " + getSelectedPartidosIds());
+    }
+
+    function appendButton(id, text) {
+        $('#nonePartidoSpan').hide();
+        //var cleanedText = text.includes("(en") ? text.split("(en")[0].trim() : text.trim();
+        var button = document.createElement('BUTTON');
+        button.id = 'btn-' + id;
+        button.value = id;
+        button.className = 'btn btn-primary m-1 partido-selected';
+        button.innerText = text;
+        var iClear = document.createElement('I');
+        iClear.className = "bi bi-x";
+        button.appendChild(iClear);
+        button.type = 'button';
+        button.onclick = function () {
+            var option = document.createElement('OPTION');
+            option.id = 'option-' + id;
+            option.className = 'sortMe';
+            option.value = id;
+            option.innerText = text;
+            document.getElementById('selectPartido').appendChild(option);
+            console.log(document.getElementById('selectPartido').length);
+            if (document.getElementById('selectPartido').length == partidosTotal) {
+                $('#nonePartidoSpan').show();
+            }
+            button.remove();
+            sortSelectOptions('selectPartido');
+            return false;
+        };
+
+        sortSelectOptions('selectPartido');
+        document.getElementById('partidosContainer').appendChild(button);
+    }
+
+    function sortSelectOptions(selectElement) {
+        var options = $("#" + selectElement + " option");
+
+        options.sort(function (a, b) {
+            if (a.text.toUpperCase() > b.text.toUpperCase()) return 1;
+            else if (a.text.toUpperCase() < b.text.toUpperCase()) return -1;
+            else return 0;
+        });
+        $("#" + selectElement).empty().append(options);
+        selectFirst();
+    }
+
+    function getSelectedPartidosIds() {
+        var buttons = document.getElementsByClassName("partido-selected");
+        return Array.from(buttons).map(button => button.value).join("-");
+    }
+
+    /*function removeSelectedPartidosFromInput(id) {
+        var ids = document.getElementById('selected_partidos_ids').value;
+        if (ids.includes(id)) {
+            ids = ids.replace(id, "");
+        }
+        if (ids.includes("--")) {
+            ids = ids.replace("--", "-");
+        }
+        if (ids.endsWith("-")) {
+            ids = ids.substring(0, ids.lentgh - 1);
+        }
+        if (ids.startsWith("-")) {
+            ids = ids.substring(1, ids.lentgh);
+        }
+        document.getElementById('selected_partidos_ids').value = ids;
+    }*/
+</script>
