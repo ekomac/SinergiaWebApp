@@ -34,31 +34,33 @@
 
                 <div class="mt-3">
                     {% if total_partidos > 0 %}
-                    <p class="card-text mt-3">Este código incluye {{ total_partidos }} partidos: {{partidos}}.</p>
+                    <p class="card-text mt-3">Este código incluye {{ total_partidos }} partidos.</p>
+                    <table class="table table-striped align-middle">
+                        <thead>
+                            <tr>
+                                <th class="fw-bold col-1">#</td>
+                                <th class="fw-bold col-11">Partido</td>
+                            </tr>
+                        </thead>
+                        <tbody id="overrided-1" class="overrided-tbody">
+                            {% for partido in partidos %}
+                            <tr>
+                                <td>{{forloop.counter}}</td>
+                                <td>{{partido.name |title}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                     {% else %}
                     <p>Ninguná partido está suscripto a esta zona.</p>
                     {% endif %}
                 </div>
 
-                <hr class="bg-dark">
-                <div class='border border-dark'>
-                    {% if total_partidos > 0 %}
-                    {% for partido in partidos %}
-                    {% include 'places/zone/snippets/partido_addible.html' with partido=partido %}
-                    {% endfor %}
-                    {% endif %}
-                </div>
             </div>
 
         </div>
     </div>
 
 </div>
-
-<script>
-    function removePartido() {
-
-    }
-</script>
 
 {% endblock content %}

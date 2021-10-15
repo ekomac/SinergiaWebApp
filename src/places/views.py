@@ -238,13 +238,7 @@ class ZoneDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['selected_tab'] = 'zone-tab'
         context['total_partidos'] = self.object.partido_set.count()
-        # partidos = self.object.partido_set.all()
-        context['partidos'] = self.object.partido_set.all()
-        # partidos = [partido.name.title() for partido in partidos]
-        # context['partidos'] = ', '.join(partidos)
-        # context['orfan_partidos'] = Partido.objects.filter(amba_zone=None)
-        # context['total_orfan_partidos'] = Partido.objects.filter(
-        #     amba_zone=None).count()
+        context['partidos'] = self.object.partido_set.order_by('name').all()
         return context
 
 
