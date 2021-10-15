@@ -6,7 +6,7 @@
         </div>
     </td>
     <td>{{ obj.name |title}}</td>
-    <td>{{ obj.town_set.count }}</td>
+    <td class="cell-centered">{{ obj.town_set.count }}</td>
     <td class="td-bool-div cell-centered">
         {% if obj.is_amba %}
         <i class="d-inline-flex rounded-circle bool-div bool-div-true bi bi-check-circle"></i>
@@ -15,17 +15,10 @@
         {% endif %}
     </td>
     <td class="cell-centered">
-        {% if obj.is_amba %}
-
-        {% if obj.amba_zone.name %}
-        {{ obj.amba_zone.name  }}
+        {% if obj.zone.name %}
+        {{ obj.zone.name  }}
         {% else %}
         No especificada
-        {% endif %}
-
-        {% else %}
-        No aplica
-
         {% endif %}
     </td>
     <td style="text-align: start;">
