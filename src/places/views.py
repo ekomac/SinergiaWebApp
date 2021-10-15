@@ -242,6 +242,40 @@ class ZoneDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
+@login_required(login_url='/login/')
+def edit_zone_view(request, *args, **kwargs):
+    context = {
+        'selected_tab': 'zone-tab',
+        'partidos': Partido.objects.all(),
+        'partidosList': list(Partido.objects.all()),
+        'partidosTotal': Partido.objects.count(),
+    }
+
+    form = AddZoneForm(request.POST or None)
+    ids = request.POST.get('selected_partidos_ids', None)
+    if form.is_valid():
+        for key, value in request.POST.items():
+            print(key, ":", value)
+        obj = form.save(commit=False)
+        author = Account.objects.filter(email=request.user.email).first()
+        obj.updated_by = author
+        obj.save()
+        if ids:
+            for id in ids.split("-"):
+                partido = get_object_or_404(Partido, pk=id)
+                partido.amba_zone = obj
+                partido.save()
+        form = AddZoneForm()
+        msg = f'La zona {obj.name} se creó correctamente.'
+        return create_alert_and_redirect(
+            request, msg, 'places:zone-detail', obj.pk)
+
+    context['form'] = form
+    context['partidos_ids'] = ids
+
+    return render(request, "places/zone/add.html", context)
+
+
 class ZoneUpdateView(
         UpdateAlertMixin, ContextMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'

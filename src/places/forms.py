@@ -64,6 +64,8 @@ class AddZoneForm(CleanerMixin, forms.ModelForm):
 
 class UpdateZoneForm(CleanerMixin, forms.ModelForm):
 
+    selected_partidos_ids = forms.CharField(required=False)
+
     name = forms.CharField(
         label="Nombre", required=True,
         widget=forms.TextInput(attrs={
@@ -89,11 +91,3 @@ class UpdateZoneForm(CleanerMixin, forms.ModelForm):
     def clean_name(self, *args, **kwargs):
         return self.clean_unique_beyond_instance_or_error(
             'name', 'Ya existe una zona con ese nombre')
-
-
-class UpdatePartidosZone(forms.ModelForm):
-
-    class Meta:
-        model = Partido
-        fields = ['is_amba', 'amba_zone']
-        exclude = ('name', 'province')
