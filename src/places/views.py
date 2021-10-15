@@ -24,10 +24,15 @@ from utils.alerts.views import (
 # Project apps
 from account.models import Account
 from places.models import Partido, Town, Zone
-from places.forms import AddZoneForm, UpdateTownForm, UpdateZoneForm
+from places.forms import (
+    UpdatePartidoForm,
+    AddZoneForm,
+    UpdateTownForm,
+    UpdateZoneForm
+)
 
 TOWNS_PER_PAGE = 30
-
+PARTIDOS_PER_PAGE = 20
 ZONES_PER_PAGE = 30
 
 TOWNS_ORDERING = {
@@ -42,15 +47,100 @@ TOWNS_ORDERING = {
     None: 'partido__name',
 }
 
-ZONES_ORDERING = {
+NAME_ORDERING = {
     'name': 'name',
     'name_desc': '-name',
     None: 'name',
 }
 
+
+# ************************ PARTIDO ************************
+@login_required(login_url='/login/')
+def partidos_view(request, *args, **kwargs):
+    context = {}
+
+    # Search
+    query = ""
+    if request.method == 'GET':
+        query = request.GET.get('q', None)
+        if query:
+            context['query'] = str(query)
+
+        order_by = request.GET.get('order_by', None)
+        if order_by:
+            context['order_by'] = str(order_by)
+
+        partidos = get_partido_queryset(query, order_by)
+
+        # Pagination
+        page = request.GET.get('page', 1)
+        partidos_paginator = Paginator(partidos, PARTIDOS_PER_PAGE)
+        try:
+            partidos = partidos_paginator.page(page)
+        except PageNotAnInteger:
+            partidos = partidos_paginator.page(PARTIDOS_PER_PAGE)
+        except EmptyPage:
+            partidos = partidos_paginator.page(partidos_paginator.num_pages)
+
+        context['partidos'] = partidos
+        context['totalPartidos'] = len(partidos)
+        context['selected_tab'] = 'partido-tab'
+
+    return render(request, "places/partido/list.html", context)
+
+
+def get_partido_queryset(
+        query: str = None, order_by_key: str = 'name') -> List[Partido]:
+    """Get all partidos that match provided query, if any. If none is given,
+    returns all partidos. Also, performs the query in the specified order.
+
+    Args:
+        query (str, optional): words to match the query. Defaults to empyt str.
+        order_by_key (str, optional): to perform ordery by. Defaults to 'name'.
+
+    Returns:
+        List[Partido]: a list containing the partidos which match at least
+        one query.
+    """
+    query = unidecode.unidecode(query) if query else ""
+    return list(Partido.objects.filter(Q(name__icontains=query))
+                .order_by(NAME_ORDERING[order_by_key]).distinct())
+
+
+class PartidoDetailView(ContextMixin, LoginRequiredMixin, DetailView):
+    login_url = '/login/'
+    model = Partido
+    template_name = "places/partido/detail.html"
+    context = {'selected_tab': 'partido-tab'}
+
+
+@login_required(login_url='/login/')
+def edit_partido_view(request, pk, *args, **kwargs):
+
+    partido = get_object_or_404(Partido, pk=pk)
+    form = UpdatePartidoForm(instance=partido)
+
+    if request.method == 'POST':
+        form = UpdateZoneForm(request.POST or None, instance=partido)
+
+        if form.is_valid():
+            obj = form.save(commit=False)
+            author = Account.objects.filter(email=request.user.email).first()
+            obj.updated_by = author
+            obj.save()
+            partido = obj
+            msg = f'El partido "{obj.name.title()}" se actualizó correctamente'
+            return update_alert_and_redirect(
+                request, msg, 'places:partido-detail', obj.pk)
+
+    context = {
+        'form': form,
+        'selected_tab': 'partido-tab',
+    }
+    return render(request, "places/partido/edit.html", context)
+
+
 # ************************ TOWN ************************
-
-
 @login_required(login_url='/login/')
 def towns_view(request, *args, **kwargs):
     context = {}
@@ -86,14 +176,14 @@ def towns_view(request, *args, **kwargs):
 
 
 def get_town_queryset(
-        query: str = None, order_by_key: str = None) -> List[Town]:
+        query: str = None, order_by_key: str = 'partido') -> List[Town]:
     """Get all towns that match provided query, if any. If none is given,
     returns all towns. Also, performs the query in the specified order.
 
     Args:
         query (str, optional): words to match the query. Defaults to empyt str.
         order_by_key (str, optional): to perform ordery by.
-        Defaults to None.
+        Defaults to 'partido'.
 
     Returns:
         List[Town]: a list containing the towns which match at least one query.

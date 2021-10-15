@@ -34,7 +34,7 @@
             <li class="nav-item">
 
                 <!-- START OPTION 1: A places tab is selected-->
-                {% if selected_tab == 'town-tab' or selected_tab == 'zone-tab' %}
+                {% if selected_tab == 'town-tab' or selected_tab == 'zone-tab' or selected_tab == 'partido-tab' %}
                 <a class="parent-nav nav-link align-items-center rounded tab mt-2" data-bs-toggle="collapse"
                     data-bs-target="#places-collapse" aria-expanded="true">
                     Lugares
@@ -50,7 +50,7 @@
                         <!-- END Places Town -->
                         <!-- START Places Partidos -->
                         <li class="nav-item {% if selected_tab == 'partido-tab' %}activetab{% endif %} li-navigation">
-                            <a id="partido-tab" href="{% url 'places:zone-list' %}" class="nav-link tab">
+                            <a id="partido-tab" href="{% url 'places:partido-list' %}" class="nav-link tab">
                                 <i class="bi bi-map"></i> Partidos
                             </a>
                         </li>
@@ -65,7 +65,7 @@
                     </ul>
                 </div>
                 {% else %}
-                <!-- END OPTION 1: A palces tab is selected-->
+                <!-- END OPTION 1: A places tab is selected-->
                 <!-- START OPTION 2: No places tab is selected -->
                 <a class="parent-nav nav-link align-items-center rounded tab collapsed mt-2" data-bs-toggle="collapse"
                     data-bs-target="#places-collapse" aria-expanded="false">
@@ -82,7 +82,7 @@
                         <!-- END Places Town -->
                         <!-- START Places Partidos -->
                         <li class="nav-item {% if selected_tab == 'partido-tab' %}activetab{% endif %} li-navigation">
-                            <a id="partido-tab" href="{% url 'places:zone-list' %}" class="nav-link tab">
+                            <a id="partido-tab" href="{% url 'places:partido-list' %}" class="nav-link tab">
                                 <i class="bi bi-map"></i> Partidos
                             </a>
                         </li>

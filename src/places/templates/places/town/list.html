@@ -126,7 +126,7 @@
                             <th>Partido</th>
                             <th>Provincia</th>
                             <th class="cell-centered">Es amba</th>
-                            <th class="cell-centered">Zona del amba</th>
+                            <th class="cell-centered">Zona</th>
                             <th class="cell-centered">Cód. Mensajería</th>
                             <th class="cell-centered">Cód. Flex</th>
                             <th class="cell-centered"></th>
@@ -262,19 +262,6 @@
     function removeSelection() {
         $(".item-checker").prop('checked', false);
         countCheckedItems();
-    }
-
-    function deleteSelectedItems() {
-        // Get all checked checkboxes
-        var checkBoxesIds = Array.from(document.getElementsByClassName("item-checker"))
-            .filter(checkBox => checkBox.checked == true).map(function (checkbox) {
-                var id = checkbox.id;
-                return id.split("-checker-")[1];
-            }).join("-");
-        console.log(checkBoxesIds);
-        var url_mask = "{% url 'prices:fcode-delete' 12345 %}".replace(/12345/, checkBoxesIds);
-        console.log("url -> " + url_mask);
-        window.location.href = url_mask;
     }
 
     function clearSearch() {

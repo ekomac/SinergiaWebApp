@@ -5,19 +5,11 @@ from utils.forms import CleanerMixin
 from places.models import Partido, Town, Zone
 
 
-class UpdatePartidos(CleanerMixin, forms.ModelForm):
+class UpdatePartidoForm(CleanerMixin, forms.ModelForm):
 
-    amba_zone = forms.ModelChoiceField(
-        label="Zona", required=True,
-        queryset=DeliveryCode.objects.all(),
-        widget=forms.Select(attrs={
-            'class': ' form-select',
-        }),
-    )
-
-    flex_code = forms.ModelChoiceField(
-        label="Código de flex", required=True,
-        queryset=FlexCode.objects.all(),
+    zone = forms.ModelChoiceField(
+        label="Zona", required=False,
+        queryset=Zone.objects.all(),
         widget=forms.Select(attrs={
             'class': ' form-select',
         }),

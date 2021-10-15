@@ -2,6 +2,13 @@ from django.urls import path
 
 from places.views import (
 
+    # ******** PARTIDO ********
+    partidos_view,
+    PartidoDetailView,
+    edit_partido_view,
+    # ******** PARTIDO ********
+
+
     # ******** TOWN ********
     towns_view,
     TownDetailView,
@@ -21,6 +28,14 @@ from places.views import (
 
 app_name = 'places'
 urlpatterns = [
+
+    # ****************************** PARTIDO ******************************
+    path('partido', partidos_view, name="partido-list"),
+    path('partido/<int:pk>', PartidoDetailView.as_view(),
+         name="partido-detail"),
+    path('partido/<int:pk>/edit', edit_partido_view, name="partido-edit"),
+    # ****************************** PARTIDO ******************************
+
 
     # **************************** TOWN ****************************
     path('town', towns_view, name="town-list"),
