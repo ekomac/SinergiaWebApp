@@ -3,6 +3,10 @@
 
     $(document).ready(function () {
 
+        // Initializes the tooltip info that explains how to add and remove partidos.
+        var selectedPartidosDiv = document.querySelector('#partidosContainer');
+        new bootstrap.Tooltip(selectedPartidosDiv)
+
         var selectedPartidosIds = document.getElementById('id_selected_partidos_ids').value.toString();
         console.log("selectedPartidosIds: " + selectedPartidosIds);
         if (selectedPartidosIds != '') {

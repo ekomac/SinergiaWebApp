@@ -42,9 +42,11 @@
 
 
                 <!-- START PARTIDOS CONTAINER -->
-                <div class="col-12">
+                <div id="selectedPartidosDiv" class="col-12">
                     <label for="partidosContainer" class="form-label">Partidos en esta zona</label>
-                    <div id="partidosContainer" class="border border-1 rounded border-dark p-2">
+                    <div id="partidosContainer" class="rounded-1 p-2" style="border: 1px solid #CED4DA;"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Aquí aparecerán los partidos seleccionados, en forma de botón azul. Al hacerles clic, se quitarán de este contenedor y volverán a la lista desplegable de abajo. Si algún partido ya pertenece a otra zona, será indicado entre paréntesis; si igualmente querés agregarlo, no hay problema, se quitará de la zona anterior.">
                         <span id="nonePartidoSpan" class="m-2">Ningún partido</span>
                     </div>
                 </div>
@@ -60,6 +62,7 @@
 
                 <!-- START PARTIDOS SELECT -->
                 <div class="col-12">
+                    <label for="selectPartido" class="form-label">Seleccioná un partido de la lista y agregalo</label>
                     <div class="input-group">
                         <select class="form-select" id="selectPartido" aria-label="Example select with button addon">
                             {% if partidos %}
