@@ -1,4 +1,4 @@
-from utils.alerts.views import DeleteAlertMixin
+from utils.alerts.views import SuccessfulDeletionAlertMixin
 
 
 class ContextMixin():
@@ -14,7 +14,7 @@ class NotEnoughAttributes(Exception):
     pass
 
 
-class DeleteObjectsUtil(DeleteAlertMixin):
+class DeleteObjectsUtil(SuccessfulDeletionAlertMixin):
 
     REPR_MALE = 'el'
     REPR_FEMALE = 'la'

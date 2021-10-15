@@ -13,7 +13,7 @@ from places.views import (
     zones_view,
     add_zone_view,
     ZoneDetailView,
-    ZoneUpdateView,
+    edit_zone_view,
     zone_delete,
     # ******** ZONE ********
 
@@ -33,7 +33,7 @@ urlpatterns = [
     path('zone/', zones_view, name="zone-list"),
     path('zone/add', add_zone_view, name="zone-add"),
     path('zone/<int:pk>', ZoneDetailView.as_view(), name="zone-detail"),
-    path('zone/<int:pk>/edit/', ZoneUpdateView.as_view(), name="zone-edit"),
+    path('zone/<int:pk>/edit/', edit_zone_view, name="zone-edit"),
     path('zone/<zoneids>/delete', zone_delete, name="zone-delete"),
     # **************************** ZONE ****************************
 ]

@@ -6,7 +6,9 @@
 <ul>
     {% for zone in objects %}
     <li class="mt-1">
-        {{zone.name}} con {{zone.partido_set.count}} partidos.
+        Zona "{{zone.name}}" con {{zone.partido_set.count}}
+        partidos{% if zone.partido_set.count > 0%}:&nbsp;{% for partido in zone.partido_set.all %}{% if forloop.counter != 1 %},
+        {% endif %}{{ partido.name |title}}{% endfor %}{% endif %}.
     </li>
     {% endfor %}
 </ul>

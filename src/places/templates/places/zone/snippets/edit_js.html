@@ -13,7 +13,7 @@
             bulkAddPartido(selectedPartidosIds);
         }
 
-        $('#create_form').submit(function (event) {
+        $('#update_form').submit(function (event) {
             event.preventDefault(); //this will prevent the default submit
             updateIds();
             $(this).unbind('submit').submit(); // continue the submit unbind preventDefault

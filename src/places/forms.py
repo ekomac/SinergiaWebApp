@@ -2,7 +2,7 @@ from django import forms
 from account.models import Account
 from prices.models import DeliveryCode, FlexCode
 from utils.forms import CleanerMixin
-from places.models import Partido, Town, Zone
+from places.models import Town, Zone
 
 
 class UpdateTownForm(CleanerMixin, forms.ModelForm):

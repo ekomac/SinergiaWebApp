@@ -15,7 +15,7 @@ from .forms import (
 )
 from .models import DeliveryCode, FlexCode
 from places.models import Town
-from utils.alerts.views import CreateAlertMixin, UpdateAlertMixin
+from utils.alerts.views import SuccessfulCreationAlertMixin, SuccessfulUpdateAlertMixin
 
 
 # ****************** MENSAJERIA ******************
@@ -34,7 +34,7 @@ def delivery_codes_view(request, *args, **kwargs):
     return render(request, "prices/dcode-list.html", context)
 
 
-class DeliveryCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
+class DeliveryCodeAddView(SuccessfulCreationAlertMixin, LoginRequiredMixin, CreateView):
     login_url = '/login/'
     template_name = "prices/add.html"
     form_class = CreateDeliveryCodeForm
@@ -93,7 +93,7 @@ class DeliveryCodeDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class DeliveryCodeUpdateView(UpdateAlertMixin, LoginRequiredMixin, UpdateView):
+class DeliveryCodeUpdateView(SuccessfulUpdateAlertMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'
     form_class = UpdateDeliveryCodeForm
     template_name = "prices/edit.html"
@@ -160,7 +160,7 @@ def flex_codes_view(request, *args, **kwargs):
     return render(request, "prices/fcode-list.html", context)
 
 
-class FlexCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
+class FlexCodeAddView(SuccessfulCreationAlertMixin, LoginRequiredMixin, CreateView):
     login_url = '/login/'
     template_name = "prices/add.html"
     form_class = CreateFlexCodeForm
@@ -220,7 +220,7 @@ class FlexCodeDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class FlexCodeUpdateView(UpdateAlertMixin, LoginRequiredMixin, UpdateView):
+class FlexCodeUpdateView(SuccessfulUpdateAlertMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'
     form_class = UpdateFlexCodeForm
     template_name = "prices/edit.html"

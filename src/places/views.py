@@ -1,34 +1,35 @@
+# Basic Python
 import unidecode
 from typing import List
 
+# Django imports
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-# from django.contrib.auth.hashers import check_password
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
-from django.shortcuts import get_object_or_404, redirect, render
-from django.db.models import Q
-from django.urls import reverse
-from account.models import Account
 
+# Projects utils
 from utils.views import DeleteObjectsUtil, ContextMixin
 from utils.forms import CheckPasswordForm
 from utils.alerts.views import (
-    UpdateAlertMixin,
-    create_alert_and_redirect
+    SuccessfulUpdateAlertMixin,
+    create_alert_and_redirect,
+    update_alert_and_redirect
 )
 
+# Project apps
+from account.models import Account
 from places.models import Partido, Town, Zone
-from places.forms import (
-    AddZoneForm,
-    UpdateTownForm,
-    UpdateZoneForm,
-    # UpdatePartidosZone,
-)
+from places.forms import AddZoneForm, UpdateTownForm, UpdateZoneForm
 
 TOWNS_PER_PAGE = 30
+
 ZONES_PER_PAGE = 30
+
 TOWNS_ORDERING = {
     'town': 'name',
     'town_desc': '-name',
@@ -40,6 +41,7 @@ TOWNS_ORDERING = {
     'flex_desc': '-flex_code__code',
     None: 'partido__name',
 }
+
 ZONES_ORDERING = {
     'name': 'name',
     'name_desc': '-name',
@@ -113,7 +115,8 @@ class TownDetailView(ContextMixin, LoginRequiredMixin, DetailView):
 
 
 class TownUpdateView(
-        UpdateAlertMixin, ContextMixin, LoginRequiredMixin, UpdateView):
+        SuccessfulUpdateAlertMixin,
+        ContextMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'
     form_class = UpdateTownForm
     template_name = "places/town/edit.html"
@@ -200,26 +203,20 @@ def add_zone_view(request, *args, **kwargs):
     context = {
         'selected_tab': 'zone-tab',
         'partidos': Partido.objects.all(),
-        'partidosList': list(Partido.objects.all()),
         'partidosTotal': Partido.objects.count(),
     }
 
     form = AddZoneForm(request.POST or None)
     ids = request.POST.get('selected_partidos_ids', None)
     if form.is_valid():
-        for key, value in request.POST.items():
-            print(key, ":", value)
+        # Save the object after asigning the user who is updating
         obj = form.save(commit=False)
         author = Account.objects.filter(email=request.user.email).first()
         obj.updated_by = author
         obj.save()
-        if ids:
-            for id in ids.split("-"):
-                partido = get_object_or_404(Partido, pk=id)
-                partido.amba_zone = obj
-                partido.save()
+        set_partido_ids(ids, obj)
         form = AddZoneForm()
-        msg = f'La zona {obj.name} se creó correctamente.'
+        msg = f'La zona "{obj.name.title()}" se creó correctamente.'
         return create_alert_and_redirect(
             request, msg, 'places:zone-detail', obj.pk)
 
@@ -227,6 +224,22 @@ def add_zone_view(request, *args, **kwargs):
     context['partidos_ids'] = ids
 
     return render(request, "places/zone/add.html", context)
+
+
+def set_partido_ids(ids: str, obj: Zone) -> None:
+    """Updates amba_zone attr for each Partido found for each id,
+    if any id was given.
+
+    Args:
+        ids (str): contains ids of Partidos to update, in
+        a "id1-id2-id3" format.
+        obj (Zone): the one to set in every Partido as their amba_zone.
+    """
+    if ids:
+        for id in ids.split("-"):
+            partido = get_object_or_404(Partido, pk=id)
+            partido.amba_zone = obj
+            partido.save()
 
 
 class ZoneDetailView(LoginRequiredMixin, DetailView):
@@ -243,45 +256,101 @@ class ZoneDetailView(LoginRequiredMixin, DetailView):
 
 
 @login_required(login_url='/login/')
-def edit_zone_view(request, *args, **kwargs):
+def edit_zone_view(request, pk, *args, **kwargs):
+
+    zone = get_object_or_404(Zone, pk=pk)
+    form = UpdateZoneForm(instance=zone)
+    if request.method == 'POST':
+        form = UpdateZoneForm(request.POST or None, instance=zone)
+
+        if form.is_valid():
+            obj = form.save(commit=False)
+            author = Account.objects.filter(email=request.user.email).first()
+            obj.updated_by = author
+            obj.save()
+            zone = obj
+            ids = request.POST.get('selected_partidos_ids', None)
+            print("los ids son", ids)
+            update_partido_ids(ids, obj)
+            msg = f'La zona "{obj.name.title()}" se actualizó correctamente.'
+            return update_alert_and_redirect(
+                request, msg, 'places:zone-detail', obj.pk)
+
     context = {
-        'selected_tab': 'zone-tab',
+        'form': form,
         'partidos': Partido.objects.all(),
-        'partidosList': list(Partido.objects.all()),
         'partidosTotal': Partido.objects.count(),
+        'partidos_ids': get_partidos_ids(zone),
+        'selected_tab': 'zone-tab',
     }
+    return render(request, "places/zone/edit.html", context)
 
-    form = AddZoneForm(request.POST or None)
-    ids = request.POST.get('selected_partidos_ids', None)
-    if form.is_valid():
-        for key, value in request.POST.items():
-            print(key, ":", value)
-        obj = form.save(commit=False)
-        author = Account.objects.filter(email=request.user.email).first()
-        obj.updated_by = author
-        obj.save()
-        if ids:
-            for id in ids.split("-"):
-                partido = get_object_or_404(Partido, pk=id)
-                partido.amba_zone = obj
-                partido.save()
-        form = AddZoneForm()
-        msg = f'La zona {obj.name} se creó correctamente.'
-        return create_alert_and_redirect(
-            request, msg, 'places:zone-detail', obj.pk)
 
-    context['form'] = form
-    context['partidos_ids'] = ids
+def get_partidos_ids(zone: Zone, as_list: bool = False):
+    ids = zone.partido_set.all()
+    ids = [str(partido.id) for partido in ids] if ids else []
+    if as_list:
+        return ids
+    if len(ids) > 0:
+        return "-".join(ids)
+    return ""
 
-    return render(request, "places/zone/add.html", context)
+
+def update_partido_ids(new_ids: str, obj: Zone) -> None:
+    """Updates amba_zone attr for each Partido found for each id,
+    if any id was given.
+
+    Args:
+        ids (str): contains ids of Partidos to update, in
+        a "id1-id2-id3" format.
+        obj (Zone): the one to set in every Partido as their amba_zone.
+    """
+    previous_ids = get_partidos_ids(obj, as_list=True)
+    new_ids = new_ids.split("-") if new_ids else []
+    # Deattach zone from previous partidos if now not present
+    for id in previous_ids:
+        if id not in new_ids:
+            partido = get_object_or_404(Partido, pk=id)
+            partido.amba_zone = None
+            partido.save()
+    # Attach zone to partidos if not previously present
+    for id in new_ids:
+        if id not in previous_ids:
+            partido = get_object_or_404(Partido, pk=id)
+            partido.amba_zone = obj
+            partido.save()
+
+    # print("attempting to update")
+    # if new_ids:
+    #     print("ids is not None")
+    #     new_ids = new_ids.split("-")
+    #     print("ids", new_ids)
+    #     previous_ids = get_partidos_ids(obj, as_list=True)
+    #     print("previous ids", previous_ids)
+    #     if previous_ids:
+    #         print("previous ids is not None")
+    #         for id in previous_ids:
+    #             print("id", id, "en previous")
+    #             if id not in new_ids:
+    #                 print("id", id, "no está en ids:", new_ids)
+    #                 partido = get_object_or_404(Partido, pk=id)
+    #                 partido.amba_zone = None
+    #                 partido.save()
+    #     print("para cada id en ids")
+    #     for id in new_ids:
+    #         print("id", id, "en ids:", new_ids)
+    #         partido = get_object_or_404(Partido, pk=id)
+    #         partido.amba_zone = obj
+    #         partido.save()
 
 
 class ZoneUpdateView(
-        UpdateAlertMixin, ContextMixin, LoginRequiredMixin, UpdateView):
+        SuccessfulUpdateAlertMixin,
+        ContextMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'
     form_class = UpdateZoneForm
     template_name = "places/zone/edit.html"
-    context = {'selected_tab': 'zone-tab'}
+    context = {'selected_tab': 'zone-tab', }
 
     def get_object(self):
         id_ = self.kwargs.get("pk")
