@@ -62,9 +62,7 @@ class CheckPasswordForm(forms.Form):
         Grants access to the request object so
         that we can get user's current password to match.
         """
-        print("primer", args, kwargs)
         self.current_password = kwargs.pop('current_password', None)
-        print("despues", args, kwargs)
         super(CheckPasswordForm, self).__init__(*args, **kwargs)
 
     def clean_password(self):
