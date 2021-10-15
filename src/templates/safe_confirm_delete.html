@@ -32,11 +32,13 @@
             {% endblock deletion_specs %}
 
 
-            <div class="col-md-6">
-                <label for="id_password" class="form-label">Contraseña</label>
+            <div class="col">
+                <label for="id_password" class="form-label">Ingresá tu contraseña actual</label>
                 <input type="password" name="password" id="id_password"
                     class="form-control {% if form.password.errors %}is-invalid{% endif %}" placeholder="Contraseña"
                     onkeyup="removeValidationErrors()" required>
+                <div id="passwordHelp" class="form-text">Esta operación requiere altos privilegios
+                    administrativos, por eso es requerida tu contraseña.</div>
                 <div class="invalid-feedback">
                     {% for error in form.password.errors %}{{error}}<br>{% endfor %}
                 </div>
