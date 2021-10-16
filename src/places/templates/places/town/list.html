@@ -90,10 +90,11 @@
             <!-- start ACTIONS -->
             <div class="d-flex flex-wrap align-items-center">
                 <button type="button" id="bulkAsignDeliveryCode" class="btn btn-primary btn-sm m-2 m-xl-0 ms-xl-2"
-                    disabled>
+                    onclick="bulkDeliveryUpdateItems()" disabled>
                     Asignar código mensajería
                 </button>
-                <button type="button" id="bulkAsignFlexCode" class="btn btn-primary btn-sm m-2 m-xl-0 ms-xl-2" disabled>
+                <button type="button" id="bulkAsignFlexCode" class="btn btn-primary btn-sm m-2 m-xl-0 ms-xl-2"
+                    onclick="bulkFlexUpdateItems()" disabled>
                     Asignar código flex
                 </button>
                 <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{totalTowns}} elementos seleccionados
@@ -262,6 +263,28 @@
     function removeSelection() {
         $(".item-checker").prop('checked', false);
         countCheckedItems();
+    }
+
+    function getCheckboxIds() {
+        return Array.from(document.getElementsByClassName("item-checker"))
+            .filter(checkBox => checkBox.checked == true)
+            .map(function (checkbox) {
+                var id = checkbox.id;
+                return id.split("-checker-")[1];
+            }).join("-");
+    }
+
+    function bulkDeliveryUpdateItems() {
+        var checkBoxesIds = getCheckboxIds();
+        console.log(checkBoxesIds);
+        var url_mask = "{% url 'places:town-delivery-bulk-edit' 12345 %}".replace(/12345/, checkBoxesIds);
+        window.location.href = url_mask;
+    }
+
+    function bulkFlexUpdateItems() {
+        var checkBoxesIds = getCheckboxIds();
+        var url_mask = "{% url 'places:town-flex-bulk-edit' 12345 %}".replace(/12345/, checkBoxesIds);
+        window.location.href = url_mask;
     }
 
     function clearSearch() {

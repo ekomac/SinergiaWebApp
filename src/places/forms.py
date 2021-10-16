@@ -72,7 +72,7 @@ class BulkEditTownFlexForm(forms.Form):
 
     flex_code = forms.ModelChoiceField(
         label="Código de flex", required=False,
-        queryset=DeliveryCode.objects.all(),
+        queryset=FlexCode.objects.all(),
         widget=forms.Select(attrs={
             'class': ' form-select',
         }),

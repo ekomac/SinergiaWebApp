@@ -37,7 +37,7 @@ urlpatterns = [
     path('partido/<int:pk>', PartidoDetailView.as_view(),
          name="partido-detail"),
     path('partido/<int:pk>/edit', edit_partido_view, name="partido-edit"),
-    path('partido/<partidosids>/edit',
+    path('partido/<partidosids>/bulk_edit',
          bulk_edit_partidos_view, name="partido-bulk-edit"),
     # ****************************** PARTIDO ******************************
 
@@ -46,10 +46,10 @@ urlpatterns = [
     path('town', towns_view, name="town-list"),
     path('town/<int:pk>', TownDetailView.as_view(), name="town-detail"),
     path('town/<int:pk>/edit', TownUpdateView.as_view(), name="town-edit"),
-    path('town/<townsids>/bulk_edit',
-         bulk_edit_partidos_view, name="partido-bulk-edit"),
-    path('town/<townsids>/bulk_edit',
-         bulk_edit_partidos_view, name="partido-bulk-edit"),
+    path('town/<townsids>/bulk_delivery_edit',
+         bulk_edit_town_delivery_view, name="town-delivery-bulk-edit"),
+    path('town/<townsids>/bulk_flex_edit',
+         bulk_edit_town_flex_view, name="town-flex-bulk-edit"),
     # **************************** TOWN ****************************
 
 

@@ -26,11 +26,14 @@ from account.models import Account
 from places.models import Partido, Town, Zone
 from places.forms import (
     BulkEditPartidoForm,
+    BulkEditTownDeliveryForm,
+    BulkEditTownFlexForm,
     UpdatePartidoForm,
     AddZoneForm,
     UpdateTownForm,
     UpdateZoneForm
 )
+from prices.models import DeliveryCode, FlexCode
 
 TOWNS_PER_PAGE = 30
 PARTIDOS_PER_PAGE = 20
@@ -278,71 +281,71 @@ class TownUpdateView(
 @login_required(login_url='/login/')
 def bulk_edit_town_delivery_view(request, townsids):
 
-    ids = partidosids.split("-")
-    partidos = Partido.objects.filter(id__in=ids)
+    ids = townsids.split("-")
+    towns = Town.objects.filter(id__in=ids)
 
-    form = BulkEditPartidoForm()
+    form = BulkEditTownDeliveryForm()
 
     if request.method == 'POST':
-        form = BulkEditPartidoForm(request.POST or None)
+        form = BulkEditTownDeliveryForm(request.POST or None)
 
         if form.is_valid():
-            zone_id = form.cleaned_data['zone'].id
-            zone = Zone.objects.get(pk=zone_id)
+            delivery_id = form.cleaned_data['delivery_code'].id
+            delivery_code = DeliveryCode.objects.get(pk=delivery_id)
             author = Account.objects.filter(email=request.user.email).first()
             names = []
-            for partido in partidos:
-                partido.zone = zone
-                partido.updated_by = author
-                partido.save()
-                names.append(partido.name.title())
+            for town in towns:
+                town.delivery_code = delivery_code
+                town.updated_by = author
+                town.save()
+                names.append(town.name.title())
             names = '", "'.join(names)
-            msg = f'Los partidos "{names}" se actualizaron correctamente'
+            msg = f'Las localidades "{names}" se actualizaron correctamente'
             return update_alert_and_redirect(
-                request, msg, 'places:partido-list')
+                request, msg, 'places:town-list')
 
-    partidosNames = ", ".join([partido.name.title() for partido in partidos])
+    townsNames = ", ".join([town.name.title() for town in towns])
     context = {
         'form': form,
-        'selected_tab': 'partido-tab',
-        'partidosNames': partidosNames,
+        'selected_tab': 'town-tab',
+        'townsNames': townsNames,
     }
-    return render(request, "places/partido/bulk_edit.html", context)
+    return render(request, "places/town/bulk_dcode_edit.html", context)
 
 
 @login_required(login_url='/login/')
 def bulk_edit_town_flex_view(request, townsids):
 
-    ids = partidosids.split("-")
-    partidos = Partido.objects.filter(id__in=ids)
+    ids = townsids.split("-")
+    towns = Town.objects.filter(id__in=ids)
 
-    form = BulkEditPartidoForm()
+    form = BulkEditTownFlexForm()
 
     if request.method == 'POST':
-        form = BulkEditPartidoForm(request.POST or None)
+        form = BulkEditTownFlexForm(request.POST or None)
 
         if form.is_valid():
-            zone_id = form.cleaned_data['zone'].id
-            zone = Zone.objects.get(pk=zone_id)
+            flex_id = form.cleaned_data['flex_code'].id
+            flex_code = FlexCode.objects.get(pk=flex_id)
             author = Account.objects.filter(email=request.user.email).first()
             names = []
-            for partido in partidos:
-                partido.zone = zone
-                partido.updated_by = author
-                partido.save()
-                names.append(partido.name.title())
+            for town in towns:
+                town.flex_code = flex_code
+                town.updated_by = author
+                town.save()
+                names.append(town.name.title())
             names = '", "'.join(names)
-            msg = f'Los partidos "{names}" se actualizaron correctamente'
+            msg = f'Las localidades "{names}" se actualizaron correctamente'
             return update_alert_and_redirect(
-                request, msg, 'places:partido-list')
+                request, msg, 'places:town-list')
 
-    partidosNames = ", ".join([partido.name.title() for partido in partidos])
+    townsNames = ", ".join([town.name.title() for town in towns])
     context = {
         'form': form,
-        'selected_tab': 'partido-tab',
-        'partidosNames': partidosNames,
+        'selected_tab': 'town-tab',
+        'townsNames': townsNames,
     }
-    return render(request, "places/partido/bulk_edit.html", context)
+    return render(request, "places/town/bulk_fcode_edit.html", context)
 
 
 # ************************ ZONE ************************
