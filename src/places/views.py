@@ -25,6 +25,7 @@ from utils.alerts.views import (
 from account.models import Account
 from places.models import Partido, Town, Zone
 from places.forms import (
+    BulkEditPartidoForm,
     UpdatePartidoForm,
     AddZoneForm,
     UpdateTownForm,
@@ -150,29 +151,38 @@ def edit_partido_view(request, pk):
 
 
 @login_required(login_url='/login/')
-def bulk_edit_partidos_view(request, pk):
+def bulk_edit_partidos_view(request, partidosids):
 
-    partido = get_object_or_404(Partido, pk=pk)
-    form = UpdatePartidoForm(instance=partido)
+    ids = partidosids.split("-")
+    partidos = Partido.objects.filter(id__in=ids)
+
+    form = BulkEditPartidoForm()
 
     if request.method == 'POST':
-        form = UpdateZoneForm(request.POST or None, instance=partido)
+        form = BulkEditPartidoForm(request.POST or None)
 
         if form.is_valid():
-            obj = form.save(commit=False)
+            zone_id = form.cleaned_data['zone'].id
+            zone = Zone.objects.get(pk=zone_id)
             author = Account.objects.filter(email=request.user.email).first()
-            obj.updated_by = author
-            obj.save()
-            partido = obj
-            msg = f'El partido "{obj.name.title()}" se actualizó correctamente'
+            names = []
+            for partido in partidos:
+                partido.zone = zone
+                partido.updated_by = author
+                partido.save()
+                names.append(partido.name.title())
+            names = '", "'.join(names)
+            msg = f'Los partidos "{names}" se actualizaron correctamente'
             return update_alert_and_redirect(
-                request, msg, 'places:partido-detail', obj.pk)
+                request, msg, 'places:partido-list')
 
+    partidosNames = ", ".join([partido.name.title() for partido in partidos])
     context = {
         'form': form,
         'selected_tab': 'partido-tab',
+        'partidosNames': partidosNames,
     }
-    return render(request, "places/partido/edit.html", context)
+    return render(request, "places/partido/bulk_edit.html", context)
 
 
 # ************************ TOWN ************************
@@ -263,6 +273,76 @@ class TownUpdateView(
 
     def get_success_url(self):
         return reverse('places:town-detail', kwargs={'pk': self.object.pk})
+
+
+@login_required(login_url='/login/')
+def bulk_edit_town_delivery_view(request, townsids):
+
+    ids = partidosids.split("-")
+    partidos = Partido.objects.filter(id__in=ids)
+
+    form = BulkEditPartidoForm()
+
+    if request.method == 'POST':
+        form = BulkEditPartidoForm(request.POST or None)
+
+        if form.is_valid():
+            zone_id = form.cleaned_data['zone'].id
+            zone = Zone.objects.get(pk=zone_id)
+            author = Account.objects.filter(email=request.user.email).first()
+            names = []
+            for partido in partidos:
+                partido.zone = zone
+                partido.updated_by = author
+                partido.save()
+                names.append(partido.name.title())
+            names = '", "'.join(names)
+            msg = f'Los partidos "{names}" se actualizaron correctamente'
+            return update_alert_and_redirect(
+                request, msg, 'places:partido-list')
+
+    partidosNames = ", ".join([partido.name.title() for partido in partidos])
+    context = {
+        'form': form,
+        'selected_tab': 'partido-tab',
+        'partidosNames': partidosNames,
+    }
+    return render(request, "places/partido/bulk_edit.html", context)
+
+
+@login_required(login_url='/login/')
+def bulk_edit_town_flex_view(request, townsids):
+
+    ids = partidosids.split("-")
+    partidos = Partido.objects.filter(id__in=ids)
+
+    form = BulkEditPartidoForm()
+
+    if request.method == 'POST':
+        form = BulkEditPartidoForm(request.POST or None)
+
+        if form.is_valid():
+            zone_id = form.cleaned_data['zone'].id
+            zone = Zone.objects.get(pk=zone_id)
+            author = Account.objects.filter(email=request.user.email).first()
+            names = []
+            for partido in partidos:
+                partido.zone = zone
+                partido.updated_by = author
+                partido.save()
+                names.append(partido.name.title())
+            names = '", "'.join(names)
+            msg = f'Los partidos "{names}" se actualizaron correctamente'
+            return update_alert_and_redirect(
+                request, msg, 'places:partido-list')
+
+    partidosNames = ", ".join([partido.name.title() for partido in partidos])
+    context = {
+        'form': form,
+        'selected_tab': 'partido-tab',
+        'partidosNames': partidosNames,
+    }
+    return render(request, "places/partido/bulk_edit.html", context)
 
 
 # ************************ ZONE ************************

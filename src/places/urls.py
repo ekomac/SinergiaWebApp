@@ -6,6 +6,7 @@ from places.views import (
     partidos_view,
     PartidoDetailView,
     edit_partido_view,
+    bulk_edit_partidos_view,
     # ******** PARTIDO ********
 
 
@@ -13,6 +14,8 @@ from places.views import (
     towns_view,
     TownDetailView,
     TownUpdateView,
+    bulk_edit_town_delivery_view,
+    bulk_edit_town_flex_view,
     # ******** TOWN ********
 
 
@@ -34,6 +37,8 @@ urlpatterns = [
     path('partido/<int:pk>', PartidoDetailView.as_view(),
          name="partido-detail"),
     path('partido/<int:pk>/edit', edit_partido_view, name="partido-edit"),
+    path('partido/<partidosids>/edit',
+         bulk_edit_partidos_view, name="partido-bulk-edit"),
     # ****************************** PARTIDO ******************************
 
 
@@ -41,6 +46,10 @@ urlpatterns = [
     path('town', towns_view, name="town-list"),
     path('town/<int:pk>', TownDetailView.as_view(), name="town-detail"),
     path('town/<int:pk>/edit', TownUpdateView.as_view(), name="town-edit"),
+    path('town/<townsids>/bulk_edit',
+         bulk_edit_partidos_view, name="partido-bulk-edit"),
+    path('town/<townsids>/bulk_edit',
+         bulk_edit_partidos_view, name="partido-bulk-edit"),
     # **************************** TOWN ****************************
 
 

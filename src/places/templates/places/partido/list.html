@@ -76,7 +76,8 @@
 
             <!-- start ACTIONS -->
             <div class="d-flex flex-wrap align-items-center">
-                <button type="button" id="bulkAsignZona" class="btn btn-primary btn-sm m-2 m-xl-0 ms-xl-2" disabled>
+                <button type="button" id="bulkAsignZona" class="btn btn-primary btn-sm m-2 m-xl-0 ms-xl-2"
+                    onclick="bulkUpdateItems()" disabled>
                     Asignar zona
                 </button>
                 <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{ totalPartidos }} elementos seleccionados
@@ -240,6 +241,19 @@
     function removeSelection() {
         $(".item-checker").prop('checked', false);
         countCheckedItems();
+    }
+
+    function bulkUpdateItems() {
+        // Get all checked checkboxes
+        var checkBoxesIds = Array.from(document.getElementsByClassName("item-checker"))
+            .filter(checkBox => checkBox.checked == true).map(function (checkbox) {
+                var id = checkbox.id;
+                return id.split("-checker-")[1];
+            }).join("-");
+        console.log(checkBoxesIds);
+        var url_mask = "{% url 'places:partido-bulk-edit' 12345 %}".replace(/12345/, checkBoxesIds);
+        console.log("url -> " + url_mask);
+        window.location.href = url_mask;
     }
 
     function clearSearch() {

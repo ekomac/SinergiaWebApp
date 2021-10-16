@@ -202,8 +202,9 @@ def create_alert_and_redirect(request: HttpResponse, msg: str,
     return redirect(url, id)
 
 
-def update_alert_and_redirect(request: HttpResponse, msg: str,
-                              url: str, id: Any) -> HttpResponseRedirect:
+def update_alert_and_redirect(
+        request: HttpResponse, msg: str,
+        url: str, id: Any = None) -> HttpResponseRedirect:
     """Returns an HttpResponse form a redirect but adds an
     alert to notify an update successful to request.
 
@@ -227,4 +228,6 @@ def update_alert_and_redirect(request: HttpResponse, msg: str,
     alerts.append(alert.get_as_dict())
     # Set them back to request's session
     request.session['alerts'] = alerts
-    return redirect(url, id)
+    if id:
+        return redirect(url, id)
+    return redirect(url)

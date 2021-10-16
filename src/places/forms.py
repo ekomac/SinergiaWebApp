@@ -57,6 +57,28 @@ class UpdateTownForm(CleanerMixin, forms.ModelForm):
         ]
 
 
+class BulkEditTownDeliveryForm(forms.Form):
+
+    delivery_code = forms.ModelChoiceField(
+        label="Código de mensajería", required=False,
+        queryset=DeliveryCode.objects.all(),
+        widget=forms.Select(attrs={
+            'class': ' form-select',
+        }),
+    )
+
+
+class BulkEditTownFlexForm(forms.Form):
+
+    flex_code = forms.ModelChoiceField(
+        label="Código de flex", required=False,
+        queryset=DeliveryCode.objects.all(),
+        widget=forms.Select(attrs={
+            'class': ' form-select',
+        }),
+    )
+
+
 class BaseZoneForm(CleanerMixin, forms.ModelForm):
     selected_partidos_ids = forms.CharField(required=False)
 
