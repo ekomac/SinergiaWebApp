@@ -339,7 +339,7 @@ def add_zone_view(request, *args, **kwargs):
         author = Account.objects.filter(email=request.user.email).first()
         obj.updated_by = author
         obj.save()
-        set_partido_ids(ids, obj)
+        set_partido_ids(ids, obj, author)
         form = AddZoneForm()
         msg = f'La zona "{obj.name.title()}" se creó correctamente.'
         return create_alert_and_redirect(
@@ -351,7 +351,7 @@ def add_zone_view(request, *args, **kwargs):
     return render(request, "places/zone/add.html", context)
 
 
-def set_partido_ids(ids: str, obj: Zone) -> None:
+def set_partido_ids(ids: str, zone: Zone, author: Account) -> None:
     """Updates amba_zone attr for each Partido found for each id,
     if any id was given.
 
@@ -363,7 +363,8 @@ def set_partido_ids(ids: str, obj: Zone) -> None:
     if ids:
         for id in ids.split("-"):
             partido = get_object_or_404(Partido, pk=id)
-            partido.amba_zone = obj
+            partido.zone = zone
+            partido.updated_by = author
             partido.save()
 
 
@@ -396,7 +397,7 @@ def edit_zone_view(request, pk, *args, **kwargs):
             obj.save()
             zone = obj
             ids = request.POST.get('selected_partidos_ids', None)
-            update_partido_ids(ids, obj)
+            update_partido_ids(ids, obj, author)
             msg = f'La zona "{obj.name.title()}" se actualizó correctamente.'
             return update_alert_and_redirect(
                 request, msg, 'places:zone-detail', obj.pk)
@@ -421,7 +422,7 @@ def get_partidos_ids(zone: Zone, as_list: bool = False):
     return ""
 
 
-def update_partido_ids(new_ids: str, obj: Zone) -> None:
+def update_partido_ids(new_ids: str, zone: Zone, author: Account) -> None:
     """Updates amba_zone attr for each Partido found for each id,
     if any id was given.
 
@@ -430,19 +431,21 @@ def update_partido_ids(new_ids: str, obj: Zone) -> None:
         a "id1-id2-id3" format.
         obj (Zone): the one to set in every Partido as their amba_zone.
     """
-    previous_ids = get_partidos_ids(obj, as_list=True)
+    previous_ids = get_partidos_ids(zone, as_list=True)
     new_ids = new_ids.split("-") if new_ids else []
     # Deattach zone from previous partidos if now not present
     for id in previous_ids:
         if id not in new_ids:
             partido = get_object_or_404(Partido, pk=id)
-            partido.amba_zone = None
+            partido.zone = None
+            partido.updated_by = author
             partido.save()
     # Attach zone to partidos if not previously present
     for id in new_ids:
         if id not in previous_ids:
             partido = get_object_or_404(Partido, pk=id)
-            partido.amba_zone = obj
+            partido.zone = zone
+            partido.updated_by = author
             partido.save()
 
     # print("attempting to update")
