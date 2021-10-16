@@ -215,9 +215,9 @@
         // Update selected count
         $('#selectedCount').text(checkedItemsCount + " de " + totalTowns + " elementos seleccionados");
         // Enable bulk edit btn only if more than one checked
-        isEnabled('bulkEditDelivery', checkedItemsCount > 1);
+        isEnabled('bulkAsignDeliveryCode', checkedItemsCount > 0);
         // Enable delete btn if at least 1 checkbox is checked
-        isEnabled('bulkDeleteDelivery', checkedItemsCount > 0);
+        isEnabled('bulkAsignFlexCode', checkedItemsCount > 0);
         // Enable selection mode if at least 1 checkbox checked
         selectionModeEnabled = checkedItemsCount > 0;
         // hide

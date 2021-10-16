@@ -140,6 +140,32 @@ def edit_partido_view(request, pk, *args, **kwargs):
     return render(request, "places/partido/edit.html", context)
 
 
+@login_required(login_url='/login/')
+def bulk_edit_partidos_view(request, pk, *args, **kwargs):
+
+    partido = get_object_or_404(Partido, pk=pk)
+    form = UpdatePartidoForm(instance=partido)
+
+    if request.method == 'POST':
+        form = UpdateZoneForm(request.POST or None, instance=partido)
+
+        if form.is_valid():
+            obj = form.save(commit=False)
+            author = Account.objects.filter(email=request.user.email).first()
+            obj.updated_by = author
+            obj.save()
+            partido = obj
+            msg = f'El partido "{obj.name.title()}" se actualizó correctamente'
+            return update_alert_and_redirect(
+                request, msg, 'places:partido-detail', obj.pk)
+
+    context = {
+        'form': form,
+        'selected_tab': 'partido-tab',
+    }
+    return render(request, "places/partido/edit.html", context)
+
+
 # ************************ TOWN ************************
 @login_required(login_url='/login/')
 def towns_view(request, *args, **kwargs):
