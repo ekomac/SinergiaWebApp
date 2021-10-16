@@ -1,0 +1,28 @@
+<tr id="tr-{{obj.id}}" class="table-item"
+    onclick="onItemClicked({{ obj.id }},'{% url 'places:partido-detail' pk=obj.id %}');">
+    <td id="td-{{obj.id}}" class="td-item-checker">
+        <div class="form-check">
+            <input id="item-checker-{{obj.id}}" class="form-check-input item-checker" type="checkbox" value="">
+        </div>
+    </td>
+    <td>{{ obj.name |title}}</td>
+    <td class="cell-centered">{{ obj.town_set.count }}</td>
+    <td class="td-bool-div cell-centered">
+        {% if obj.is_amba %}
+        <i class="d-inline-flex rounded-circle bool-div bool-div-true bi bi-check-circle"></i>
+        {% else %}
+        <i class="d-inline-flex rounded-circle bool-div bool-div-false bi bi-x-circle"></i>
+        {% endif %}
+    </td>
+    <td class="cell-centered">
+        {% if obj.zone.name %}
+        {{ obj.zone.name  }}
+        {% else %}
+        No especificada
+        {% endif %}
+    </td>
+    <td style="text-align: start;">
+        <a href="{% url 'places:partido-edit' pk=obj.id %}" class="edit-button me-1" title="Editar"><i
+                class="bi bi-pencil-square"></i></a>
+    </td>
+</tr>

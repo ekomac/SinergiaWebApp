@@ -16,25 +16,16 @@
         {% endif %}
     </td>
     <td class="cell-centered">
-        {% if obj.partido.is_amba %}
-
-        {% if obj.partido.amba_zone.name %}
-        {{ obj.partido.amba_zone.name  }}
+            {% if obj.partido.zone.name %}
+        {{ obj.partido.zone.name  }}
         {% else %}
         No especificada
-        {% endif %}
-
-        {% else %}
-        No aplica
-
         {% endif %}
     </td>
     <td class="cell-centered">{{ obj.delivery_code.code }}</td>
     <td class="cell-centered">{{ obj.flex_code.code }}</td>
     <td style="text-align: start;">
-        <a href="{% url 'places:town-edit' pk=item.id %}" class="edit-button me-1" title="Editar"><i
+        <a href="{% url 'places:town-edit' pk=obj.id %}" class="edit-button me-1" title="Editar"><i
                 class="bi bi-pencil-square"></i></a>
-        <a href="{% url 'places:town-delete' item.id %}" class="edit-button ms-1" title="Editar"><i
-                class="bi bi-trash"></i></a>
     </td>
 </tr>

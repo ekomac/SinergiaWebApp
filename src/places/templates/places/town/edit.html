@@ -1,8 +1,46 @@
-{% extends 'base_system.html' %}
+{% extends 'base_system.html' %} {% block content %} {% load places_extras %}
+
+{% load price_extras %}
+
+<div class="col-md-12 col-lg-8 col-xl-6 col-xxl-5 d-flex-block">
+    <form method='POST' id="udpate_form" class="card flex-fill shadow-lg bg-white" name="udpate_form" target="_top"
+        enctype="multipart/form-data">{% csrf_token %}
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Editar objeto
+            </div>
+            <div>
+                <a href="{{ request.META.HTTP_REFERER }}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <h3 class="card-title text-center mt-3">EDITAR LOCALIDAD</h3>
+            <h4 class="card-title mt-3">Datos de los códigos de la localidad de {{ form.instance.name|title }}</h4>
+            <div class="row g-3">
 
 
-{% block content %}
+                <!-- START CODE INPUT -->
+                <div class="col-md-12 col-lg-8">
+                    <label for="{{form.delivery_code.id_for_label}}" class="form-label">Código de mensajería</label>
+                    {{ form.delivery_code}}
+                </div>
+                <div class="col-md-12 col-lg-8">
+                    <label for="{{form.flex_code.id_for_label}}" class="form-label">Código de flex</label>
+                    {{ form.flex_code}}
+                </div>
+                <!-- END CODE INPUT -->
 
-Town edit...
 
-{% endblock content %}
+                <!-- START SUMBIT BUTTON -->
+                <div class="d-grid gap-2 d-md-flex">
+                    <input type="submit" value="Actualizar código" class="btn btn-primary">
+                </div>
+                <!-- END SUMBIT BUTTON -->
+
+            </div>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

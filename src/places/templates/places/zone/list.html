@@ -1,8 +1,272 @@
 {% extends 'base_system.html' %}
 
-
 {% block content %}
 
-Zone list...
+{% load places_extras %}
+
+<style>
+    .cell-centered,
+    h5 {
+        text-align: center;
+    }
+
+    h5 {
+        margin-bottom: 10px;
+        margin-top: 20px;
+    }
+
+    .bool-div {
+        color: white;
+        padding: 1px;
+    }
+
+    .bool-div-true {
+        background-color: green;
+    }
+
+    .bool-div-false {
+        background-color: red;
+    }
+
+    td {
+        overflow: auto;
+        white-space: nowrap;
+    }
+</style>
+
+<div class="col-md-12 col-xl-8 col-xxl-7 d-flex-inline">
+    <div class=" card flex-fill">
+        <div class="card-body d-flex flex-column">
+            <h2 class="card-title text-center mt-2">LISTADO DE ZONAS</h2>
+
+
+            <!-- start SEARCH AND ORDERING FUNCTIONALITIES -->
+            <form method="GET" class="mt-4" id="list_form">
+                <div class="row g-2">
+                    <div class="col-12 col-lg-5 d-inline-flex justify-content-start align-items-center">
+                        <input type="text" class="form-control me-2" name="q" id="id_q"
+                            value="{% if query != '' and query%}{{query}}{% endif %}"
+                            placeholder="Ingresá texto para buscar...">
+                        <div class="mx-1">
+                            <div id="clearSearchDiv" class="{% if query == '' or not query %}hide-on-load{% endif %}">
+                                <a id="clearSearch" type="button" class="ms-2 text-decoration-none"
+                                    onclick="clearSearch()" style="cursor: pointer;">Limpiar</i></a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-7 d-flex justify-content-end align-items-center">
+                        <label for="id_order_by" id="labelOrder_by" class="me-2">Ordenar por: </label>
+                        <div aria-label="Default select example">
+                            <select id="id_order_by" name="order_by" class="form-select"
+                                aria-label="Order by selection">
+                                <option value="name" {% if order_by == 'name' %}selected{% endif %}>Nombre A-Z</option>
+                                <option value="name_desc" {% if order_by == 'name_desc' %}selected{% endif %}>Nombre Z-A
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <!-- end SEARCH AND ORDERING FUNCTIONALITIES -->
+
+
+            <hr class="bg-dark mt-4">
+
+
+            <!-- start ACTIONS -->
+            <div class="d-flex flex-wrap align-items-center">
+                <button type="button" id="bulkDeleteDelivery" class="btn btn-danger btn-sm m-2 m-xl-0 ms-xl-2"
+                    onclick="deleteSelectedItems()" disabled>
+                    Eliminar seleccionados
+                </button>
+                <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{totalCodes}} elementos seleccionados</div>
+                <div class="my-1 mx-xl-3">
+                    <div id="clearSelectionDiv" class="hide-on-load">
+                        <a id="clearSelection" type="button" class="ms-2 text-decoration-none"
+                            onclick="removeSelection()" style="cursor: pointer;">Quitar selección
+                            <i class="bi bi-x"></i></a>
+                    </div>
+                </div>
+                <div class="d-flex d-lg-inline ms-auto">
+                    <a href="{% url 'places:zone-add' %}" type="button" class="flex-fill btn btn-success btn-sm m-2">
+                        <i class="bi bi-plus"></i>Crear nuevo
+                    </a>
+                </div>
+            </div>
+            <!-- end ACTIONS -->
+
+
+            <hr class="bg-dark">
+
+
+            <!-- start MAIN CONTENT -->
+            {% if zones %}
+
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>
+                                <div class="form-check">
+                                    <input class="form-check-input checkbox-select" type="checkbox" id="checkAll">
+                                </div>
+                            </th>
+                            <th class="cell-centered">Nombre</th>
+                            <th class="cell-centered">Cant. partidos</th>
+                            <th class="cell-centered">Asignado a</th>
+                            <th class="col-xl-4"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="overrided-1" class="overrided-tbody">
+                        {% for zone in zones %}
+                        {% include 'places/zone/snippets/item.html' with obj=zone counter=forloop.counter%}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% include 'places/zone/snippets/pagination.html' with zones=zones %}
+
+            {% else %}
+
+            <div>
+                <p class="card-text">No se encontraron resultados que coincidan con la búsqueda: "{{query}}"</p>
+            </div>
+
+            {% endif %}
+            <!-- end MAIN CONTENT -->
+
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    var selectionModeEnabled = false;
+    var totalTowns = JSON.parse('{{ totalZones | escapejs }}');
+
+
+    $(document).ready(function () {
+
+        $('#id_order_by').change(function () {
+            $('#list_form').submit();
+        });
+
+        $('#id_q').on('change paste keyup', function () {
+            show('clearSearchDiv', $('#id_q').val() != '');
+        });
+
+        show('clearSelectionDiv', selectionModeEnabled);
+
+        $("#checkAll").click(function () {
+            $(".item-checker").prop('checked', this.checked);
+            countCheckedItems();
+        });
+
+        $(".item-checker").click(function (e) {
+            e.stopImmediatePropagation();
+            countCheckedItems();
+        });
+
+        $(".td-item-checker").click(function (e) {
+            var id = this.id.split("-")[1];
+            changeItemCheckerState('item-checker-' + id);
+            e.stopImmediatePropagation();
+            e.stopPropagation();
+            countCheckedItems();
+        });
+    });
+
+    function onItemClicked(id, url) {
+        if (selectionModeEnabled) {
+            $('#item-checker-' + id).prop('checked', !$('#item-checker-' + id).is(":checked"));
+        } else {
+            window.location.href = url;
+        }
+        countCheckedItems();
+    }
+
+    function countCheckedItems() {
+        // Get all checkboxes
+        var checkBoxes = Array.from(document.getElementsByClassName("item-checker"));
+        // Count total checkboxes
+        var totalCheckBoxes = checkBoxes.length;
+        // Count checked checkboxes
+        var checkedItemsCount = checkBoxes.filter(checkBox => checkBox.checked == true).length;
+        // If all checkboxes checked, check "checkAll" checkbox
+        $('#checkAll').prop('checked', checkedItemsCount == totalCheckBoxes);
+        // Update selected count
+        $('#selectedCount').text(checkedItemsCount + " de " + totalTowns + " elementos seleccionados");
+        // Enable bulk edit btn only if more than one checked
+        isEnabled('bulkEditDelivery', checkedItemsCount > 1);
+        // Enable delete btn if at least 1 checkbox is checked
+        isEnabled('bulkDeleteDelivery', checkedItemsCount > 0);
+        // Enable selection mode if at least 1 checkbox checked
+        selectionModeEnabled = checkedItemsCount > 0;
+        // hide
+        show('clearSelectionDiv', selectionModeEnabled);
+    }
+
+    function changeItemCheckerState(id) {
+        $('#' + id).prop('checked', !$('#' + id).is(":checked"));
+    }
+
+    function show(id, makeVisible = true) {
+        if (makeVisible && $('#' + id).is(":hidden")) {
+            $('#' + id).hide();
+            $('#' + id).removeClass("hide-on-load");
+            $('#' + id).show(300);
+        }
+        if (!makeVisible && $('#' + id).is(":visible")) {
+            $('#' + id).hide(300);
+        }
+    }
+
+    function isEnabled(id, enable = true) {
+        if (enable && $('#' + id).is(":disabled")) {
+            $('#' + id).removeAttr("disabled");
+        }
+        if (!enable && $('#' + id).is(":enabled")) {
+            $('#' + id).attr("disabled", true);
+        }
+    }
+
+    function itemClicked(id) {
+        if ($('#item-checker-' + id).is(":checked")) {
+            $('#item-checker-' + id).prop('checked', false);
+        } else if (selectionModeEnabled) {
+            $('#item-checker-' + id).prop('checked', true);
+        } else {
+            alert("launch detail item");
+        }
+
+    }
+
+    function removeSelection() {
+        $(".item-checker").prop('checked', false);
+        countCheckedItems();
+    }
+
+    function deleteSelectedItems() {
+        // Get all checked checkboxes
+        var checkBoxesIds = Array.from(document.getElementsByClassName("item-checker"))
+            .filter(checkBox => checkBox.checked == true).map(function (checkbox) {
+                var id = checkbox.id;
+                return id.split("-checker-")[1];
+            }).join("-");
+        console.log(checkBoxesIds);
+        var url_mask = "{% url 'places:zone-delete' 12345 %}".replace(/12345/, checkBoxesIds);
+        console.log("url -> " + url_mask);
+        window.location.href = url_mask;
+    }
+
+    function clearSearch() {
+        $('#id_q').val('');
+        $('#list_form').submit();
+    }
+</script>
 
 {% endblock content %}

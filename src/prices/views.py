@@ -15,7 +15,7 @@ from .forms import (
 )
 from .models import DeliveryCode, FlexCode
 from places.models import Town
-from alerts.views import CreateAlertMixin, UpdateAlertMixin
+from utils.alerts.views import SuccessfulCreationAlertMixin, SuccessfulUpdateAlertMixin
 
 
 # ****************** MENSAJERIA ******************
@@ -23,7 +23,6 @@ from alerts.views import CreateAlertMixin, UpdateAlertMixin
 def delivery_codes_view(request, *args, **kwargs):
 
     context = {}
-    context['selected_tab'] = 'prices-tab'
 
     if request.method == 'GET':
 
@@ -35,20 +34,18 @@ def delivery_codes_view(request, *args, **kwargs):
     return render(request, "prices/dcode-list.html", context)
 
 
-class DeliveryCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
+class DeliveryCodeAddView(SuccessfulCreationAlertMixin, LoginRequiredMixin, CreateView):
     login_url = '/login/'
     template_name = "prices/add.html"
     form_class = CreateDeliveryCodeForm
 
     def form_invalid(self, form):
-        print("ups, inválido")
         return super().form_invalid(form)
 
     def form_valid(self, form):
         self.add_alert(
             f'El código {form.instance.code} se creó correctamente.')
         form.instance.updated_by = self.request.user
-        print("valid")
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -96,7 +93,7 @@ class DeliveryCodeDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class DeliveryCodeUpdateView(UpdateAlertMixin, LoginRequiredMixin, UpdateView):
+class DeliveryCodeUpdateView(SuccessfulUpdateAlertMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'
     form_class = UpdateDeliveryCodeForm
     template_name = "prices/edit.html"
@@ -163,13 +160,12 @@ def flex_codes_view(request, *args, **kwargs):
     return render(request, "prices/fcode-list.html", context)
 
 
-class FlexCodeAddView(CreateAlertMixin, LoginRequiredMixin, CreateView):
+class FlexCodeAddView(SuccessfulCreationAlertMixin, LoginRequiredMixin, CreateView):
     login_url = '/login/'
     template_name = "prices/add.html"
     form_class = CreateFlexCodeForm
 
     def form_invalid(self, form):
-        print("ups, inválido")
         return super().form_invalid(form)
 
     def form_valid(self, form):
@@ -224,7 +220,7 @@ class FlexCodeDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class FlexCodeUpdateView(UpdateAlertMixin, LoginRequiredMixin, UpdateView):
+class FlexCodeUpdateView(SuccessfulUpdateAlertMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'
     form_class = UpdateFlexCodeForm
     template_name = "prices/edit.html"

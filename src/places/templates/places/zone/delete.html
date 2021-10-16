@@ -1,8 +1,15 @@
-{% extends 'base_system.html' %}
+{% extends 'safe_confirm_delete.html' %}
 
+{% load price_extras %}
 
-{% block content %}
-
-Zone delete...
-
-{% endblock content %}
+{% block deletion_specs %}
+<ul>
+    {% for zone in objects %}
+    <li class="mt-1">
+        Zona "{{zone.name}}" con {{zone.partido_set.count}}
+        partidos{% if zone.partido_set.count > 0%}:&nbsp;{% for partido in zone.partido_set.all %}{% if forloop.counter != 1 %},
+        {% endif %}{{ partido.name |title}}{% endfor %}{% endif %}.
+    </li>
+    {% endfor %}
+</ul>
+{% endblock deletion_specs %}
