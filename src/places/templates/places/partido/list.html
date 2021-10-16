@@ -195,7 +195,7 @@
         // Update selected count
         $('#selectedCount').text(checkedItemsCount + " de " + totalTowns + " elementos seleccionados");
         // Enable bulk asign btn only if more than one checked
-        isEnabled('bulkAsignZona', checkedItemsCount > 1);
+        isEnabled('bulkAsignZona', checkedItemsCount > 0);
         // Enable selection mode if at least 1 checkbox checked
         selectionModeEnabled = checkedItemsCount > 0;
         // hide
