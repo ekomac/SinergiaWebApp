@@ -5,7 +5,7 @@ from utils.forms import CleanerMixin
 from places.models import Partido, Town, Zone
 
 
-class UpdatePartidoForm(CleanerMixin, forms.ModelForm):
+class UpdatePartidoForm(forms.ModelForm):
 
     zone = forms.ModelChoiceField(
         label="Zona", required=False,

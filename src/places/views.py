@@ -117,18 +117,27 @@ class PartidoDetailView(ContextMixin, LoginRequiredMixin, DetailView):
 @login_required(login_url='/login/')
 def edit_partido_view(request, pk, *args, **kwargs):
 
+    print("func started")
     partido = get_object_or_404(Partido, pk=pk)
+    print("partido is", partido)
     form = UpdatePartidoForm(instance=partido)
+    print("form is", form)
 
     if request.method == 'POST':
-        form = UpdateZoneForm(request.POST or None, instance=partido)
+        print("methos is POST")
+        form = UpdatePartidoForm(request.POST or None, instance=partido)
+        print("form is", form)
 
         if form.is_valid():
+            print("form is valid")
             obj = form.save(commit=False)
+            print("obj is", obj)
             author = Account.objects.filter(email=request.user.email).first()
+            print("author is", author)
             obj.updated_by = author
             obj.save()
             partido = obj
+            print("partido is", partido)
             msg = f'El partido "{obj.name.title()}" se actualizó correctamente'
             return update_alert_and_redirect(
                 request, msg, 'places:partido-detail', obj.pk)
@@ -376,6 +385,7 @@ def edit_zone_view(request, pk, *args, **kwargs):
 
     zone = get_object_or_404(Zone, pk=pk)
     form = UpdateZoneForm(instance=zone)
+
     if request.method == 'POST':
         form = UpdateZoneForm(request.POST or None, instance=zone)
 
@@ -386,7 +396,6 @@ def edit_zone_view(request, pk, *args, **kwargs):
             obj.save()
             zone = obj
             ids = request.POST.get('selected_partidos_ids', None)
-            print("los ids son", ids)
             update_partido_ids(ids, obj)
             msg = f'La zona "{obj.name.title()}" se actualizó correctamente.'
             return update_alert_and_redirect(
