@@ -3,6 +3,7 @@ from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
+from simple_history.models import HistoricalRecords
 from clients.models import Client
 from places.models import Town
 
@@ -77,6 +78,7 @@ class Envio(models.Model):
         verbose_name='generated qr code',
         upload_to=upload_location,
         max_length=60, blank=True, null=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         address = self.recipient_address
@@ -103,6 +105,7 @@ class Bolson(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         blank=False, null=False, default=None)
+    history = HistoricalRecords()
 
     def count(self):
         return len(self.envios)
@@ -123,6 +126,7 @@ class Deposit(models.Model):
     client = models.ForeignKey(
         Client, verbose_name='client',
         on_delete=models.CASCADE, blank=True, null=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         owner = 'Sinergia' if self.is_ours else self.client.name
@@ -169,6 +173,7 @@ class TrackingMovement(models.Model):
         verbose_name="deposit", default=None, blank=True, null=True)
     date_time = models.DateTimeField(
         verbose_name="action's date time", auto_now_add=True)
+    history = HistoricalRecords()
 
     def __str__(self):
         user = self.user.username
