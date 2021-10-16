@@ -1,0 +1,40 @@
+{% extends 'base_system.html' %} {% block content %}
+
+<div class="col-md-12 col-lg-8 col-xl-6 col-xxl-5 d-flex-block">
+    <form method='POST' id="udpate_form" class="card flex-fill shadow-lg bg-white" name="udpate_form" target="_top"
+        enctype="multipart/form-data">{% csrf_token %}
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Editar relación
+            </div>
+            <div>
+                <a href="{{ request.META.HTTP_REFERER }}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <h3 class="card-title text-center mt-3">EDITAR LOCALIDADES</h3>
+            <h5 class="card-title mt-3">Cambiar el código de mensajería de la(s) localidad(es) {{ townsNames }}.</h5>
+            <div class="row g-3 mt-3">
+
+
+                <!-- START CODE INPUT -->
+                <div class="col-md-12 col-lg-6 mt-3 mb-3">
+                    <label for="{{form.delivery_code.id_for_label}}" class="form-label">Código de mensajería</label>
+                    {{ form.delivery_code }}
+                </div>
+                <!-- END CODE INPUT -->
+
+
+                <!-- START SUMBIT BUTTON -->
+                <div class="d-grid gap-2 mt-3 d-md-flex">
+                    <input type="submit" value="Actualizar localidad(es)" class="btn btn-primary">
+                </div>
+                <!-- END SUMBIT BUTTON -->
+
+            </div>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

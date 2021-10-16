@@ -1,8 +1,104 @@
 {% extends 'base_system.html' %}
 
-
 {% block content %}
 
-partido detail...
+{% load places_extras %}
+
+<style>
+    .bool-div {
+        color: white;
+        padding: 1px;
+    }
+
+    .bool-div-true {
+        background-color: green;
+    }
+
+    .bool-div-false {
+        background-color: red;
+    }
+
+    td {
+        overflow: auto;
+        white-space: nowrap;
+    }
+</style>
+
+
+<div class="col-md-12 col-xl-8 col-xxl-7 d-flex-block">
+    <div class="card flex-fill shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Detalle de partido
+            </div>
+            <div class="">
+                <a href="{% url 'places:partido-list' %}"><i class="bi bi-list"></i>Ver lista completa</a>
+            </div>
+        </div>
+        <div class="card-body">
+
+            <div class="card-title d-flex justify-content-between flex-wrap align-content-center">
+                <div class="me-2 w-sm-100 align-content-center">
+                    <h2>{{ object.name |title }},&nbsp;{{ object.get_province_display }}
+                    </h2>
+                </div>
+                <div class="d-flex align-items-center flex-row w-sm-100">
+                    <a href="{% url 'places:partido-edit' pk=object.id %}" class="btn btn-secondary btn-sm me-1"><i
+                            class="bi bi-pencil-square me-1"></i>Editar</a>
+                </div>
+            </div>
+
+            <div>Ultima vez actualizado por {% if object.updated_by %}{{ object.updated_by.first_name }}
+                {{ object.updated_by.last_name }}{% else %}&lt;sin especificar&gt;{% endif %} en
+                {{ object.last_update }}
+            </div>
+
+            <p class="card-text mt-4">
+                Detalles:
+            </p>
+            <div class="table-responsive mt-2">
+                <table class="table table-striped align">
+                    <tbody id="overrided-1" class="overrided-tbody">
+                        <tr>
+                            <td class="fw-bold">Lodalidades ({{object.town_set.count |title}}):</td>
+                            <td>
+                                <ul>
+                                    {% for town in object.town_set.all %}
+                                    <li>{{town.name |title}}</li>
+                                    {% endfor %}
+                                </ul>
+                            </td>
+                            <td class="col-lg-2 col-xl-4 col-xxl-6"></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Es amba</td>
+                            <td class="td-bool-div cell-centered">
+                                {% if object.is_amba %}
+                                <i class="d-inline-flex rounded-circle bool-div bool-div-true bi bi-check-circle"></i>
+                                {% else %}
+                                <i class="d-inline-flex rounded-circle bool-div bool-div-false bi bi-x-circle"></i>
+                                {% endif %}
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Zona: </td>
+                            <td>{% if object.zone %}{{object.zone}}
+                                {% if object.zone.asigned_to %}(asignada
+                                a&nbsp;{{ object.zone.asigned_to.first_name }}&nbsp;{{ object.zone.asigned_to.last_name }})
+                                {% else %}(sin asignar)
+                                {% endif %}{% else %}Sin especificar{% endif %}</td>
+                            <td class="col-lg-2 col-xl-4 col-xxl-6"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
 
 {% endblock content %}

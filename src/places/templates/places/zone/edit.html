@@ -1,8 +1,97 @@
-{% extends 'base_system.html' %}
+{% extends 'base_system.html' %} {% block content %}
+
+<div class="col-md-12 col-lg-8 col-xl-6 col-xxl-5 d-flex-block">
+    <form method='POST' id="update_form" class="card flex-fill shadow-lg bg-white" name="update_form" target="_top"
+        enctype="multipart/form-data">{% csrf_token %}
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Editar objeto
+            </div>
+            <div>
+                <a href="{{ request.META.HTTP_REFERER }}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <h3 class="card-title text-center mt-3">EDITAR ZONA</h3>
+            <h4 class="card-title mt-3">Datos de la zona</h4>
+            <div class="row g-3">
 
 
-{% block content %}
+                <!-- START NAME INPUT -->
+                <div class="col-md-12 col-lg-8">
+                    <label for="id_name" class="form-label">Nombre</label>
+                    <input id="id_name" name="name" type="text" {% if form.name.value %}value="{{form.name.value}}"
+                        {% endif %} class="form-control {% if form.name.errors %}is-invalid{% endif %}"
+                        placeholder="Nombre" required>
+                    <div class="invalid-feedback">
+                        {% for error in form.name.errors %}{{error}}<br>{% endfor %}
+                    </div>
 
-Zone edit...
+                </div>
+                <!-- END NAME INPUT -->
 
-{% endblock content %}
+
+                <!-- START ASIGNED TO INPUT -->
+                <div class="col-md-12 col-lg-8">
+                    <label for="{{form.asigned_to.id_for_label}}" class="form-label">Distribuidor de la zona</label>
+                    {{ form.asigned_to}}
+                </div>
+                <!-- END ASIGNED TO INPUT -->
+
+
+                <!-- START PARTIDOS CONTAINER -->
+                <div id="selectedPartidosDiv" class="col-12">
+                    <label for="partidosContainer" class="form-label">Partidos en esta zona</label>
+                    <div id="partidosContainer" class="rounded-1 p-2" style="border: 1px solid #CED4DA;"
+                        data-bs-toggle="tooltip" data-bs-placement="top"
+                        title="Aquí aparecerán los partidos seleccionados, en forma de botón azul. Al hacerles clic, se quitarán de este contenedor y volverán a la lista desplegable de abajo. Si algún partido ya pertenece a otra zona, será indicado entre paréntesis; si igualmente querés agregarlo, no hay problema, se quitará de la zona anterior.">
+                        <span id="nonePartidoSpan" class="m-2">Ningún partido</span>
+                    </div>
+                </div>
+                <!-- END PARTIDOS CONTAINER -->
+
+                <!-- START PARTIDOS CONTAINER -->
+                <div class="d-none">
+                    <input type="text" id="id_selected_partidos_ids" name="selected_partidos_ids"
+                        value="{% if partidos_ids %}{{partidos_ids}}{% endif %}">
+                </div>
+                <!-- END PARTIDOS CONTAINER -->
+
+
+                <!-- START PARTIDOS SELECT -->
+                <div class="col-12">
+                    <label for="selectPartido" class="form-label">Seleccioná un partido de la lista y agregalo</label>
+                    <div class="input-group">
+                        <select class="form-select" id="selectPartido" aria-label="Example select with button addon">
+                            {% if partidos %}
+                            {% for partido in partidos %}
+                            <option id="option-{{ partido.id }}" class="sortMe" value="{{ partido.id }}">
+                                {{ partido.name |title}}{% if partido.amba_zone %}&nbsp;(en
+                                zona&nbsp;{{partido.amba_zone.name}}){% endif %}
+                            </option>
+                            {% endfor %}
+                            {% endif %}
+                        </select>
+                        <button class="btn btn-outline-secondary" id="addPartidoBtn" type="button"
+                            onclick='addPartido()'>Agregar a la zona</button>
+                    </div>
+                </div>
+                <!-- END PARTIDOS SELECT -->
+
+
+
+                <!-- START SUMBIT BUTTON -->
+                <div class="d-grid gap-2 d-md-flex">
+                    <input type="submit" value="Actualizar zona" class="btn btn-primary">
+                </div>
+                <!-- END SUMBIT BUTTON -->
+
+            </div>
+        </div>
+    </form>
+
+</div>
+
+{% include 'places/zone/snippets/edit_js.html' %}
+
+{% endblock %}

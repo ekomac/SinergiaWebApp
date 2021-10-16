@@ -1,0 +1,23 @@
+<style>
+    td {
+        overflow: auto;
+        white-space: nowrap;
+    }
+</style>
+<tr id="tr-{{obj.id}}" class="table-item"
+    onclick="onItemClicked({{ obj.id }},'{% url 'places:zone-detail' pk=obj.id %}');">
+    <td id="td-{{obj.id}}" class="td-item-checker">
+        <div class="form-check">
+            <input id="item-checker-{{obj.id}}" class="form-check-input item-checker" type="checkbox" value="">
+        </div>
+    </td>
+    <td class="cell-centered">{{ obj.name |title}}</td>
+    <td class="cell-centered">{{obj.partido_set.count}}</td>
+    <td class="cell-centered">{{ obj.asigned_to.first_name }}&nbsp;{{ obj.asigned_to.last_name }}</td>
+    <td style="text-align: end;">
+        <a href="{% url 'places:zone-edit' pk=obj.id %}" class="edit-button me-1" title="Editar"><i
+                class="bi bi-pencil-square"></i></a>
+        <a href="{% url 'places:zone-delete' obj.id %}" class="edit-button ms-1" title="Eliminar"><i
+                class="bi bi-trash"></i></a>
+    </td>
+</tr>

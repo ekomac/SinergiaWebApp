@@ -1,4 +1,5 @@
 from django.db import models
+from simple_history.models import HistoricalRecords
 
 
 class Client(models.Model):
@@ -12,6 +13,7 @@ class Client(models.Model):
     contact_email = models.CharField(
         verbose_name="contact name", max_length=50, blank=True, null=True)
     discount = models.IntegerField(default=0, blank=False, null=False)
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.name

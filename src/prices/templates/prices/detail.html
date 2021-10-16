@@ -64,7 +64,7 @@
             </div>
 
             <div>Ultima vez actualizado por {{ object.updated_by.first_name }}
-                {{ object.updated_by.last_name }} el {{ object.last_update }}</div>
+                {{ object.updated_by.last_name }} en {{ object.last_update }}</div>
 
             <div class="fw-bolder mt-3">Precio actual: <span class="fw-normal">$ {{ object.price }}</span></div>
             {% if total_towns > 0 %}

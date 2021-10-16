@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from simple_history.models import HistoricalRecords
 
 
 class MyAccountManager(BaseUserManager):
@@ -70,6 +71,7 @@ class Account(AbstractBaseUser):
     profile_picture = models.ImageField(verbose_name="profile picture",
                                         upload_to=profile_pic_upload_location,
                                         blank=True, null=True)
+    history = HistoricalRecords()
 
     # USER INFO
     first_name = models.CharField(verbose_name="first name", max_length=30)

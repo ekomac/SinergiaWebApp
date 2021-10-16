@@ -1,11 +1,20 @@
-from alerts.views import DeleteAlertMixin
+from utils.alerts.views import SuccessfulDeletionAlertMixin
+
+
+class ContextMixin():
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        for key, value in self.context.items():
+            context[key] = value
+        return context
 
 
 class NotEnoughAttributes(Exception):
     pass
 
 
-class DeleteObjectsUtil(DeleteAlertMixin):
+class DeleteObjectsUtil(SuccessfulDeletionAlertMixin):
 
     REPR_MALE = 'el'
     REPR_FEMALE = 'la'
