@@ -448,29 +448,6 @@ def update_partido_ids(new_ids: str, zone: Zone, author: Account) -> None:
             partido.updated_by = author
             partido.save()
 
-    # print("attempting to update")
-    # if new_ids:
-    #     print("ids is not None")
-    #     new_ids = new_ids.split("-")
-    #     print("ids", new_ids)
-    #     previous_ids = get_partidos_ids(obj, as_list=True)
-    #     print("previous ids", previous_ids)
-    #     if previous_ids:
-    #         print("previous ids is not None")
-    #         for id in previous_ids:
-    #             print("id", id, "en previous")
-    #             if id not in new_ids:
-    #                 print("id", id, "no está en ids:", new_ids)
-    #                 partido = get_object_or_404(Partido, pk=id)
-    #                 partido.amba_zone = None
-    #                 partido.save()
-    #     print("para cada id en ids")
-    #     for id in new_ids:
-    #         print("id", id, "en ids:", new_ids)
-    #         partido = get_object_or_404(Partido, pk=id)
-    #         partido.amba_zone = obj
-    #         partido.save()
-
 
 class ZoneUpdateView(
         SuccessfulUpdateAlertMixin,
