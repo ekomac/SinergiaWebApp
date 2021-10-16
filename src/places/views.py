@@ -56,7 +56,7 @@ NAME_ORDERING = {
 
 # ************************ PARTIDO ************************
 @login_required(login_url='/login/')
-def partidos_view(request, *args, **kwargs):
+def partidos_view(request):
     context = {}
 
     # Search
@@ -115,7 +115,7 @@ class PartidoDetailView(ContextMixin, LoginRequiredMixin, DetailView):
 
 
 @login_required(login_url='/login/')
-def edit_partido_view(request, pk, *args, **kwargs):
+def edit_partido_view(request, pk):
 
     print("func started")
     partido = get_object_or_404(Partido, pk=pk)
@@ -150,7 +150,7 @@ def edit_partido_view(request, pk, *args, **kwargs):
 
 
 @login_required(login_url='/login/')
-def bulk_edit_partidos_view(request, pk, *args, **kwargs):
+def bulk_edit_partidos_view(request, pk):
 
     partido = get_object_or_404(Partido, pk=pk)
     form = UpdatePartidoForm(instance=partido)
@@ -177,7 +177,7 @@ def bulk_edit_partidos_view(request, pk, *args, **kwargs):
 
 # ************************ TOWN ************************
 @login_required(login_url='/login/')
-def towns_view(request, *args, **kwargs):
+def towns_view(request):
     context = {}
 
     # Search
@@ -267,7 +267,7 @@ class TownUpdateView(
 
 # ************************ ZONE ************************
 @login_required(login_url='/login/')
-def zones_view(request, *args, **kwargs):
+def zones_view(request):
     context = {}
 
     # Search
@@ -324,7 +324,7 @@ def get_zone_queryset(query: str = None, reverse: bool = False) -> List[Zone]:
 
 
 @login_required(login_url='/login/')
-def add_zone_view(request, *args, **kwargs):
+def add_zone_view(request):
     context = {
         'selected_tab': 'zone-tab',
         'partidos': Partido.objects.all(),
@@ -382,7 +382,7 @@ class ZoneDetailView(LoginRequiredMixin, DetailView):
 
 
 @login_required(login_url='/login/')
-def edit_zone_view(request, pk, *args, **kwargs):
+def edit_zone_view(request, pk):
 
     zone = get_object_or_404(Zone, pk=pk)
     form = UpdateZoneForm(instance=zone)
@@ -473,7 +473,7 @@ class ZoneUpdateView(
 
 
 @login_required(login_url='/login/')
-def zone_delete(request, *args, **kwargs):
+def zone_delete(request, **kwargs):
 
     zoneids = kwargs['zoneids'].split("-")
 

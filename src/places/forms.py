@@ -20,6 +20,17 @@ class UpdatePartidoForm(forms.ModelForm):
         fields = ['zone']
 
 
+class BulkEditPartidoForm(forms.Form):
+
+    zone = forms.ModelChoiceField(
+        label="Zona", required=False,
+        queryset=Zone.objects.all(),
+        widget=forms.Select(attrs={
+            'class': ' form-select',
+        }),
+    )
+
+
 class UpdateTownForm(CleanerMixin, forms.ModelForm):
 
     delivery_code = forms.ModelChoiceField(
