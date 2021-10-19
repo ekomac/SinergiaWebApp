@@ -108,12 +108,25 @@ class UpdateFlexCodeForm(BaseFlexCodeForm, forms.ModelForm):
 
 class BaseBulkEditPercentageForm(forms.Form):
     percentage = forms.CharField(
-        label="Nombre", required=True,
+        label="Porcentaje", required=True,
         widget=forms.TextInput(attrs={
             'class': ' form-control',
-            'type': 'number'
+            'type': 'number',
+            'min': '1',
+            'steps': '1',
+            'max': '500',
         }),
     )
 
 
-class BulkEditFlexCodePercentageForm(BaseBulkEditPercentageForm):
+class BaseBulkEditAmountForm(forms.Form):
+    amount = forms.CharField(
+        label="Monto", required=True,
+        widget=forms.TextInput(attrs={
+            'class': ' form-control',
+            'type': 'number',
+            'min': '1',
+            'steps': '1',
+            'max': '99999999',
+        }),
+    )
