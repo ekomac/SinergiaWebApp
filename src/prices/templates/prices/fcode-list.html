@@ -25,7 +25,8 @@
             <hr class="bg-dark">
             <div
                 class="d-grid gap-1 d-lg-flex flex-lg-row gap-md-0 justify-content-lg-start align-items-lg-center text-lg-start">
-                <button type="button" id="bulkEditDelivery" class="btn btn-primary btn-sm m-2 m-xl-0 ms-xl-2" disabled>
+                <button type="button" id="bulkEditFlex" class="btn btn-primary btn-sm m-2 m-xl-0 ms-xl-2"
+                    data-bs-toggle="modal" data-bs-target="#myModal" disabled>
                     Aumento general
                 </button>
                 <button type="button" id="bulkDeleteDelivery" class="btn btn-danger btn-sm m-2 m-xl-0 ms-xl-2"
@@ -77,9 +78,40 @@
 
 </div>
 
+<!-- Button trigger modal -->
+<!--
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Launch demo modal
+    </button>
+    -->
+<!-- Modal -->
+
+<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Hola
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="bulkEditFlex()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     var selectionModeEnabled = false;
     var totalCodes = JSON.parse('{{ totalCodes | escapejs }}');
+
+    console.log("Modal?");
+    var myModal = document.getElementById('myModal');
+    console.log("Yeeeahhh");
+
 
     $(document).ready(function () {
         show('clearSelectionDiv', selectionModeEnabled);
@@ -124,7 +156,7 @@
         // Update selected count
         $('#selectedCount').text(checkedItemsCount + " de " + totalCodes + " elementos seleccionados");
         // Enable bulk edit btn only if more than one checked
-        isEnabled('bulkEditDelivery', checkedItemsCount > 1);
+        isEnabled('bulkEditFlex', checkedItemsCount > 1);
         // Enable delete btn if at least 1 checkbox is checked
         isEnabled('bulkDeleteDelivery', checkedItemsCount > 0);
         // Enable selection mode if at least 1 checkbox checked
@@ -173,16 +205,23 @@
         countCheckedItems();
     }
 
-    function deleteSelectedItems() {
-        // Get all checked checkboxes
-        var checkBoxesIds = Array.from(document.getElementsByClassName("item-checker"))
+    function getCheckedCheckboxesIds() {
+        return Array.from(document.getElementsByClassName("item-checker"))
             .filter(checkBox => checkBox.checked == true).map(function (checkbox) {
                 var id = checkbox.id;
                 return id.split("-checker-")[1];
             }).join("-");
-        console.log(checkBoxesIds);
-        var url_mask = "{% url 'prices:fcode-delete' 12345 %}".replace(/12345/, checkBoxesIds);
-        console.log("url -> " + url_mask);
+    }
+
+    function deleteSelectedItems() {
+        const checkBoxesIds = getCheckedCheckboxesIds();
+        const url_mask = "{% url 'prices:fcode-delete' 12345 %}".replace(/12345/, checkBoxesIds);
+        window.location.href = url_mask;
+    }
+
+    function bulkEditFlex() {
+        const checkBoxesIds = getCheckedCheckboxesIds();
+        const url_mask = "{% url 'prices:fcode-bull-update' 12345 %}".replace(/12345/, checkBoxesIds);
         window.location.href = url_mask;
     }
 </script>
