@@ -104,3 +104,16 @@ class UpdateFlexCodeForm(BaseFlexCodeForm, forms.ModelForm):
     def clean_price(self, *args, **kwargs):
         return self.clean_unique_beyond_instance_or_error(
             'price', self.already_exists_price)
+
+
+class BaseBulkEditPercentageForm(forms.Form):
+    percentage = forms.CharField(
+        label="Nombre", required=True,
+        widget=forms.TextInput(attrs={
+            'class': ' form-control',
+            'type': 'number'
+        }),
+    )
+
+
+class BulkEditFlexCodePercentageForm(BaseBulkEditPercentageForm):

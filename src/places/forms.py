@@ -85,7 +85,7 @@ class BaseZoneForm(CleanerMixin, forms.ModelForm):
     name = forms.CharField(
         label="Nombre", required=True,
         widget=forms.TextInput(attrs={
-            'class': ' form-select',
+            'class': ' form-control',
         }),
     )
 
