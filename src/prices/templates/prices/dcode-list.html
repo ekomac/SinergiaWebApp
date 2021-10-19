@@ -107,20 +107,6 @@
             e.stopPropagation();
             countCheckedItems();
         });
-
-        /*
-            $(".table-item").click(function (e) {
-                e.preventDefault(); //this will prevent the default submit
-
-                var id = this.id.split("-")[1];
-                if (selectionModeEnabled) {
-                    $('#item-checker-' + id).prop('checked', !$('#item-checker-' + id).is(":checked"));
-                } else {
-                    window.location.href = "http://127.0.0.1:8000/prices/delivery/" + id + "/";
-                }
-                countCheckedItems();
-            });
-            */
     });
 
     function onItemClicked(id, url) {

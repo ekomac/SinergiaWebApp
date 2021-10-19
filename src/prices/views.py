@@ -1,10 +1,12 @@
 import re
+from decimal import Decimal
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from utils.forms import CheckPasswordForm
 
 from utils.views import DeleteObjectsUtil
 from .forms import (
@@ -12,10 +14,18 @@ from .forms import (
     CreateFlexCodeForm,
     UpdateDeliveryCodeForm,
     UpdateFlexCodeForm,
+    BaseBulkEditPercentageForm,
+    # BaseBulkEditAmountForm,
 )
+
+from account.models import Account
 from .models import DeliveryCode, FlexCode
 from places.models import Town
-from utils.alerts.views import SuccessfulCreationAlertMixin, SuccessfulUpdateAlertMixin
+from utils.alerts.views import (
+    SuccessfulCreationAlertMixin,
+    SuccessfulUpdateAlertMixin,
+    update_alert_and_redirect
+)
 
 
 # ****************** MENSAJERIA ******************
@@ -34,7 +44,8 @@ def delivery_codes_view(request, *args, **kwargs):
     return render(request, "prices/dcode-list.html", context)
 
 
-class DeliveryCodeAddView(SuccessfulCreationAlertMixin, LoginRequiredMixin, CreateView):
+class DeliveryCodeAddView(
+        SuccessfulCreationAlertMixin, LoginRequiredMixin, CreateView):
     login_url = '/login/'
     template_name = "prices/add.html"
     form_class = CreateDeliveryCodeForm
@@ -93,7 +104,8 @@ class DeliveryCodeDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class DeliveryCodeUpdateView(SuccessfulUpdateAlertMixin, LoginRequiredMixin, UpdateView):
+class DeliveryCodeUpdateView(
+        SuccessfulUpdateAlertMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'
     form_class = UpdateDeliveryCodeForm
     template_name = "prices/edit.html"
@@ -165,7 +177,8 @@ def flex_codes_view(request, *args, **kwargs):
     return render(request, "prices/fcode-list.html", context)
 
 
-class FlexCodeAddView(SuccessfulCreationAlertMixin, LoginRequiredMixin, CreateView):
+class FlexCodeAddView(
+        SuccessfulCreationAlertMixin, LoginRequiredMixin, CreateView):
     login_url = '/login/'
     template_name = "prices/add.html"
     form_class = CreateFlexCodeForm
@@ -225,7 +238,8 @@ class FlexCodeDetailView(LoginRequiredMixin, DetailView):
         return context
 
 
-class FlexCodeUpdateView(SuccessfulUpdateAlertMixin, LoginRequiredMixin, UpdateView):
+class FlexCodeUpdateView(
+        SuccessfulUpdateAlertMixin, LoginRequiredMixin, UpdateView):
     login_url = '/login/'
     form_class = UpdateFlexCodeForm
     template_name = "prices/edit.html"
@@ -252,17 +266,46 @@ class FlexCodeUpdateView(SuccessfulUpdateAlertMixin, LoginRequiredMixin, UpdateV
 
 
 @login_required(login_url='/login/')
-def flex_code_bulk_update(request, **kwargs):
+def flex_code_bulk_percentage_update(request, fcodeids):
 
-    fcodesids = kwargs['fcodeids'].split("-")
-    print(fcodesids)
+    ids = fcodeids.split("-")
+    fcodes = FlexCode.objects.filter(id__in=ids)
 
-    # form =
-    # if request.method == 'POST':
+    update_form = BaseBulkEditPercentageForm()
+    password_form = CheckPasswordForm()
 
-    # context = {}
+    if request.method == 'POST':
+        update_form = BaseBulkEditPercentageForm(request.POST or None)
+        password_form = CheckPasswordForm(
+            request.POST or None,
+            current_password=request.user.password)
 
-    pass
+        if update_form.is_valid() and password_form.is_valid():
+            percentage = update_form.cleaned_data['percentage']
+            author = Account.objects.filter(email=request.user.email).first()
+            names = []
+            for fcode in fcodes:
+                fcode.price = fcode.price + \
+                    Decimal(Decimal(fcode.price) * Decimal(percentage) / 100)
+                fcode.updated_by = author
+                names.append(fcode.code)
+            FlexCode.objects.bulk_update(fcodes, ['price', 'updated_by'])
+            names = '", "'.join(names)
+            msg = f'Los partidos "{names}" se actualizaron correctamente'
+            return update_alert_and_redirect(
+                request, msg, 'prices:fcode-list')
+
+    context = {
+        'update_form': update_form,
+        'password_form': password_form,
+        'code_type': 'f',
+        'selected_tab': 'fprices-tab',
+        'fcodes': fcodes,
+        'fcodes_count': len(fcodes),
+    }
+    return render(request,
+                  "prices/fcode-percentage-bulkedit.html",
+                  context)
 
 
 @login_required(login_url='/login/')

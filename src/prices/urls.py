@@ -7,6 +7,7 @@ from .views import (
     DeliveryCodeAddView,
     DeliveryCodeDetailView,
     DeliveryCodeUpdateView,
+    flex_code_bulk_percentage_update,
     delivery_code_delete,
     # ******** MENSAJERIA ********
 
@@ -40,6 +41,8 @@ urlpatterns = [
     path('flex/<int:pk>', FlexCodeDetailView.as_view(), name="fcode-detail"),
     path('flex/<int:pk>/edit/', FlexCodeUpdateView.as_view(),
          name="fcode-edit"),
+    path('flex/bulk/percentage/<fcodeids>/', flex_code_bulk_percentage_update,
+         name='fcode-percentage-bulk-edit'),
     path('flex/delete/<fcodeids>/', flex_code_delete,
          name='fcode-delete'),
     # ****************************** FLEX ******************************

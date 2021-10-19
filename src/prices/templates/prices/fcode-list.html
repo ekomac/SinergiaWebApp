@@ -26,7 +26,7 @@
             <div
                 class="d-grid gap-1 d-lg-flex flex-lg-row gap-md-0 justify-content-lg-start align-items-lg-center text-lg-start">
                 <button type="button" id="bulkEditFlex" class="btn btn-primary btn-sm m-2 m-xl-0 ms-xl-2"
-                    data-bs-toggle="modal" data-bs-target="#myModal" disabled>
+                    data-bs-toggle="modal" data-bs-target="#bulkEditOptionModal" disabled>
                     Aumento general
                 </button>
                 <button type="button" id="bulkDeleteDelivery" class="btn btn-danger btn-sm m-2 m-xl-0 ms-xl-2"
@@ -86,19 +86,20 @@
     -->
 <!-- Modal -->
 
-<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="bulkEditOptionModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                <h5 class="modal-title" id="exampleModalLabel">¿Cómo querés actualizar los precios?</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Hola
+                Seleccioná una opción para actualizar los precios.
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" onclick="bulkEditFlex()">Save changes</button>
+                <button type="button" class="btn btn-primary" onclick="bulkEditFlexFixed()">Monto fijo</button>
+                <button type="button" class="btn btn-primary" onclick="bulkEditFlexPercentage()">Porcentaje</button>
             </div>
         </div>
     </div>
@@ -108,9 +109,9 @@
     var selectionModeEnabled = false;
     var totalCodes = JSON.parse('{{ totalCodes | escapejs }}');
 
-    console.log("Modal?");
-    var myModal = document.getElementById('myModal');
-    console.log("Yeeeahhh");
+    //console.log("Modal?");
+    //var bulkEditOptionModal = document.getElementById('bulkEditOptionModal');
+    //console.log("Yeeeahhh");
 
 
     $(document).ready(function () {
@@ -219,9 +220,9 @@
         window.location.href = url_mask;
     }
 
-    function bulkEditFlex() {
+    function bulkEditFlexPercentage() {
         const checkBoxesIds = getCheckedCheckboxesIds();
-        const url_mask = "{% url 'prices:fcode-bull-update' 12345 %}".replace(/12345/, checkBoxesIds);
+        const url_mask = "{% url 'prices:fcode-percentage-bulk-edit' 12345 %}".replace(/12345/, checkBoxesIds);
         window.location.href = url_mask;
     }
 </script>
