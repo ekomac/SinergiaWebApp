@@ -120,6 +120,11 @@ class DeliveryCodeUpdateView(SuccessfulUpdateAlertMixin, LoginRequiredMixin, Upd
 
 
 @login_required(login_url='/login/')
+def delivery_code_bulk_update(request, **kwargs):
+    pass
+
+
+@login_required(login_url='/login/')
 def delivery_code_delete(request, *args, **kwargs):
 
     dcodesids = kwargs['dcodeids'].split("-")
@@ -244,6 +249,20 @@ class FlexCodeUpdateView(SuccessfulUpdateAlertMixin, LoginRequiredMixin, UpdateV
 
     def get_success_url(self):
         return reverse('prices:fcode-detail', kwargs={'pk': self.object.pk})
+
+
+@login_required(login_url='/login/')
+def flex_code_bulk_update(request, **kwargs):
+
+    fcodesids = kwargs['fcodeids'].split("-")
+    print(fcodesids)
+
+    # form =
+    # if request.method == 'POST':
+
+    # context = {}
+
+    pass
 
 
 @login_required(login_url='/login/')
