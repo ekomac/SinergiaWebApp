@@ -19,31 +19,59 @@
                 {% if code_type == 'd' %}MENSAJERÍA{% else %}FLEX{% endif %}</h3>
             <h4 class="card-title mt-3">{% if fcodes_count %}Se editarán los precios de los siguientes
                 códigos:{% else %}Se editará el precio del siguiente código:{% endif %}</h4>
+
             {% if fcodes %}
-            <div>
-                <ul>
-                    {% for fcode in fcodes %}
-                    <li>
-                        {{fcode.code}} por ${{fcode.price}}
-                    </li>
-                    {% endfor %}
-                </ul>
+            <div class="table-responsive mt-3">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Código</th>
+                            <th>Precio actual</th>
+                            <th>Con aumento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fcode in fcodes %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td> {{fcode.code}}</td>
+                            <td id="td-{{fcode.id}}-currentPrice" class="codePriceHolder">${{fcode.price}}</td>
+                            <td id="td-{{fcode.id}}-increasedPrice">${{fcode.price}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
             {% endif %}
+
             {% if dcodes %}
-            <div>
-                <ul>
-                    {% for dcode in dcodes %}
-                    <li>
-                        {{dcode.code}} por ${{dcode.price}}
-                    </li>
-                    {% endfor %}
-                </ul>
+            <div class="table-responsive mt-3">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Código</th>
+                            <th>Precio actual</th>
+                            <th>Con aumento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dcode in dcodes %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td> {{dcode.code}}</td>
+                            <td id="td-{{dcode.id}}-currentPrice" class="codePriceHolder">${{dcode.price}}</td>
+                            <td id="td-{{dcode.id}}-increasedPrice">${{dcode.price}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
             {% endif %}
+
             <div class="row g-3">
 
-                <!-- START CODE NAME INPUT -->
                 <div class="col-12 col-xl-6 mb-3">
                     <label for="id_percentage" class="form-label">Porcentaje</label>
                     <div class="input-group">
@@ -51,21 +79,20 @@
                             {% if update_form.percentage.value %}value="{{update_form.percentage.value}}" {% endif %}
                             class="form-control {% if update_form.percentage.errors %}is-invalid{% endif %}" min="1"
                             max="500" steps="1" required>
-                        <span class="input-group-text" id="basic-addon2">%</span>
+                        <span class="input-group-text">.00</span>
                     </div>
                     <div class="invalid-feedback">
                         {% for error in update_form.percentage.errors %}{{error}}<br>{% endfor %}
                     </div>
                 </div>
-                <!-- END CODE NAME INPUT -->
 
-                <div class="col-12 mb-3">
+                <div class="col-12 col-xl-8 mb-3">
                     <label for="id_password" class="form-label">Ingresá tu contraseña actual</label>
                     <input type="password" name="password" id="id_password"
                         class="form-control {% if password_form.password.errors %}is-invalid{% endif %}"
                         placeholder="Contraseña" onkeyup="removeValidationErrors()" required>
-                    <div id="passwordHelp" class="form-text">Esta operación requiere altos privilegios
-                        administrativos, por eso es requerida tu contraseña.</div>
+                    <div id="passwordHelp" class="form-text">Esta operación requiere altos privilegios administrativos,
+                        por eso es requerida tu contraseña.</div>
                     <div class="invalid-feedback">
                         {% for error in password_form.password.errors %}{{error}}<br>{% endfor %}
                     </div>
@@ -90,6 +117,27 @@
         const current_value_length = current_value.length;
         if (current_value_length > 0 && passwordInputElement.classList.contains("is-invalid")) {
             passwordInputElement.classList.remove("is-invalid");
+        }
+    }
+
+    $(document).ready(function () {
+        $('#id_percentage').on('change paste keyup', function () {
+            updateHolders();
+        });
+    });
+
+    function updateHolders() {
+        const holders = document.getElementsByClassName("codePriceHolder");
+        const regex = /\d+/i;
+        for (var i = 0; i < holders.length; i++) {
+            const holder = holders[i];
+            const holderId = holder.id;
+            const id = holderId.match(regex);
+            const currentIndicatedPrice = $('#td-' + id + "-currentPrice").text().replace("$", "").trim();
+            const currentPrice = parseFloat(currentIndicatedPrice);
+            const percentage = $('#id_percentage').val();
+            const increasedPrice = (currentPrice + (percentage * currentPrice / 100)).toFixed(2);
+            $('#td-' + id + "-increasedPrice").html('').text("$" + increasedPrice);
         }
     }
 </script>

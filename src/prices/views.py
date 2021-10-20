@@ -10,12 +10,12 @@ from utils.forms import CheckPasswordForm
 
 from utils.views import DeleteObjectsUtil
 from .forms import (
+    BulkEditAmountForm,
     CreateDeliveryCodeForm,
     CreateFlexCodeForm,
     UpdateDeliveryCodeForm,
     UpdateFlexCodeForm,
-    BaseBulkEditPercentageForm,
-    # BaseBulkEditAmountForm,
+    BulkEditPercentageForm,
 )
 
 from account.models import Account
@@ -132,8 +132,85 @@ class DeliveryCodeUpdateView(
 
 
 @login_required(login_url='/login/')
-def delivery_code_bulk_update(request, **kwargs):
-    pass
+def delivery_code_bulk_fixed_update(request, dcodeids):
+
+    ids = dcodeids.split("-")
+    fcodes = DeliveryCode.objects.filter(id__in=ids)
+
+    update_form = BulkEditAmountForm()
+    password_form = CheckPasswordForm()
+
+    if request.method == 'POST':
+        update_form = BulkEditAmountForm(request.POST or None)
+        password_form = CheckPasswordForm(
+            request.POST or None,
+            current_password=request.user.password)
+
+        if update_form.is_valid() and password_form.is_valid():
+            author = Account.objects.filter(email=request.user.email).first()
+            names = []
+            for fcode in fcodes:
+                fcode.price = fcode.price + update_form.cleaned_data['amount']
+                fcode.updated_by = author
+                names.append(fcode.code)
+            DeliveryCode.objects.bulk_update(fcodes, ['price', 'updated_by'])
+            names = '", "'.join(names)
+            msg = f'Los códigos de mensajería "{names}" \
+                se actualizaron correctamente'
+            return update_alert_and_redirect(
+                request, msg, 'prices:dcode-list')
+
+    context = {
+        'update_form': update_form,
+        'password_form': password_form,
+        'code_type': 'f',
+        'selected_tab': 'fprices-tab',
+        'fcodes': fcodes,
+        'fcodes_count': len(fcodes),
+    }
+    return render(request, "prices/fixed-bulk-edit.html", context)
+
+
+@login_required(login_url='/login/')
+def delivery_code_bulk_percentage_update(request, dcodeids):
+
+    ids = dcodeids.split("-")
+    fcodes = DeliveryCode.objects.filter(id__in=ids)
+
+    update_form = BulkEditPercentageForm()
+    password_form = CheckPasswordForm()
+
+    if request.method == 'POST':
+        update_form = BulkEditPercentageForm(request.POST or None)
+        password_form = CheckPasswordForm(
+            request.POST or None,
+            current_password=request.user.password)
+
+        if update_form.is_valid() and password_form.is_valid():
+            author = Account.objects.filter(email=request.user.email).first()
+            names = []
+            for fcode in fcodes:
+                percentage = update_form.cleaned_data['percentage']
+                fcode.price = fcode.price + \
+                    Decimal(Decimal(fcode.price) * Decimal(percentage) / 100)
+                fcode.updated_by = author
+                names.append(fcode.code)
+            DeliveryCode.objects.bulk_update(fcodes, ['price', 'updated_by'])
+            names = '", "'.join(names)
+            msg = f'Los códigos de mensajería "{names}" \
+                se actualizaron correctamente'
+            return update_alert_and_redirect(
+                request, msg, 'prices:dcode-list')
+
+    context = {
+        'update_form': update_form,
+        'password_form': password_form,
+        'code_type': 'f',
+        'selected_tab': 'fprices-tab',
+        'fcodes': fcodes,
+        'fcodes_count': len(fcodes),
+    }
+    return render(request, "prices/percentage-bulk-edit.html", context)
 
 
 @login_required(login_url='/login/')
@@ -266,32 +343,30 @@ class FlexCodeUpdateView(
 
 
 @login_required(login_url='/login/')
-def flex_code_bulk_percentage_update(request, fcodeids):
+def flex_code_bulk_fixed_update(request, fcodeids):
 
     ids = fcodeids.split("-")
     fcodes = FlexCode.objects.filter(id__in=ids)
 
-    update_form = BaseBulkEditPercentageForm()
+    update_form = BulkEditAmountForm()
     password_form = CheckPasswordForm()
 
     if request.method == 'POST':
-        update_form = BaseBulkEditPercentageForm(request.POST or None)
+        update_form = BulkEditAmountForm(request.POST or None)
         password_form = CheckPasswordForm(
             request.POST or None,
             current_password=request.user.password)
 
         if update_form.is_valid() and password_form.is_valid():
-            percentage = update_form.cleaned_data['percentage']
             author = Account.objects.filter(email=request.user.email).first()
             names = []
             for fcode in fcodes:
-                fcode.price = fcode.price + \
-                    Decimal(Decimal(fcode.price) * Decimal(percentage) / 100)
+                fcode.price = fcode.price + update_form.cleaned_data['amount']
                 fcode.updated_by = author
                 names.append(fcode.code)
             FlexCode.objects.bulk_update(fcodes, ['price', 'updated_by'])
             names = '", "'.join(names)
-            msg = f'Los partidos "{names}" se actualizaron correctamente'
+            msg = f'Los códigos flex "{names}" se actualizaron correctamente'
             return update_alert_and_redirect(
                 request, msg, 'prices:fcode-list')
 
@@ -303,9 +378,48 @@ def flex_code_bulk_percentage_update(request, fcodeids):
         'fcodes': fcodes,
         'fcodes_count': len(fcodes),
     }
-    return render(request,
-                  "prices/fcode-percentage-bulkedit.html",
-                  context)
+    return render(request, "prices/fixed-bulk-edit.html", context)
+
+
+@login_required(login_url='/login/')
+def flex_code_bulk_percentage_update(request, fcodeids):
+
+    ids = fcodeids.split("-")
+    fcodes = FlexCode.objects.filter(id__in=ids)
+
+    update_form = BulkEditPercentageForm()
+    password_form = CheckPasswordForm()
+
+    if request.method == 'POST':
+        update_form = BulkEditPercentageForm(request.POST or None)
+        password_form = CheckPasswordForm(
+            request.POST or None,
+            current_password=request.user.password)
+
+        if update_form.is_valid() and password_form.is_valid():
+            author = Account.objects.filter(email=request.user.email).first()
+            names = []
+            for fcode in fcodes:
+                percentage = update_form.cleaned_data['percentage']
+                fcode.price = fcode.price + \
+                    Decimal(Decimal(fcode.price) * Decimal(percentage) / 100)
+                fcode.updated_by = author
+                names.append(fcode.code)
+            FlexCode.objects.bulk_update(fcodes, ['price', 'updated_by'])
+            names = '", "'.join(names)
+            msg = f'Los códigos flex "{names}" se actualizaron correctamente'
+            return update_alert_and_redirect(
+                request, msg, 'prices:fcode-list')
+
+    context = {
+        'update_form': update_form,
+        'password_form': password_form,
+        'code_type': 'f',
+        'selected_tab': 'fprices-tab',
+        'fcodes': fcodes,
+        'fcodes_count': len(fcodes),
+    }
+    return render(request, "prices/percentage-bulk-edit.html", context)
 
 
 @login_required(login_url='/login/')

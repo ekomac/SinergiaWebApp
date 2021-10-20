@@ -106,8 +106,8 @@ class UpdateFlexCodeForm(BaseFlexCodeForm, forms.ModelForm):
             'price', self.already_exists_price)
 
 
-class BaseBulkEditPercentageForm(forms.Form):
-    percentage = forms.CharField(
+class BulkEditPercentageForm(forms.Form):
+    percentage = forms.DecimalField(
         label="Porcentaje", required=True,
         widget=forms.TextInput(attrs={
             'class': ' form-control',
@@ -119,8 +119,8 @@ class BaseBulkEditPercentageForm(forms.Form):
     )
 
 
-class BaseBulkEditAmountForm(forms.Form):
-    amount = forms.CharField(
+class BulkEditAmountForm(forms.Form):
+    amount = forms.DecimalField(
         label="Monto", required=True,
         widget=forms.TextInput(attrs={
             'class': ' form-control',

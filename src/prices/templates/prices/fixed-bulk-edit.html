@@ -1,0 +1,144 @@
+{% extends 'base_system.html' %}
+{% load price_extras %}
+
+
+{% block content %}
+<div class="col-md-12 col-lg-8 col-xl-6 col-xxl-5 d-flex-block">
+    <form method='POST' id="udpate_form" class="card flex-fill shadow-lg bg-white" name="udpate_form" target="_top"
+        enctype="multipart/form-data">{% csrf_token %}
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Editar múltiples objetos
+            </div>
+            <div>
+                <a href="{{ request.META.HTTP_REFERER }}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <h3 class="card-title text-center mt-3">EDITAR CÓDIGOS DE
+                {% if code_type == 'd' %}MENSAJERÍA{% else %}FLEX{% endif %}</h3>
+            <h4 class="card-title mt-3">{% if fcodes_count %}Se editarán los precios de los siguientes
+                códigos:{% else %}Se editará el precio del siguiente código:{% endif %}</h4>
+
+            {% if fcodes %}
+            <div class="table-responsive mt-3">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Código</th>
+                            <th>Precio actual</th>
+                            <th>Con aumento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fcode in fcodes %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td> {{fcode.code}}</td>
+                            <td id="td-{{fcode.id}}-currentPrice" class="codePriceHolder">${{fcode.price}}</td>
+                            <td id="td-{{fcode.id}}-increasedPrice">${{fcode.price}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            {% if dcodes %}
+            <div class="table-responsive mt-3">
+                <table class="table table-striped align-middle">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Código</th>
+                            <th>Precio actual</th>
+                            <th>Con aumento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dcode in dcodes %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td> {{dcode.code}}</td>
+                            <td id="td-{{dcode.id}}-currentPrice" class="codePriceHolder">${{dcode.price}}</td>
+                            <td id="td-{{dcode.id}}-increasedPrice">${{dcode.price}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endif %}
+
+            <div class="row g-3">
+
+                <div class="col-12 col-xl-6 mb-3">
+                    <label for="id_amount" class="form-label">Importe</label>
+                    <div class="input-group">
+                        <input id="id_amount" name="amount" type="number" autocomplete="off"
+                            {% if update_form.amount.value %}value="{{update_form.amount.value}}" {% endif %}
+                            class="form-control {% if update_form.amount.errors %}is-invalid{% endif %}" min="1"
+                            max="999999999999999999" steps="1" required>
+                        <span class="input-group-text">.00</span>
+                    </div>
+                    <div class="invalid-feedback">
+                        {% for error in update_form.amount.errors %}{{error}}<br>{% endfor %}
+                    </div>
+                </div>
+
+                <div class="col-12 col-xl-8 mb-3">
+                    <label for="id_password" class="form-label">Ingresá tu contraseña actual</label>
+                    <input type="password" name="password" id="id_password"
+                        class="form-control {% if password_form.password.errors %}is-invalid{% endif %}"
+                        placeholder="Contraseña" onkeyup="removeValidationErrors()" required>
+                    <div id="passwordHelp" class="form-text">Esta operación requiere altos privilegios administrativos,
+                        por eso es requerida tu contraseña.</div>
+                    <div class="invalid-feedback">
+                        {% for error in password_form.password.errors %}{{error}}<br>{% endfor %}
+                    </div>
+                </div>
+
+
+                <!-- START SUMBIT BUTTON -->
+                <div class="d-grid gap-2 d-md-flex">
+                    <input type="submit" value="Actualizar precios" class="btn btn-primary">
+                </div>
+                <!-- END SUMBIT BUTTON -->
+
+            </div>
+        </div>
+
+    </form>
+</div>
+<script>
+    function removeValidationErrors() {
+        const passwordInputElement = document.querySelector('#id_password');
+        const current_value = passwordInputElement.value;
+        const current_value_length = current_value.length;
+        if (current_value_length > 0 && passwordInputElement.classList.contains("is-invalid")) {
+            passwordInputElement.classList.remove("is-invalid");
+        }
+    }
+
+    $(document).ready(function () {
+        $('#id_amount').on('change paste keyup', function () {
+            updateHolders();
+        });
+    });
+
+    function updateHolders() {
+        const holders = document.getElementsByClassName("codePriceHolder");
+        const regex = /\d+/i;
+        const amount = $('#id_amount').val();
+        for (var i = 0; i < holders.length; i++) {
+            const holder = holders[i];
+            const holderId = holder.id;
+            const id = holderId.match(regex);
+            const currentIndicatedPrice = $('#td-' + id + "-currentPrice").text().replace("$", "").trim();
+            const currentPrice = parseFloat(currentIndicatedPrice);
+            const increasedPrice = currentPrice + parseInt(amount);
+            $('#td-' + id + "-increasedPrice").html('').text("$" + increasedPrice);
+        }
+    }
+</script>
+{% endblock content %}
