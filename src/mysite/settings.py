@@ -54,7 +54,7 @@ INSTALLED_APPS = [
 
     # THIRD PARTY
     'rest_framework_swagger',
-
+    'django_extensions',
     'simple_history',
 ]
 
