@@ -80,7 +80,6 @@
 
     function appendButton(id, text) {
         $('#nonePartidoSpan').hide();
-        //var cleanedText = text.includes("(en") ? text.split("(en")[0].trim() : text.trim();
         var button = document.createElement('BUTTON');
         button.id = 'btn-' + id;
         button.value = id;
@@ -126,21 +125,4 @@
         var buttons = document.getElementsByClassName("partido-selected");
         return Array.from(buttons).map(button => button.value).join("-");
     }
-
-    /*function removeSelectedPartidosFromInput(id) {
-        var ids = document.getElementById('selected_partidos_ids').value;
-        if (ids.includes(id)) {
-            ids = ids.replace(id, "");
-        }
-        if (ids.includes("--")) {
-            ids = ids.replace("--", "-");
-        }
-        if (ids.endsWith("-")) {
-            ids = ids.substring(0, ids.lentgh - 1);
-        }
-        if (ids.startsWith("-")) {
-            ids = ids.substring(1, ids.lentgh);
-        }
-        document.getElementById('selected_partidos_ids').value = ids;
-    }*/
 </script>
