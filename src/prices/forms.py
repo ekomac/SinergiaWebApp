@@ -104,3 +104,29 @@ class UpdateFlexCodeForm(BaseFlexCodeForm, forms.ModelForm):
     def clean_price(self, *args, **kwargs):
         return self.clean_unique_beyond_instance_or_error(
             'price', self.already_exists_price)
+
+
+class BulkEditPercentageForm(forms.Form):
+    percentage = forms.DecimalField(
+        label="Porcentaje", required=True,
+        widget=forms.TextInput(attrs={
+            'class': ' form-control',
+            'type': 'number',
+            'min': '1',
+            'steps': '1',
+            'max': '500',
+        }),
+    )
+
+
+class BulkEditAmountForm(forms.Form):
+    amount = forms.DecimalField(
+        label="Monto", required=True,
+        widget=forms.TextInput(attrs={
+            'class': ' form-control',
+            'type': 'number',
+            'min': '1',
+            'steps': '1',
+            'max': '99999999',
+        }),
+    )

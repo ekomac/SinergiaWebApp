@@ -9,7 +9,7 @@ class DeliveryCode(models.Model):
         verbose_name='code', max_length=5, blank=False,
         null=False, unique=True)
     price = models.DecimalField(
-        verbose_name="Price", max_digits=8, decimal_places=2)
+        verbose_name="Price", max_digits=20, decimal_places=2)
     last_update = models.DateTimeField(
         verbose_name="Última actualización", auto_now=True)
     updated_by = models.ForeignKey(
@@ -32,7 +32,7 @@ class FlexCode(models.Model):
         verbose_name='Código', max_length=5, blank=False,
         null=False, unique=True)
     price = models.DecimalField(
-        verbose_name="Price", max_digits=8, decimal_places=2)
+        verbose_name="Price", max_digits=20, decimal_places=2)
     last_update = models.DateTimeField(
         verbose_name="Última actualización", auto_now=True)
     updated_by = models.ForeignKey(
