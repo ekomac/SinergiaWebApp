@@ -54,6 +54,7 @@ INSTALLED_APPS = [
 
     # THIRD PARTY
     'rest_framework_swagger',
+
     'simple_history',
 ]
 

@@ -55,7 +55,7 @@ def download_qr_code_label(request):
 class EnvioCreate(LoginRequiredMixin, CreateView):
 
     login_url = '/login/'
-    template_name = "envios/create.html"
+    template_name = "envios/add.html"
     form_class = CreateEnvioForm
 
     def form_valid(self, form):
@@ -65,7 +65,7 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         ctx = super(EnvioCreate, self).get_context_data(**kwargs)
         ctx['selected_tab'] = 'shipments-tab'
-        ctx['partidos'] = Partido.objects.all()
+        ctx['partidos'] = Partido.objects.all().order_by("name")
         ctx['places'] = get_localidades_as_JSON()
         return ctx
 
