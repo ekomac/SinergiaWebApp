@@ -1,0 +1,48 @@
+<style>
+    td {
+        overflow: auto;
+        white-space: nowrap;
+    }
+</style>
+<tr id="tr-{{obj.id}}" class="table-item"
+    onclick="onItemClicked({{ obj.id }},'{% url 'envios:envio-detail' pk=obj.id %}');">
+    <td id="td-{{obj.id}}" class="td-item-checker">
+        <div class="form-check">
+            <input id="item-checker-{{obj.id}}" class="form-check-input item-checker" type="checkbox" value="">
+        </div>
+    </td>
+    <td>{{ obj.date_created }}</td>
+    <td class="cell-centered">
+        {% if obj.shipment_status == 'N' %}
+        <span class="badge rounded-pill bg-danger">{{obj.get_shipment_status_display}}</span>
+        {% elif obj.shipment_status == 'V' %}
+        <span class="badge rounded-pill bg-warning">{{obj.get_shipment_status_display}}</span>
+        {% elif obj.shipment_status == 'E' %}
+        <span class="badge rounded-pill bg-success">{{obj.get_shipment_status_display}}</span>
+        {% endif %}
+    </td>
+    <td class="cell-centered">
+
+        {% if obj.is_flex %}
+        <span class="badge" style="background-color: #212529;">FLEX</span>
+        {% else %}
+        <span class="badge" style="background-color: #808080;">MENSAJERIA</span>
+        {% endif %}
+    </td>
+    <td class="cell-centered">{{ obj.client.name }}</td>
+    <td class="cell-centered">
+        {% if obj.recipient_address %}{{ obj.recipient_address |title }},{% if obj.recipient_zipcode %}&nbsp;{{ obj.recipient_zipcode }}{% endif %}&nbsp;{{ obj.recipient_town.name |title }},&nbsp;{{ obj.recipient_town.partido.name |title }}{% endif %}
+    </td>
+    <td class="cell-centered">
+        {% if obj.max_delivery_date %}{{ obj.max_delivery_date }}{% else %}No tiene{% endif %}
+    </td>
+    <td class="cell-centered">
+        {% if obj.delivery_schedule %}{{ obj.get_delivery_schedule_display }}{% else %}No tiene{% endif %}
+    </td>
+    <td style="text-align: end;">
+        {% comment %} <a href="{% url 'places:zone-edit' pk=obj.id %}" class="edit-button me-1" title="Editar"><i
+                class="bi bi-pencil-square"></i></a>
+        <a href="{% url 'places:zone-delete' obj.id %}" class="edit-button ms-1" title="Eliminar"><i
+                class="bi bi-trash"></i></a> {% endcomment %}
+    </td>
+</tr>

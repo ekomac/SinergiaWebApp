@@ -35,8 +35,9 @@ class Envio(models.Model):
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
         verbose_name="user", blank=False, null=False)
-    status = models.CharField(verbose_name="status",
-                              max_length=2, choices=STATUSES, default='N')
+    shipment_status = models.CharField(
+        verbose_name="status",
+        max_length=2, choices=STATUSES, default='N')
     detail = models.CharField(verbose_name="detail",
                               max_length=2000, default='0-1')
     client = models.ForeignKey(

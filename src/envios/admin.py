@@ -5,10 +5,11 @@ from envios.models import Deposit, Envio, Bolson, TrackingMovement
 class EnvioAdmin(admin.ModelAdmin):
     list_display = ('recipient_address', 'recipient_town',
                     'recipient_zipcode', 'client', 'is_flex',
-                    'status', 'detail', 'created_by', 'date_created',)
+                    'shipment_status', 'detail', 'created_by',
+                    'date_created', 'history')
     search_fields = ('recipient_address',
                      'recipient_zipcode', 'is_flex',
-                     'status', 'detail', 'date_created',
+                     'shipment_status', 'detail', 'date_created',
                      'recipient_zipcode',)
 
     filter_horizontal = ()

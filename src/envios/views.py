@@ -1,39 +1,165 @@
+# Basic Python
+import json
+import unidecode
+from datetime import datetime, timedelta
+from typing import List, Tuple
+
+# Django
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models.query_utils import Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.views.generic import ListView
-from django.contrib.auth.mixins import LoginRequiredMixin
 
-import json
-
-from envios.forms import CreateEnvioForm
-from places.models import Partido, Town
-from .models import Envio
+# Project apps
 from account.models import Account
+from envios.forms import CreateEnvioForm
+from envios.models import Envio
+from places.models import Partido, Town
+from clients.models import Client
 
 
-# def create_envio_view(request):
+ENVIOS_PER_PAGE = 30
+TIME_FORMAT = '%YYYY%MM%DD'
 
-#     user = request.user
-#     if not user.is_authenticated:
-#         return redirect('login')
 
-#     context = {}
+@login_required(login_url='/login/')
+def envios_view(request):
+    context = {}
 
-#     if request.method == "POST":
-#         form = CreateEnvioForm(request.POST or None, request.FILES or None)
-#         if form.is_valid():
-#             obj = form.save()
-#             author = Account.objects.filter(email=user.email)
-#             obj.author = author
-#             obj.save()
-#             form = CreateEnvioForm()
+    # Search
+    query = ""
+    if request.method == 'GET':
+        query = request.GET.get('q', None)
+        if query:
+            context['query'] = str(query)
 
-#     context['form'] = form
+        order_by = request.GET.get('order_by', '-date_created')
+        if order_by:
+            order_by = str(order_by)
+            context['order_by'] = order_by
+            if '_desc' in order_by:
+                order_by = "-" + order_by[:-5]
 
-#     return render(request, "envios/create_envio_admin.html", context)
+        filters = {}
+        filter_by = request.GET.get('filter_by', "")
+        context['filters_count'] = 0
+        if filter_by:
+            filters, filter_count = decode_filters(filter_by)
+            context['filter_by'] = filter_by
+            context['filters_count'] = filter_count
+
+        envios = get_envio_queryset(
+            query, order_by, **filters)
+
+        # Pagination
+        page = request.GET.get('page', 1)
+        envios_paginator = Paginator(envios, ENVIOS_PER_PAGE)
+        try:
+            envios = envios_paginator.page(page)
+        except PageNotAnInteger:
+            envios = envios_paginator.page(ENVIOS_PER_PAGE)
+        except EmptyPage:
+            envios = envios_paginator.page(envios_paginator.num_pages)
+
+        context['envios'] = envios
+        context['totalEnvios'] = len(envios)
+        context['selected_tab'] = 'shipments-tab'
+        context['clients'] = Client.objects.all()
+
+    return render(request, "envios/envio/list.html", context)
+
+
+def decode_filters(s: str = '') -> Tuple[dict, int]:
+    str_filters = s.split('_')
+    filters = {}
+    for filter in str_filters:
+        key = filter[0]
+        value = filter[1:]
+        if value:
+            if key == 'f':  # The filter is about date created since
+                filters['date_created__gte'] = sanitize_date(value)
+
+            if key == 't':  # The filter is about date created until
+                filters['date_created__lte'] = sanitize_date(
+                    value) + timedelta(days=1)
+
+            if key == 'c':  # The filter is about the client
+                filters['client__id'] = int(value)
+
+            # The filter is about the type of shipment (flex or delivery)
+            # The database query is composed in the form of 'is_flex=[bool]',
+            # so we need a bool
+            if key == 's':
+                filters['is_flex'] = value == 'flex'
+
+            if key == 'u':
+                filters['shipment_status'] = value
+
+    return filters, len(filters)
+
+
+def sanitize_date(s: str) -> datetime:
+    """Parses the date given as a string
+    "yyyy-mm-dd" to the corresponding date object.
+
+    Args:
+        s (str): the date as a string.
+
+    Returns:
+        datetime: representing the date.
+    """
+    parts = s.split('-')
+    y = parts[0]
+    m = parts[1]
+    d = parts[2]
+    return datetime(int(y), int(m), int(d))
+
+
+def get_envio_queryset(
+        query: str = None, order_by_key: str = '-date_created',
+        **filters) -> List[Envio]:
+    """Get all envios that match provided query, if any. If none is given,
+    returns all envios. Also, performs the query in the specified order_by_key.
+    Finally, it also filters the query by user driven params, such as, for
+    example, 'date_created__gt'.
+
+    Args:
+        query (str, optional): words to match the query. Defaults to empyt str.
+        order_by_key (str, optional): to perform ordery by.
+        Defaults to 'date_created'.
+        **filters (Any): filter params to be passed to filter method.
+
+    Returns:
+        List[Envio]: a list containing the envios which match at least
+        one query.
+    """
+    query = unidecode.unidecode(query) if query else ""
+    return list(Envio.objects
+                # User driven filters
+                .filter(**filters)
+                # Query filters
+                .filter(
+                    Q(created_by__first_name__icontains=query) |
+                    Q(created_by__last_name__icontains=query) |
+                    Q(recipient_name__icontains=query) |
+                    Q(recipient_doc__icontains=query) |
+                    Q(recipient_phone__icontains=query) |
+                    Q(recipient_address__icontains=query) |
+                    Q(recipient_entrances__icontains=query) |
+                    Q(recipient_town__name__icontains=query) |
+                    Q(recipient_zipcode__icontains=query) |
+                    Q(client__name__icontains=query) |
+                    Q(flex_id__icontains=query),
+                )
+                .order_by(order_by_key)
+                .distinct()
+                )
 
 
 class EnvioContextMixin(View):

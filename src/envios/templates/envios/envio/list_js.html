@@ -1,0 +1,221 @@
+<script>
+    var selectionModeEnabled = false;
+    var totalEnvios = parseInt('{{totalEnvios}}');
+    const filtersIdEncoders = {
+        'f': '#id_max_delivery_date_since_modal',
+        't': '#id_max_delivery_date_to_modal',
+        'c': '#id_client_modal',
+        's': '#id_shipment_type_modal',
+        'u': '#id_shipment_status',
+    }
+
+    const DEFAULT_FILTERS = 'f_t_c_s_u';
+
+    $(document).ready(function () {
+
+        $('#id_order_by').change(function () {
+            $('#list_form').submit();
+        });
+
+        $('#id_q').on('change paste keyup', function () {
+            show('clearSearchDiv', $('#id_q').val() != '');
+        });
+
+        decodeAndSetFilters();
+        controlDateFilterInputs();
+
+        show('clearSelectionDiv', selectionModeEnabled);
+
+        $("#checkAll").click(function () {
+            $(".item-checker").prop('checked', this.checked);
+            countCheckedItems();
+        });
+
+        $(".item-checker").click(function (e) {
+            e.stopImmediatePropagation();
+            countCheckedItems();
+        });
+
+        $(".td-item-checker").click(function (e) {
+            var id = this.id.split("-")[1];
+            changeItemCheckerState('item-checker-' + id);
+            e.stopImmediatePropagation();
+            e.stopPropagation();
+            countCheckedItems();
+        });
+    });
+
+    function onItemClicked(id, url) {
+        if (selectionModeEnabled) {
+            $('#item-checker-' + id).prop('checked', !$('#item-checker-' + id).is(":checked"));
+        } else {
+            window.location.href = url;
+        }
+        countCheckedItems();
+    }
+
+
+    function countCheckedItems() {
+        // Get all checkboxes
+        var checkBoxes = Array.from(document.getElementsByClassName("item-checker"));
+        // Count total checkboxes
+        var totalCheckBoxes = checkBoxes.length;
+        // Count checked checkboxes
+        var checkedItemsCount = checkBoxes.filter(checkBox => checkBox.checked == true).length;
+        // If all checkboxes checked, check "checkAll" checkbox
+        $('#checkAll').prop('checked', checkedItemsCount == totalCheckBoxes);
+        // Update selected count
+        $('#selectedCount').text(checkedItemsCount + " de " + totalEnvios + " elementos seleccionados");
+        // Enable bulk edit btn only if more than one checked
+        isEnabled('bulkEditDelivery', checkedItemsCount > 1);
+        // Enable delete btn if at least 1 checkbox is checked
+        isEnabled('bulkDeleteDelivery', checkedItemsCount > 0);
+        // Enable selection mode if at least 1 checkbox checked
+        selectionModeEnabled = checkedItemsCount > 0;
+        // hide
+        show('clearSelectionDiv', selectionModeEnabled);
+    }
+
+
+    function changeItemCheckerState(id) {
+        $('#' + id).prop('checked', !$('#' + id).is(":checked"));
+    }
+
+    function show(id, makeVisible = true) {
+        if (makeVisible && $('#' + id).is(":hidden")) {
+            $('#' + id).hide();
+            $('#' + id).removeClass("hide-on-load");
+            $('#' + id).show(300);
+        }
+        if (!makeVisible && $('#' + id).is(":visible")) {
+            $('#' + id).hide(300);
+        }
+    }
+
+    function isEnabled(id, enable = true) {
+        if (enable && $('#' + id).is(":disabled")) {
+            $('#' + id).removeAttr("disabled");
+        }
+        if (!enable && $('#' + id).is(":enabled")) {
+            $('#' + id).attr("disabled", true);
+        }
+    }
+
+    function itemClicked(id) {
+        if ($('#item-checker-' + id).is(":checked")) {
+            $('#item-checker-' + id).prop('checked', false);
+        } else if (selectionModeEnabled) {
+            $('#item-checker-' + id).prop('checked', true);
+        } else {
+            alert("launch detail item");
+        }
+
+    }
+
+    function removeSelection() {
+        $(".item-checker").prop('checked', false);
+        countCheckedItems();
+    }
+
+    function deleteSelectedItems() {
+        // Get all checked checkboxes
+        var checkBoxesIds = Array.from(document.getElementsByClassName("item-checker"))
+            .filter(checkBox => checkBox.checked == true).map(function (checkbox) {
+                var id = checkbox.id;
+                return id.split("-checker-")[1];
+            }).join("-");
+        console.log(checkBoxesIds);
+        var url_mask = "{% url 'places:zone-delete' 12345 %}".replace(/12345/, checkBoxesIds);
+        console.log("url -> " + url_mask);
+        window.location.href = url_mask;
+    }
+
+    function clearSearch() {
+        $('#id_q').val('');
+        $('#list_form').submit();
+    }
+
+    function applyFilters() {
+        var filters = [
+            "f" + $(filtersIdEncoders.f).val(),
+            "t" + $(filtersIdEncoders.t).val(),
+            "c" + $(filtersIdEncoders.c).val(),
+            "s" + $(filtersIdEncoders.s).val(),
+            "u" + $(filtersIdEncoders.u).val(),
+        ].filter(function (value) {
+            return value != '' && value != null && value != undefined;
+        }).join("_");
+        $('#id_filter_by').val(filters);
+        $('#list_form').submit();
+    }
+
+    function clearFilters() {
+        $("#id_filter_by").val(DEFAULT_FILTERS);
+        for (let key in filtersIdEncoders) {
+            var id = filtersIdEncoders[key];
+            $(id).val(null);
+        }
+        $('#list_form').submit();
+    }
+
+    function decodeAndSetFilters() {
+        const filter_by = $('#id_filter_by').val();
+        if (filter_by == '' || filter_by == undefined || filter_by == null) {
+            return;
+        }
+        const filters = filter_by.split("_");
+
+        for (var i = 0; i < filters.length; i++) {
+            var filter = filters[i];
+            var key = filter.slice(0, 1);
+            var value = filter.slice(1);
+            if (value != '') {
+                var filterID = filtersIdEncoders[key];
+
+                // Parse the value to correct date.
+                if (key == 'f' || key == 't') {
+                    const date = new Date(value.split("-")[0], value.split("-")[1], value.split("-")[2]);
+                    const day = ("0" + date.getDate()).slice(-2);
+                    const month = ("0" + (date.getMonth())).slice(-2);
+                    console.log(date);
+                    value = date.getFullYear() + "-" + (month) + "-" + (day);
+                }
+                $(filterID).val(value);
+            }
+        }
+    }
+
+    /**
+     *   Asign listeners to date filters so, when they change,
+     *   we have to check if the other one is not null. And if,
+     *   it isn't, if toDate < fromDate alert the user of the
+     *   error and clear current date input (the one is changing).
+     */
+    function controlDateFilterInputs() {
+        var nulls = ['', null, undefined];
+        var fromDateEl = filtersIdEncoders.f;
+        var toDateEl = filtersIdEncoders.t;
+        $(filtersIdEncoders.f).change(function () {
+            var toDateStr = $(toDateEl).val();
+            if (!nulls.includes(toDateStr)) {
+                var toDate = new Date(toDateStr);
+                var fromDate = new Date($(fromDateEl).val());
+                if (fromDate > toDate) {
+                    alert("La fecha desde no puede ser inferior a la fecha hasta");
+                    $(fromDateEl).val(null);
+                }
+            }
+        });
+        $(filtersIdEncoders.t).change(function () {
+            var fromDateStr = $(fromDateEl).val();
+            if (!nulls.includes(fromDateStr)) {
+                var fromDate = new Date(fromDateStr);
+                var toDate = new Date($(toDateEl).val());
+                if (toDate < fromDate) {
+                    alert("La fecha hasta no puede ser inferior a la fecha desde");
+                    $(toDateEl).val(null);
+                }
+            }
+        });
+    }
+</script>

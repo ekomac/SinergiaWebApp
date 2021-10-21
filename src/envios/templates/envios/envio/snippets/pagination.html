@@ -1,0 +1,36 @@
+<!-- FILTERED Pagination -->
+<div class="d-flex flex-column m-auto pagination mt-3">
+    <nav aria-label="Page navigation">
+        <ul class="pagination pg-grey justify-content-center">
+            {% if envios.has_previous %}
+            <li class="page-item">
+                <a class="page-link"
+                    href="?{% if query %}q={{query}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}page={{ envios.previous_page_number }}">&laquo;Anterior
+                </a>
+            </li>
+            {% endif %}
+
+            {% for i in envios.paginator.page_range %}
+            {% if envios.number == i %}
+            <li class="page-item active"><a class="page-link">{{ i }}</a></li>
+            {% else %}
+            <li class="page-item"><a class="page-link"
+                    href="?{% if query %}q={{query}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}page={{ i }}">{{ i }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if envios.has_next %}
+            <li class="page-item">
+                <a class="page-link"
+                    href="?{% if query %}q={{query}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}page={{ envios.next_page_number }}">Siguiente</a>
+            </li>
+            <li class="page-item">
+                <a class="page-link"
+                    href="?{% if query %}q={{query}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}page={{ envios.paginator.num_pages }}">Último&raquo;</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+<!-- end pagination-->
