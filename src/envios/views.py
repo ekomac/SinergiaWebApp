@@ -196,7 +196,7 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
         return ctx
 
     def get_success_url(self):
-        return reverse('envios:detail', kwargs={'pk': self.object.pk})
+        return reverse('envios:envio-detail', kwargs={'pk': self.object.pk})
 
 
 def get_localidades_as_JSON():

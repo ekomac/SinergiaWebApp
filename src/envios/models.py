@@ -31,52 +31,52 @@ class Envio(models.Model):
     ]
 
     date_created = models.DateTimeField(
-        verbose_name="date joined", auto_now_add=True)
+        verbose_name="Fecha de creación", auto_now_add=True)
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        verbose_name="user", blank=False, null=False)
+        verbose_name="Usuario", blank=False, null=False)
     shipment_status = models.CharField(
-        verbose_name="status",
+        verbose_name="Estado",
         max_length=2, choices=STATUSES, default='N')
-    detail = models.CharField(verbose_name="detail",
+    detail = models.CharField(verbose_name="Detalle",
                               max_length=2000, default='0-1')
     client = models.ForeignKey(
-        Client, on_delete=models.CASCADE, verbose_name="client",
+        Client, on_delete=models.CASCADE, verbose_name="Cliente",
         blank=False, null=False)
     recipient_name = models.CharField(
-        verbose_name="recipient's name", max_length=50,
+        verbose_name="Nombre destinatario", max_length=50,
         blank=True, null=True)
     recipient_doc = models.CharField(
-        verbose_name="recipient's doc id", max_length=50,
+        verbose_name="DNI destinatario", max_length=50,
         blank=True, null=True)
     recipient_phone = models.CharField(
-        verbose_name="recipient's phone num", max_length=14,
+        verbose_name="Teléfono destinatario", max_length=14,
         blank=True, null=True)
     recipient_address = models.CharField(
-        verbose_name="recipient's address", max_length=100,
+        verbose_name="Domicilio de entrega", max_length=100,
         blank=False, null=False)
     recipient_entrances = models.CharField(
-        verbose_name="recipient's entrances", max_length=100,
+        verbose_name="Observaciones de entrega", max_length=100,
         blank=True, null=True)
     recipient_town = models.ForeignKey(
         Town, on_delete=models.CASCADE,
-        verbose_name="recipient's town", blank=False, null=False)
+        verbose_name="Localidad de entrega", blank=False, null=False)
     recipient_zipcode = models.CharField(
-        verbose_name="recipient's zip code", max_length=10,
+        verbose_name="Cod. Postal de entrega", max_length=10,
         blank=True, null=True)
     recipient_charge = models.DecimalField(
-        verbose_name="recipient's charge",
+        verbose_name="Cargos al destinatario",
         decimal_places=2, max_digits=40, blank=True, null=True)
     max_delivery_date = models.DateField(
-        verbose_name="max delivery date", blank=True, null=True)
-    is_flex = models.BooleanField(verbose_name="Is Flex", default=False)
+        verbose_name="Fecha máxima de entrega", blank=True, null=True)
+    is_flex = models.BooleanField(verbose_name="Es Flex", default=False)
     flex_id = models.CharField(
-        verbose_name="flex id", max_length=50, blank=True, null=True)
+        verbose_name="ID de Flex", max_length=50, blank=True, null=True)
     delivery_schedule = models.CharField(
-        verbose_name='delivery schedule', choices=SCHEDULES,
+        verbose_name='Horario de entrega', choices=SCHEDULES,
         max_length=5, blank=True, null=True)
     qr_code = models.FileField(
-        verbose_name='generated qr code',
+        verbose_name='Código QR generado',
         upload_to=upload_location,
         max_length=60, blank=True, null=True)
     history = HistoricalRecords()
