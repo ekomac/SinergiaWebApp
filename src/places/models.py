@@ -107,3 +107,15 @@ class Town(models.Model):
     class Meta:
         verbose_name = 'Localidad'
         verbose_name_plural = 'Localidades'
+
+
+class PostalCode(models.Model):
+    date_created = models.DateTimeField(
+        verbose_name="Fecha de creación", auto_now_add=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        verbose_name="Usuario", blank=True, null=True)
+    code = models.CharField(
+        verbose_name="Numero", max_length=10,
+        default=None, blank=False, null=False)
+    towns = models.ManyToManyField(Town)

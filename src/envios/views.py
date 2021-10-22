@@ -1,8 +1,12 @@
 # Basic Python
 import json
+import io
+import csv
+from django.http.response import HttpResponse
 import unidecode
 from datetime import datetime, timedelta
 from typing import List, Tuple
+from rich import print
 
 # Django
 from django.contrib.auth.decorators import login_required
@@ -18,7 +22,7 @@ from django.views.generic import ListView
 
 # Project apps
 from account.models import Account
-from envios.bulkutil.extractor import Extractor
+# from envios.bulkutil.extractor import Extractor
 from envios.forms import BulkAddForm, CreateEnvioForm
 from envios.models import Envio
 from places.models import Partido, Town
@@ -202,22 +206,36 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
 
 @login_required(login_url='/login/')
 def bulk_create_envios(request):
+    context = {}
     form = BulkAddForm()
     if request.method == 'POST':
-        form = BulkAddForm(request.POST or None)
+        author = Account.objects.filter(email=request.user.email).first()
+        form = BulkAddForm(author, request.POST, request.FILES)
+        print("forming")
         if form.is_valid():
-            client = form.cleaned_data['client']
-            file = request.FILES['file']
-            extractor = Extractor()
-            result, _ = extractor.get_shipments(file)
-            print("result", result)
-            author = Account.objects.filter(email=request.user.email).first()
-            envios = get_envios_from_csv(result, author, client)
-            Envio.objects.bulk_create(envios)
+            Envio.objects.bulk_create(form.result)
+        else:
+            request.session['csv_because_errors'] = form.get_csv_result()
     context = {
-        'form': form
+        'upload_form': form
     }
     return render(request, 'envios/envio/bulk-add.html', context)
+
+
+@login_required(login_url='/login/')
+def print_csv_file(request):
+    csv_result = request.session.get('csv_because_errors', None)
+    print(csv_result)
+    if not csv_result:
+        redirect("envios:envio-bulk-add")
+    buffer = io.StringIO()
+    wr = csv.writer(buffer)
+    wr.writerows([row.split(",") for row in csv_result.split("\n")])
+
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=result.csv'
+    return response
 
 
 class MissingColumn(Exception):
@@ -238,6 +256,7 @@ def get_envios_from_csv(csv_str, author, client):
      9 DETALLE DEL ENVIO
     """
     envios = []
+    # errors = {}
     for i, row in enumerate(csv_str.split("\n")):
         if i == 0 or "traking_id" in row:
             print("acá debemos pasar")

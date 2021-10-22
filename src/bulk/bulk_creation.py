@@ -1,4 +1,6 @@
-from places.models import Partido, Town, Zone
+import os
+import json
+from places.models import Partido, Town, Zone, PostalCode
 from prices.models import DeliveryCode, FlexCode
 
 
@@ -409,6 +411,38 @@ def map_localidades(localidad):
     except FlexCode.DoesNotExist:
         print(f"FlexCode matching query '{id_mensajeria}' does not exist.")
     return result
+
+
+def codigos_postales():
+    # Opening JSON file
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    errors_file_path = f"{BASE_DIR}\\postal_codes_bulk_result.csv"
+    with open(errors_file_path, 'a') as csv:
+        line = 'status,code,town\n'
+    with open(BASE_DIR+'\\postal_codes.json') as file:
+        # returns JSON object as a dictionary
+        data = json.load(file)
+
+        # Iterating through the json
+        # list
+        for obj in data['codes']:
+            code = obj['code']
+            town_name = obj['town']
+            towns = Town.objects.filter(name=town_name.upper())
+            if towns:
+                postal_code = PostalCode.objects.filter(code=code).first()
+                if not postal_code:
+                    postal_code = PostalCode(code=code)
+                    postal_code.save()
+                for town in towns:
+                    postal_code.towns.add(town)
+                with open(errors_file_path, 'a') as csv:
+                    line = f'success,{code},{town_name}\n'
+                    csv.write(line)
+            else:
+                with open(errors_file_path, 'a') as csv:
+                    line = f'error,{code},{town_name}\n'
+                    csv.write(line)
 
 
 def main():

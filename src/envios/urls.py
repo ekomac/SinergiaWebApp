@@ -6,6 +6,7 @@ from .views import (
     # EnviosList,
     EnvioCreate,
     bulk_create_envios,
+    print_csv_file,
     update_envio,
     delete_envio,
     # create_envio_view,
@@ -20,5 +21,6 @@ urlpatterns = [
     path('envio/bulk-add/', bulk_create_envios, name="envio-bulk-add"),
     path('envio/edit/', update_envio, name="envio-edit"),
     path('envio/delete/', delete_envio, name="envio-delete"),
+    path('envio/bad-bulk-add/', print_csv_file, name="envio-bad-bulk-add"),
     # ************************* ENVIOS *************************
 ]
