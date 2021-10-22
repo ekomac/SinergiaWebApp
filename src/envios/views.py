@@ -18,7 +18,8 @@ from django.views.generic import ListView
 
 # Project apps
 from account.models import Account
-from envios.forms import CreateEnvioForm
+from envios.bulkutil.extractor import Extractor
+from envios.forms import BulkAddForm, CreateEnvioForm
 from envios.models import Envio
 from places.models import Partido, Town
 from clients.models import Client
@@ -197,6 +198,111 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse('envios:envio-detail', kwargs={'pk': self.object.pk})
+
+
+@login_required(login_url='/login/')
+def bulk_create_envios(request):
+    form = BulkAddForm()
+    if request.method == 'POST':
+        form = BulkAddForm(request.POST or None)
+        if form.is_valid():
+            client = form.cleaned_data['client']
+            file = request.FILES['file']
+            extractor = Extractor()
+            result, _ = extractor.get_shipments(file)
+            print("result", result)
+            author = Account.objects.filter(email=request.user.email).first()
+            envios = get_envios_from_csv(result, author, client)
+            Envio.objects.bulk_create(envios)
+    context = {
+        'form': form
+    }
+    return render(request, 'envios/envio/bulk-add.html', context)
+
+
+class MissingColumn(Exception):
+    pass
+
+
+def get_envios_from_csv(csv_str, author, client):
+    """
+     0 ID FLEX
+     1 DOMICILIO
+     2 ENTRECALLES
+     3 CODIGO POSTA
+     4 LOCALIDAD
+     5 PARTIDO
+     6 DESTINATARI
+     7 DNI DESTINATARIO
+     8 TELEFONO DESTINATARIO,
+     9 DETALLE DEL ENVIO
+    """
+    envios = []
+    for i, row in enumerate(csv_str.split("\n")):
+        if i == 0 or "traking_id" in row:
+            print("acá debemos pasar")
+            continue
+        print("estamos en", i)
+        cols = row.split(",")
+        kwargs = {}
+
+        if not cols[1]:
+            raise MissingColumn(
+                f"En la fila {i} no se especificó el domicilio.")
+
+        if not cols[4]:
+            raise MissingColumn(
+                f"En la fila {i} no se especificó la localidad.")
+
+        if cols[0]:
+            kwargs['is_flex'] = True
+            kwargs['flex_id'] = cols[0]
+
+        # Adress
+        kwargs['recipient_address'] = cols[1]
+
+        # Entrances
+        kwargs['recipient_entrances'] = cols[2] if cols[2] else None
+
+        # Zipcode
+        kwargs['recipient_zipcode'] = cols[3] if cols[3] else None
+
+        # Town
+        towns = Town.objects.filter(name=cols[4].upper())
+        print(towns)
+        if not towns:
+            raise Town.DoesNotExist(f"En la fila {i}, No se encontró la " +
+                                    f"localidad con el nombre {cols[4]}")
+        # If more than one town with given name,
+        # a partido must be specified.
+        if len(towns) > 1:
+            towns = Town.objects.filter(
+                name=cols[4].upper(), partido__name=cols[5].upper())
+            if not towns:
+                raise Town.DoesNotExist(
+                    f"En la fila {i}, se indicó una localidad que " +
+                    "pertenece a más de un partido, pero el" +
+                    "partido {cols[5]} no se encontró")
+        kwargs['recipient_town'] = towns[0]
+
+        # Recipient's Name
+        kwargs['recipient_name'] = cols[6] if cols[6] else None
+
+        # Recipient's Doc Id
+        kwargs['recipient_doc'] = cols[7] if cols[7] else None
+
+        # Recipient's Phone
+        kwargs['recipient_phone'] = cols[8] if cols[8] else None
+
+        # Detail (packages)
+        if cols[9]:
+            kwargs['detail'] = cols[9]
+
+        kwargs['created_by'] = author
+        kwargs['client'] = client
+
+        envios.append(Envio(**kwargs))
+    return envios
 
 
 def get_localidades_as_JSON():

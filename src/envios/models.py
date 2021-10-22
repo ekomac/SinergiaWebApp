@@ -56,7 +56,7 @@ class Envio(models.Model):
         verbose_name="Domicilio de entrega", max_length=100,
         blank=False, null=False)
     recipient_entrances = models.CharField(
-        verbose_name="Observaciones de entrega", max_length=100,
+        verbose_name="Observaciones de entrega", max_length=500,
         blank=True, null=True)
     recipient_town = models.ForeignKey(
         Town, on_delete=models.CASCADE,

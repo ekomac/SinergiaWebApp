@@ -4,6 +4,16 @@ from clients.models import Client
 from places.models import Town
 
 
+class BulkAddForm(forms.Form):
+    client = forms.ModelChoiceField(
+        label="Cliente", required=True,
+        queryset=Client.objects.all(),
+        widget=forms.Select(attrs={
+            'class': ' form-select',
+        }),
+    )
+
+
 class CreateEnvioForm(forms.ModelForm):
     client = forms.ModelChoiceField(
         label="Cliente", required=True,

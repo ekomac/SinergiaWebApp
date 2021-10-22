@@ -1,0 +1,226 @@
+{% extends 'base_system.html' %}
+
+{% block modal_content %}
+<!-- start BASE MODAL DIALOG -->
+<div class="modal modal-dialog-scrollable fade position-absolute top-0" style="z-index: 10000000;" id="baseModal"
+    tabindex="-1" aria-labelledby="baseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filtersModalLabel">Ayuda sobre el excel.
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+
+                <style>
+                    .modal-li {
+                        padding: 5px;
+                    }
+
+                    .modal-th {
+                        border: 2px solid;
+                        text-align: center;
+                        vertical-align: middle;
+                    }
+
+                    .modal-td {
+                        border: 1px solid;
+                        text-align: center;
+                        vertical-align: middle;
+                    }
+
+                    .si-o-si {
+                        background-color: green;
+                        color: white;
+                        border: 2px solid black;
+                    }
+                </style>
+
+                <h1 style="color: red;">
+                    ¡¡¡IMPORTANTE!!!
+                </h1>
+
+                <h4>
+                    Leer atentamente estas instrucciones. Los archivos de Excel no pueden contener cualquier cosa
+                    dentro:
+                </h4>
+                <div style="color: green;">
+                    <strong>***Opción recomendable***</strong>
+                    <p>
+                        Un excel con 1 sola hoja (no importa el nombre), con los siguientes títulos de columnas:
+                        "ID FLEX", "DOMICILIO", "ENTRECALLES", "CODIGO POSTAL", "LOCALIDAD",
+                        "PARTIDO", "DESTINATARIO", "DNI DESTINATARIO", "TELEFONO DESTINATARIO", "DETALLE
+                        DEL ENVIO". No es necesario que todas estas columnas estén llenas ni en este orden, sino que
+                        aparezcan los títulos. Las columnas que tienen que estar llenas sí o sí se mencionan en el punto
+                        4. Abajo de todo, un ejemplo.
+                    </p>
+                </div>
+
+                <br>
+
+                <div style="border: 1px solid black; padding: 10px;">
+                    <strong>
+                        A tener en cuenta:
+                    </strong>
+                    <ol>
+                        <li class="modal-li">
+                            Si el excel tiene muchas hojas, va a buscar los envíos en la hoja con más filas y columnas.
+                        </li>
+                        <li class="modal-li">
+                            Si la hoja encontrada no tiene columnas con títulos, el programa va a asumir que tiene las
+                            columnas como la opción recomendable.
+                        </li>
+                        <li class="modal-li">
+                            Si la hoja encontrada tiene títulos que no coinciden con los de la opción recomendable, esos
+                            títulos distintos harán que su columna se descarte y los envíos estarán incompletos.
+                        </li>
+                        <li class="modal-li">
+                            Las columnas que TIENEN QUE ESTAR SÍ O SÍ para que el sistema lo reconozca se corresponden
+                            con los títulos de: "ID FLEX", "DOMICILIO", "LOCALIDAD". Sin embargo,
+                            mientras más columnas se proporcionen, mayor garantía de que se calcule
+                            el costo del envío correctamente una vez que se entregue.
+                        </li>
+                        <li class="modal-li">
+                            La columna del "ID FLEX" no necesariamente tiene que indicar el ID real;
+                            lo importante es que si el envío es de FLEX, haya al menos un dato en la columna para la
+                            fila del envío. Es decir, si el cliente no sabe el id de FLEX, que en la
+                            columna ingrese la palabra flex al menos, para que el sistema pueda reconocerlo como tal.
+                        </li>
+                        <li class="modal-li">
+                            La columna "DETALLE DEL ENVÍO" dejarla en blanco para los envíos que son un paquete de menos
+                            de 5 kg. Para envíos de más paquetes, es preferirle ingresarlos individualmente. Se ingresan
+                            en sistema y se borran del excel.
+                        </li>
+                    </ol>
+                </div>
+                <br><br><br>
+
+                <hr>
+                <div style="overflow-x: scroll;">
+                    <p>
+                        <strong>
+                            Ejemplo visual:
+                        </strong>
+                        <p>En verde las que tienen quee estar si o si</p>
+                    </p>
+                    <table>
+                        <tr>
+                            <th class="modal-th si-o-si">ID FLEX</th>
+                            <th class="modal-th si-o-si">DOMICILIO</th>
+                            <th class="modal-th">ENTRECALLES</th>
+                            <th>CODIGO POSTAL</th>
+                            <th class="modal-th si-o-si">LOCALIDAD</th>
+                            <th class="modal-th">PARTIDO</th>
+                            <th class="modal-th">DESTINATARIO</th>
+                            <th class="modal-th">DNI DESTINATARIO</th>
+                            <th class="modal-th">TELEFONO DESTINATARIO</th>
+                            <th class="modal-th">DETALLE DEL ENVIO</th>
+                        </tr>
+                        <tr>
+                            <td class="modal-td">flex</td>
+                            <td class="modal-td">Calle 1 56</td>
+                            <td class="modal-td"></td>
+                            <td class="modal-td">1661</td>
+                            <td class="modal-td">San Bernardo</td>
+                            <td class="modal-td">San Clemente</td>
+                            <td class="modal-td">Carlos Pérez</td>
+                            <td class="modal-td">12345678</td>
+                            <td class="modal-td"></td>
+                            <td class="modal-td"></td>
+                        </tr>
+                        <tr>
+                            <td class="modal-td"></td>
+                            <td class="modal-td">Quirno 1456</td>
+                            <td class="modal-td">Portones negros</td>
+                            <td class="modal-td">1661</td>
+                            <td class="modal-td">Bella Vista</td>
+                            <td class="modal-td">San Clemente</td>
+                            <td class="modal-td"></td>
+                            <td class="modal-td">12345678</td>
+                            <td class="modal-td">11 5978-4147</td>
+                            <td class="modal-td">0-1</td>
+                        </tr>
+                    </table>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end BASE MODAL DIALOG -->
+{% endblock modal_content %}
+
+
+{% block content %}
+
+<style>
+    td {
+        vertical-align: middle;
+    }
+
+    .hola {
+        background-color: red;
+    }
+
+    div .hidden {
+        display: none;
+    }
+</style>
+<div class="col-md-12 col-xl-7 d-flex-block">
+    <form method='POST' id="create_form" class="card flex-fill shadow-lg bg-white" name="create_form" target="_top"
+        enctype="multipart/form-data">{% csrf_token %}
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Crear objeto
+            </div>
+            <div>
+                <a href="{{ request.META.HTTP_REFERER }}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <h3 class="card-title text-center mt-3">CARGA MASIVA DE ENVÍOS</h3>
+            <div class="row mt-3">
+
+                <div class="col">
+                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
+                        data-bs-target="#baseModal">Ayuda sobre el
+                        excel</button>
+                </div>
+            </div>
+            <div class="row mt-3">
+
+                <div class="col mb-3">
+                    <label for="file" class="form-label">Default file input example</label>
+                    <input class="form-control" type="file" id="id_file" name="file">
+                </div>
+            </div>
+            <div class="row mt-3">
+
+                <div class="col-12 col-md-8 col-lg-6">
+                    <label for="id_client" class="form-label">Client</label>
+                    {{form.client}}
+                </div>
+            </div>
+            <div class="row mt-3">
+
+                <!-- START SUMBIT BUTTON -->
+                <div class="d-grid gap-2 d-md-flex">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-stars">&nbsp;Cargar envíos</i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- END SUMBIT BUTTON -->
+        </div>
+
+
+    </form>
+
+</div>
+
+{% endblock content %}
