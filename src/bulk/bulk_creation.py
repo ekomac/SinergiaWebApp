@@ -1,6 +1,6 @@
 import os
 import json
-from places.models import Partido, Town, Zone, PostalCode
+from places.models import Partido, Town, Zone, ZipCode
 from prices.models import DeliveryCode, FlexCode
 
 
@@ -430,9 +430,9 @@ def codigos_postales():
             town_name = obj['town']
             towns = Town.objects.filter(name=town_name.upper())
             if towns:
-                postal_code = PostalCode.objects.filter(code=code).first()
+                postal_code = ZipCode.objects.filter(code=code).first()
                 if not postal_code:
-                    postal_code = PostalCode(code=code)
+                    postal_code = ZipCode(code=code)
                     postal_code.save()
                 for town in towns:
                     postal_code.towns.add(town)

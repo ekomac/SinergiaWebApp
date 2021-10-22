@@ -109,7 +109,7 @@ class Town(models.Model):
         verbose_name_plural = 'Localidades'
 
 
-class PostalCode(models.Model):
+class ZipCode(models.Model):
     date_created = models.DateTimeField(
         verbose_name="Fecha de creación", auto_now_add=True)
     created_by = models.ForeignKey(
