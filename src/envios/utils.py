@@ -1,7 +1,25 @@
 from collections import Counter
-from typing import Callable
+from typing import Callable, List, Tuple
 from django.db.models import Q
-from places.models import ZipCode, Town
+from places.models import Partido, ZipCode, Town
+
+
+ABBREVIATIONS = {
+    'GRAL': 'GENERAL',
+    'GENERAL': 'GRAL',
+    'CNEL': 'CORONEL',
+    'CORONEL': 'CNEL',
+    'PTE': 'PRESIDENTE',
+    'PRESIDENTE': 'PTE',
+    'TTE': 'TENIENTE',
+    'TENIENTE': 'TTE',
+    'SGTO': 'SARGENTO',
+    'SARGENTO': 'SGTO',
+    'KM': 'KILOMETRO',
+    'KILOMETRO': 'KM',
+    'EST': 'ESTACION',
+    'ESTACION': 'EST',
+}
 
 
 class NothingFound(Exception):
@@ -33,12 +51,12 @@ class TownSuggestionResolver:
 
     def __init__(self, town: str,
                  zip_code: str = None, partido: str = None):
-        self.town_name = town
-        self.zip_code_num = zip_code
-        self.partido_name = partido
+        self.town_name = town.upper()
+        self.zip_code_num = zip_code.upper()
+        self.partido_name = partido.upper()
         self.found_towns = []
         self.result = None
-        self.next_step = self.__query_with_town_name
+        self.next_step = self.__query_with_cleaned_town_name
         self.attempts_left = 10
         self.continue_searching = True
 
@@ -47,23 +65,23 @@ class TownSuggestionResolver:
         return self.__best_score_from_found()
 
     def __main_loop(self):
-        # Buscar por nombre
+        # Buscar por nombre igual
+        # Buscar reemplazando abreviaturas
         # Buscar por codigo postal
+        # Localidad con más palabras coincidentes mayores a 3 letras (s/artículos)
         # Buscar por nombre con partido
         # Buscar el mejor puntaje (mas veces que aparece + coincidencia de palabras)
+        # Primera localidad del partido
         while self.next_step:
-            self.next_step()
+            towns, self.next_step = self.next_step()
+            if towns:
+                if len(towns) > 1:
+                    self.found_towns.extend(towns)
+                else:
+                    self.result = towns[0]
+                    self.next_step = None
 
-    def __update_vars(self, towns: list, next_step: Callable) -> None:
-        self.next_step = next_step
-        if towns:
-            if len(towns) > 1:
-                self.found_towns.extend(towns)
-            else:
-                self.result = towns[0]
-                self.next_step = None
-
-    def __query_with_town_name(self) -> None:
+    def __query_with_cleaned_town_name(self) -> Tuple[List[Town], Callable]:
         """Query Town's table with given town name.
 
         Args:
@@ -80,26 +98,45 @@ class TownSuggestionResolver:
             self.continue_searching to False, so
             the main loop stops.
         """
-        self.__clean_town_name()
-        town = self.town_name.upper()
+        self.town_name = self.town_name.replace(
+            ".", "").replace("-", "").upper()
+        towns = Town.objects.filter(name=self.town_name)
+        return (towns, self.__query_replacing_abbreviations)
+
+    def __query_replacing_abbreviations(self) -> Tuple[List[Town], Callable]:
+        town = self.town_name
+        for key, value in ABBREVIATIONS.items():
+            if key in town:
+                town.replace(key, value)
         towns = Town.objects.filter(name=town)
-        self.__update_vars(towns, self.__query_with_postal_code,
-                           self.__query_with_partido_as_name)
+        return (towns, self.__query_with_postal_code)
 
-    def __clean_town_name(self):
-        self.town_name = self.town_name.replace(".", "")
-        self.town_name = self.town_name.replace("-", "")
-        self.next_step = self.__query_with_town_name
-        return
-
-    def __query_with_postal_code(self):
+    def __query_with_postal_code(self) -> Tuple[List[Town], Callable]:
         towns = None
         if self.zip_code_num:
             zip_code = ZipCode.objects.filter(code=self.zip_code_num).first()
             towns = zip_code.towns.all()
-        return self.__update_vars(towns, self.__query_with_partido_as_name)
+        # return self.__update_vars(towns, self.__query_most_matching_name)
+        return (towns, self.__query_most_matching_name)
 
-    def __query_with_partido_as_name(self):
+    def __query_most_matching_name(self) -> Tuple[List[Town], Callable]:
+        town = self.town_name
+        words = filter(lambda w: len(w) > 3, town.split(" "))
+        towns = []
+        for word in words:
+            towns.extend(Town.objects.filter(name__contains=word))
+        counted = Counter(towns)
+        ordered = counted.most_common()
+        most_common = ordered[0][1]
+        towns.clear()
+        for item, score in ordered:
+            if score == most_common:
+                towns.append(item)
+            else:
+                break
+        return (towns, self.__query_with_partido_as_name)
+
+    def __query_with_partido_as_name(self) -> Tuple[List[Town], Callable]:
         """Query Town's table with given partido name.
 
         Args:
@@ -119,73 +156,34 @@ class TownSuggestionResolver:
         if self.partido_name:
             query_name = self.partido_name.upper()
             towns = Town.objects.filter(name=query_name)
-        return self.__update_vars(
-            towns, self.__set_result_as_town_with_best_score)
-        # towns = Town.objects.filter(name=town)
-        # if not towns:
-        #     raise PartidoIsNotTown(
-        #         f"Nothing found with partido '{self.partido}' as town.")
-        # if len(towns) > 1:
-        #     raise TooManyTownsForPartidoName(
-        #         f"Too many towns were found with name {town}")
-        # return towns[0]
+        return (towns, self.__set_result_as_town_with_best_score)
+
+    def __query_best_town_from_found(self):
+        if self.found_towns:
+            counted = Counter(self.found_towns)
+            return ([counted.most_common(1)[0][0]],
+                    self.__query_with_partido_as_name)
+
+    def __query_first_town_in_partido(self):
+        if self.partido_name:
+            partidos = Partido.objects.filter(name=self.partido_name).first()
+            if partidos:
+                towns = partidos.first().town_set.all()
+                if towns:
+                    towns.order_by("name").first()
 
     def __set_result_as_town_with_best_score(self):
         if not self.found_towns:
             # ? TODO qué hacer cuando no hay nada encontrado?
+
             pass
         self.found_towns = Counter(self.found_towns)
         ordered = self.found_towns.most_common()
         most_found = ordered[0][0]
         pass
 
-    def __set_points_for_matches(self):
+    def __query_first_town_from_partido(self):
         pass
-
-    def __best_score_from_found(self):
-        if self.result:
-            return self.result
-        if not self.found_towns:
-            raise TownResolverNothingSolved(
-                "Nothing found after trying everything.")
-        counter = Counter(self.found_towns)
-        return counter.most_common()[0][0]
-
-    def perform_next_step(self, town_name: str,
-                          postal_code: str = None, partido: str = None):
-        # 1) Try to get a town with it's name
-        if self.next_step == self.STEP_TOWN_WITH_NAME:
-            town = self.town_with_name(town_name)
-
-        # 2) Attemtp to match postal_code to a city
-        elif self.next_step == self.STEP_TOWN_WITH_PARTIDO_AS_NAME:
-            town = self.town_with_partido_as_name(partido)
-
-        # 3) Attemtp to match postal_code to a city
-        elif self.next_step == self.STEP_TOWN_WITH_PARTIDO_AS_NAME:
-            town = self.town_with_partido_as_name(partido)
-            self.found_towns.append(town)
-        self.attempts_left -= 1
-
-    def best_score_towns(self):
-        self.__clean_town_name()
-        town = self.town_name
-        found = []
-        for letter in town.split(" "):
-            towns = Town.object.filter(Q(name__icontains=letter))
-            if towns:
-                found.extend(towns)
-        if found:
-            counter = Counter(found).most_common(1)
-            as_list = counter.most_common()
-            most_common = as_list[0][1]
-            for key, value in counter:
-                if value == most_common:
-                    found.append(key)
-                else:
-                    break
-            return found
-        return None
 
 
 def town_resolver(
