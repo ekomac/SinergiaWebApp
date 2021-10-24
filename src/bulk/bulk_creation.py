@@ -430,19 +430,22 @@ def codigos_postales():
             town_name = obj['town']
             towns = Town.objects.filter(name=town_name.upper())
             if towns:
-                postal_code = ZipCode.objects.filter(code=code).first()
-                if not postal_code:
-                    postal_code = ZipCode(code=code)
-                    postal_code.save()
+                zipcodes = ZipCode.objects.filter(code=code)
+                if not zipcodes:
+                    zipcode = ZipCode(code=code)
+                    zipcode.save()
+                else:
+                    zipcode = zipcodes[0]
                 for town in towns:
-                    postal_code.towns.add(town)
+                    town.zip_codes.add(zipcode)
                 with open(errors_file_path, 'a') as csv:
-                    line = f'success,{code},{town_name}\n'
+                    line = f'success,{code},"intended={town_name}{towns}"\n'
                     csv.write(line)
             else:
                 with open(errors_file_path, 'a') as csv:
                     line = f'error,{code},{town_name}\n'
                     csv.write(line)
+            del towns
 
 
 def main():

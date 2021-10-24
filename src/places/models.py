@@ -81,6 +81,24 @@ class Partido(models.Model):
         verbose_name_plural = 'Partidos'
 
 
+class ZipCode(models.Model):
+    date_created = models.DateTimeField(
+        verbose_name="Fecha de creación", auto_now_add=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        verbose_name="Usuario", blank=True, null=True)
+    code = models.CharField(
+        verbose_name="Numero", max_length=10,
+        default=None, blank=False, null=False)
+
+    def __str__(self):
+        return f'CP: {self.code}'
+
+    class Meta:
+        verbose_name = 'Código Postal'
+        verbose_name_plural = 'Códigos Postales'
+
+
 class Town(models.Model):
 
     name = models.CharField(
@@ -99,6 +117,7 @@ class Town(models.Model):
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         verbose_name="Actualizado por", blank=True, null=True, default=None)
+    zip_codes = models.ManyToManyField(ZipCode)
     history = HistoricalRecords()
 
     def __str__(self):
@@ -107,15 +126,3 @@ class Town(models.Model):
     class Meta:
         verbose_name = 'Localidad'
         verbose_name_plural = 'Localidades'
-
-
-class ZipCode(models.Model):
-    date_created = models.DateTimeField(
-        verbose_name="Fecha de creación", auto_now_add=True)
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        verbose_name="Usuario", blank=True, null=True)
-    code = models.CharField(
-        verbose_name="Numero", max_length=10,
-        default=None, blank=False, null=False)
-    towns = models.ManyToManyField(Town)
