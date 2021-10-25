@@ -429,6 +429,8 @@ def codigos_postales():
             code = obj['code']
             town_name = obj['town']
             towns = Town.objects.filter(name=town_name.upper())
+            towns = towns if towns else Town.objects.filter(
+                name__contains=town_name.upper())
             if towns:
                 zipcodes = ZipCode.objects.filter(code=code)
                 if not zipcodes:

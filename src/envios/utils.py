@@ -4,20 +4,20 @@ from places.models import Partido, Town
 
 
 ABBREVIATIONS = {
-    'GRAL': 'GENERAL',
-    'GENERAL': 'GRAL',
-    'CNEL': 'CORONEL',
-    'CORONEL': 'CNEL',
-    'PTE': 'PRESIDENTE',
-    'PRESIDENTE': 'PTE',
-    'TTE': 'TENIENTE',
-    'TENIENTE': 'TTE',
-    'SGTO': 'SARGENTO',
-    'SARGENTO': 'SGTO',
-    'KM': 'KILOMETRO',
-    'KILOMETRO': 'KM',
-    'EST': 'ESTACION',
-    'ESTACION': 'EST',
+    "GRAL": "GENERAL",
+    "GENERAL": "GRAL",
+    "CNEL": "CORONEL",
+    "CORONEL": "CNEL",
+    "PTE": "PRESIDENTE",
+    "PRESIDENTE": "PTE",
+    "TTE": "TENIENTE",
+    "TENIENTE": "TTE",
+    "SGTO": "SARGENTO",
+    "SARGENTO": "SGTO",
+    "KM": "KILOMETRO",
+    "KILOMETRO": "KM",
+    "EST": "ESTACION",
+    "ESTACION": "EST",
 }
 
 
@@ -37,8 +37,7 @@ def town_resolver(
 
 class TownSuggestionResolver:
 
-    def __init__(self, town: str,
-                 zip_code: str = None, partido: str = None):
+    def __init__(self, town: str, zip_code: str = None, partido: str = None):
         self.town_name = town.upper()
         self.zip_code_num = zip_code.upper() if zip_code else None
         self.partido_name = partido.upper() if partido else None
@@ -66,8 +65,10 @@ class TownSuggestionResolver:
         return (towns, self.__query_town_name_and_partido)
 
     def __query_town_name_and_partido(self) -> Tuple[List[Town], Callable]:
-        towns = list(Town.objects.filter(
-            name=self.town_name, partido__name=self.partido_name))
+        towns = list(
+            Town.objects.filter(name=self.town_name,
+                                partido__name=self.partido_name)
+        )
         print("Query town name and partido with towns:", towns)
         return (towns, self.__query_cleaned_town_name)
 
@@ -110,8 +111,7 @@ class TownSuggestionResolver:
         print("Query postal code:", towns)
         return (towns, self.__query_most_matching_name)
 
-    def __query_most_matching_name(
-            self) -> Tuple[List[Town], Callable]:
+    def __query_most_matching_name(self) -> Tuple[List[Town], Callable]:
         town = self.town_name
         words = filter(lambda w: len(w) > 3, town.split(" "))
         towns = []

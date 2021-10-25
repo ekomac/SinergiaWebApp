@@ -117,7 +117,7 @@ class Town(models.Model):
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         verbose_name="Actualizado por", blank=True, null=True, default=None)
-    zip_codes = models.ManyToManyField(ZipCode)
+    zip_codes = models.ManyToManyField(ZipCode, blank=True, null=True)
     history = HistoricalRecords()
 
     def __str__(self):

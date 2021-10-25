@@ -1690,7 +1690,7 @@
         },
         {
             "code": 1429,
-            "town": "Nuñez"
+            "town": "Nunez"
         },
         {
             "code": 1430,
@@ -1970,11 +1970,11 @@
         },
         {
             "code": 1647,
-            "town": "Delta San Fernando"
+            "town": "San Fernando"
         },
         {
             "code": 1648,
-            "town": "Carupa"
+            "town": "San Fernando"
         },
         {
             "code": 1648,
@@ -1982,7 +1982,7 @@
         },
         {
             "code": 1649,
-            "town": "Tigre"
+            "town": "Dela del Tigre"
         },
         {
             "code": 1650,
@@ -2066,7 +2066,7 @@
         },
         {
             "code": 1660,
-            "town": "Jose Clemente Paz"
+            "town": "Jose C Paz"
         },
         {
             "code": 1661,
@@ -2074,7 +2074,7 @@
         },
         {
             "code": 1662,
-            "town": "Muñiz"
+            "town": "Muniz"
         },
         {
             "code": 1663,
@@ -2090,11 +2090,11 @@
         },
         {
             "code": 1665,
-            "town": "Jose Clemente Paz"
+            "town": "Jose C Paz"
         },
         {
             "code": 1666,
-            "town": "Jose Clemente Paz"
+            "town": "Jose C Paz"
         },
         {
             "code": 1667,
@@ -2113,12 +2113,16 @@
             "town": "Nordelta Tigre"
         },
         {
+            "code": 1670,
+            "town": "Nordelta Tigre"
+        },
+        {
             "code": 1672,
             "town": "Villa Lynch"
         },
         {
             "code": 1674,
-            "town": "Villa Saenz Peña"
+            "town": "Saenz Pena"
         },
         {
             "code": 1675,
@@ -2166,7 +2170,7 @@
         },
         {
             "code": 1686,
-            "town": "William Morris"
+            "town": "William C. Morris"
         },
         {
             "code": 1687,
@@ -2174,11 +2178,11 @@
         },
         {
             "code": 1688,
-            "town": "Villa Santos Tesei"
+            "town": "Villa Tesei"
         },
         {
             "code": 1688,
-            "town": "Villa Tesey"
+            "town": "Villa Tesei"
         },
         {
             "code": 1689,
@@ -2186,11 +2190,11 @@
         },
         {
             "code": 1689,
-            "town": "Villa Tessei"
+            "town": "Villa Tesei"
         },
         {
             "code": 1690,
-            "town": "Once De Setiembre"
+            "town": "11 De Septiembre"
         },
         {
             "code": 1691,
@@ -2222,7 +2226,7 @@
         },
         {
             "code": 1707,
-            "town": "Domingo Faustino Sarmiento"
+            "town": "Villa Sarmiento"
         },
         {
             "code": 1708,
@@ -2246,7 +2250,7 @@
         },
         {
             "code": 1715,
-            "town": "Barrio Parque Leloir"
+            "town": "Ituzaingo"
         },
         {
             "code": 1716,
@@ -2422,7 +2426,7 @@
         },
         {
             "code": 1756,
-            "town": "Isidro Casnova"
+            "town": "Isidro Casanova"
         },
         {
             "code": 1757,
@@ -2462,11 +2466,7 @@
         },
         {
             "code": 1768,
-            "town": "Ciudad De Eduardo Madero"
-        },
-        {
-            "code": 1768,
-            "town": "Ciudad Madero"
+            "town": "Villa Eduardo Madero"
         },
         {
             "code": 1770,
@@ -2490,7 +2490,7 @@
         },
         {
             "code": 1774,
-            "town": "La Salada"
+            "town": "Ingeniero Budge"
         },
         {
             "code": 1776,
@@ -2506,7 +2506,7 @@
         },
         {
             "code": 1780,
-            "town": "B Nuestra Señora De La Paz"
+            "town": "B Nuestra Senora De La Paz"
         },
         {
             "code": 1781,
@@ -2574,7 +2574,7 @@
         },
         {
             "code": 1802,
-            "town": "Aeropuerto Ezeiza"
+            "town": "Aeropuerto Internacional Ezeiza"
         },
         {
             "code": 1803,
@@ -2634,7 +2634,7 @@
         },
         {
             "code": 1814,
-            "town": "Cañuelas"
+            "town": "Canuelas"
         },
         {
             "code": 1815,
@@ -2802,7 +2802,7 @@
         },
         {
             "code": 1850,
-            "town": "Barrio Don Orione"
+            "town": "Claypole"
         },
         {
             "code": 1851,
@@ -2842,7 +2842,7 @@
         },
         {
             "code": 1860,
-            "town": "Villa España"
+            "town": "Villa Espana"
         },
         {
             "code": 1861,
@@ -2874,7 +2874,7 @@
         },
         {
             "code": 1868,
-            "town": "Piñeyro"
+            "town": "Pineyro"
         },
         {
             "code": 1869,
@@ -2942,7 +2942,7 @@
         },
         {
             "code": 1882,
-            "town": "Ezpeleta Este"
+            "town": "Ezpeleta"
         },
         {
             "code": 1883,
@@ -2954,7 +2954,7 @@
         },
         {
             "code": 1885,
-            "town": "Guillermo E Hudson"
+            "town": "Guillermo Enrique Hudson"
         },
         {
             "code": 1886,
@@ -2978,11 +2978,11 @@
         },
         {
             "code": 1890,
-            "town": "Jose Maria Gutierrez"
+            "town": "Gutierrez"
         },
         {
             "code": 1891,
-            "town": "Ingeniero Allan"
+            "town": "Ingeniero Juan Allan"
         },
         {
             "code": 1892,
@@ -2990,7 +2990,7 @@
         },
         {
             "code": 1893,
-            "town": "Centro Agricola El Pato"
+            "town": "El Pato"
         },
         {
             "code": 1894,
@@ -3678,7 +3678,7 @@
         },
         {
             "code": 2717,
-            "town": "Juana A De La Peña"
+            "town": "Juana A De La Pena"
         },
         {
             "code": 2717,
@@ -3946,7 +3946,7 @@
         },
         {
             "code": 2755,
-            "town": "Viña"
+            "town": "Vina"
         },
         {
             "code": 2760,
@@ -4190,7 +4190,7 @@
         },
         {
             "code": 2812,
-            "town": "Capilla Del Señor"
+            "town": "Capilla Del Senor"
         },
         {
             "code": 2812,
@@ -4230,7 +4230,7 @@
         },
         {
             "code": 2900,
-            "town": "San Nicolas De Los Arroyos"
+            "town": "San Nicolas"
         },
         {
             "code": 2901,
@@ -4238,11 +4238,11 @@
         },
         {
             "code": 2901,
-            "town": "San Nicolas De Los Arroyos"
+            "town": "San Nicolas"
         },
         {
             "code": 2902,
-            "town": "San Nicolas De Los Arroyos"
+            "town": "San Nicolas"
         },
         {
             "code": 2903,
@@ -4441,10 +4441,6 @@
             "town": "Santa Lucia"
         },
         {
-            "code": 2938,
-            "town": "Alsina"
-        },
-        {
             "code": 2942,
             "town": "Baradero"
         },
@@ -4487,6 +4483,60 @@
         {
             "code": 2953,
             "town": "Doyle"
+        }
+    ],
+    "excluded": [
+        {
+            "code": 2938,
+            "town": "Alsina"
+        },
+        {
+            "code": 6003,
+            "town": "Ascencion"
+        },
+        {
+            "code": 6027,
+            "town": "Ferre"
+        },
+        {
+            "code": 6239,
+            "town": "Gonzalez Moreno"
+        },
+        {
+            "code": 6354,
+            "town": "Colonia La Gaviota"
+        },
+        {
+            "code": 6437,
+            "town": "Alamos"
+        },
+        {
+            "code": 6439,
+            "town": "Bonifacio"
+        },
+        {
+            "code": 6628,
+            "town": "Villa Maria"
+        },
+        {
+            "code": 6634,
+            "town": "Alberti"
+        },
+        {
+            "code": 6640,
+            "town": "La Maria"
+        },
+        {
+            "code": 6643,
+            "town": "San Jose"
+        },
+        {
+            "code": 6665,
+            "town": "San Jose"
+        },
+        {
+            "code": 6691,
+            "town": "Pla"
         },
         {
             "code": 6000,
@@ -4562,10 +4612,6 @@
         },
         {
             "code": 6003,
-            "town": "Ascencion"
-        },
-        {
-            "code": 6003,
             "town": "Ferre"
         },
         {
@@ -4586,7 +4632,7 @@
         },
         {
             "code": 6007,
-            "town": "Arribeños"
+            "town": "Arribenos"
         },
         {
             "code": 6007,
@@ -4687,10 +4733,6 @@
         {
             "code": 6026,
             "town": "Agustin Roca"
-        },
-        {
-            "code": 6027,
-            "town": "Ferre"
         },
         {
             "code": 6030,
@@ -4998,7 +5040,7 @@
         },
         {
             "code": 6105,
-            "town": "Cañada Seca"
+            "town": "Canada Seca"
         },
         {
             "code": 6105,
@@ -5146,10 +5188,6 @@
         },
         {
             "code": 6239,
-            "town": "Gonzalez Moreno"
-        },
-        {
-            "code": 6239,
             "town": "San Mauricio"
         },
         {
@@ -5219,10 +5257,6 @@
         {
             "code": 6348,
             "town": "De Bary"
-        },
-        {
-            "code": 6354,
-            "town": "Colonia La Gaviota"
         },
         {
             "code": 6354,
@@ -5310,7 +5344,7 @@
         },
         {
             "code": 6407,
-            "town": "La Porteña"
+            "town": "La Portena"
         },
         {
             "code": 6409,
@@ -5394,10 +5428,6 @@
         },
         {
             "code": 6437,
-            "town": "Alamos"
-        },
-        {
-            "code": 6437,
             "town": "Alfa"
         },
         {
@@ -5443,10 +5473,6 @@
         {
             "code": 6438,
             "town": "Masurel"
-        },
-        {
-            "code": 6439,
-            "town": "Bonifacio"
         },
         {
             "code": 6439,
@@ -5866,7 +5892,7 @@
         },
         {
             "code": 6513,
-            "town": "La Niña"
+            "town": "La Nina"
         },
         {
             "code": 6513,
@@ -6466,10 +6492,6 @@
         },
         {
             "code": 6628,
-            "town": "Villa Maria"
-        },
-        {
-            "code": 6628,
             "town": "Villa Ortiz"
         },
         {
@@ -6479,10 +6501,6 @@
         {
             "code": 6632,
             "town": "Gorostiaga"
-        },
-        {
-            "code": 6634,
-            "town": "Alberti"
         },
         {
             "code": 6634,
@@ -6506,10 +6524,6 @@
         },
         {
             "code": 6640,
-            "town": "La Maria"
-        },
-        {
-            "code": 6640,
             "town": "Palantelen"
         },
         {
@@ -6527,10 +6541,6 @@
         {
             "code": 6643,
             "town": "Colonia Palantelen"
-        },
-        {
-            "code": 6643,
-            "town": "San Jose"
         },
         {
             "code": 6645,
@@ -6637,10 +6647,6 @@
             "town": "Pedernales"
         },
         {
-            "code": 6665,
-            "town": "San Jose"
-        },
-        {
             "code": 6667,
             "town": "Agustin Mosconi"
         },
@@ -6667,10 +6673,6 @@
         {
             "code": 6667,
             "town": "Valdes"
-        },
-        {
-            "code": 6691,
-            "town": "Pla"
         },
         {
             "code": 6700,
@@ -7114,7 +7116,7 @@
         },
         {
             "code": 7013,
-            "town": "Egaña"
+            "town": "Egana"
         },
         {
             "code": 7020,
@@ -8678,7 +8680,7 @@
         },
         {
             "code": 7401,
-            "town": "Durañona"
+            "town": "Duranona"
         },
         {
             "code": 7401,
@@ -8766,7 +8768,7 @@
         },
         {
             "code": 7404,
-            "town": "Muñoz"
+            "town": "Munoz"
         },
         {
             "code": 7404,
@@ -9146,7 +9148,7 @@
         },
         {
             "code": 7533,
-            "town": "Quiñihual Estacion"
+            "town": "Quinihual Estacion"
         },
         {
             "code": 7535,
