@@ -4,6 +4,7 @@ from account.models import Account
 from envios.bulkutil.extractor import Extractor
 from envios.models import Envio
 from clients.models import Client
+from envios.utils import NoSuggestionsAvailable, town_resolver
 from places.models import Town
 from rich import print
 
@@ -80,10 +81,11 @@ class BulkAddForm(forms.Form):
             if i == 0 or "traking_id" in row:
                 print("acá debemos pasar")
                 continue
-            print("estamos en", i)
+            print("\n\n estamos en", i, "con", row)
             cols = row.split(",")
             kwargs = {}
 
+            domicilio = None
             if not cols[1]:
                 # errors.append(
                 errors.append(
@@ -92,6 +94,8 @@ class BulkAddForm(forms.Form):
                             se especificó el domicilio."
                     )
                 )
+            else:
+                domicilio = cols[1]
 
             if not cols[4]:
                 error = forms.ValidationError(
@@ -100,25 +104,41 @@ class BulkAddForm(forms.Form):
 
             # Town
             towns = Town.objects.filter(name=cols[4].upper())
-            print(towns)
-            if not towns:
-                error = forms.ValidationError(
-                    f"En la fila {i}, columna 4, no se encontró \
-                        la localidad con el nombre {cols[4]}")
-                errors.append(error)
-            elif len(towns) > 1:
-                towns = Town.objects.filter(
-                    name=cols[4].upper(), partido__name=cols[5].upper())
-                if not towns:
-                    error = forms.ValidationError(
-                        f"En la fila {i}, columna 4, se indicó una localidad que \
-                            pertenece a más de un partido. Tratamos de \
-                                especificar una con el partido {cols[5]}, \
-                                    pero este partido no se encontró.")
-                    errors.append(error)
+            town = None
+            if not towns or len(towns) > 1:
+                try:
+                    print("sugerencias para", cols[4])
+                    result = town_resolver(cols[4], None, cols[3])
+                    errors.append(forms.ValidationError(
+                        f'En la fila {i}, columna 4, no se encontró \
+                            la localidad con el nombre {cols[4]}. ¿Acaso \
+                                quisiste decir {result}?'
+                    ))
+                except NoSuggestionsAvailable:
+                    errors.append(forms.ValidationError(
+                        f'En la fila {i}, columna 4, no se encontró \
+                            la localidad con el nombre {cols[4]}, y no \
+                                tenemos sugerencias para vos.'
+                    ))
+            else:
+                town = towns[0]
 
-            if errors:
-                raise forms.ValidationError(errors)
+            # if not towns:
+            #     error = forms.ValidationError(
+            #         f"En la fila {i}, columna 4, no se encontró \
+            #             la localidad con el nombre {cols[4]}")
+            #     errors.append(error)
+            # elif len(towns) > 1:
+            #     towns = Town.objects.filter(
+            #         name=cols[4].upper(), partido__name=cols[5].upper())
+            #     if not towns:
+            #         error = forms.ValidationError(
+            #             f"En la fila {i}, columna 4, se indicó una localidad
+            # que \
+            #                 pertenece a más de un partido. Tratamos de \
+            #                     especificar una con el partido {cols[5]}, \
+            #                         pero este partido no se encontró.")
+            #         errors.append(error)
 
             # Flex code related
             if cols[0]:
@@ -126,13 +146,13 @@ class BulkAddForm(forms.Form):
                 kwargs['flex_id'] = cols[0]
 
             # Adress
-            kwargs['recipient_address'] = cols[1]
+            kwargs['recipient_address'] = domicilio
             # Entrances
             kwargs['recipient_entrances'] = cols[2] if cols[2] else None
             # Zipcode
             kwargs['recipient_zipcode'] = cols[3] if cols[3] else None
             # Town
-            kwargs['recipient_town'] = towns[0]
+            kwargs['recipient_town'] = town
             # Recipient's Name
             kwargs['recipient_name'] = cols[6] if cols[6] else None
             # Recipient's Doc Id
@@ -140,14 +160,14 @@ class BulkAddForm(forms.Form):
             # Recipient's Phone
             kwargs['recipient_phone'] = cols[8] if cols[8] else None
             # Detail (packages)
-            if cols[9]:
-                kwargs['detail'] = cols[9]
+            kwargs['detail'] = cols[9] if cols[9] else "0-1"
 
             kwargs['created_by'] = author
             kwargs['client'] = client
 
             envios.append(Envio(**kwargs))
-
+        if errors:
+            raise forms.ValidationError(errors)
         return envios
 
     def get_csv_result(self):
