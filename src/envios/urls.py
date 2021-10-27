@@ -5,7 +5,8 @@ from .views import (
     EnvioDetailView,
     # EnviosList,
     EnvioCreate,
-    bulk_create_envios,
+    bulk_create_envios_view,
+    bulk_confirm_create_envios_view,
     print_csv_file,
     update_envio,
     delete_envio,
@@ -14,13 +15,15 @@ from .views import (
 
 app_name = 'envios'
 urlpatterns = [
-    # ************************* ENVIOS *************************
+    # ******************************* ENVIOS *******************************
     path('envio/', envios_view, name="envio-list"),
     path('envio/<int:pk>/', EnvioDetailView.as_view(), name="envio-detail"),
     path('envio/add/', EnvioCreate.as_view(), name="envio-add"),
-    path('envio/bulk-add/', bulk_create_envios, name="envio-bulk-add"),
+    path('envio/bulk-add/', bulk_create_envios_view, name="envio-bulk-add"),
+    path('envio/bulk-add/<int:pk>/confirm',
+         bulk_confirm_create_envios_view, name="envio-bulk-add-confirm"),
     path('envio/edit/', update_envio, name="envio-edit"),
     path('envio/delete/', delete_envio, name="envio-delete"),
     path('envio/bad-bulk-add/', print_csv_file, name="envio-bad-bulk-add"),
-    # ************************* ENVIOS *************************
+    # ******************************* ENVIOS *******************************
 ]

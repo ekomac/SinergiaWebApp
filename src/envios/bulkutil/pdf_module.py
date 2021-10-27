@@ -1,8 +1,9 @@
 import re
+from django.core.files.uploadedfile import InMemoryUploadedFile
 import fitz
 from itertools import chain
 from .base_module import ShipmentExractorModule
-from .exceptions import EmptyPDFException, InvalidPdfFile
+from .exceptions import EmptyPDFError, InvalidPdfFileError
 from .shipment import Shipment
 
 
@@ -80,7 +81,7 @@ class TiendaNubeSubmodule():
             parts = re.findall(r'Enviar a:<<<(.+?)Producto', text)
             return map(self.__part_to_shipment, parts)
         except AttributeError:
-            raise EmptyPDFException("The PDF provided has no shipments in it.")
+            raise EmptyPDFError("The PDF provided has no shipments in it.")
 
     def __part_to_shipment(self, part):
         # Get destination's info
@@ -122,12 +123,14 @@ class TiendaNubeSubmodule():
 
 class PDFModule(ShipmentExractorModule):
 
-    def __init__(self, file, **kwargs):
-        super().__init__(file, **kwargs)
+    def __init__(self, file: InMemoryUploadedFile, **kwargs):
+        super(PDFModule, self).__init__(file, **kwargs)
 
     def extract_shipments(self):
-        print("extraction")
-        with fitz.open(None, self.file.read(), "pdf") as pdf:
+        print(type(self.file))
+        print(hex(id(self.file)))
+        file: InMemoryUploadedFile = self.file
+        with fitz.open(None, file.read(), 'pdf') as pdf:
             first_page = pdf[0]
             fp_text = first_page.getText()
             submodule = None
@@ -137,7 +140,7 @@ class PDFModule(ShipmentExractorModule):
                 submodule = TiendaNubeSubmodule(pdf)
             else:
                 print(fp_text)
-                raise InvalidPdfFile(
+                raise InvalidPdfFileError(
                     "El pdf proporcionado no es de" +
                     " Mercado Libre ni de TiendaNube")
             return submodule.extract_shipments()

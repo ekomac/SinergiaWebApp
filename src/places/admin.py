@@ -30,7 +30,7 @@ class TownAdmin(admin.ModelAdmin):
 
 
 class ZipCodeAdmin(admin.ModelAdmin):
-    list_display = ('code', 'created_by', 'date_created')
+    list_display = ('code', 'created_by', 'date_created', 'get_display_towns')
     search_fields = ('code',)
     filter_horizontal = ()
     list_filter = ()

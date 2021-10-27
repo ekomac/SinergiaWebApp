@@ -1,12 +1,15 @@
+import hashlib
 from typing import List
 from django import forms
+from django.core.validators import FileExtensionValidator
 from account.models import Account
+from envios.bulkutil.exceptions import (
+    InvalidExcelFileError, InvalidPdfFileError)
 from envios.bulkutil.extractor import Extractor
-from envios.models import Envio
+from envios.models import BulkLoadEnvios, Envio
 from clients.models import Client
 from envios.utils import NoSuggestionsAvailable, town_resolver
 from places.models import Town
-from rich import print
 
 
 class MissingColumn(Exception):
@@ -17,13 +20,7 @@ class MissingTown(Exception):
     pass
 
 
-class BulkAddForm(forms.Form):
-
-    def __init__(self, user=None, *args, **kwargs):
-        super(BulkAddForm, self).__init__(*args, **kwargs)
-        self.result = None
-        self.csv_file = None
-        self.author = user
+class BulkLoadEnviosForm(forms.ModelForm):
 
     client = forms.ModelChoiceField(
         label="Cliente", required=True,
@@ -33,35 +30,130 @@ class BulkAddForm(forms.Form):
         }),
     )
 
-    file = forms.FileField(allow_empty_file=False,
-                           label="Archivo", required=True)
+    file = forms.FileField(
+        allow_empty_file=False,
+        label="Archivo con envíos(PDF MercadoLibre o TiendaNube, Excel)",
+        required=True,
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+        }),
+        validators=[FileExtensionValidator(['pdf', 'xlsx'])])
+
+    def __init__(self, user=None, *args, **kwargs):
+        super(BulkLoadEnviosForm, self).__init__(*args, **kwargs)
+        self.author = user
+        self.file_contet = None
+        self.result = None
+        self.found_errors = None
+        self.requires_manual_fix = False
+        self.cells_to_paint = None
+
+    class Meta:
+        model = BulkLoadEnvios
+        fields = ['client']
+
+    def clean_file(self):
+        file = self.cleaned_data.get('file')
+        self.hash_from_file = hashlib.md5(file.read()).hexdigest()
+        file.file.seek(0)
+        if BulkLoadEnvios.objects.filter(
+                hashed_file=self.hash_from_file,
+                load_status=BulkLoadEnvios.LOADING_STATUS_FINISHED).exists():
+            raise forms.ValidationError(
+                "Ya se cargó un archivo con los mismos datos")
+        try:
+            extractor = Extractor()
+            result = extractor.get_shipments(file)
+            self.result = result['result']
+            self.found_errors = result['errors']
+            self.requires_manual_fix = result['needs_manual_fix']
+            self.cells_to_paint = result['cells_to_paint']
+            return file
+        except InvalidPdfFileError:
+            raise forms.ValidationError("El PDF proporcionado no es\
+                ni de MercadoLibre ni de TiendaNube")
+        except InvalidExcelFileError:
+            raise forms.ValidationError("El archivo de Excel proporcionada \
+                no es válido.")
+
+    def save(self, commit=True):
+        bulk_load = self.instance
+        bulk_load.hashed_file = self.hash_from_file
+        # If a bulk_load with same hash and not finished
+        #  is found, delete it before saving this
+        if BulkLoadEnvios.objects.filter(
+                hashed_file=self.hash_from_file,
+                load_status=BulkLoadEnvios.LOADING_STATUS_PROCESSING).exists():
+            BulkLoadEnvios.objects.filter(
+                hashed_file=self.hash_from_file,
+                load_status=BulkLoadEnvios.LOADING_STATUS_PROCESSING).delete()
+        bulk_load.hashed_file = self.hash_from_file
+        bulk_load.created_by = self.author
+        if not self.found_errors:
+            bulk_load.load_status = BulkLoadEnvios.LOADING_STATUS_FINISHED
+        bulk_load.client = self.cleaned_data['client']
+        bulk_load.csv_result = self.result
+        bulk_load.errors = self.found_errors
+        bulk_load.requires_manual_fix = self.requires_manual_fix
+        bulk_load.cells_to_paint = self.cells_to_paint
+        if commit:
+            bulk_load.save()
+        return bulk_load
+
+
+class BulkAddForm(forms.Form):
+
+    def __init__(self, user=None, *args, **kwargs):
+        super(BulkAddForm, self).__init__(*args, **kwargs)
+        self.result = None
+        self.csv_file = None
+        self.author = user
+        self.csv_result = None
+        self.csv_result_error_rowcols = []
+        self.csv_result_no_suggestions = False
+
+    client = forms.ModelChoiceField(
+        label="Cliente", required=True,
+        queryset=Client.objects.all(),
+        widget=forms.Select(attrs={
+            'class': ' form-select',
+        }),
+    )
+
+    file = forms.FileField(
+        allow_empty_file=False,
+        label="Archivo con envíos(PDF MercadoLibre o TiendaNube, Excel)",
+        required=True,
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+        }),
+        validators=[FileExtensionValidator(['pdf', 'xlsx'])])
+
+    accept_changes = forms.BooleanField(
+        label="Aceptar cambios", required=False, initial=False)
 
     def save(self):
         Envio.objects.bulk_create(self.result)
         return True
 
     def clean_file(self):
-        print("cleaning file")
         file = self.cleaned_data.get('file')
         return file
 
     def clean(self):
-        print("[red]cleaning file[red]")
         cleaned_data = super().clean()
         file = cleaned_data.get('file')
         client = cleaned_data.get('client')
+        use_suggestions = cleaned_data.get('accept_changes')
         if file and client:
             extractor = Extractor()
             self.csv_result, _ = extractor.get_shipments(file)
             self.result = self.get_envios_from_csv(
-                self.csv_result, self.author, client)
-        # if errors:
-        #     raise forms.ValidationError(errors)
-        # return value
+                self.csv_result, self.author, client, use_suggestions)
 
     def get_envios_from_csv(
         self, csv_str: str, author: Account,
-            client: Client) -> List[Envio]:
+            client: Client, use_suggestions: bool = False) -> List[Envio]:
         """[summary]
 
         Args:
@@ -79,66 +171,58 @@ class BulkAddForm(forms.Form):
         errors = []
         for i, row in enumerate(csv_str.split("\n")):
             if i == 0 or "traking_id" in row:
-                print("acá debemos pasar")
                 continue
-            print("\n\n estamos en", i, "con", row)
             cols = row.split(",")
             kwargs = {}
 
             domicilio = None
             if not cols[1]:
-                # errors.append(
+                self.csv_result_error_rowcols.append(f"{i+1},2")
+                self.csv_result_no_suggestions = True
                 errors.append(
                     forms.ValidationError(
-                        f"En la fila {i}, columna 1 no \
-                            se especificó el domicilio."
+                        f"En la fila {i+1}, columna 2 no \
+                            se especificó el domicilio \
+                                ({cols[1]}, {cols[3]} {cols[4]})."
                     )
                 )
             else:
                 domicilio = cols[1]
 
             if not cols[4]:
+                self.csv_result_no_suggestions = True
+                self.csv_result_error_rowcols.append(f"{i+1},5")
                 error = forms.ValidationError(
-                    f"En la fila {i}, columna no se especificó la localidad.")
+                    f"En la fila {i+1}, columna 5, no se \
+                        especificó la localidad ({cols[1]}, \
+                            {cols[3]} {cols[4]}).")
                 errors.append(error)
 
-            # Town
             towns = Town.objects.filter(name=cols[4].upper())
             town = None
             if not towns or len(towns) > 1:
+                self.csv_result_error_rowcols.append(f"{i+1},5")
                 try:
-                    print("sugerencias para", cols[4])
-                    result = town_resolver(cols[4], None, cols[3])
-                    errors.append(forms.ValidationError(
-                        f'En la fila {i}, columna 4, no se encontró \
-                            la localidad con el nombre {cols[4]}. ¿Acaso \
-                                quisiste decir {result}?'
-                    ))
+                    result, reason = town_resolver(cols[4], cols[5], cols[3])
+                    if use_suggestions:
+                        town = result
+                    else:
+                        errors.append(forms.ValidationError(
+                            f'En la fila {i+1}, columna 5, no se encontró \
+                                la localidad con el nombre {cols[4]} \
+                                    ({cols[1]}, {cols[3]} {cols[4]}). ¿Acaso \
+                                    quisiste decir {result}? {reason}'
+                        ))
                 except NoSuggestionsAvailable:
+                    self.csv_result_no_suggestions = True
                     errors.append(forms.ValidationError(
-                        f'En la fila {i}, columna 4, no se encontró \
-                            la localidad con el nombre {cols[4]}, y no \
-                                tenemos sugerencias para vos.'
+                        f'En la fila {i+1}, columna 5, no se encontró \
+                            la localidad con el nombre {cols[4]} \
+                                (({cols[1]}, {cols[3]} {cols[4]})), y no \
+                                    tenemos sugerencias para vos.'
                     ))
             else:
                 town = towns[0]
-
-            # if not towns:
-            #     error = forms.ValidationError(
-            #         f"En la fila {i}, columna 4, no se encontró \
-            #             la localidad con el nombre {cols[4]}")
-            #     errors.append(error)
-            # elif len(towns) > 1:
-            #     towns = Town.objects.filter(
-            #         name=cols[4].upper(), partido__name=cols[5].upper())
-            #     if not towns:
-            #         error = forms.ValidationError(
-            #             f"En la fila {i}, columna 4, se indicó una localidad
-            # que \
-            #                 pertenece a más de un partido. Tratamos de \
-            #                     especificar una con el partido {cols[5]}, \
-            #                         pero este partido no se encontró.")
-            #         errors.append(error)
 
             # Flex code related
             if cols[0]:
@@ -171,7 +255,10 @@ class BulkAddForm(forms.Form):
         return envios
 
     def get_csv_result(self):
-        return self.csv_result
+        errors = ""
+        if self.csv_result_error_rowcols:
+            errors = "-".join(self.csv_result_error_rowcols)
+        return (self.csv_result, errors, self.csv_result_no_suggestions)
 
 
 class CreateEnvioForm(forms.ModelForm):

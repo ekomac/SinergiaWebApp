@@ -57,10 +57,14 @@
                         id="id_file" name="file" required>
                     {% comment %} {{ upload_form.file }} {% endcomment %}
                     <div class="invalid-feedback">
-                        {% comment %} {% for error in upload_form.file.errors %}{{error}}<br>{% endfor %}
-                        {% endcomment %}
-                        La extensión del archivo proporcionada no está permitida. Las extensiones permitidas son: 'pdf,
-                        xlsx'.
+                        {% for error in upload_form.file.errors %}
+                        {% if error == "File extension 'txt' is not allowed. Allowed extensions are: 'pdf, xlsx'." %}
+                        La extensión del archivo proporcionada no está permitida. Las extensiones permitidas son:
+                        'pdf, xlsx'.
+                        {% else %}
+                        {{error}}<br>
+                        {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
                 <div class="col-12 col-md-6 mt-2">
@@ -69,12 +73,6 @@
                     <div class="invalid-feedback">
                         {% for error in upload_form.client.errors %}{{error}}<br>{% endfor %}
                     </div>
-                </div>
-            </div>
-
-            <div class=" row mt-3 mb-4">
-                <div class="col-12 col-md-6">
-                    {{upload_form.accept_changes}}
                 </div>
             </div>
 

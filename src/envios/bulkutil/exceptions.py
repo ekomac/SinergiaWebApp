@@ -1,22 +1,26 @@
-class EmptyPDFException(Exception):
+class EmptyPDFError(Exception):
     pass
 
 
-class InvalidExcelFile(Exception):
+class InvalidExcelFileError(Exception):
     pass
 
 
-class InvalidPdfFile(Exception):
+class InvalidPdfFileError(Exception):
     pass
 
 
-class CantConvertNothing(Exception):
+class CantConvertNothingError(Exception):
     pass
 
 
-class FileWithNoExtension(Exception):
+class FileWithNoExtensionError(Exception):
     pass
 
 
-class InvalidExtension(Exception):
+class InvalidExtensionError(Exception):
+    pass
+
+
+class UnsupportedExtensionError(Exception):
     pass

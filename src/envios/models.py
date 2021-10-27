@@ -3,6 +3,7 @@ from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
+from django.template.defaultfilters import truncatechars
 from simple_history.models import HistoricalRecords
 from clients.models import Client
 from places.models import Town
@@ -75,10 +76,6 @@ class Envio(models.Model):
     delivery_schedule = models.CharField(
         verbose_name='Horario de entrega', choices=SCHEDULES,
         max_length=5, blank=True, null=True)
-    qr_code = models.FileField(
-        verbose_name='Código QR generado',
-        upload_to=upload_location,
-        max_length=60, blank=True, null=True)
     history = HistoricalRecords()
 
     def __str__(self):
@@ -269,3 +266,65 @@ class ListOfEnvios(object):
     def __init__(self, envios):
 
         pass
+
+
+def bulk_file_upload_path(instance, filename):
+    author_id = str(instance.created_by.id)
+    client_id = str(instance.client.id)
+    client_name = str(instance.client.name)
+    date = instance.date_created.strftime('%YYYY%MM%DD')
+    dirs = f'bulk_loads/{author_id}/'
+    file_data = f'{date}_{client_id}-{client_name}_{filename}'
+    return dirs + file_data
+
+
+class BulkLoadEnvios(models.Model):
+
+    LOADING_STATUS_FINISHED = '0'
+    LOADING_STATUS_PROCESSING = '1'
+    LOADING_STATUS_FAILED = '2'
+
+    LOADING_STATUSES = [
+        (LOADING_STATUS_FINISHED, 'Done'),
+        (LOADING_STATUS_PROCESSING, 'Loading'),
+        (LOADING_STATUS_FAILED, 'Failed'),
+    ]
+
+    date_created = models.DateTimeField(
+        verbose_name="Fecha de creación", auto_now_add=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        verbose_name="Usuario", blank=False, null=False)
+    load_status = models.CharField(
+        verbose_name="Estado",
+        max_length=1, choices=LOADING_STATUSES,
+        default=LOADING_STATUS_PROCESSING)
+    client = models.ForeignKey(
+        Client, on_delete=models.SET_NULL,
+        verbose_name="Usuario", blank=True, null=True)
+    csv_result = models.TextField(
+        verbose_name="Resultado",
+        blank=True, null=True, default=None)
+    errors = models.TextField(
+        verbose_name="Errores",
+        blank=True, null=True, default=None)
+    cells_to_paint = models.TextField(
+        verbose_name="Celdas que hay que pintar",
+        blank=True, null=True, default=None)
+    requires_manual_fix = models.BooleanField(default=False)
+    hashed_file = models.CharField(
+        verbose_name="Hashed file",
+        max_length=100, blank=True, null=True)
+    history = HistoricalRecords()
+
+    @property
+    def short_errors_display(self):
+        return truncatechars(self.errors, 100)
+
+    @property
+    def short_csv_result_display(self):
+        return truncatechars(self.csv_result, 1000)
+
+    class Meta:
+        verbose_name = 'Carga masiva de envios'
+        verbose_name_plural = 'Cargas masivas de envios'

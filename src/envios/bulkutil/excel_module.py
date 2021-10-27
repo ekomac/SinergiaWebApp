@@ -1,6 +1,6 @@
 import re
 import openpyxl
-from .exceptions import InvalidExcelFile
+from .exceptions import InvalidExcelFileError
 from .shipment import Shipment
 from .base_module import ShipmentExractorModule
 
@@ -19,7 +19,7 @@ class ExcelModule(ShipmentExractorModule):
         max_score = max(names)
 
         if max_score == 1:
-            raise InvalidExcelFile(
+            raise InvalidExcelFileError(
                 "The given .xlsx file doesn't have any valid data.")
 
         # Search the index of biggest score

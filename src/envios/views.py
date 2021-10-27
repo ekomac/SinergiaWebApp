@@ -1,7 +1,8 @@
 # Basic Python
 import json
-import io
-import csv
+from openpyxl import Workbook
+from openpyxl.styles import PatternFill
+from openpyxl.writer.excel import save_virtual_workbook
 from django.http.response import HttpResponse
 import unidecode
 from datetime import datetime, timedelta
@@ -22,11 +23,12 @@ from django.views.generic import ListView
 
 # Project apps
 from account.models import Account
-# from envios.bulkutil.extractor import Extractor
-from envios.forms import BulkAddForm, CreateEnvioForm
-from envios.models import Envio
+from envios.forms import BulkAddForm, BulkLoadEnviosForm, CreateEnvioForm
+from envios.models import BulkLoadEnvios, Envio
+from envios.utils import bulk_create_envios, create_xlsx_workbook
 from places.models import Partido, Town
 from clients.models import Client
+from utils.alerts.views import create_alert_and_redirect
 
 
 ENVIOS_PER_PAGE = 30
@@ -167,7 +169,7 @@ def get_envio_queryset(
                 )
 
 
-class EnvioContextMixin(View):
+class EnvioContextMixin(LoginRequiredMixin, View):
 
     def get_context_data(self, **kwargs):
         ctx = super(EnvioContextMixin, self).get_context_data(**kwargs)
@@ -175,7 +177,7 @@ class EnvioContextMixin(View):
         return ctx
 
 
-class EnvioDetailView(EnvioContextMixin, DetailView):
+class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
     model = Envio
 
 
@@ -205,36 +207,132 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
 
 
 @login_required(login_url='/login/')
-def bulk_create_envios(request):
+def bulk_create_envios_view(request):
+    context = {}
+    form = BulkLoadEnviosForm()
+    if request.method == 'POST':
+        user = Account.objects.get(email=request.user.email)
+        form = BulkLoadEnviosForm(
+            user, request.POST or None, request.FILES or None)
+        if form.is_valid():
+            obj = form.save()
+            msg = 'La solicitud de carga masiva se creó correctamente'
+            return create_alert_and_redirect(
+                request, msg, 'envios:envio-bulk-add-confirm', obj.pk)
+    context['upload_form'] = form
+    return render(request, 'envios/bulk/add.html', context)
+
+
+@login_required(login_url='/login/')
+def bulk_add_envios_success(request, ids):
+    context = {}
+    context['selected_tab'] = 'shipments-tab'
+    context['ids'] = ids
+    return render(request, 'envios/bulk/add_success.html', context)
+
+
+@login_required(login_url='/login/')
+def download_shipment_labels_file_response(request, ids):
+    # TODO Replace obj with PDF file
+    obj = None
+    response = HttpResponse(
+        obj, content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=result.xlsx'
+    return response
+
+
+@login_required(login_url='/login/')
+def bulk_confirm_create_envios_view(request, *args, **kwargs):
+    context = {}
+    obj = BulkLoadEnvios.objects.get(pk=kwargs['pk'])
+    if obj.requires_manual_fix:
+        pass
+        # ids = ",".join([envio.id for envio in bulk_create_envios(obj)])
+    context['selected_tab'] = 'shipments-tab'
+
+    # 'obj': obj,
+    # 'ids': ids,
+
+    return render(request, 'envios/bulk/list.html', context)
+
+
+@login_required(login_url='/login/')
+def bulk_create_envios2(request):
     context = {}
     form = BulkAddForm()
     if request.method == 'POST':
         author = Account.objects.filter(email=request.user.email).first()
-        form = BulkAddForm(author, request.POST, request.FILES)
+        form = BulkAddForm(author, request.POST or None, request.FILES or None)
         print("forming")
         if form.is_valid():
             Envio.objects.bulk_create(form.result)
         else:
-            request.session['csv_because_errors'] = form.get_csv_result()
-    context = {
-        'upload_form': form
-    }
+            results, errors, no_suggestions = form.get_csv_result()
+            request.session['csv_because_errors'] = results
+            print("errors", errors)
+            request.session['csv_errors_because_errors'] = errors
+            context['no_suggestions'] = no_suggestions
+    context['upload_form'] = form
     return render(request, 'envios/envio/bulk-add.html', context)
 
 
 @login_required(login_url='/login/')
 def print_csv_file(request):
+    # Check if there is any csv_result with errors
     csv_result = request.session.get('csv_because_errors', None)
-    print(csv_result)
     if not csv_result:
+        # If there isn't, redirect to bulk add
         redirect("envios:envio-bulk-add")
-    buffer = io.StringIO()
-    wr = csv.writer(buffer)
-    wr.writerows([row.split(",") for row in csv_result.split("\n")])
 
-    buffer.seek(0)
-    response = HttpResponse(buffer, content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=result.csv'
+    # Get errors if there are any
+    csv_errors = request.session.get('csv_errors_because_errors', None)
+    if csv_errors:
+        # Because it's a string, split it to a list
+        csv_errors = csv_errors.split("-")
+
+    wb = create_xlsx_workbook(csv_result, csv_errors)
+
+    # Create an excel wrokbook
+    wb = Workbook()
+
+    # Get first sheet (1 is created when wb created)
+    sheet = wb.active
+
+    # Change title to 'Datos'
+    sheet.title = 'Datos'
+
+    # Get the sheet recently changed
+    sheet = wb.get_sheet_by_name('Datos')
+
+    # The default amount of columns
+    COLUMNS = 10
+
+    # Parse the csv string to list of lists
+    csv_result = [row.split(",") for row in csv_result.split("\n")]
+
+    # Iterate over rows and cols indexes
+    for i in range(len(csv_result)):
+        for j in range(COLUMNS):
+
+            # Get the cell at i and j
+            cell = sheet.cell(row=i+1, column=j+1)
+
+            # Set the value to the corresponding csv row and col
+            cell.value = csv_result[i][j]
+
+            # Cell reference as pair values as string
+            cell_ref = f"{i},{j}"
+
+            # If the cell_ref is in csv_errors
+            if csv_errors and cell_ref in csv_errors:
+                # Change the bg color to yellow
+                cell.fill = PatternFill("solid", fgColor="FFFF00")
+
+    # Saves the woorkbook in memory and
+    # returns the http response with the file from memory
+    response = HttpResponse(
+        save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=result.xlsx'
     return response
 
 
@@ -338,6 +436,7 @@ def map_town_to_dict(town):
     }
 
 
+@login_required(login_url='/login/')
 def create_envio_view(request):
 
     context = {}
@@ -359,14 +458,16 @@ def create_envio_view(request):
     return render(request, "envios/create.html", context)
 
 
-class EnviosList(EnvioContextMixin, ListView):
+class EnviosList(EnvioContextMixin, LoginRequiredMixin,  ListView):
     model = Envio
     template_name = "envios/list.html"
 
 
+@login_required(login_url='/login/')
 def update_envio(request):
     return render(request, 'envios/update.html', {})
 
 
+@login_required(login_url='/login/')
 def delete_envio(request):
     return render(request, 'envios/delete.html', {})

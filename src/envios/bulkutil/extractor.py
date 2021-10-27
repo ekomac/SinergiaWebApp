@@ -1,124 +1,113 @@
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from .exceptions import (
-    CantConvertNothing,
-    FileWithNoExtension,
-    InvalidExtension
-)
+from envios.utils import NoSuggestionsAvailable, town_resolver
+
+from places.models import Town
+from .exceptions import UnsupportedExtensionError
 from .pdf_module import PDFModule
 from .excel_module import ExcelModule
-from .csv_module import CSVModule
 from .shipment import Shipment
-from typing import Tuple
+from typing import List, Tuple
 
 
-class Extractor():
+class AddressNotFound(Exception):
+    pass
 
-    def __init__(
-            self, in_mem_file: InMemoryUploadedFile = None, ** kwargs):
-        self.file = in_mem_file
-        self.file_name = self.file.name if self.file else None
+
+class TownNotFound(Exception):
+    pass
+
+
+class Extractor:
+
+    def __init__(self):
+        self.file = None
+        self.file_name = None
+        self.errors = []
+        self.needs_manual_fix = False
+        self.cells_to_paint = []
 
     def get_shipments(
-            self, in_mem_file: InMemoryUploadedFile = None) -> Tuple[str, int]:
-        """Initializes convertion of file to csv
-
-        Args:
-            in_mem_file (django.core.files.uploadedfile.InMemoryUploadedFile,
-             optional): loaded in memory, post from django view.
-             Defaults to None.
-
-        Raises:
-            TypeError: if given filepath isn't a string.
-            CantConvertNothing: if there wasn't any filepath
-            provided (if it's none).
-            FileWithNoExtension: if the file doesn't have an extension.
-
-        Returns:
-            Tuple[str, int]: csv string containing shipments's data
-            and shipments count as int
-        """
-        # If in_mem_file was provided here, update self.in_mem_file
-        if in_mem_file:
-            self.file = in_mem_file
-            self.file_name = self.file.name
-
-        # If no in_mem_file was provided
-        if not self.file:
-            raise CantConvertNothing("No file was provided.")
-
-        try:
-            if self.file_name:
-                # Find last '.' (stop)
-                last_stop = self.file_name.rindex(".")
-                # Get the extension
-                extension = self.file_name[last_stop+1:]
-                # Extract the shipments
-                shipments = self.__do_extraction(extension)
-                # Return the shipments parsed as a csv
-                return (self.__shipments_to_csv(shipments), len(shipments))
-
-        except ValueError as e:
-            print(e)
-            # The file doesn't have an extension.
-            raise FileWithNoExtension("File didn't contain an extension.")
-
-    def __do_extraction(self, extension: str) -> list:
-        """Extract the shipments from the file provided,
-        for the specific given extension (pdf, xlsx, csv).
-
-        Args:
-            extension (str): a file extension expressed as a string.
-            Compatible are: pdf, xlsx and csv. Pdf must be a file containing
-            shipment labels from MercadoLibre and TiendaNube.
-
-        Raises:
-            InvalidExtension: for incompatible extensions
-            (anything but pdf, xlsx & csv)
-
-        Returns:
-            list[Shipment2]: all the shipments found.
-        """
-        extraction_dict = {
-            'pdf': PDFModule,
-            'xlsx': ExcelModule,
-            'csv': CSVModule,
+            self, in_mem_file: InMemoryUploadedFile
+    ) -> Tuple[str, int]:
+        self.file = in_mem_file
+        self.file_name = self.file.name
+        shipments = self.__do_extraction()
+        return {
+            'result': self.__shipments_to_csv(shipments),
+            'count': len(shipments),
+            'errors': "\n".join(self.errors),
+            'needs_manual_fix': self.needs_manual_fix,
+            'cells_to_paint': "-".join(self.cells_to_paint),
         }
-        try:
-            module = extraction_dict[extension]
-            return module(self.file).extract_shipments()
-        except KeyError:
-            raise InvalidExtension("Unknown file extension.")
+
+    def __do_extraction(self) -> List[Shipment]:
+        self.module = None
+        if self.file_name.lower().endswith(('.pdf')):
+            self.module = PDFModule(self.file)
+        elif self.file_name.lower().endswith(('.xlsx')):
+            self.module = ExcelModule(self.file)
+        else:
+            last_stop_index = self.file_name.rindex(".")
+            extension = self.file_name[last_stop_index+1:]
+            raise UnsupportedExtensionError(
+                f"The extension {extension} is not supported yet")
+        return self.module.extract_shipments()
 
     def __shipments_to_csv(self, shipments: list) -> str:
-        """Parses all shipments to a csv string and adds the headers.
-
-        Args:
-            shipments (list[Shipment]): the shipments to parse.
-
-        Returns:
-            str: the csv string
-        """
         titles = "traking_id,domicilio,referencia," + \
             "codigo_postal,localidad,partido,destinatario," + \
             "dni_destinatario,telefono,detalle_envio"
-        shipments_mapped = list(map(
-            self.__shipment_as_csv_row_string, shipments))
+        shipments_mapped = [self.__shipment_as_csv_row_string(
+            i, shipment) for i, shipment in enumerate(shipments)]
         shipments_str = "\n".join(shipments_mapped)
         return f'{titles}\n{shipments_str}'
 
-    def __shipment_as_csv_row_string(self, shipment: Shipment) -> str:
-        """Parses a Shipment object into a str as in a csv file's row.
-
-        Args:
-            shipment (Shipment): the object to map to string.
-
-        Returns:
-            str: the corresponding csv file's row.
-        """
+    def __shipment_as_csv_row_string(
+        self,
+        index: int,
+        shipment: Shipment
+    ) -> str:
+        if not shipment.domicilio:
+            self.cells_to_paint.append(f"{index+1},2")
+            self.errors.append(
+                f"En la fila {index+1}, columna 2, no " +
+                "se proporcionó un domicilio")
+            self.needs_manual_fix = True
+        town = ''
+        if not shipment.localidad:
+            self.cells_to_paint.append(f"{index+1},5")
+            self.errors.append(
+                f"En la fila {index+1}, columna 5, no se " +
+                'proporcionó una localidad')
+            self.needs_manual_fix = True
+        else:
+            town = self.__resolve_town(
+                index, shipment.localidad,
+                shipment.partido, shipment.codigo_postal)
         values = [
             shipment.tracking_id, shipment.domicilio, shipment.referencia,
-            shipment.codigo_postal, shipment.localidad, shipment.partido,
+            shipment.codigo_postal, town, shipment.partido,
             shipment.destinatario, shipment.dni_destinatario,
             shipment.phone, shipment.detalle_envio,
         ]
         return ",".join(map(str, values))
+
+    def __resolve_town(self, index, town_name, partido, postal_code):
+        towns = Town.objects.filter(name=town_name.upper())
+        if not towns or len(towns) > 1:
+            self.cells_to_paint.append(f"{index+1},5")
+            try:
+                result, reason = town_resolver(town_name, partido, postal_code)
+                self.errors.append(
+                    f'En la fila {index+1}, columna 5, no se encontró ' +
+                    f'la localidad con el nombre {town_name}. ¿Acaso ' +
+                    'quisiste decir {result}? {reason}')
+                return result.id
+            except NoSuggestionsAvailable:
+                self.errors.append(
+                    f'En la fila {index+1}, columna 5, no se encontró ' +
+                    f'la localidad con el nombre {town_name} ' +
+                    ', y no tenemos sugerencias para vos.')
+                self.needs_manual_fix = True
+                return ""
+        return towns[0].id

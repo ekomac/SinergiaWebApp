@@ -428,21 +428,24 @@ def codigos_postales():
         for obj in data['codes']:
             code = obj['code']
             town_name = obj['town']
+            print("code", code, "town_name", town_name)
+            zipcodes = ZipCode.objects.filter(code=code)
+            print("zipcodes", zipcodes)
+            if not zipcodes:
+                zipcode = ZipCode(code=code)
+                zipcode.save()
+            else:
+                zipcode = zipcodes[0]
             towns = Town.objects.filter(name=town_name.upper())
             towns = towns if towns else Town.objects.filter(
                 name__contains=town_name.upper())
             if towns:
-                zipcodes = ZipCode.objects.filter(code=code)
-                if not zipcodes:
-                    zipcode = ZipCode(code=code)
-                    zipcode.save()
-                else:
-                    zipcode = zipcodes[0]
                 for town in towns:
-                    town.zip_codes.add(zipcode)
-                with open(errors_file_path, 'a') as csv:
-                    line = f'success,{code},"intended={town_name}{towns}"\n'
-                    csv.write(line)
+                    zipcode.towns.add(town)
+                    with open(errors_file_path, 'a') as csv:
+                        line = f'success,{code},\
+                            "intended={town_name}{towns}"\n'
+                        csv.write(line)
             else:
                 with open(errors_file_path, 'a') as csv:
                     line = f'error,{code},{town_name}\n'
