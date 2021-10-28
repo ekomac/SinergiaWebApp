@@ -1,6 +1,7 @@
 # Basic Python
 import os
 from typing import Any, List
+
 # Reportlab
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.platypus import Paragraph, Frame, Table, TableStyle
@@ -66,70 +67,28 @@ class PDFReport(object):
         self.MAX_WIDTH, self.MAX_HEIGHT = A4
         self.PADDING = 15 if not kwargs.get(
             "padding", None) else kwargs["padding"]
-        self.AVAILABLE_WIDTH = int(self.MAX_WIDTH) - self.PADDING * 3
-        self.AVAILABLE_HEIGHT = int(self.MAX_HEIGHT) - self.PADDING * 3
-        self.BASE_FRAME_WIDTH = self.AVAILABLE_WIDTH/2
-        self.BASE_FRAME_HEIGHT = self.AVAILABLE_HEIGHT/2
-        self.TABLE_WIDTH_UNIT = self.BASE_FRAME_WIDTH/self.COLS
+        available_width = int(self.MAX_WIDTH) - self.PADDING * 3
+        available_height = int(self.MAX_HEIGHT) - self.PADDING * 3
+        self.BASE_FRAME_WIDTH = available_width/2
+        self.BASE_FRAME_HEIGHT = available_height/2
         self.TABLE_HIEGHT_UNIT = self.BASE_FRAME_HEIGHT/self.ROWS
         self.stylesheet = getSampleStyleSheet()
-        self.buffer = buffer
-        self.canvas = Canvas(self.buffer)
+        self.canvas = Canvas(buffer)
         self.create_images()
         self.current_position = 1
 
     def create_images(self):
-        self.create_logo()
-        self.create_account_icon()
-        self.create_map_icon()
-        self.create_phone_icon()
-
-    def create_logo(self):
         self.logo = Image(os.path.join(
             settings.STATIC_ROOT, 'logo_color.png'),
             self.LOGO_BASE_WIDTH*self.LOGO_BASE_SCALAR,
             self.LOGO_BASE_HEIGHT*self.LOGO_BASE_SCALAR
         )
-        # io.BytesIO()
-        # img = PillowImage.open(os.path.join(
-        #     settings.STATIC_ROOT, 'logo_color.png'))
-        # # img_byte_arr = BytesIO()
-        # # img.save(img_byte_arr, format=img.format)
-        # self.logo = Image(
-        #     open(os.path.join(
-        #         settings.STATIC_ROOT, 'logo_color.png')),
-        #     # img_byte_arr,
-        #     self.LOGO_BASE_WIDTH*self.LOGO_BASE_SCALAR,
-        #     self.LOGO_BASE_HEIGHT*self.LOGO_BASE_SCALAR
-        # )
-        # # img_byte_arr.close()
-
-    def create_account_icon(self):
-        # img = PillowImage.open(os.path.join(
-        #     settings.STATIC_ROOT, 'account.png'))
-        # img_byte_arr = BytesIO()
-        # img.save(img_byte_arr, format=img.format)
         self.person_image = Image(os.path.join(
             settings.STATIC_ROOT, 'account.png'), 12, 12)
-        # img_byte_arr.close()
-
-    def create_map_icon(self):
-        # img = PillowImage.open(os.path.join(
-        #     settings.STATIC_ROOT, 'map-marker.png'))
-        # img_byte_arr = BytesIO()
-        # img.save(img_byte_arr, format=img.format)
         self.maps_image = Image(os.path.join(
             settings.STATIC_ROOT, 'map-marker.png'), 12, 12)
-        # img_byte_arr.close()
-
-    def create_phone_icon(self):
-        # img = PillowImage.open(os.path.join(
-        #     settings.STATIC_ROOT, 'phone.png'))
-        # img_byte_arr = BytesIO()
-        # img.save(img_byte_arr, format=img.format)
         self.phone_image = Image(os.path.join(
             settings.STATIC_ROOT, 'phone.png'), 12, 12)
-        # img_byte_arr.close()
 
     def create(self, data: List[Envio]):
         for envio in data:
@@ -258,31 +217,35 @@ class PDFReport(object):
 
         styleN = self.stylesheet["BodyText"]
         styleN.alignment = TA_LEFT
-
-        data = [
-            [self.person_image, Paragraph(kwargs['name'], styleN),
-                "", "", "", "", "", "", "", "", "", ""],
-            [self.maps_image, Paragraph(f"<b>{kwargs['address']}</b>", styleN),
-                "", "", "", "", "", "", "", "", "", ""],
-            ["", Paragraph(f"<b>CP:</b> {kwargs['zip_code']}", styleN),
-                "", "", "", "", "", "", "", "", "", ""],
-            ["", Paragraph(
-                f"<b>Referencias:</b> {kwargs['entrances']}", styleN),
-                "", "", "", "", "", "", "", "", "", ""],
-            [self.phone_image, Paragraph(kwargs['phone'], styleN),
-                "", "", "", "", "", "", "", "", "", ""],
-        ]
-        tstyle = TableStyle([
-            ('SPAN', (1, 0), (-1, 0)),
-            ('SPAN', (1, 1), (-1, 1)),
-            ('SPAN', (1, 2), (-1, 2)),
-            ('SPAN', (1, 3), (-1, 3)),
-            ('SPAN', (1, 4), (-1, 4)),
+        data = []
+        styles = [
             ('TOPPADDING', (0, 0), (1, 0), 6),
             ('LEFTPADDING', (0, 0), (0, -1), 10),
             ('ALIGN', (1, 0), (-1, -1), "LEFT"),
             ('VALIGN', (0, 0), (-1, -1), "TOP"),
-        ])
+        ]
+        if kwargs['name'] != 'No especificado':
+            data.append([self.person_image, Paragraph(kwargs['name'], styleN),
+                        "", "", "", "", "", "", "", "", "", ""])
+        data.append([self.maps_image, Paragraph(
+            f"<b>{kwargs['address']}</b>", styleN),
+            "", "", "", "", "", "", "", "", "", ""])
+        if kwargs['zip_code'] != 'No especificado':
+            data.append(["", Paragraph(
+                f"<b>CP:</b> {kwargs['zip_code']}", styleN),
+                "", "", "", "", "", "", "", "", "", ""])
+        if kwargs['entrances'] != 'No especificado':
+            data.append(["", Paragraph(
+                f"<b>Referencias:</b> {kwargs['entrances']}", styleN),
+                "", "", "", "", "", "", "", "", "", ""])
+        if kwargs['phone'] != 'No especificado':
+            data.append([self.phone_image, Paragraph(kwargs['phone'], styleN),
+                        "", "", "", "", "", "", "", "", "", ""])
+
+        for i in range(len(data)):
+            styles.append(('SPAN', (1, i), (-1, i)))
+
+        tstyle = TableStyle(styles)
         table = Table(data, self.BASE_FRAME_WIDTH/12, spaceBefore=6)
         table.setStyle(tstyle)
         return table

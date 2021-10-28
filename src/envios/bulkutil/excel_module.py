@@ -153,58 +153,70 @@ class ExcelModule(ShipmentExractorModule):
 
             tracking = ""
             if columns_order[TRACKING] != -1:
-                tracking = self.sheet.cell(
-                    row_i, columns_order[TRACKING]).value
+                if self.sheet.cell(row_i, columns_order[TRACKING]).value:
+                    tracking = self.sheet.cell(
+                        row_i, columns_order[TRACKING]).value
             shipment.tracking_id = tracking
 
             domicilio = ""
             if columns_order[DOMICILIO] != -1:
-                domicilio = self.sheet.cell(
-                    row_i, columns_order[DOMICILIO]).value
+                if self.sheet.cell(row_i, columns_order[DOMICILIO]).value:
+                    domicilio = self.sheet.cell(
+                        row_i, columns_order[DOMICILIO]).value
             shipment.domicilio = domicilio
 
             entrecalles = ""
             if columns_order[ENTRECALLES] != -1:
-                entrecalles = self.sheet.cell(
-                    row_i, columns_order[ENTRECALLES]).value
+                if self.sheet.cell(row_i, columns_order[ENTRECALLES]).value:
+                    entrecalles = self.sheet.cell(
+                        row_i, columns_order[ENTRECALLES]).value
             shipment.referencia = entrecalles
 
             cod_postal = ""
             if columns_order[COD_POSTAL] != -1:
-                cod_postal = self.sheet.cell(
-                    row_i, columns_order[COD_POSTAL]).value
+                if self.sheet.cell(row_i, columns_order[COD_POSTAL]).value:
+                    cod_postal = self.sheet.cell(
+                        row_i, columns_order[COD_POSTAL]).value
             shipment.codigo_postal = cod_postal
 
             localidad = ""
             if columns_order[LOCALIDAD] != -1:
-                localidad = self.sheet.cell(
-                    row_i, columns_order[LOCALIDAD]).value
+                if self.sheet.cell(row_i, columns_order[LOCALIDAD]).value:
+                    localidad = self.sheet.cell(
+                        row_i, columns_order[LOCALIDAD]).value
             shipment.localidad = localidad
 
             partido = ""
             if columns_order[PARTIDO] != -1:
-                partido = self.sheet.cell(row_i, columns_order[PARTIDO]).value
+                if self.sheet.cell(row_i, columns_order[PARTIDO]).value:
+                    partido = self.sheet.cell(
+                        row_i, columns_order[PARTIDO]).value
             shipment.partido = partido
 
             dest = ""
             if columns_order[DESTINATARIO] != -1:
-                dest = self.sheet.cell(
-                    row_i, columns_order[DESTINATARIO]).value
+                if self.sheet.cell(row_i, columns_order[DESTINATARIO]).value:
+                    dest = self.sheet.cell(
+                        row_i, columns_order[DESTINATARIO]).value
             shipment.destinatario = dest
 
             dni = ""
             if columns_order[DNI] != -1:
-                dni = self.sheet.cell(row_i, columns_order[DNI]).value
+                if self.sheet.cell(row_i, columns_order[DNI]).value:
+                    dni = self.sheet.cell(row_i, columns_order[DNI]).value
             shipment.dni_destinatario = dni
 
             tel = ""
             if columns_order[TEL] != -1:
-                tel = self.sheet.cell(row_i, columns_order[TEL]).value
+                if self.sheet.cell(row_i, columns_order[TEL]).value:
+                    tel = self.sheet.cell(row_i, columns_order[TEL]).value
             shipment.phone = tel
 
             detalle = "0-1"
             if columns_order[DETALLE] != -1:
-                detalle = self.sheet.cell(row_i, columns_order[DETALLE]).value
+                if self.sheet.cell(row_i, columns_order[DETALLE]).value:
+                    detalle = self.sheet.cell(
+                        row_i, columns_order[DETALLE]).value
             shipment.detalle_envio = detalle
             shipment.clean()
             if shipment.is_not_empty():

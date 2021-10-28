@@ -20,7 +20,7 @@
         display: none;
     }
 </style>
-<div class="col-md-12 col-xl-7 d-flex-block">
+<div class="col-md-12 col-lg-10 col-xl-8 col-xxl-6 d-flex-block">
     <form method='POST' id="create_form" class="card flex-fill shadow-lg bg-white" name="create_form" target="_top"
         enctype="multipart/form-data">{% csrf_token %}
 
@@ -36,13 +36,6 @@
         <div class="card-body">
             <h3 class="card-title text-center mt-3">CARGA MASIVA DE ENVÍOS</h3>
 
-            <div class="row mt-3">
-                <div class="col">
-                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
-                        data-bs-target="#baseModal">Ayuda sobre el excel</button>
-                </div>
-            </div>
-
             {% if upload_in_progress %}
             <div class="row mt-3 alert alert-danger mt-3 mb-3" role="alert">
                 Existe una carga en curso. Si cargás un nuevo archivo, la carga en curso se cancelará.
@@ -50,7 +43,7 @@
             {% endif %}
 
             <div class="row mt-3 mb-4">
-                <div class="col-12 col-md-6 mt-2">
+                <div class="col-12 col-xl-auto mt-2">
                     <label for="id_file" class="form-label">Archivo con envíos (PDF MercadoLibre o
                         TiendaNube, Excel)</label>
                     <input class="form-control {% if upload_form.file.errors %}is-invalid{% endif %}" type="file"
@@ -67,7 +60,7 @@
                         {% endfor %}
                     </div>
                 </div>
-                <div class="col-12 col-md-6 mt-2">
+                <div class="col-12 col-xl-auto mt-2">
                     <label for="id_client" class="form-label">Cliente</label>
                     {{upload_form.client}}
                     <div class="invalid-feedback">
@@ -76,69 +69,21 @@
                 </div>
             </div>
 
-            <!-- START SUMBIT BUTTON -->
+            <!-- START BUTTONS -->
             <div class="row mt-3">
                 <div class="d-grid gap-2 d-md-flex">
                     <button type="submit" class="btn btn-primary"><i class="bi bi-stars">&nbsp;Cargar envíos</i>
                     </button>
+                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
+                        data-bs-target="#baseModal">Ayuda
+                        sobre el excel</button>
                 </div>
             </div>
-            <!-- END SUMBIT BUTTON -->
-
-            {% if upload_form.non_field_errors %}
-            <div class="alert alert-danger mt-3 mb-3" role="alert">
-                <h4>
-                    Ups! Algo salió mal. Se encontraron algunos errores:
-                </h4>
-                <ul>
-                    {% for error in upload_form.non_field_errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-
-                {% if no_suggestions %}
-                Algunos de los errores encontrados no tienen sugerencias. Por favor, descargá el archivo que preparamos
-                para vos, corregilo y volvelo a subir (en el mismo formato .xlsx de Excel). No olvides de considerar las
-                sugerencias que te brindamos.
-                Tampoco olvides que cuando los datos de un envío son insuficientes, se factura el envío con el precio
-                máximo disponible.
-
-                <div class="d-grid gap-2 d-md-flex mt-2">
-                    <button type="button" class="btn btn-secondary"
-                        onclick="location.href='{% url 'envios:envio-bad-bulk-add' %}'">
-                        <i class="bi bi-download"></i>&nbsp;Descargar archivo
-                    </button>
-                </div>
-                {% else %}
-                Por favor, revisá los errores y las sugerencias proporcionadas. Si las sugerencias están ok, podés
-                aceptar los cambios sugeridos con "<i class="bi bi-check-circle"></i>&nbsp;Acepto los cambios". Si las
-                sugerencias no son correctas, por favor descargá el archivo que preparamos para vos, corregilo y volvelo
-                a subir (en el mismo formato .xlsx de Excel). No te olvides que cuando los datos de un envío son
-                insuficientes, se factura el envío con el precio máximo disponible.
-
-                <div class="d-grid gap-2 d-md-flex mt-2">
-                    <button type="button" class="btn btn-secondary" onclick="acceptChangesAndRetry()">
-                        <i class="bi bi-check-circle"></i>&nbsp;Acepto los cambios
-                    </button>
-                    <button type="button" class="btn btn-secondary"
-                        onclick="location.href='{% url 'envios:envio-bad-bulk-add' %}'">
-                        <i class="bi bi-download"></i>&nbsp;Descargar archivo
-                    </button>
-                </div>
-                {% endif %}
-            </div>
-            {% endif %}
+            <!-- END BUTTONS -->
 
         </div>
     </form>
 
 </div>
-
-<script>
-    function acceptChangesAndRetry() {
-        $('#accept_changes').prop('checked', true);
-        $('#create_form').submit();
-    }
-</script>
 
 {% endblock content %}

@@ -62,9 +62,6 @@ class TownSuggestionResolver:
         return (self.result, self.reason_of_match)
 
     def __main_loop(self):
-        print(f"[green]{self.town_name}[/green] ", end="")
-        print(f"[green]{self.partido_name}[/green] ", end="")
-        print(f"[green]{self.zip_code_num}[/green] ")
         while self.next_step:
             towns, self.next_step = self.next_step()
             if towns:
@@ -80,7 +77,6 @@ class TownSuggestionResolver:
     def __query_town_name(self) -> Tuple[List[Town], Callable]:
         self.__update_reason("con el nombre")
         towns = list(Town.objects.filter(name=self.town_name))
-        print("__query_town_name:", towns)
         return (towns, self.__query_town_name_and_partido)
 
     def __query_town_name_and_partido(self) -> Tuple[List[Town], Callable]:
@@ -89,7 +85,6 @@ class TownSuggestionResolver:
             Town.objects.filter(name__contains=self.town_name,
                                 partido__name=self.partido_name)
         )
-        print("__query_town_name_and_partido:", towns)
         return (towns, self.__query_cleaned_town_name)
 
     def __query_cleaned_town_name(self) -> Tuple[List[Town], Callable]:
@@ -97,14 +92,12 @@ class TownSuggestionResolver:
         self.town_name = self.town_name.replace(
             ".", "").replace("-", "").upper()
         towns = list(Town.objects.filter(name=self.town_name))
-        print("__query_cleaned_town_name:", towns)
         return (towns, self.__query_town_part_of_name)
 
     def __query_town_part_of_name(self) -> Tuple[List[Town], Callable]:
         self.__update_reason(
             "con el nombre proporcionado como parte del nombre real.")
         towns = list(Town.objects.filter(name__contains=self.town_name))
-        print("__query_town_part_of_name:", towns)
         return (towns, self.__query_replacing_abbreviations)
 
     def __query_replacing_abbreviations(self) -> Tuple[List[Town], Callable]:
@@ -114,7 +107,6 @@ class TownSuggestionResolver:
             if key in town:
                 town.replace(key, value)
         towns = list(Town.objects.filter(name=town))
-        print("__query_replacing_abbreviations:", towns)
         return (towns, self.__query_postal_code)
 
     def __query_postal_code(self) -> Tuple[List[Town], Callable]:
@@ -123,7 +115,6 @@ class TownSuggestionResolver:
         if self.zip_code_num:
             print("zip code", self.zip_code_num)
             towns = list(Town.objects.filter(zipcode__code=self.zip_code_num))
-        print("__query_postal_code:", towns)
         return (towns, self.__query_most_matching_name)
 
     def __query_most_matching_name(self) -> Tuple[List[Town], Callable]:
@@ -136,7 +127,6 @@ class TownSuggestionResolver:
         if towns:
             counted = Counter(towns)
             ordered = counted.most_common()
-            print(ordered)
             most_common = counted.most_common(1)[0][1]
             towns.clear()
             for item, score in ordered:
@@ -144,7 +134,6 @@ class TownSuggestionResolver:
                     towns.append(item)
                 else:
                     break
-        print("__query_most_matching_name:", towns)
         return (towns, self.__query_found_towns_most_matching_name)
 
     def __query_found_towns_most_matching_name(
@@ -152,10 +141,7 @@ class TownSuggestionResolver:
         self.__update_reason("que tuvo más coincidencias.")
         if self.found_towns:
             counted = Counter(self.found_towns)
-            print(counted)
             ordered = counted.most_common()
-            print(ordered)
-            print(counted.most_common())
             most_common = counted.most_common(1)[0][1]
             self.found_towns.clear()
             for item, score in ordered:
@@ -163,7 +149,6 @@ class TownSuggestionResolver:
                     self.found_towns.append(item)
                 else:
                     break
-            print("__query_found_towns_most_matching_name:", self.found_towns)
         return (self.found_towns, self.__query_partido_as_name)
 
     def __query_partido_as_name(self) -> Tuple[List[Town], Callable]:
@@ -172,7 +157,6 @@ class TownSuggestionResolver:
         if self.partido_name:
             query_name = self.partido_name.upper()
             towns = list(Town.objects.filter(name=query_name))
-        print("__query_partido_as_name:", towns)
         return (towns, self.__query_partido_as_part_of_name)
 
     def __query_partido_as_part_of_name(self) -> Tuple[List[Town], Callable]:
@@ -181,14 +165,12 @@ class TownSuggestionResolver:
         if self.partido_name:
             query_name = self.partido_name.upper()
             towns = list(Town.objects.filter(name__contains=query_name))
-        print("__query_partido_as_part_of_name:", towns)
         return (towns, self.__query_first_town_in_partido)
 
     def __query_first_town_in_partido(self):
         self.reason_of_match = "Es la primera localidad \
             del partido proporcionado"
         towns = []
-        print("__query_first_town_in_partido:", towns)
         if self.partido_name:
             partidos = Partido.objects.filter(name=self.partido_name)
             if partidos:
@@ -213,6 +195,11 @@ def create_xlsx_workbook(
     COLUMNS = 10
     # Parse the csv string to list of lists
     result = [row.split(",") for row in csv_str.split("\n")]
+    col_names = [
+        "ID FLEX", "DOMICILIO", "ENTRECALLES", "CODIGO POSTAL",
+        "LOCALIDAD", "PARTIDO", "DESTINATARIO", "DNI DESTINATARIO",
+        "TELEFONO DESTINATARIO", "DETALLE DEL ENVIO"]
+    result[0] = col_names
     # Iterate over rows and cols indexes
     for i in range(len(result)):
         for j in range(COLUMNS):
@@ -221,7 +208,17 @@ def create_xlsx_workbook(
             cell = sheet.cell(row=i+1, column=j+1)
 
             # Set the value to the corresponding csv row and col
-            cell.value = result[i][j]
+            if i != 0 and j == 4:
+                print(result[i][j], "intenta de buscar con id")
+                try:
+                    if result[i][j] and str(result[i][j]).isdigit():
+                        cell.value = Town.objects.get(id=result[i][j]).name
+                    else:
+                        cell.value = ""
+                except Town.DoesNotExist:
+                    cell.value = ""
+            else:
+                cell.value = result[i][j]
 
             # Cell reference as pair values as string
             cell_ref = f"{i},{j}"
@@ -239,11 +236,6 @@ def bulk_create_envios(bulk_load_envios: BulkLoadEnvios):
     Ids are returned just because PostgreSQL supports it.
     """
     # Get the csv file
-    envios = __get_envios(bulk_load_envios)
-    return Envio.objects.bulk_create(envios)
-
-
-def __get_envios(bulk_load_envios: BulkLoadEnvios) -> List[Envio]:
     envios = []
     for i, row in enumerate(bulk_load_envios.csv_result.split("\n")):
         if i == 0 or "traking_id" in row:
@@ -251,7 +243,7 @@ def __get_envios(bulk_load_envios: BulkLoadEnvios) -> List[Envio]:
         cols = row.split(",")
         kwargs = __cols_to_kwargs(cols, bulk_load_envios)
         envios.append(Envio(**kwargs))
-    return envios
+    return Envio.objects.bulk_create(envios)
 
 
 def __cols_to_kwargs(
@@ -267,7 +259,8 @@ def __cols_to_kwargs(
         'recipient_phone': cols[8],
         'detail': cols[9] if cols[9] else "0-1",
         'created_by': bulk_load_envios.created_by,
-        'client': bulk_load_envios.client
+        'client': bulk_load_envios.client,
+        'bulk_upload_id': bulk_load_envios,
     }
     if cols[0]:
         kwargs['is_flex'] = True

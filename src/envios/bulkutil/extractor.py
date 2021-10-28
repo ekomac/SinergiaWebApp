@@ -68,18 +68,22 @@ class Extractor:
         shipment: Shipment
     ) -> str:
         if not shipment.domicilio:
-            self.cells_to_paint.append(f"{index+1},2")
+            self.cells_to_paint.append(f"{index+1},1")
             self.errors.append(
                 f"En la fila {index+1}, columna 2, no " +
                 "se proporcionó un domicilio")
             self.needs_manual_fix = True
-        town = ''
-        if not shipment.localidad:
+        if not shipment.codigo_postal and not shipment.localidad \
+                and not shipment.partido:
+            print("its the case")
+            self.cells_to_paint.append(f"{index+1},3")
+            self.cells_to_paint.append(f"{index+1},4")
             self.cells_to_paint.append(f"{index+1},5")
             self.errors.append(
-                f"En la fila {index+1}, columna 5, no se " +
-                'proporcionó una localidad')
+                f"En la fila {index+1}, no se proporcionaron suficientes \
+                    datos para encontrar la localidad.")
             self.needs_manual_fix = True
+            town = ""
         else:
             town = self.__resolve_town(
                 index, shipment.localidad,
@@ -95,19 +99,27 @@ class Extractor:
     def __resolve_town(self, index, town_name, partido, postal_code):
         towns = Town.objects.filter(name=town_name.upper())
         if not towns or len(towns) > 1:
-            self.cells_to_paint.append(f"{index+1},5")
+            self.cells_to_paint.append(f"{index+1},4")
             try:
+                self.cells_to_paint.append(f"{index+1},4")
+                print("suggestion available")
                 result, reason = town_resolver(town_name, partido, postal_code)
                 self.errors.append(
                     f'En la fila {index+1}, columna 5, no se encontró ' +
                     f'la localidad con el nombre {town_name}. ¿Acaso ' +
-                    'quisiste decir {result}? {reason}')
+                    f'quisiste decir {result}? {reason}')
                 return result.id
             except NoSuggestionsAvailable:
-                self.errors.append(
-                    f'En la fila {index+1}, columna 5, no se encontró ' +
-                    f'la localidad con el nombre {town_name} ' +
-                    ', y no tenemos sugerencias para vos.')
+                if not town_name:
+                    self.errors.append(
+                        f"En la fila {index+1}, columna 5, no se " +
+                        'proporcionó una localidad')
+                    print("no suggestion available")
+                else:
+                    self.errors.append(
+                        f'En la fila {index+1}, columna 5, no se encontró ' +
+                        f'la localidad con el nombre {town_name} ' +
+                        ', y no tenemos sugerencias para vos.')
                 self.needs_manual_fix = True
                 return ""
         return towns[0].id

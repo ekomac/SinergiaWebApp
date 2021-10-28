@@ -76,20 +76,23 @@ class Envio(models.Model):
     delivery_schedule = models.CharField(
         verbose_name='Horario de entrega', choices=SCHEDULES,
         max_length=5, blank=True, null=True)
+    bulk_upload_id = models.ForeignKey(
+        'BulkLoadEnvios', verbose_name="ID de carga masiva",
+        on_delete=models.SET_NULL, blank=True, null=True)
     history = HistoricalRecords()
 
     def __str__(self):
         address = self.recipient_address
         town = self.recipient_town.name
         client = self.client
-        return f'{address}, {town} from {client}'
+        return f'{address}, {town.title()} from {client}'
 
     class Meta:
         verbose_name = 'Envío'
         verbose_name_plural = 'Envíos'
 
 
-@receiver(post_delete, sender=Envio)
+@ receiver(post_delete, sender=Envio)
 def submission_delete(sender, instance, *args, **kwargs):
     instance.qr_code.delete(False)
 
@@ -317,11 +320,11 @@ class BulkLoadEnvios(models.Model):
         max_length=100, blank=True, null=True)
     history = HistoricalRecords()
 
-    @property
+    @ property
     def short_errors_display(self):
         return truncatechars(self.errors, 100)
 
-    @property
+    @ property
     def short_csv_result_display(self):
         return truncatechars(self.csv_result, 1000)
 

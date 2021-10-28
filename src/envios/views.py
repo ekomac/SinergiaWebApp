@@ -1,13 +1,11 @@
 # Basic Python
 import json
-from openpyxl import Workbook
-from openpyxl.styles import PatternFill
+import hashlib
+import unidecode
 from openpyxl.writer.excel import save_virtual_workbook
 from django.http.response import HttpResponse
-import unidecode
 from datetime import datetime, timedelta
 from typing import List, Tuple
-from rich import print
 
 # Django
 from django.contrib.auth.decorators import login_required
@@ -23,12 +21,12 @@ from django.views.generic import ListView
 
 # Project apps
 from account.models import Account
-from envios.forms import BulkAddForm, BulkLoadEnviosForm, CreateEnvioForm
+from envios.forms import BulkLoadEnviosForm, CreateEnvioForm
 from envios.models import BulkLoadEnvios, Envio
 from envios.utils import bulk_create_envios, create_xlsx_workbook
 from places.models import Partido, Town
 from clients.models import Client
-from utils.alerts.views import create_alert_and_redirect
+from envios.reports import PDFReport
 
 
 ENVIOS_PER_PAGE = 30
@@ -213,128 +211,55 @@ def bulk_create_envios_view(request):
         if form.is_valid():
             obj = form.save()
             if not obj.requires_manual_fix and not obj.errors:
-                ids = "-".join([str(envio.id)
-                               for envio in bulk_create_envios(obj)])
-                return redirect('envios:envio-download-labels', ids=ids)
-            msg = 'La solicitud de carga masiva se creó correctamente'
-            return create_alert_and_redirect(
-                request, msg, 'envios:envio-bulk-handle-confirm', obj.pk)
+
+                return redirect('envios:envio-bulk-add-success', pk=obj.pk)
+            # msg = 'La solicitud de carga masiva se creó correctamente'
+            return redirect('envios:bulk-handle', pk=obj.pk)
+            # return create_alert_and_redirect(
+            #     request, msg, 'envios:bulk-handle', pk=obj.pk)
     context['upload_form'] = form
+    context['selected_tab'] = 'shipments-tab'
     return render(request, 'envios/bulk/add.html', context)
 
 
 @login_required(login_url='/login/')
-def bulk_add_envios_success(request, ids):
-    context = {'selected_tab': 'shipments-tab', 'ids': ids}
-    return render(request, 'envios/bulk/add_success.html', context)
+def success_bulk_create_envios_view(request, pk):
+    bulk_load = BulkLoadEnvios.objects.get(id=pk)
+    envios = bulk_create_envios(bulk_load)
+    bulk_load.load_status = BulkLoadEnvios.LOADING_STATUS_FINISHED
+    bulk_load.save()
+    ids = "-".join([str(envio.id) for envio in envios])
+    context = {'selected_tab': 'shipments-tab', 'ids': ids, 'envios': envios}
+    return render(request, 'envios/bulk/success.html', context)
 
 
 @login_required(login_url='/login/')
-def download_shipment_labels_file_response(request, ids):
-    # TODO Replace obj with PDF file
-    # import io
-    # buffer = io.BytesIO()
+def download_shipment_labels_file_response(_, ids):
     ids = ids.split('-')
-    # envios = Envio.objects.filter(id__in=ids)
-    envios = Envio.objects.all()
-    from envios.reports import PDFReport
+    envios = Envio.objects.filter(id__in=ids)
     response = HttpResponse(content_type='application/pdf')
-    file_name = 'etiquetas_' + "".join(ids)
+    hashed_ids = hashlib.md5("".join(ids).encode('utf-8')).hexdigest()
+    file_name = 'etiquetas_' + hashed_ids
     response['Content-Disposition'] = f'attachment; filename={file_name}.pdf'
     PDFReport(response).create(envios)
     return response
 
 
 @login_required(login_url='/login/')
-def bulk_handle_create_envios_view(request, *args, **kwargs):
-    context = {}
-    obj = BulkLoadEnvios.objects.get(pk=kwargs['pk'])
-    if not obj.requires_manual_fix and not obj.errors:
-        ids = "-".join([str(envio.id) for envio in bulk_create_envios(obj)])
-        context['ids'] = ids
-    # elif obj.errors:
-    #     pass
-    # else:
-    #     ids = "-".join([envio.id for envio in bulk_create_envios(obj)])
-    #     context['ids'] = ids
-    context['selected_tab'] = 'shipments-tab'
+def handle_bulk_create_envios_view(request, pk):
+    obj = BulkLoadEnvios.objects.get(id=pk)
+    context = {
+        'selected_tab': 'shipments-tab',
+        'obj': obj,
+        'errors': obj.errors.split('\n'),
+    }
     return render(request, 'envios/bulk/handler.html', context)
 
 
 @login_required(login_url='/login/')
-def bulk_create_envios2(request):
-    context = {}
-    form = BulkAddForm()
-    if request.method == 'POST':
-        author = Account.objects.filter(email=request.user.email).first()
-        form = BulkAddForm(author, request.POST or None, request.FILES or None)
-        print("forming")
-        if form.is_valid():
-            Envio.objects.bulk_create(form.result)
-        else:
-            results, errors, no_suggestions = form.get_csv_result()
-            request.session['csv_because_errors'] = results
-            print("errors", errors)
-            request.session['csv_errors_because_errors'] = errors
-            context['no_suggestions'] = no_suggestions
-    context['upload_form'] = form
-    return render(request, 'envios/envio/bulk-add.html', context)
-
-
-@login_required(login_url='/login/')
-def print_csv_file(request):
-    # Check if there is any csv_result with errors
-    csv_result = request.session.get('csv_because_errors', None)
-    if not csv_result:
-        # If there isn't, redirect to bulk add
-        redirect("envios:envio-bulk-add")
-
-    # Get errors if there are any
-    csv_errors = request.session.get('csv_errors_because_errors', None)
-    if csv_errors:
-        # Because it's a string, split it to a list
-        csv_errors = csv_errors.split("-")
-
-    wb = create_xlsx_workbook(csv_result, csv_errors)
-
-    # Create an excel wrokbook
-    wb = Workbook()
-
-    # Get first sheet (1 is created when wb created)
-    sheet = wb.active
-
-    # Change title to 'Datos'
-    sheet.title = 'Datos'
-
-    # Get the sheet recently changed
-    sheet = wb.get_sheet_by_name('Datos')
-
-    # The default amount of columns
-    COLUMNS = 10
-
-    # Parse the csv string to list of lists
-    csv_result = [row.split(",") for row in csv_result.split("\n")]
-
-    # Iterate over rows and cols indexes
-    for i in range(len(csv_result)):
-        for j in range(COLUMNS):
-
-            # Get the cell at i and j
-            cell = sheet.cell(row=i+1, column=j+1)
-
-            # Set the value to the corresponding csv row and col
-            cell.value = csv_result[i][j]
-
-            # Cell reference as pair values as string
-            cell_ref = f"{i},{j}"
-
-            # If the cell_ref is in csv_errors
-            if csv_errors and cell_ref in csv_errors:
-                # Change the bg color to yellow
-                cell.fill = PatternFill("solid", fgColor="FFFF00")
-
-    # Saves the woorkbook in memory and
-    # returns the http response with the file from memory
+def print_excel_file(request, pk):
+    obj = BulkLoadEnvios.objects.get(id=pk)
+    wb = create_xlsx_workbook(obj.csv_result, obj.cells_to_paint)
     response = HttpResponse(
         save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename=result.xlsx'
@@ -343,88 +268,6 @@ def print_csv_file(request):
 
 class MissingColumn(Exception):
     pass
-
-
-def get_envios_from_csv(csv_str, author, client):
-    """
-     0 ID FLEX
-     1 DOMICILIO
-     2 ENTRECALLES
-     3 CODIGO POSTA
-     4 LOCALIDAD
-     5 PARTIDO
-     6 DESTINATARI
-     7 DNI DESTINATARIO
-     8 TELEFONO DESTINATARIO,
-     9 DETALLE DEL ENVIO
-    """
-    envios = []
-    # errors = {}
-    for i, row in enumerate(csv_str.split("\n")):
-        if i == 0 or "traking_id" in row:
-            print("acá debemos pasar")
-            continue
-        print("estamos en", i)
-        cols = row.split(",")
-        kwargs = {}
-
-        if not cols[1]:
-            raise MissingColumn(
-                f"En la fila {i} no se especificó el domicilio.")
-
-        if not cols[4]:
-            raise MissingColumn(
-                f"En la fila {i} no se especificó la localidad.")
-
-        if cols[0]:
-            kwargs['is_flex'] = True
-            kwargs['flex_id'] = cols[0]
-
-        # Adress
-        kwargs['recipient_address'] = cols[1]
-
-        # Entrances
-        kwargs['recipient_entrances'] = cols[2] if cols[2] else None
-
-        # Zipcode
-        kwargs['recipient_zipcode'] = cols[3] if cols[3] else None
-
-        # Town
-        towns = Town.objects.filter(name=cols[4].upper())
-        print(towns)
-        if not towns:
-            raise Town.DoesNotExist(f"En la fila {i}, No se encontró la " +
-                                    f"localidad con el nombre {cols[4]}")
-        # If more than one town with given name,
-        # a partido must be specified.
-        if len(towns) > 1:
-            towns = Town.objects.filter(
-                name=cols[4].upper(), partido__name=cols[5].upper())
-            if not towns:
-                raise Town.DoesNotExist(
-                    f"En la fila {i}, se indicó una localidad que " +
-                    "pertenece a más de un partido, pero el" +
-                    "partido {cols[5]} no se encontró")
-        kwargs['recipient_town'] = towns[0]
-
-        # Recipient's Name
-        kwargs['recipient_name'] = cols[6] if cols[6] else None
-
-        # Recipient's Doc Id
-        kwargs['recipient_doc'] = cols[7] if cols[7] else None
-
-        # Recipient's Phone
-        kwargs['recipient_phone'] = cols[8] if cols[8] else None
-
-        # Detail (packages)
-        if cols[9]:
-            kwargs['detail'] = cols[9]
-
-        kwargs['created_by'] = author
-        kwargs['client'] = client
-
-        envios.append(Envio(**kwargs))
-    return envios
 
 
 def get_localidades_as_JSON():

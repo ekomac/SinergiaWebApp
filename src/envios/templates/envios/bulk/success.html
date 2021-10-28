@@ -1,0 +1,63 @@
+{% extends 'base_system.html' %}
+
+{% load static %}
+
+{% block content %}
+<style>
+    h3 {
+        text-align: center;
+        margin-bottom: 10px;
+        margin-top: 20px;
+    }
+</style>
+<div class="col-md-12 col-lg-8 col-xl-6 col-xxl-5 d-flex-block">
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Descarga
+            </div>
+            <div>
+                <a href="{% url 'envios:envio-bulk-add' %}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <h3 class="card-title mt-3">
+                <img src="{% static 'res/confetti.png' %}" height="25" width="25" alt="Confetti">
+                ¡Los envíos se cargaron correctamente!
+                <img src="{% static 'res/confetti.png' %}" height="25" width="25" alt="Confetti">
+            </h3>
+            <div class="mt-3">
+                <h6>
+                    Los siguientes envíos fueron agregados a la base:
+                </h6>
+                <br>
+                {% if envios %}
+                <ul>
+                    {% for envio in envios %}
+                    <li>
+                        {{envio}}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+
+                <div class="alert alert-success mt-3 mb-3" role="alert">
+                    Podés descargar el archivo PDF con las etiquetas listas para los paquetes haciendo <a
+                        href="{% url 'envios:envio-download-labels' ids %}">click aquí</a>.
+
+                    Tené en cuenta que la creación del archivo puede tardar un poco, por favor esperá y no cierres la
+                    página.
+                </div>
+            </div>
+
+            <div class="mt-4 d-grid gap-2 d-md-flex pt-4">
+                <a href="{% url 'envios:envio-list' %}" class="btn btn-secondary">Volver a envíos</a>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+{% endblock content %}
