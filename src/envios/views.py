@@ -239,7 +239,8 @@ def download_shipment_labels_file_response(request, ids):
     envios = Envio.objects.all()
     from envios.reports import PDFReport
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename=etiquetas.pdf'
+    file_name = 'etiquetas_' + "".join(ids)
+    response['Content-Disposition'] = f'attachment; filename={file_name}.pdf'
     PDFReport(response).create(envios)
     return response
 
