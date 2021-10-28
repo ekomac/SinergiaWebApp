@@ -181,10 +181,6 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
     model = Envio
 
 
-def download_qr_code_label(request):
-    pass
-
-
 class EnvioCreate(LoginRequiredMixin, CreateView):
 
     login_url = '/login/'
@@ -216,44 +212,52 @@ def bulk_create_envios_view(request):
             user, request.POST or None, request.FILES or None)
         if form.is_valid():
             obj = form.save()
+            if not obj.requires_manual_fix and not obj.errors:
+                ids = "-".join([str(envio.id)
+                               for envio in bulk_create_envios(obj)])
+                return redirect('envios:envio-download-labels', ids=ids)
             msg = 'La solicitud de carga masiva se creó correctamente'
             return create_alert_and_redirect(
-                request, msg, 'envios:envio-bulk-add-confirm', obj.pk)
+                request, msg, 'envios:envio-bulk-handle-confirm', obj.pk)
     context['upload_form'] = form
     return render(request, 'envios/bulk/add.html', context)
 
 
 @login_required(login_url='/login/')
 def bulk_add_envios_success(request, ids):
-    context = {}
-    context['selected_tab'] = 'shipments-tab'
-    context['ids'] = ids
+    context = {'selected_tab': 'shipments-tab', 'ids': ids}
     return render(request, 'envios/bulk/add_success.html', context)
 
 
 @login_required(login_url='/login/')
 def download_shipment_labels_file_response(request, ids):
     # TODO Replace obj with PDF file
-    obj = None
-    response = HttpResponse(
-        obj, content_type='application/vnd.ms-excel')
-    response['Content-Disposition'] = 'attachment; filename=result.xlsx'
+    # import io
+    # buffer = io.BytesIO()
+    ids = ids.split('-')
+    # envios = Envio.objects.filter(id__in=ids)
+    envios = Envio.objects.all()
+    from envios.reports import PDFReport
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=etiquetas.pdf'
+    PDFReport(response).create(envios)
     return response
 
 
 @login_required(login_url='/login/')
-def bulk_confirm_create_envios_view(request, *args, **kwargs):
+def bulk_handle_create_envios_view(request, *args, **kwargs):
     context = {}
     obj = BulkLoadEnvios.objects.get(pk=kwargs['pk'])
-    if obj.requires_manual_fix:
-        pass
-        # ids = ",".join([envio.id for envio in bulk_create_envios(obj)])
+    if not obj.requires_manual_fix and not obj.errors:
+        ids = "-".join([str(envio.id) for envio in bulk_create_envios(obj)])
+        context['ids'] = ids
+    # elif obj.errors:
+    #     pass
+    # else:
+    #     ids = "-".join([envio.id for envio in bulk_create_envios(obj)])
+    #     context['ids'] = ids
     context['selected_tab'] = 'shipments-tab'
-
-    # 'obj': obj,
-    # 'ids': ids,
-
-    return render(request, 'envios/bulk/list.html', context)
+    return render(request, 'envios/bulk/handler.html', context)
 
 
 @login_required(login_url='/login/')

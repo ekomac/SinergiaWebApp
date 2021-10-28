@@ -6,7 +6,8 @@ from .views import (
     # EnviosList,
     EnvioCreate,
     bulk_create_envios_view,
-    bulk_confirm_create_envios_view,
+    bulk_handle_create_envios_view,
+    download_shipment_labels_file_response,
     print_csv_file,
     update_envio,
     delete_envio,
@@ -21,9 +22,11 @@ urlpatterns = [
     path('envio/add/', EnvioCreate.as_view(), name="envio-add"),
     path('envio/bulk-add/', bulk_create_envios_view, name="envio-bulk-add"),
     path('envio/bulk-add/<int:pk>/confirm',
-         bulk_confirm_create_envios_view, name="envio-bulk-add-confirm"),
+         bulk_handle_create_envios_view, name="envio-bulk-handle-confirm"),
     path('envio/edit/', update_envio, name="envio-edit"),
     path('envio/delete/', delete_envio, name="envio-delete"),
     path('envio/bad-bulk-add/', print_csv_file, name="envio-bad-bulk-add"),
+    path('envio/download/<ids>', download_shipment_labels_file_response,
+         name="envio-download-labels"),
     # ******************************* ENVIOS *******************************
 ]

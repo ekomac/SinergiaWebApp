@@ -1,6 +1,7 @@
 # Basic Python
 import os
 from typing import Any, List
+import PIL
 # Reportlab
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.platypus import Paragraph, Frame, Table, TableStyle
@@ -75,61 +76,19 @@ class PDFReport(object):
         self.stylesheet = getSampleStyleSheet()
         self.buffer = buffer
         self.canvas = Canvas(self.buffer)
-        self.create_images()
-        self.current_position = 1
-
-    def create_images(self):
-        self.create_logo()
-        self.create_account_icon()
-        self.create_map_icon()
-        self.create_phone_icon()
-
-    def create_logo(self):
-        self.logo = Image(os.path.join(
-            settings.STATIC_ROOT, 'logo_color.png'),
+        self.logo = Image(
+            PIL.Image.open(os.path.join(
+                settings.STATIC_ROOT, 'logo_color.png')),
             self.LOGO_BASE_WIDTH*self.LOGO_BASE_SCALAR,
             self.LOGO_BASE_HEIGHT*self.LOGO_BASE_SCALAR
         )
-        # io.BytesIO()
-        # img = PillowImage.open(os.path.join(
-        #     settings.STATIC_ROOT, 'logo_color.png'))
-        # # img_byte_arr = BytesIO()
-        # # img.save(img_byte_arr, format=img.format)
-        # self.logo = Image(
-        #     open(os.path.join(
-        #         settings.STATIC_ROOT, 'logo_color.png')),
-        #     # img_byte_arr,
-        #     self.LOGO_BASE_WIDTH*self.LOGO_BASE_SCALAR,
-        #     self.LOGO_BASE_HEIGHT*self.LOGO_BASE_SCALAR
-        # )
-        # # img_byte_arr.close()
-
-    def create_account_icon(self):
-        # img = PillowImage.open(os.path.join(
-        #     settings.STATIC_ROOT, 'account.png'))
-        # img_byte_arr = BytesIO()
-        # img.save(img_byte_arr, format=img.format)
-        self.person_image = Image(os.path.join(
-            settings.STATIC_ROOT, 'account.png'), 12, 12)
-        # img_byte_arr.close()
-
-    def create_map_icon(self):
-        # img = PillowImage.open(os.path.join(
-        #     settings.STATIC_ROOT, 'map-marker.png'))
-        # img_byte_arr = BytesIO()
-        # img.save(img_byte_arr, format=img.format)
-        self.maps_image = Image(os.path.join(
-            settings.STATIC_ROOT, 'map-marker.png'), 12, 12)
-        # img_byte_arr.close()
-
-    def create_phone_icon(self):
-        # img = PillowImage.open(os.path.join(
-        #     settings.STATIC_ROOT, 'phone.png'))
-        # img_byte_arr = BytesIO()
-        # img.save(img_byte_arr, format=img.format)
-        self.phone_image = Image(os.path.join(
-            settings.STATIC_ROOT, 'phone.png'), 12, 12)
-        # img_byte_arr.close()
+        self.person_image = Image(PIL.Image.open(os.path.join(
+            settings.STATIC_ROOT, 'account.png')), 12, 12)
+        self.maps_image = Image(PIL.Image.open(os.path.join(
+            settings.STATIC_ROOT, 'map-marker.png')), 12, 12)
+        self.phone_image = Image(PIL.Image.open(os.path.join(
+            settings.STATIC_ROOT, 'phone.png')), 12, 12)
+        self.current_position = 1
 
     def create(self, data: List[Envio]):
         for envio in data:
@@ -144,21 +103,23 @@ class PDFReport(object):
             self.current_position = 1
             self.canvas.showPage()
 
+    def create_page(self):
+        pass
+
     def create_frame(self, envio: Envio) -> None:
         x = y = self.PADDING
         if self.current_position == 1:
             y = self.MAX_HEIGHT - self.PADDING - self.BASE_FRAME_HEIGHT
         if self.current_position == 2:
-            x = self.MAX_WIDTH - self.PADDING - self.BASE_FRAME_WIDTH
+            x = self.MAX_WIDTH - self.PADDING - self.BASE_FRAME_WIDTH,
             y = self.MAX_HEIGHT - self.PADDING - self.BASE_FRAME_HEIGHT
         if self.current_position == 4:
             x = self.MAX_WIDTH - self.PADDING - self.BASE_FRAME_WIDTH
         frame = Frame(x, y,
                       self.BASE_FRAME_WIDTH,
                       self.BASE_FRAME_HEIGHT,
-                      showBoundary=1, topPadding=0)
-        story = self.get_story_from_data(envio)
-        frame.addFromList(story, self.canvas)
+                      showBoundary=1)
+        frame.addFromList(self.get_story_from_data(envio), self.canvas)
 
     def get_story_from_data(self, envio: Envio) -> List[Any]:
         header = self.get_table_header(envio.client.name, envio.client.id)
@@ -169,11 +130,11 @@ class PDFReport(object):
             envio.recipient_town.name,
             envio.recipient_town.partido.name)
         final_table = self.get_final_table(
-            name=envio.recipient_name,
-            address=envio.recipient_address,
-            zip_code=envio.recipient_zipcode,
-            entrances=envio.recipient_entrances,
-            phone=envio.recipient_phone
+            envio_recipient=envio.recipient_name,
+            envio_address=envio.recipient_address,
+            envio_zip_code=envio.recipient_zipcode,
+            envio_reference=envio.recipient_entrances,
+            envio_phone=envio.recipient_phone
         )
         return [header, qr_code, table_below_qr_code, final_table]
 
@@ -190,12 +151,13 @@ class PDFReport(object):
             client_paragraph_style)
         header_data = [[self.logo, client_paragraph]]
         table_header_style = TableStyle([
+            ('LINEABOVE', (0, 0), (-1, -1), 0.5, colors.black),
             ('LINEBELOW', (0, 0), (-1, -1), 0.5, colors.black),
-            ('INNERGRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ('LINEBEFORE', (0, 0), (-1, -1), 0.5, colors.black),
+            ('LINEAFTER', (0, 0), (-1, -1), 0.5, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('ALIGN', (0, 0), (-1, -1), 'CENTRE'),
-            ('TOPPADDING', (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+            ('TOPPADDING', (0, 0), (-1, -1), 0),
         ])
         table = Table(
             header_data, self.BASE_FRAME_WIDTH/2, self.TABLE_HIEGHT_UNIT*1.5)
@@ -237,7 +199,6 @@ class PDFReport(object):
             ('LINEABOVE', (0, 3), (0, 3), 0.5, colors.black),
             ('LINEBELOW', (0, 3), (0, 3), 0.5, colors.black),
             ('VALIGN', (0, 0), (0, 3), "MIDDLE"),
-            ('LEFTPADDING', (-1, -1), (-1, -1), 10),
         ])
         table = Table(data, self.BASE_FRAME_WIDTH)
         table.setStyle(table_style)
@@ -249,27 +210,30 @@ class PDFReport(object):
     ) -> Table:
         """
         This are the kwargs for the data:
-        name, address, zip_code, reference, phone.
+        envio_recipient, envio_address, envio_zip_code
+        envio_reference, envio_phone.
         By default, they are initialized as 'No especificado'.
         """
-        keys = ['name', 'address', 'zip_code', 'entrances', 'phone']
-        for key in keys:
-            kwargs[key] = kwargs[key] if kwargs[key] else 'No especificado'
 
         styleN = self.stylesheet["BodyText"]
         styleN.alignment = TA_LEFT
 
+        envio_recipient = kwargs.get('recipient', 'No especificado')
+        envio_address = kwargs.get('address', 'No especificado')
+        envio_zip_code = kwargs.get('zip_code', 'No especificado')
+        envio_reference = kwargs.get('reference', 'No especificado')
+        envio_phone = kwargs.get('phone', 'No especificado')
+
         data = [
-            [self.person_image, Paragraph(kwargs['name'], styleN),
+            [self.person_image, Paragraph(envio_recipient, styleN),
                 "", "", "", "", "", "", "", "", "", ""],
-            [self.maps_image, Paragraph(f"<b>{kwargs['address']}</b>", styleN),
+            [self.maps_image, Paragraph(envio_address, styleN),
                 "", "", "", "", "", "", "", "", "", ""],
-            ["", Paragraph(f"<b>CP:</b> {kwargs['zip_code']}", styleN),
+            ["", Paragraph(f"<b>CP:</b> {envio_zip_code}", styleN),
                 "", "", "", "", "", "", "", "", "", ""],
-            ["", Paragraph(
-                f"<b>Referencias:</b> {kwargs['entrances']}", styleN),
+            ["", Paragraph(f"<b>Referencias:</b> {envio_reference}", styleN),
                 "", "", "", "", "", "", "", "", "", ""],
-            [self.phone_image, Paragraph(kwargs['phone'], styleN),
+            [self.phone_image, Paragraph(envio_phone, styleN),
                 "", "", "", "", "", "", "", "", "", ""],
         ]
         tstyle = TableStyle([
@@ -278,11 +242,9 @@ class PDFReport(object):
             ('SPAN', (1, 2), (-1, 2)),
             ('SPAN', (1, 3), (-1, 3)),
             ('SPAN', (1, 4), (-1, 4)),
-            ('TOPPADDING', (0, 0), (1, 0), 6),
-            ('LEFTPADDING', (0, 0), (0, -1), 10),
             ('ALIGN', (1, 0), (-1, -1), "LEFT"),
             ('VALIGN', (0, 0), (-1, -1), "TOP"),
         ])
-        table = Table(data, self.BASE_FRAME_WIDTH/12, spaceBefore=6)
+        table = Table(data, self.BASE_FRAME_WIDTH/12)
         table.setStyle(tstyle)
         return table
