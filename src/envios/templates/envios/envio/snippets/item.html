@@ -29,8 +29,8 @@
         <span class="badge" style="background-color: #808080;">MENSAJERIA</span>
         {% endif %}
     </td>
-    <td class="cell-centered">{{ obj.client.name }}</td>
-    <td class="cell-centered">
+    <td>{{ obj.client.name }}</td>
+    <td>
         {% if obj.recipient_address %}{{ obj.recipient_address |title }},{% if obj.recipient_zipcode %}&nbsp;{{ obj.recipient_zipcode }}{% endif %}&nbsp;{{ obj.recipient_town.name |title }},&nbsp;{{ obj.recipient_town.partido.name |title }}{% endif %}
     </td>
     <td class="cell-centered">

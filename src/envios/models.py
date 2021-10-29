@@ -2,7 +2,7 @@ from decimal import Decimal
 from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_save
 from django.template.defaultfilters import truncatechars
 from simple_history.models import HistoricalRecords
 from clients.models import Client
@@ -18,10 +18,16 @@ def upload_location(instance, filename, *args, **kwargs):
 
 class Envio(models.Model):
 
+    STATUS_NEW = 'N'
+    STATUS_MOVING = 'M'
+    STATUS_STILL = 'S'
+    STATUS_DELIVERED = 'D'
+
     STATUSES = [
-        ('N', 'Nuevo'),
-        ('V', 'Viajando'),
-        ('E', 'Entregado'),
+        (STATUS_NEW, 'Nuevo'),
+        (STATUS_MOVING, 'Viajando'),
+        (STATUS_STILL, 'En depósito'),
+        (STATUS_DELIVERED, 'Entregado'),
     ]
 
     SCHEDULES = [
@@ -38,7 +44,7 @@ class Envio(models.Model):
         verbose_name="Usuario", blank=False, null=False)
     shipment_status = models.CharField(
         verbose_name="Estado",
-        max_length=2, choices=STATUSES, default='N')
+        max_length=2, choices=STATUSES, default=STATUS_NEW)
     detail = models.CharField(verbose_name="Detalle",
                               max_length=2000, default='0-1')
     client = models.ForeignKey(
@@ -92,9 +98,16 @@ class Envio(models.Model):
         verbose_name_plural = 'Envíos'
 
 
-@ receiver(post_delete, sender=Envio)
-def submission_delete(sender, instance, *args, **kwargs):
-    instance.qr_code.delete(False)
+@receiver(post_save, sender=Envio, dispatch_uid="create_tracking_movement")
+def create_tracking(sender, instance, **kwargs):
+    deposit = Deposit.objects.filter(client=instance.client).first()
+    TrackingMovement(
+        envio=instance,
+        user=instance.created_by,
+        action=TrackingMovement.ACTION_ADDED_TO_SYSTEM,
+        result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
+        deposit=deposit
+    ).save()
 
 
 class Bolson(models.Model):
@@ -140,33 +153,47 @@ class Deposit(models.Model):
 
 class TrackingMovement(models.Model):
 
+    ACTION_ADDED_TO_SYSTEM = "AS"
+    ACTION_RECOLECTION = "RC"
+    ACTION_DEPOSIT = "DP"
+    ACTION_DELIVERY_ATTEMPT = 'DA'
     ACTIONS = [
-        ('CS', "Carga en sistema"),
-        ('RC', "Recolección"),
-        ('DP', "Depósito"),
-        ('IE', "Intento de entrega"),
+        (ACTION_ADDED_TO_SYSTEM, "Carga en sistema"),
+        (ACTION_RECOLECTION, "Recolección"),
+        (ACTION_DEPOSIT, "Depósito"),
+        (ACTION_DELIVERY_ATTEMPT, "Intento de entrega"),
     ]
 
+    RESULT_ADDED_TO_SYSTEM = '_new'
+    RESULT_IN_DEPOSIT = 'in_deposit'
+    RESULT_SUCCESSFUL_DELEIVERY = 'success'
+    RESULT_REJECTED_AT_DESTINATION = 'rejected'
+    RESULT_REPROGRAMED = 'reprogram'
+    RESULT_NO_ANSWER = 'not-respond'
+    RESULT_OTHER = 'custom'
     RESULTS = [
-        ('_new', 'Agregado al sistema'),
-        ('success', 'Entrega exitosa'),
-        ('rejected', 'Rechazado en lugar de destino'),
-        ('reprogram', 'Reprogramado'),
-        ('not-respond', 'Sin respuesta'),
-        ('custom', 'Otro'),
+        (RESULT_ADDED_TO_SYSTEM, 'Agregado al sistema'),
+        (RESULT_IN_DEPOSIT, 'En depósito'),
+        (RESULT_SUCCESSFUL_DELEIVERY, 'Entrega exitosa'),
+        (RESULT_REJECTED_AT_DESTINATION, 'Rechazado en lugar de destino'),
+        (RESULT_REPROGRAMED, 'Reprogramado'),
+        (RESULT_NO_ANSWER, 'Sin respuesta'),
+        (RESULT_OTHER, 'Otro'),
     ]
 
-    envios = models.ManyToManyField(Envio)
-    bolsones = models.ManyToManyField(Bolson)
+    envio = models.ForeignKey(Envio,
+                              verbose_name="Envio relacionado",
+                              on_delete=models.CASCADE,
+                              null=True, blank=False, default=None)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              null=True, on_delete=models.SET_NULL,
                              verbose_name="user responsible")
     action = models.CharField(verbose_name="movement action", max_length=50,
-                              default=None, blank=False, null=False,
-                              choices=ACTIONS)
+                              default=ACTION_ADDED_TO_SYSTEM,
+                              blank=False, null=False, choices=ACTIONS)
     result = models.CharField(verbose_name="movement result", max_length=50,
-                              default=None, blank=False, null=False,
-                              choices=RESULTS)
+                              default=RESULT_ADDED_TO_SYSTEM, blank=False,
+                              null=False, choices=RESULTS)
     comment = models.TextField(verbose_name="comment", max_length=200,
                                default=None, blank=True, null=True)
     deposit = models.ForeignKey(
@@ -320,11 +347,11 @@ class BulkLoadEnvios(models.Model):
         max_length=100, blank=True, null=True)
     history = HistoricalRecords()
 
-    @ property
+    @property
     def short_errors_display(self):
         return truncatechars(self.errors, 100)
 
-    @ property
+    @property
     def short_csv_result_display(self):
         return truncatechars(self.csv_result, 1000)
 

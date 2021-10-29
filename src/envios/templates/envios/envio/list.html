@@ -211,8 +211,8 @@
             <!-- start ACTIONS -->
             <div class="d-flex flex-wrap align-items-center">
                 <button type="button" id="bulkDeleteDelivery" class="btn btn-danger btn-sm m-2 m-xl-0 ms-xl-2"
-                    {% comment "" %} onclick="deleteSelectedItems()" {% endcomment %} disabled>
-                    Asignar a
+                    onclick="printSelectedItems()" disabled>
+                    Imprimir etiquetas
                 </button>
                 <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{totalEnvios}} elementos seleccionados</div>
                 <div class="my-1 mx-xl-3">
@@ -253,10 +253,10 @@
                             <th>Fecha de carga</th>
                             <th class="cell-centered">Estado</th>
                             <th class="cell-centered">Tipo</th>
-                            <th class="cell-centered">Cliente</th>
-                            <th class="cell-centered">Destino</th>
-                            <th class="cell-centered">Fecha límite</th>
-                            <th class="cell-centered">Horario de entrega</th>
+                            <th>Cliente</th>
+                            <th>Destino</th>
+                            <th>Fecha límite</th>
+                            <th>Horario de entrega</th>
                             <th class="cell-centered"></th>
                         </tr>
                     </thead>

@@ -38,20 +38,6 @@
                 <div class="col-md-12 col-lg-6 col-xl-5">
                     <label for="{{form.client.id_for_label}}" class="form-label">Cliente</label>
                     {{ form.client}}
-                    {% comment %} <select class="form-select {% if form.client.errors%}is-invalid{% endif %}"
-                        id="id_client" aria-label="" name="client" required>
-                        <option id="none_client" class="sortMe" value="" selected>---------</option>
-                        {% for cliente in clientes %}
-                        <option id="{{ cliente.id }}" class="sortMe" value="{{ cliente.id }}">
-                            {{ cliente.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                    <div class="invalid-feedback">
-                        {% for error in form.client.errors %}
-                        {{error}}<br>
-                        {% endfor %}
-                    </div> {% endcomment %}
                 </div>
                 <!-- END CLIENT INPUT -->
 
