@@ -3,7 +3,7 @@ from typing import Any, Callable, Dict, List, Tuple
 
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
-from envios.models import BulkLoadEnvios, Envio
+from envios.models import BulkLoadEnvios, Envio, base_create_tracking
 from places.models import Partido, Town
 from rich import print
 
@@ -230,7 +230,9 @@ def create_xlsx_workbook(
     return wb
 
 
-def bulk_create_envios(bulk_load_envios: BulkLoadEnvios):
+def bulk_create_envios(
+    bulk_load_envios: BulkLoadEnvios
+) -> List[Envio]:
     """
     Create envios from the csv file and return them.
     Ids are returned just because PostgreSQL supports it.
@@ -243,7 +245,10 @@ def bulk_create_envios(bulk_load_envios: BulkLoadEnvios):
         cols = row.split(",")
         kwargs = __cols_to_kwargs(cols, bulk_load_envios)
         envios.append(Envio(**kwargs))
-    return Envio.objects.bulk_create(envios)
+    envios = Envio.objects.bulk_create(envios)
+    for envio in envios:
+        base_create_tracking(envio)
+    return envios
 
 
 def __cols_to_kwargs(

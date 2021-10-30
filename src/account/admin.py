@@ -6,7 +6,7 @@ from account.models import Account
 class AccountAdmin(UserAdmin):
     list_display = ('email', 'username', 'first_name',
                     'last_name', 'is_admin', 'is_staff',
-                    'last_login', 'date_joined')
+                    'last_login', 'date_joined',)
     search_fields = ('email', 'username', 'first_name', 'last_name',)
     readonly_fields = ('date_joined', 'last_login')
 

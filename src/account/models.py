@@ -1,5 +1,7 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import (
+    AbstractBaseUser, BaseUserManager, PermissionsMixin
+)
 from simple_history.models import HistoricalRecords
 
 
@@ -56,7 +58,7 @@ def profile_pic_upload_location(instance, filename, *args, **kwargs):
     return f'account/{account_id}/profile-{account_id}'
 
 
-class Account(AbstractBaseUser):
+class Account(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(verbose_name="email",
                               max_length=100, unique=True)

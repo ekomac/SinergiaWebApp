@@ -25,8 +25,8 @@ def login_view(request):
             if user:
                 login(request, user)
                 next_url = 'home'
-                spec_url = request.GET.get('next', '')
-                if spec_url and spec_url != '':
+                spec_url = request.GET.get('next', None)
+                if spec_url:
                     return redirect(spec_url)
                 return redirect(next_url)
 

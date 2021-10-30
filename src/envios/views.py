@@ -17,12 +17,13 @@ from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
-from django.views.generic import ListView
+from account.decorators import allowed_users, allowed_users_in_class_view
+
 
 # Project apps
 from account.models import Account
 from envios.forms import BulkLoadEnviosForm, CreateEnvioForm
-from envios.models import BulkLoadEnvios, Envio
+from envios.models import BulkLoadEnvios, Envio, TrackingMovement
 from envios.utils import bulk_create_envios, create_xlsx_workbook
 from places.models import Partido, Town
 from clients.models import Client
@@ -34,6 +35,7 @@ TIME_FORMAT = '%YYYY%MM%DD'
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def envios_view(request):
     context = {}
 
@@ -176,7 +178,17 @@ class EnvioContextMixin(LoginRequiredMixin, View):
 
 
 class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
+    login_url = '/login/'
     model = Envio
+    template_name = "envios/envio/detail.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tracking_movements = TrackingMovement.objects.filter(
+            Q()
+        )
+        context['tracking_movements'] = tracking_movements
+        return context
 
 
 class EnvioCreate(LoginRequiredMixin, CreateView):
@@ -199,8 +211,13 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('envios:envio-detail', kwargs={'pk': self.object.pk})
 
+    @allowed_users_in_class_view(roles="Admins")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def bulk_create_envios_view(request):
     context = {}
     form = BulkLoadEnviosForm()
@@ -211,18 +228,15 @@ def bulk_create_envios_view(request):
         if form.is_valid():
             obj = form.save()
             if not obj.requires_manual_fix and not obj.errors:
-
                 return redirect('envios:envio-bulk-add-success', pk=obj.pk)
-            # msg = 'La solicitud de carga masiva se creó correctamente'
             return redirect('envios:bulk-handle', pk=obj.pk)
-            # return create_alert_and_redirect(
-            #     request, msg, 'envios:bulk-handle', pk=obj.pk)
     context['upload_form'] = form
     context['selected_tab'] = 'shipments-tab'
     return render(request, 'envios/bulk/add.html', context)
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def success_bulk_create_envios_view(request, pk):
     bulk_load = BulkLoadEnvios.objects.get(id=pk)
     envios = bulk_create_envios(bulk_load)
@@ -234,6 +248,7 @@ def success_bulk_create_envios_view(request, pk):
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def download_shipment_labels_file_response(_, ids):
     ids = ids.split('-')
     envios = Envio.objects.filter(id__in=ids)
@@ -246,6 +261,7 @@ def download_shipment_labels_file_response(_, ids):
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def handle_bulk_create_envios_view(request, pk):
     obj = BulkLoadEnvios.objects.get(id=pk)
     context = {
@@ -285,6 +301,7 @@ def map_town_to_dict(town):
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def create_envio_view(request):
 
     context = {}
@@ -306,16 +323,13 @@ def create_envio_view(request):
     return render(request, "envios/create.html", context)
 
 
-class EnviosList(EnvioContextMixin, LoginRequiredMixin,  ListView):
-    model = Envio
-    template_name = "envios/list.html"
-
-
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def update_envio(request):
     return render(request, 'envios/update.html', {})
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def delete_envio(request):
     return render(request, 'envios/delete.html', {})

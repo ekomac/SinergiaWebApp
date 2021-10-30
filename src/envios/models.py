@@ -98,8 +98,7 @@ class Envio(models.Model):
         verbose_name_plural = 'Envíos'
 
 
-@receiver(post_save, sender=Envio, dispatch_uid="create_tracking_movement")
-def create_tracking(sender, instance, **kwargs):
+def base_create_tracking(instance: Envio) -> None:
     deposit = Deposit.objects.filter(client=instance.client).first()
     TrackingMovement(
         envio=instance,
@@ -108,6 +107,11 @@ def create_tracking(sender, instance, **kwargs):
         result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
         deposit=deposit
     ).save()
+
+
+@receiver(post_save, sender=Envio, dispatch_uid="create_tracking_movement")
+def create_tracking(sender, instance, **kwargs):
+    base_create_tracking(instance)
 
 
 class Bolson(models.Model):

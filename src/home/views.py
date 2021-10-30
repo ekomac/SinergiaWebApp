@@ -10,7 +10,6 @@ def home_screen_view(request):
 
     context = {}
     context['selected_tab'] = 'home-tab'
-    print(request.user)
     return render(request, 'home.html', context)
 
 

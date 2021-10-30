@@ -77,7 +77,6 @@ class BulkLoadEnviosForm(forms.ModelForm):
                 hashed_file=self.hash_from_file,
                 load_status=BulkLoadEnvios.LOADING_STATUS_PROCESSING).delete()
         bulk_load.hashed_file = self.hash_from_file
-        print(self.hash_from_file)
         bulk_load.created_by = self.author
         if not self.found_errors:
             bulk_load.load_status = BulkLoadEnvios.LOADING_STATUS_FINISHED
