@@ -15,9 +15,11 @@
     <td class="cell-centered">
         {% if obj.shipment_status == 'N' %}
         <span class="badge rounded-pill bg-danger">{{obj.get_shipment_status_display}}</span>
-        {% elif obj.shipment_status == 'V' %}
+        {% elif obj.shipment_status == 'M' %}
+        <span class="badge rounded-pill bg-primary">{{obj.get_shipment_status_display}}</span>
+        {% elif obj.shipment_status == 'S' %}
         <span class="badge rounded-pill bg-warning">{{obj.get_shipment_status_display}}</span>
-        {% elif obj.shipment_status == 'E' %}
+        {% elif obj.shipment_status == 'D' %}
         <span class="badge rounded-pill bg-success">{{obj.get_shipment_status_display}}</span>
         {% endif %}
     </td>

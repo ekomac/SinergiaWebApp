@@ -145,11 +145,12 @@
             <form method="GET" class="mt-4" id="list_form">
                 <div class="row g-2">
                     <div class="col-12 col-lg-5 d-inline-flex justify-content-start align-items-center">
-                        <input type="text" class="form-control " name="q" id="id_q"
-                            value="{% if query != '' and query%}{{query}}{% endif %}"
+                        <input type="text" class="form-control " name="query_by" id="id_query_by"
+                            value="{% if query_by != '' and query_by%}{{query_by}}{% endif %}"
                             placeholder="Ingresá texto para buscar...">
                         <div class="mx-lg-1">
-                            <div id="clearSearchDiv" class="{% if query == '' or not query %}hide-on-load{% endif %}">
+                            <div id="clearSearchDiv"
+                                class="{% if query_by == '' or not query_by %}hide-on-load{% endif %}">
                                 <a id="clearSearch" type="button" class="ms-2 text-decoration-none"
                                     onclick="clearSearch()" style="cursor: pointer;">Limpiar</i></a>
                             </div>
@@ -193,6 +194,7 @@
                         <button type="button" class="btn btn-sm btn-primary mx-2" data-bs-toggle="modal"
                             data-bs-target="#baseModal">Filtros <span
                                 class="badge bg-danger">{{ filters_count }}</span></button>
+                        <input type="submit" hidden="true" />
                     </div>
                 </div>
 
@@ -274,7 +276,7 @@
             {% else %}
 
             <div>
-                <p class="card-text">No se encontraron resultados que coincidan con la búsqueda: "{{query}}"</p>
+                <p class="card-text">No se encontraron resultados que coincidan con la búsqueda: "{{query_by}}"</p>
             </div>
 
             {% endif %}

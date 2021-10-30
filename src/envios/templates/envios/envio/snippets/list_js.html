@@ -17,8 +17,8 @@
             $('#list_form').submit();
         });
 
-        $('#id_q').on('change paste keyup', function () {
-            show('clearSearchDiv', $('#id_q').val() != '');
+        $('#id_query_by').on('change paste keyup', function () {
+            show('clearSearchDiv', $('#id_query_by').val() != '');
         });
 
         decodeAndSetFilters();
@@ -131,7 +131,7 @@
     }
 
     function clearSearch() {
-        $('#id_q').val('');
+        $('#id_query_by').val('');
         $('#list_form').submit();
     }
 

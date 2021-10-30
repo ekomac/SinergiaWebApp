@@ -40,9 +40,9 @@ def envios_view(request):
     # Search
     query = ""
     if request.method == 'GET':
-        query = request.GET.get('q', None)
+        query = request.GET.get('query_by', None)
         if query:
-            context['query'] = str(query)
+            context['query_by'] = str(query)
 
         order_by = request.GET.get('order_by', '-date_created')
         if order_by:

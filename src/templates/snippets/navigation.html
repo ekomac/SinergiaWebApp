@@ -1,5 +1,5 @@
+{% load static %}
 <nav id="sidebarMenu" class="col-12 col-md-auto d-md-flex flex-column bg-dark sidebar collapse">
-
     <div class="vertical-scroll d-flex flex-column flex-grow-1 position-relative nav nav-pills p-3 overflow-auto">
         <!-- Menu items container -->
         <ul class="d-flex flex-column nav nav-pills">
@@ -215,10 +215,19 @@
             <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
                 id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
 
+                {% if request.user.profile_picture %}
+
                 <!-- PROFILE PIC -->
                 <img src="{{request.user.profile_picture.url}}" alt="Avatar" width="32" height="32"
                     class="rounded-circle me-2">
 
+                {% else %}
+
+                <!-- PROFILE PIC -->
+                <img src="{% static 'default_account.png' %}" style="background-color: white;" alt="Avatar" width="32"
+                    height="32" class="rounded-circle me-2">
+
+                {% endif %}
                 <!-- USERNAME -->
                 <strong class="ps-2">{{request.user.username}}</strong>
 
