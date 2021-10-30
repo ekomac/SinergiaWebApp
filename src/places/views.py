@@ -11,6 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
+from account.decorators import allowed_users, allowed_users_in_class_view
 
 # Projects utils
 from utils.views import DeleteObjectsUtil, ContextMixin
@@ -60,6 +61,7 @@ NAME_ORDERING = {
 
 # ************************ PARTIDO ************************
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def partidos_view(request):
     context = {}
 
@@ -117,8 +119,13 @@ class PartidoDetailView(ContextMixin, LoginRequiredMixin, DetailView):
     template_name = "places/partido/detail.html"
     context = {'selected_tab': 'partido-tab'}
 
+    @allowed_users_in_class_view(roles="Admins")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def edit_partido_view(request, pk):
 
     print("func started")
@@ -154,6 +161,7 @@ def edit_partido_view(request, pk):
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def bulk_edit_partidos_view(request, partidosids):
 
     ids = partidosids.split("-")
@@ -190,6 +198,7 @@ def bulk_edit_partidos_view(request, partidosids):
 
 # ************************ TOWN ************************
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def towns_view(request):
     context = {}
 
@@ -251,6 +260,10 @@ class TownDetailView(ContextMixin, LoginRequiredMixin, DetailView):
     template_name = "places/town/detail.html"
     context = {'selected_tab': 'town-tab'}
 
+    @allowed_users_in_class_view(roles="Admins")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
 
 class TownUpdateView(
         SuccessfulUpdateAlertMixin,
@@ -277,8 +290,13 @@ class TownUpdateView(
     def get_success_url(self):
         return reverse('places:town-detail', kwargs={'pk': self.object.pk})
 
+    @allowed_users_in_class_view(roles="Admins")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def bulk_edit_town_delivery_view(request, townsids):
 
     ids = townsids.split("-")
@@ -314,6 +332,7 @@ def bulk_edit_town_delivery_view(request, townsids):
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def bulk_edit_town_flex_view(request, townsids):
 
     ids = townsids.split("-")
@@ -350,6 +369,7 @@ def bulk_edit_town_flex_view(request, townsids):
 
 # ************************ ZONE ************************
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def zones_view(request):
     context = {}
 
@@ -407,6 +427,7 @@ def get_zone_queryset(query: str = None, reverse: bool = False) -> List[Zone]:
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def add_zone_view(request):
     context = {
         'selected_tab': 'zone-tab',
@@ -463,8 +484,13 @@ class ZoneDetailView(LoginRequiredMixin, DetailView):
         context['partidos'] = self.object.partido_set.order_by('name').all()
         return context
 
+    @allowed_users_in_class_view(roles="Admins")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def edit_zone_view(request, pk):
 
     zone = get_object_or_404(Zone, pk=pk)
@@ -554,8 +580,13 @@ class ZoneUpdateView(
     def get_success_url(self):
         return reverse('places:zone-detail', kwargs={'pk': self.object.pk})
 
+    @allowed_users_in_class_view(roles="Admins")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def zone_delete(request, **kwargs):
 
     zoneids = kwargs['zoneids'].split("-")

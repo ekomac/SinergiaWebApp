@@ -3,7 +3,9 @@ from typing import Any, Callable, Dict, List, Tuple
 
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
-from envios.models import BulkLoadEnvios, Envio, base_create_tracking
+from envios.models import (
+    BulkLoadEnvios, Envio, TrackingMovement, base_create_tracking
+)
 from places.models import Partido, Town
 from rich import print
 
@@ -246,8 +248,14 @@ def bulk_create_envios(
         kwargs = __cols_to_kwargs(cols, bulk_load_envios)
         envios.append(Envio(**kwargs))
     envios = Envio.objects.bulk_create(envios)
+
+    tracking_movements = []
     for envio in envios:
-        base_create_tracking(envio)
+        # For every envio, create a tracking movement
+        tracking_movements.append(base_create_tracking(envio))
+    # If anything found, bulk create the tracking movements
+    if tracking_movements:
+        TrackingMovement.objects.bulk_create(tracking_movements)
     return envios
 
 

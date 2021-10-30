@@ -98,22 +98,6 @@ class Envio(models.Model):
         verbose_name_plural = 'Envíos'
 
 
-def base_create_tracking(instance: Envio) -> None:
-    deposit = Deposit.objects.filter(client=instance.client).first()
-    TrackingMovement(
-        envio=instance,
-        user=instance.created_by,
-        action=TrackingMovement.ACTION_ADDED_TO_SYSTEM,
-        result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
-        deposit=deposit
-    ).save()
-
-
-@receiver(post_save, sender=Envio, dispatch_uid="create_tracking_movement")
-def create_tracking(sender, instance, **kwargs):
-    base_create_tracking(instance)
-
-
 class Bolson(models.Model):
 
     envios = models.ManyToManyField(Envio)
@@ -185,10 +169,7 @@ class TrackingMovement(models.Model):
         (RESULT_OTHER, 'Otro'),
     ]
 
-    envio = models.ForeignKey(Envio,
-                              verbose_name="Envio relacionado",
-                              on_delete=models.CASCADE,
-                              null=True, blank=False, default=None)
+    envios = models.ManyToManyField(Envio, verbose_name="Envios relacionados")
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              null=True, on_delete=models.SET_NULL,
                              verbose_name="user responsible")
@@ -362,3 +343,19 @@ class BulkLoadEnvios(models.Model):
     class Meta:
         verbose_name = 'Carga masiva de envios'
         verbose_name_plural = 'Cargas masivas de envios'
+
+
+def base_create_tracking(instance: Envio) -> TrackingMovement:
+    deposit = Deposit.objects.filter(client=instance.client).first()
+    return TrackingMovement(
+        envio=instance,
+        user=instance.created_by,
+        action=TrackingMovement.ACTION_ADDED_TO_SYSTEM,
+        result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
+        deposit=deposit
+    )
+
+
+@receiver(post_save, sender=Envio, dispatch_uid="create_tracking_movement")
+def create_tracking(sender, instance, **kwargs):
+    base_create_tracking(instance).save()

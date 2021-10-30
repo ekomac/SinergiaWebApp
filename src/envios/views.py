@@ -194,7 +194,7 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
 class EnvioCreate(LoginRequiredMixin, CreateView):
 
     login_url = '/login/'
-    template_name = "envios/add.html"
+    template_name = "envios/envio/add.html"
     form_class = CreateEnvioForm
 
     def form_valid(self, form):
