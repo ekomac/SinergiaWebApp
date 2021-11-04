@@ -3,11 +3,8 @@ from typing import Any, Callable, Dict, List, Tuple
 
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
-from envios.models import (
-    BulkLoadEnvios, Envio, TrackingMovement, base_create_tracking
-)
+from envios.models import BulkLoadEnvios, Deposit, Envio, TrackingMovement
 from places.models import Partido, Town
-from rich import print
 
 
 ABBREVIATIONS = {
@@ -66,7 +63,7 @@ class TownSuggestionResolver:
     def __main_loop(self):
         while self.next_step:
             towns, self.next_step = self.next_step()
-            if towns:
+            if towns is not None and len(towns) > 0:
                 if len(towns) > 1:
                     self.found_towns.extend(towns)
                 else:
@@ -115,7 +112,6 @@ class TownSuggestionResolver:
         self.__update_reason("con el código postal.")
         towns = None
         if self.zip_code_num:
-            print("zip code", self.zip_code_num)
             towns = list(Town.objects.filter(zipcode__code=self.zip_code_num))
         return (towns, self.__query_most_matching_name)
 
@@ -139,7 +135,8 @@ class TownSuggestionResolver:
         return (towns, self.__query_found_towns_most_matching_name)
 
     def __query_found_towns_most_matching_name(
-            self) -> Tuple[List[Town], Callable]:
+            self
+    ) -> Tuple[List[Town], Callable]:
         self.__update_reason("que tuvo más coincidencias.")
         if self.found_towns:
             counted = Counter(self.found_towns)
@@ -159,6 +156,19 @@ class TownSuggestionResolver:
         if self.partido_name:
             query_name = self.partido_name.upper()
             towns = list(Town.objects.filter(name=query_name))
+        return (towns, self.__query_partido_as_name_replacing_abbreviations)
+
+    def __query_partido_as_name_replacing_abbreviations(
+        self
+    ) -> Tuple[List[Town], Callable]:
+        self.__update_reason("con el partido como nombre sin abreviaturas.")
+        towns = None
+        if self.partido_name:
+            query_name = self.partido_name.upper()
+            for key, value in ABBREVIATIONS.items():
+                if key in query_name:
+                    query_name.replace(key, value)
+            towns = list(Town.objects.filter(name=query_name))
         return (towns, self.__query_partido_as_part_of_name)
 
     def __query_partido_as_part_of_name(self) -> Tuple[List[Town], Callable]:
@@ -176,7 +186,7 @@ class TownSuggestionResolver:
         if self.partido_name:
             partidos = Partido.objects.filter(name=self.partido_name)
             if partidos:
-                towns = partidos[0].town_set
+                towns = partidos[0].town_set.all()
                 if towns:
                     towns.order_by("name")
         return (towns, None)
@@ -211,7 +221,6 @@ def create_xlsx_workbook(
 
             # Set the value to the corresponding csv row and col
             if i != 0 and j == 4:
-                print(result[i][j], "intenta de buscar con id")
                 try:
                     if result[i][j] and str(result[i][j]).isdigit():
                         cell.value = Town.objects.get(id=result[i][j]).name
@@ -248,14 +257,19 @@ def bulk_create_envios(
         kwargs = __cols_to_kwargs(cols, bulk_load_envios)
         envios.append(Envio(**kwargs))
     envios = Envio.objects.bulk_create(envios)
-
-    tracking_movements = []
-    for envio in envios:
-        # For every envio, create a tracking movement
-        tracking_movements.append(base_create_tracking(envio))
-    # If anything found, bulk create the tracking movements
-    if tracking_movements:
-        TrackingMovement.objects.bulk_create(tracking_movements)
+    # for envio in envios:
+    #     # For every envio, create a tracking movement
+    #     base_create_tracking(envio)
+    deposit = Deposit.objects.filter(client=envios[0].client).first()
+    author = envios[0].created_by
+    tm = TrackingMovement(
+        created_by=author,
+        action=TrackingMovement.ACTION_ADDED_TO_SYSTEM,
+        result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
+        deposit=deposit
+    )
+    tm.save()
+    tm.envios.add(*envios)
     return envios
 
 
@@ -279,109 +293,3 @@ def __cols_to_kwargs(
         kwargs['is_flex'] = True
         kwargs['flex_id'] = cols[0]
     return kwargs
-
-# class CSVEnviosParser(object):
-
-#     def __init__(self, csv: str, author: Account, client: Client):
-#         self.csv = csv
-#         self.author = author
-#         self.client = client
-#         self.envios = []
-#         self.errors = []
-#         self.cells_to_paint = []
-#         self.needs_manual_fix = False
-
-#     def get_data(self):
-#         self.__main_loop()
-
-#         pass
-
-#     def __main_loop(self):
-#         for i, row in enumerate(self.csv.split("\n")):
-#             if i == 0 or "tracking_id" in row:
-#                 continue
-#             self.row = row
-#             self.cols = row.split("")
-#             self.__check_address_error()
-#             self.cols[4] = self.__resolve_town()
-#             self.envios.append(self.__get_envio_from_kwargs())
-
-#     def __current_row_repr(self):
-#         return f" ({self.cols[1]}, {self.cols[3]} {self.cols[4]})"
-
-#     def __resolve_town(self,):
-#         town_name = self.cols[4]
-#         if not town_name:
-#             self.__handle_town_error(self.row)
-#             return ""
-#         towns = Town.objects.filter(name=town_name.upper())
-#         if not towns or len(towns) > 1:
-#             return self.__handle_town_suggestion()
-#         return towns[0].id
-
-#     def __check_address_error(self):
-#         if not self.cols[1]:
-#             self.needs_manual_fix = True
-#             self.errors.append(
-#                 f"Error en la fila {self.row}, columna 2: No se \
-#                     pudo obtener el domicilio")
-#             self.__paint_row_col(self.row, 2)
-
-#     def __handle_town_error(self):
-#         self.needs_manual_fix = True
-#         self.errors.append(
-#             f"Error en la fila {self.row}, columna 4: No se \
-#                 pudo obtener la localidad")
-#         self.__paint_row_col(self.row, 4)
-
-#     def __handle_town_suggestion(self):
-#         try:
-#             result, reason = town_resolver(
-#                 self.cols[4], self.cols[5], self.cols[3])
-#             self.errors.append(
-#                 f'En la fila {self.row+1}, columna 5, no se encontró \
-#                     la localidad con el nombre {self.cols[4]} \
-#                         {self.__current_row_repr()}. ¿Acaso quisiste \
-#                             decir {result}? {reason}')
-#             return result.id
-#         except NoSuggestionsAvailable:
-#             self.needs_manual_fix = True
-#             self.__handle_town_error(self.row)
-#             return ""
-
-#     def __get_envio_from_kwargs(self):
-#         kwargs = {}
-#         # Flex code related
-#         if self.cols[0]:
-#             kwargs['is_flex'] = True
-#             kwargs['flex_id'] = self.cols[0]
-
-#         # Adress
-#         kwargs['recipient_address'] = self.cols[1]
-#         # Entrances
-#         kwargs['recipient_entrances'] = self.cols[2] if self.cols[2] \
-#               else None
-#         # Zipcode
-#         kwargs['recipient_zipcode'] = self.cols[3] if self.cols[3] else None
-#         # Town
-#         kwargs['recipient_town'] = self.col4s
-#         # Recipient's Name
-#         kwargs['recipient_name'] = self.cols[6] if self.cols[6] else None
-#         # Recipient's Doc Id
-#         kwargs['recipient_doc'] = self.cols[7] if self.cols[7] else None
-#         # Recipient's Phone
-#         kwargs['recipient_phone'] = self.cols[8] if self.cols[8] else None
-#         # Detail (packages)
-#         kwargs['detail'] = self.cols[9] if self.cols[9] else "0-1"
-
-#         kwargs['created_by'] = self.author
-#         kwargs['client'] = self.client
-#         return Envio(**kwargs)
-
-#     def __paint_row_col(self, row, col):
-#         self.cells_to_paint.append(f"{row+1},{col}")
-
-#     # def get_envios_from_csv_str(
-#     #     self, csv_str: str, author: Account,
-#     #         client: Client, use_suggestions: bool = False) -> List[Envio]:
-#     #     pass

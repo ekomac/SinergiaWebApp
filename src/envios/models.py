@@ -2,7 +2,7 @@ from decimal import Decimal
 from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
-from django.db.models.signals import post_save
+from django.db.models.signals import m2m_changed, post_save
 from django.template.defaultfilters import truncatechars
 from simple_history.models import HistoricalRecords
 from clients.models import Client
@@ -30,11 +30,16 @@ class Envio(models.Model):
         (STATUS_DELIVERED, 'Entregado'),
     ]
 
+    SCHEDULE_INDEX_7_10, SCHEDULE_PHRASE_7_10 = '07-10', '7 a 10 h'
+    SCHEDULE_INDEX_10_13, SCHEDULE_PHRASE_10_13 = '10-13', '10 a 13 h'
+    SCHEDULE_INDEX_13_16, SCHEDULE_PHRASE_13_16 = '13-16', '13 a 16 h'
+    SCHEDULE_INDEX_16_ON, SCHEDULE_PHRASE_16_ON = '16+', '+16 h'
+
     SCHEDULES = [
-        ('07-10', '7 a 10 h'),
-        ('10-13', '10 a 13 h'),
-        ('13-16', '13 a 16 h'),
-        ('16+', '+16 h'),
+        (SCHEDULE_INDEX_7_10, SCHEDULE_PHRASE_7_10),
+        (SCHEDULE_INDEX_10_13, SCHEDULE_PHRASE_10_13),
+        (SCHEDULE_INDEX_13_16, SCHEDULE_PHRASE_13_16),
+        (SCHEDULE_INDEX_16_ON, SCHEDULE_PHRASE_16_ON),
     ]
 
     date_created = models.DateTimeField(
@@ -81,17 +86,18 @@ class Envio(models.Model):
         verbose_name="ID de Flex", max_length=50, blank=True, null=True)
     delivery_schedule = models.CharField(
         verbose_name='Horario de entrega', choices=SCHEDULES,
-        max_length=5, blank=True, null=True)
+        max_length=5, blank=True, null=True, default=None)
     bulk_upload_id = models.ForeignKey(
         'BulkLoadEnvios', verbose_name="ID de carga masiva",
-        on_delete=models.SET_NULL, blank=True, null=True)
+        on_delete=models.CASCADE, blank=True, null=True)
     history = HistoricalRecords()
 
     def __str__(self):
         address = self.recipient_address
         town = self.recipient_town.name
         client = self.client
-        return f'{address}, {town.title()} from {client}'
+        status = self.get_shipment_status_display()
+        return f'{address}, {town.title()} from {client} ({status})'
 
     class Meta:
         verbose_name = 'Envío'
@@ -154,25 +160,32 @@ class TrackingMovement(models.Model):
 
     RESULT_ADDED_TO_SYSTEM = '_new'
     RESULT_IN_DEPOSIT = 'in_deposit'
-    RESULT_SUCCESSFUL_DELEIVERY = 'success'
+    RESULT_DELIVERED = 'success'
     RESULT_REJECTED_AT_DESTINATION = 'rejected'
     RESULT_REPROGRAMED = 'reprogram'
     RESULT_NO_ANSWER = 'not-respond'
     RESULT_OTHER = 'custom'
+    RESULT_TRANSFERED = 'transfered'
     RESULTS = [
         (RESULT_ADDED_TO_SYSTEM, 'Agregado al sistema'),
         (RESULT_IN_DEPOSIT, 'En depósito'),
-        (RESULT_SUCCESSFUL_DELEIVERY, 'Entrega exitosa'),
+        (RESULT_DELIVERED, 'Entrega exitosa'),
         (RESULT_REJECTED_AT_DESTINATION, 'Rechazado en lugar de destino'),
         (RESULT_REPROGRAMED, 'Reprogramado'),
         (RESULT_NO_ANSWER, 'Sin respuesta'),
+        (RESULT_TRANSFERED, 'Transferido'),
         (RESULT_OTHER, 'Otro'),
     ]
 
     envios = models.ManyToManyField(Envio, verbose_name="Envios relacionados")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             null=True, on_delete=models.SET_NULL,
-                             verbose_name="user responsible")
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                   related_name='created_by',
+                                   null=True, on_delete=models.SET_NULL,
+                                   verbose_name="author")
+    carrier = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                related_name='carrier', blank=True,
+                                null=True, on_delete=models.SET_NULL,
+                                verbose_name="user carrying package")
     action = models.CharField(verbose_name="movement action", max_length=50,
                               default=ACTION_ADDED_TO_SYSTEM,
                               blank=False, null=False, choices=ACTIONS)
@@ -184,16 +197,19 @@ class TrackingMovement(models.Model):
     deposit = models.ForeignKey(
         Deposit, on_delete=models.SET_NULL,
         verbose_name="deposit", default=None, blank=True, null=True)
-    date_time = models.DateTimeField(
-        verbose_name="action's date time", auto_now_add=True)
+    date_created = models.DateTimeField(
+        verbose_name="action's date time",
+        auto_now_add=True)
     history = HistoricalRecords()
 
     def __str__(self):
-        user = self.user.username
-        dt = self.date_time.strftime('%Y-%m-%d_%H-%M')
+        user = self.created_by.username if self.created_by else ""
+        dt = ""
+        if self.date_created:
+            dt = self.date_created.strftime('%Y-%m-%d_%H-%M')
         action = self.get_action_display()
         result = self.get_result_display()
-        return f'{dt}_{user}_{action}_TO_{result}'
+        return f'{dt}_{user}_{action}_to_{result}'
 
     class Meta:
         verbose_name = 'Movimiento'
@@ -347,15 +363,66 @@ class BulkLoadEnvios(models.Model):
 
 def base_create_tracking(instance: Envio) -> TrackingMovement:
     deposit = Deposit.objects.filter(client=instance.client).first()
-    return TrackingMovement(
-        envio=instance,
+    trackingmovement = instance.trackingmovement_set.create(
         user=instance.created_by,
         action=TrackingMovement.ACTION_ADDED_TO_SYSTEM,
         result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
         deposit=deposit
     )
+    # Tracking movement created
+    return trackingmovement
+    # return TrackingMovement(
+    #     user=instance.created_by,
+    #     action=TrackingMovement.ACTION_ADDED_TO_SYSTEM,
+    #     result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
+    #     deposit=deposit
+    # )
 
 
 @receiver(post_save, sender=Envio, dispatch_uid="create_tracking_movement")
 def create_tracking(sender, instance, **kwargs):
     base_create_tracking(instance).save()
+
+
+@receiver(m2m_changed, sender=TrackingMovement.envios.through,
+          dispatch_uid="update_envio_is_moving")
+def update_envio_status(sender, instance: TrackingMovement, action, **kwargs):
+    if action == 'post_add':
+        if instance.action == TrackingMovement.ACTION_RECOLECTION:
+            if instance.result == TrackingMovement.RESULT_TRANSFERED:
+                instance.envios.all().update(
+                    shipment_status=Envio.STATUS_MOVING
+                )
+        if instance.action == TrackingMovement.ACTION_DEPOSIT:
+            if instance.result == TrackingMovement.RESULT_IN_DEPOSIT:
+                instance.envios.all().update(
+                    shipment_status=Envio.STATUS_STILL
+                )
+        if instance.action == TrackingMovement.ACTION_ADDED_TO_SYSTEM:
+            if instance.result == TrackingMovement.RESULT_ADDED_TO_SYSTEM:
+                instance.envios.all().update(
+                    shipment_status=Envio.STATUS_NEW
+                )
+
+# (ACTION_ADDED_TO_SYSTEM, "Carga en sistema"),
+# (ACTION_RECOLECTION, "Recolección"),
+# (ACTION_DEPOSIT, "Depósito"),
+# (ACTION_DELIVERY_ATTEMPT, "Intento de entrega"),
+
+
+# (RESULT_ADDED_TO_SYSTEM, 'Agregado al sistema'),
+# (RESULT_IN_DEPOSIT, 'En depósito'),
+# (RESULT_SUCCESSFUL_DELEIVERY, 'Entrega exitosa'),
+# (RESULT_REJECTED_AT_DESTINATION, 'Rechazado en lugar de destino'),
+# (RESULT_REPROGRAMED, 'Reprogramado'),
+# (RESULT_NO_ANSWER, 'Sin respuesta'),
+# (RESULT_TRANSFERED, 'Transferido'),
+# (RESULT_OTHER, 'Otro'),
+
+
+# STATUSES = [
+#         (STATUS_NEW, 'Nuevo'),
+#         (STATUS_MOVING, 'Viajando'),
+#         (STATUS_STILL, 'En depósito'),
+#         (STATUS_DELIVERED, 'Entregado'),
+#     ]

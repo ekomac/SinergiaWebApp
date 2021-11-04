@@ -1,16 +1,198 @@
-from django.http.response import HttpResponse, HttpResponseNotAllowed
-from django.shortcuts import redirect, render
+# Python
 import json
+from itertools import groupby
+from datetime import datetime, timedelta
+from typing import Dict, List
+
+# Django
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+from django.db.models.aggregates import Count
+from django.db.models.query import QuerySet
+from django.shortcuts import render
+from django.http.response import HttpResponse, HttpResponseNotAllowed
+
+# Project
+from clients.models import Client
+from envios.models import Envio, TrackingMovement
+from account.models import Account
 
 
+@login_required(login_url='/login/')
 def home_screen_view(request):
-
-    if not request.user.is_authenticated:
-        return redirect('login')
-
-    context = {}
-    context['selected_tab'] = 'home-tab'
+    clients_with_envios = get_clients_with_envios_queryset()
+    envios_at_deposit = get_envios_at_deposit()
+    carriers_with_envios = get_carriers_with_envios_queryset()
+    main_stats = {
+        'at_origin': Envio.objects.filter(
+            shipment_status=Envio.STATUS_NEW).count(),
+        'at_deposit': Envio.objects.filter(
+            shipment_status=Envio.STATUS_STILL).count(),
+        'moving': Envio.objects.filter(
+            shipment_status=Envio.STATUS_MOVING).count(),
+        'delivered_today': TrackingMovement.objects.filter(
+            envios__shipment_status=Envio.STATUS_DELIVERED).count(),
+    }
+    context = {
+        'selected_tab': 'home-tab',
+        'main_stats': main_stats,
+        'clients_with_envios': clients_with_envios,
+        'envios_at_deposit': envios_at_deposit,
+        'carriers_with_envios': get_all(),
+    }
     return render(request, 'home.html', context)
+
+
+def get_clients_with_envios_queryset() -> QuerySet:
+    today = datetime(datetime.now().year,
+                     datetime.now().month, datetime.now().day, 23, 59, 59, 99)
+    return Client.objects.values(
+        'id', 'name', 'deposit__name'
+    ).annotate(
+        envio_count=Count(
+            'envio', filter=Q(
+                envio__shipment_status=Envio.STATUS_NEW
+            )
+        ),
+        priorities=Count(
+            'envio', filter=Q(
+                envio__max_delivery_date__lte=today
+            )
+        ),
+        has_special_delivery_schedule_time=Count(
+            'envio', filter=Q(
+                envio__delivery_schedule__isnull=False
+            )
+        )
+    ).order_by('name')
+
+
+def get_envios_at_deposit() -> QuerySet:
+    return Envio.objects.filter(
+        shipment_status=Envio.STATUS_STILL,
+    ).annotate(
+        client_count=Count(
+            'client__name'
+        ),
+    ).order_by()
+
+
+def get_all():
+    now = datetime.now()
+    today = datetime(now.year, now.month, now.day, 0, 0, 0, 0)
+    tomorrow = today + timedelta(days=1)
+    moving_envios = Envio.objects.filter(shipment_status=Envio.STATUS_MOVING)
+    data = []
+    for envio in moving_envios:
+        carrier = TrackingMovement.objects.filter(
+            envios=envio,
+            action=TrackingMovement.ACTION_RECOLECTION,
+            result=TrackingMovement.RESULT_TRANSFERED
+        ).last().carrier
+        town = envio.recipient_town
+        data.append([carrier, envio, town])
+
+    data = sorted(data, key=lambda row: row[0].id)
+    grouped = [list(g) for _, g in groupby(data, lambda row: row[0])]
+    result = {}
+    for group in grouped:
+        carrier = group[0][0]
+        row = {}
+        row['carrier'] = carrier
+        envios_count = len(group)
+        row['envios'] = envios_count
+        delivered = len([mov.envios.filter(
+            shipment_status=Envio.STATUS_DELIVERED
+        ).count() for mov in TrackingMovement.objects.filter(
+            action=TrackingMovement.ACTION_DELIVERY_ATTEMPT,
+            result=TrackingMovement.RESULT_DELIVERED,
+            created_by__id=carrier.id,
+            date_created__gte=today,
+            date_created__lt=tomorrow
+        )])
+        total = envios_count + delivered
+        row['left'] = f'{delivered} de {total} entregados'
+        towns = ", ".join(set([item[2].name.title() for item in group]))
+        if len(towns) > 50:
+            towns = towns[:50] + '...'
+        row['towns'] = towns
+        result[carrier.id] = row
+    return result
+
+
+def get_carriers_with_envios_queryset() -> Dict[str, List[Envio]]:
+
+    moving_envios = sorted(list(map(
+        lambda envio: (
+            envio, TrackingMovement.objects.filter(
+                envios=envio,
+                action=TrackingMovement.ACTION_RECOLECTION,
+                result=TrackingMovement.RESULT_TRANSFERED
+            ).last().carrier
+        ),
+        list(Envio.objects.filter(shipment_status=Envio.STATUS_MOVING))
+    )), key=lambda envio: envio[1].id)
+    # moving_envios = sorted(moving_envios, key=lambda envio: envio[1].id)
+
+    grouped_envios = [list(g) for _, g in groupby(
+        moving_envios, key=lambda envio: envio[1].id)]
+    for g in grouped_envios:
+        print("g -->", g)
+        print('\n')
+
+    envios = Envio.objects.filter(
+        shipment_status=Envio.STATUS_MOVING
+    ).order_by()
+    result = {}
+    for envio in envios:
+        tracking_movements = TrackingMovement.objects.filter(
+            envios=envio, action=TrackingMovement.ACTION_RECOLECTION,
+            result=TrackingMovement.RESULT_TRANSFERED
+        ).order_by('-date_created')
+        if tracking_movements:
+            carrier = tracking_movements.last().carrier
+            key = carrier.id if carrier else -1
+            if key in result:
+                result[key]['envios'] += 1
+                town = envio.recipient_town.name.title()
+                if town not in result[key]['towns']:
+                    result[key]['towns'] += ", " + town
+            else:
+                result[key] = {
+                    'carrier': carrier if key != -1 else "",
+                    'envios': 1,
+                    'towns': envio.recipient_town.name.title()
+                }
+                if key != -1:
+                    # print("No es menos uno")
+                    now = datetime.now()
+                    today = datetime(
+                        now.year, now.month, now.day, 0, 0, 0, 0)
+                    tomorrow = today + timedelta(days=1)
+                    result[key]['delivered'] = TrackingMovement.objects.filter(
+                        action=TrackingMovement.ACTION_DELIVERY_ATTEMPT,
+                        result=TrackingMovement.RESULT_DELIVERED,
+                        created_by__id=carrier.id,
+                        date_created__gte=today,
+                        date_created__lt=tomorrow
+                    ).count()
+            towns = result[key]['towns']
+            if len(result[key]['towns']) > 50:
+                result[key]['towns'] = towns[:50] + '...'
+
+            # TODO restar delivered de envios
+    return result
+
+
+def map_envio_to_carrier(envio):
+    tms = envio.trackingmovement_set.filter(
+        action=TrackingMovement.ACTION_RECOLECTION,
+        result=TrackingMovement.RESULT_TRANSFERED
+    )
+    if tms.exists():
+        if tms.last().carrier:
+            return tms.last().carrier
+        return ""
 
 
 def prueba_view(request):

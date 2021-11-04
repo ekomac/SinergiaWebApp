@@ -53,10 +53,10 @@ class DepositAdmin(admin.ModelAdmin):
 
 
 class TrackingMovementAdmin(admin.ModelAdmin):
-    list_display = ('user', 'date_time', 'action', 'result',
-                    'comment', 'deposit',)
-    search_fields = ('user', 'action', 'result', 'comment',
-                     'deposit',)
+    list_display = ('created_by', 'date_created', 'action', 'result',
+                    'comment', 'deposit', 'carrier')
+    search_fields = ('created_by', 'action', 'result', 'comment',
+                     'deposit', 'carrier')
 
     filter_horizontal = ()
     list_filter = ()
