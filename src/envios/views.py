@@ -35,7 +35,7 @@ TIME_FORMAT = '%YYYY%MM%DD'
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles="Admins")
+@allowed_users(roles=["Admins"])
 def envios_view(request):
     context = {}
 
@@ -211,13 +211,13 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('envios:envio-detail', kwargs={'pk': self.object.pk})
 
-    @allowed_users_in_class_view(roles="Admins")
+    @allowed_users_in_class_view(roles=["Admins"])
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles="Admins")
+@allowed_users(roles=["Admins"])
 def bulk_create_envios_view(request):
     context = {}
     form = BulkLoadEnviosForm()
@@ -236,7 +236,7 @@ def bulk_create_envios_view(request):
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles="Admins")
+@allowed_users(roles=["Admins"])
 def success_bulk_create_envios_view(request, pk):
     bulk_load = BulkLoadEnvios.objects.get(id=pk)
     envios = bulk_create_envios(bulk_load)
@@ -248,7 +248,7 @@ def success_bulk_create_envios_view(request, pk):
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles="Admins")
+@allowed_users(roles=["Admins"])
 def download_shipment_labels_file_response(_, ids):
     ids = ids.split('-')
     envios = Envio.objects.filter(id__in=ids)
@@ -261,7 +261,7 @@ def download_shipment_labels_file_response(_, ids):
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles="Admins")
+@allowed_users(roles=["Admins"])
 def handle_bulk_create_envios_view(request, pk):
     obj = BulkLoadEnvios.objects.get(id=pk)
     context = {
@@ -301,7 +301,7 @@ def map_town_to_dict(town):
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles="Admins")
+@allowed_users(roles=["Admins"])
 def create_envio_view(request):
 
     context = {}
@@ -324,12 +324,12 @@ def create_envio_view(request):
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles="Admins")
+@allowed_users(roles=["Admins"])
 def update_envio(request):
     return render(request, 'envios/update.html', {})
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles="Admins")
+@allowed_users(roles=["Admins"])
 def delete_envio(request):
     return render(request, 'envios/delete.html', {})

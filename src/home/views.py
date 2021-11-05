@@ -136,9 +136,9 @@ def get_carriers_with_envios_queryset() -> Dict[str, List[Envio]]:
 
     grouped_envios = [list(g) for _, g in groupby(
         moving_envios, key=lambda envio: envio[1].id)]
-    for g in grouped_envios:
-        print("g -->", g)
-        print('\n')
+    # for g in grouped_envios:
+    # print("g -->", g)
+    # print('\n')
 
     envios = Envio.objects.filter(
         shipment_status=Envio.STATUS_MOVING

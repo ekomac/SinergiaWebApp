@@ -29,15 +29,16 @@ from account.views import (
 )
 
 urlpatterns = [
-    path('', home_screen_view, name='home'),
-    path('account/', include('account.urls')),
-    path('admin/', admin.site.urls),
-    path('login/', login_view, name="login"),
-    path('logout/', logout_view, name="logout"),
-    path('envios/', include('envios.urls')),
-    path('prueba/', prueba_view, name='prueba'),
-    path('prices/', include('prices.urls')),
-    path('places/', include('places.urls')),
+    path('admin/home', home_screen_view, name='admin-home'),
+    path('admin/account/', include('account.urls')),
+    path('superadmin/', admin.site.urls),
+    path('admin/login/', login_view, name="login"),
+    path('admin/logout/', logout_view, name="logout"),
+    path('admin/envios/', include('envios.urls')),
+    path('admin/prueba/', prueba_view, name='prueba'),
+    path('admin/prices/', include('prices.urls')),
+    path('admin/places/', include('places.urls')),
+    path('app/', include('baseapp.urls')),
     path('delete-alert-from-session/<str:id>',
          delete_alert_from_session, name='delet-alert'),
 ]

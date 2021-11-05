@@ -1,0 +1,65 @@
+{% extends 'base_app.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<style>
+    .menu-item:hover {
+        background-color: #EEEEEE;
+    }
+</style>
+
+<div class="" style="max-width: 100%;">
+    <div class="card flex-fill shadow-lg bg-white m-3">
+
+        <div class="card-header d-flex justify-content-start align-items-center">
+            <img class="me-3" src="{% static 'res/images/withdraw-at-origin.png' %}" width="20" height="20"
+                alt="">Retiros en origen
+        </div>
+
+        <div class="card-body row g-3">
+            <form method='POST' id="withdraw_form" name="withdraw_form" target="_top" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="col">
+                    <label for="id_client" class="form-label">Seleccioná un cliente</label>
+                    {{ withdraw_form.client }}
+                </div>
+
+                <div class="col mt-4 d-flex justify-content-end">
+                    <input type="submit" value="Ingresar retiro" class="btn btn-primary">
+                </div>
+            </form>
+
+        </div>
+
+        <div class="card-footer d-flex justify-content-center">
+            &copy; 2021 Todos los derechos reservados -&nbsp;<a href="#">#EkoSoftware</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function menuItemClicked(menuItem) {
+        switch (menuItem) {
+            case 'admin':
+                window.location.href = "{% url 'admin-home' %}";
+                break;
+            case 'origin':
+                window.location.href = "{% url 'admin-home' %}";
+                break;
+            case 'central':
+                window.location.href = "{% url 'admin-home' %}";
+                break;
+            case 'distrib':
+                window.location.href = "{% url 'admin-home' %}";
+                break;
+            default:
+                window.location.href = "{% url 'admin-home' %}";
+                break;
+
+        }
+    }
+</script>
+
+{% endblock content %}

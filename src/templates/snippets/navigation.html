@@ -6,7 +6,7 @@
 
             <!-- START Dashboard -->
             <li class="nav-item {% if selected_tab == 'home-tab' %}activetab{% endif %} li-navigation">
-                <a id="home-tab" href="{% url 'home' %}" class="nav-link tab" aria-current="page">
+                <a id="home-tab" href="{% url 'admin-home' %}" class="nav-link tab" aria-current="page">
                     <i class="bi bi-house-door"></i> Inicio
                 </a>
             </li>
@@ -14,8 +14,8 @@
 
             <!-- START Escáner -->
             <li class="nav-item {% if selected_tab == 'scanner-tab' %}activetab{% endif %} li-navigation">
-                <a id="scanner-tab" href="#" class="nav-link tab" aria-current="page">
-                    <i class="bi bi-upc-scan"></i> Escáner
+                <a id="scanner-tab" href="{% url 'baseapp:index' %}" class="nav-link tab" aria-current="page">
+                    <i class="bi bi-app-indicator"></i> App
                 </a>
             </li>
             <!-- END Escáner -->

@@ -1,22 +1,14 @@
-$(document).ready(function() {
+$(document).ready(function () {
 
     //Get the button:
     backToTopBtn = document.getElementById("backToTopBtn");
 
     // When the user scrolls down 20px from the top of the document, show the button
-    window.onscroll = function() {
+    window.onscroll = function () {
         scrollFunction()
     };
 
-    /*$("main").scroll(function() { //.box is the class of the div
-        if (document.body.scrollTop > 10 || document.documentElement.scrollTop > 10) {
-            backToTopBtn.style.display = "block";
-        } else {
-            backToTopBtn.style.display = "none";
-        }
-    });*/
-
-    $("#not-header").scroll(function() {
+    $("#not-header").scroll(function () {
         if ($(this).scrollTop() >= 20) {
             backToTopBtn.style.display = "block";
         } else {

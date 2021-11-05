@@ -69,6 +69,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    can_distribute = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     profile_picture = models.ImageField(verbose_name="profile picture",
                                         upload_to=profile_pic_upload_location,

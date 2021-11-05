@@ -413,6 +413,11 @@ def map_localidades(localidad):
     return result
 
 
+def create_user_groups():
+    # TODO CREATE GROUPS
+    pass
+
+
 def codigos_postales():
     # Opening JSON file
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))

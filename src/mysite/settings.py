@@ -33,13 +33,13 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
 
     # OWN APPS
+    'baseapp',
     'account',
     'clients',
     'envios',
     'home',
     'places',
     'prices',
-    'scanner',
     'staff',
     'tracking',
 
