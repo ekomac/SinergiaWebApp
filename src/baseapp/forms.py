@@ -20,4 +20,5 @@ class WithdrawForm(forms.Form):
 
     def save(self):
         cleaned_data = self.cleaned_data
-        print(cleaned_data)
+        client = cleaned_data.get('client')
+        return client

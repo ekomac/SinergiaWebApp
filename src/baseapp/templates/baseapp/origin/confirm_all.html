@@ -1,0 +1,86 @@
+{% extends 'base_app.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<style>
+    .menu-item:hover {
+        background-color: #EEEEEE;
+    }
+</style>
+
+<div class="" style="max-width: 100%;">
+    <div class="card flex-fill shadow-lg bg-white m-3">
+
+        <div class="card-header d-flex justify-content-start align-items-center">
+            <img class="me-3" src="{% static 'res/images/withdraw-at-origin.png' %}" width="20" height="20" alt="">
+            <div class="d-flex justify-content-center align-items-center">
+                <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);"
+                    aria-label="breadcrumb">
+                    <ol class="breadcrumb p-0 m-0">
+                        <li class="breadcrumb-item"><a href="{% url 'baseapp:index' %}">Inicio</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'baseapp:origin-index' %}">Retiros en origen</a>
+                        </li>
+                        <li class="breadcrumb-item"><a
+                                href="{% url 'baseapp:origin-client' client.pk %}">{{client.name}}</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Todos</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="card-body d-flex flex-column">
+            <div>
+                <div class="d-inline-flex bg-dark p-1 m-0 rounded fw-bold fs-5" style="color: white;">
+                    {{ client.name }}
+                </div>
+            </div>
+            <h6 class="m-0 mt-2">
+                {{ client.envio_set.count }}&nbsp;envíos&nbsp;cargados&nbsp;y&nbsp;disponibles&nbsp;en&nbsp;depósito
+            </h6>
+            <hr>
+            <h6>¿Confirmás que retiras los siguientes envíos?</h6>
+            <div>
+                <ul>
+                    {% for envio in envios %}
+                    <li>{{envio.recipient_address}}, {{envio.recipient_zipcode}} {{ envio.recipient_town }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="d-flex flex-row justify-content-end mt-2">
+                <button type="button" class="btn btn-secondary btn-sm mx-1">Cancelar</button>
+                <form method='POST' id="form" name="form" target="_top" enctype="multipart/form-data">{% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-sm mx-1">Confirmar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card-footer d-flex justify-content-center">
+            &copy; 2021 Todos los derechos reservados -&nbsp;<a href="#">#EkoSoftware</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("input[name='filterByGroup']").click(function () {
+            switch ($(this).val()) {
+                case 'all':
+                    $("#withdraw_form").attr('action', '{% url '
+                        baseapp: withdraw - all ' %}');
+                    break;
+                case 'some':
+                    $("#withdraw_form").attr('action', '{% url '
+                        baseapp: withdraw - some ' %}');
+                    break;
+                case 'special':
+                    $("#withdraw_form").attr('action', '{% url '
+                        baseapp: withdraw - special ' %}');
+                    break;
+            }
+        });
+    });
+</script>
+
+{% endblock content %}
