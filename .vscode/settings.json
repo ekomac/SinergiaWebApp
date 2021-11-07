@@ -14,6 +14,110 @@
     ],
     // Whether to run code in Integrated Terminal.
 	"code-runner.runInTerminal": true,
-
-
+    "editor.suggestSelection": "first",
+    "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+    // "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\cmd.exe",
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": {
+            "source": "PowerShell",
+            "icon": "terminal-powershell"
+        },
+        "Command Prompt": {
+            "path": [
+                "${env:windir}\\Sysnative\\cmd.exe",
+                "${env:windir}\\System32\\cmd.exe"
+            ],
+            "args": [],
+            "icon": "terminal-cmd"
+        },
+        "Git Bash": {
+            "source": "Git Bash"
+        }
+    },
+    "terminal.integrated.defaultProfile.windows": "Command Prompt",
+    "git.enableSmartCommit": true,
+    "git.autofetch": true,
+    "workbench.editorAssociations": {
+        "*.png": "cweijan.officeViewer",
+        "*.jpg": "cweijan.officeViewer",
+        "*.pdf": "pdf.preview",
+        "*.ipynb": "jupyter-notebook"
+    },
+    "workbench.iconTheme": "material-icon-theme",
+    // "terminal.integrated.shellArgs.windows": [],
+    "workbench.colorTheme": "Monokai",
+    "python.languageServer": "Pylance",
+    "[html]": {
+        "editor.suggest.insertMode": "replace",
+        "editor.defaultFormatter": "vscode.html-language-features"
+    },
+    "files.associations": {
+        "**/templates/**/*.html": "django-html",
+        "**/templates/*.html": "django-html",
+        "**/templates/**/*": "django-txt",
+        "**/templates/*": "django-txt",
+        "**/requirements{/**,*}.{txt,in}": "pip-requirements",
+        "*.html": "html",
+        "**/*.html": "html"
+    },
+    "emmet.includeLanguages": {
+        "django-html": "html"
+    },
+    "beautify.language": {
+        "html": [
+            "django-html"
+        ]
+    },
+    "[django-html]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "HookyQR.beautify"
+    },
+    "python.linting.pylintArgs": [
+        "--load-plugins=pylint_django",
+        "--disable=all",
+        "--enable=F,E,unreachable,duplicate-key,unnecessary-semicolon,global-variable-not-assigned,unused-variable,binary-op-exception,bad-format-string,anomalous-backslash-in-string,bad-open-mode"
+    ],
+    "[python]": {},
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.testing.pytestEnabled": true,
+    "python.venvFolders": [
+        "/Scripts"
+    ],
+    "python.venvPath": "~/Scripts",
+    "python.workspaceSymbols.enabled": true,
+    "python.analysis.completeFunctionParens": true,
+    "vsicons.dontShowNewVersionMessage": true,
+    "workbench.editor.untitled.hint": "hidden",
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "notebook.cellToolbarLocation": {
+        "default": "right",
+        "jupyter-notebook": "left"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "editor.accessibilitySupport": "off",
+    // "python.defaultInterpreterPath": "C:\\Users\\jcmac\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
+    "kite.showWelcomeNotificationOnStartup": false,
+    "[css]": {
+        "editor.defaultFormatter": "HookyQR.beautify"
+    },
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "git.confirmSync": false,
+    "gitlens.defaultDateFormat": null,
+    // Whether to run code in Integrated Terminal.
+    "python.terminal.activateEnvironment": true,
+    "python.linting.flake8Enabled": true,
+    "editor.inlineSuggest.enabled": true,
+    "github.copilot.enable": {
+        "*": true,
+        "yaml": false,
+        "plaintext": false,
+        "markdown": false
+    },
+    "python.defaultInterpreterPath": "~/env/Scripts/python.exe",
+    "workbench.startupEditor": "none",
 }

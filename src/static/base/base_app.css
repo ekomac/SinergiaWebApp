@@ -1,9 +1,121 @@
-html,
-body {
-    margin: 0;
+::-webkit-scrollbar {
+    width: .5em;
+    height: .5em;
+}
+
+::-webkit-scrollbar-track {
+    background: rgb(230, 230, 230);
+    border-radius: 100vw;
+    margin-block: 0.1em;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #0D6EFD;
+    border-radius: 100vw;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #0050CC;
+}
+
+.vertical-scroll::-webkit-scrollbar {
+    width: .3em;
+    height: 1em;
+}
+
+.vertical-scroll::-webkit-scrollbar:hover {
+    width: 2em;
+}
+
+.vertical-scroll::-webkit-scrollbar-track {
+    background: #ffffff20;
+    border-radius: 100vw;
+    margin-block: 0.5em;
+}
+
+.vertical-scroll::-webkit-scrollbar-thumb {
+    background: #fff;
+    border-radius: 100vw;
+}
+
+.vertical-scroll::-webkit-scrollbar-thumb:hover {
+    background: #0069D9;
 }
 
 html,
 body {
+    margin: 0;
     background-color: rgb(230, 230, 230);
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    overflow-Y: hidden;
+}
+
+main {
+    min-height: 100px;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+#card-holder-app {
+    height: 100vh;
+}
+
+
+@media (max-width: 991px) {
+    #card-holder-app {
+        padding: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+}
+
+@media (min-width: 992px) {
+    main {
+        height: calc(100vh - 50px);
+        margin-top: 25px;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+
+    #pre-card {
+        padding: 25px;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    #card-holder-app {
+        height: calc(100vh - 50px);
+        box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.3), 0 6px 20px 0 rgba(0, 0, 0, 0.3);
+    }
+}
+
+
+.fragment {
+    overflow-y: auto;
+}
+
+.inner-shadow {
+    -moz-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.list-menu-item {
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.list-menu-item:hover {
+    background-color: #EEEEEE;
 }

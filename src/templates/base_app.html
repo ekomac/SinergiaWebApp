@@ -24,11 +24,42 @@
 
 </head>
 
-<body class="container d-flex justify-content-center">
+<body class="container">
 
-    <main class="d-flex justify-content-center align-items-center">
-        {% block content %}
-        {% endblock content %}
+    <main>
+        <div id="pre-card">
+            <div id="card-holder-app" class="card flex-fill bg-white" style="overflow: hidden;">
+
+                <div class="card-header d-flex justify-content-start align-items-center">
+                    {% block thumbnail_menu_item %}{% endblock thumbnail_menu_item %}
+                    <div class="d-flex justify-content-center align-items-center">
+                        <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);"
+                            aria-label="breadcrumb">
+                            <ol class="breadcrumb p-0 m-0">
+                                {% block nav_items %}{% endblock nav_items %}
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+
+
+                {% block optional_subheader %}
+                {% endblock optional_subheader %}
+
+
+                <div class="card-body fragment bg-white inner-shadow">
+                    {% block content %}
+                    {% endblock content %}
+                </div>
+
+                {% block optional_footer %}
+                {% endblock optional_footer %}
+
+                <div class=" card-footer d-flex justify-content-center">
+                    &copy; 2021 Todos los derechos reservados -&nbsp;<a href="#">#EkoSoftware</a>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script src="{% static 'base/base_app.js' %}"></script>

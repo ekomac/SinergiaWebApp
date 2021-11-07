@@ -178,11 +178,11 @@ class TrackingMovement(models.Model):
     ]
 
     envios = models.ManyToManyField(Envio, verbose_name="Envios relacionados")
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL,
+    created_by = models.ForeignKey('account.Account',
                                    related_name='created_by',
                                    null=True, on_delete=models.SET_NULL,
                                    verbose_name="author")
-    carrier = models.ForeignKey(settings.AUTH_USER_MODEL,
+    carrier = models.ForeignKey('account.Account',
                                 related_name='carrier', blank=True,
                                 null=True, on_delete=models.SET_NULL,
                                 verbose_name="user carrying package")
@@ -199,7 +199,9 @@ class TrackingMovement(models.Model):
         verbose_name="deposit", default=None, blank=True, null=True)
     date_created = models.DateTimeField(
         verbose_name="action's date time",
-        auto_now_add=True)
+        auto_now_add=True,
+        null=False,
+        blank=False)
     history = HistoricalRecords()
 
     def __str__(self):

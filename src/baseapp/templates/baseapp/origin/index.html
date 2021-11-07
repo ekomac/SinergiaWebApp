@@ -2,52 +2,37 @@
 
 {% load static %}
 
+{% block thumbnail_menu_item %}
+
+<img class="me-3" src="{% static 'res/images/withdraw-at-origin.png' %}" width="20" height="20" alt="">
+
+{% endblock thumbnail_menu_item %}
+
+{% block nav_items %}
+<li class="breadcrumb-item"><a href="{% url 'baseapp:index' %}">Inicio</a></li>
+<li class="breadcrumb-item active" aria-current="page">Retiros en origen</a></li>
+{% endblock nav_items %}
+
+
 {% block content %}
 
-<style>
-    .menu-item:hover {
-        background-color: #EEEEEE;
-    }
-</style>
 
-<div class="" style="max-width: 100%;">
-    <div class="card flex-fill shadow-lg bg-white m-3">
-
-        <div class="card-header d-flex justify-content-start align-items-center">
-            <img class="me-3" src="{% static 'res/images/withdraw-at-origin.png' %}" width="20" height="20" alt="">
-            <div class="d-flex justify-content-center align-items-center">
-                <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E&#34;);"
-                    aria-label="breadcrumb">
-                    <ol class="breadcrumb p-0 m-0">
-                        <li class="breadcrumb-item"><a href="{% url 'baseapp:index' %}">Inicio</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Retiros en origen</a></li>
-                    </ol>
-                </nav>
+<ul class="list-group list-group-flush">
+    {% for client in clients %}
+    {% if client.num_envios > 0 %}
+    <li class="list-group-item list-group-item-action list-menu-item p-2"
+        onclick="location.href='{% url 'baseapp:origin-client' client.pk %}'" style="cursor: pointer;">
+        <div class="d-flex flex-row justify-content-between align-items-center my-2">
+            <div class="d-flex flex-column justify-content-center align-items-bottom">
+                <h4 class="p-0 m-0" style="color: rgb(90,90,90);">{{ client.name }}</h4>
+                <div style="color: rgb(90,90,90);">{{ client.num_envios }}&nbsp;envíos&nbsp;cargados
+                </div>
             </div>
+            <i class="bi bi-chevron-right"></i>
         </div>
-
-        <div class="card-body">
-            <ul class="list-group list-group-flush">
-                {% for client in clients %}
-                <li class="list-group-item menu-item p-2"
-                    onclick="location.href='{% url 'baseapp:origin-client' client.pk %}'" style="cursor: pointer;">
-                    <div class="d-flex flex-row justify-content-between align-items-center my-2">
-                        <div class="d-flex flex-column justify-content-center align-items-bottom">
-                            <h4 class="p-0 m-0" style="color: rgb(90,90,90);">{{ client.name }}</h4>
-                            <div style="color: rgb(90,90,90);">{{ client.envio_set.count }}&nbsp;envíos&nbsp;cargados
-                            </div>
-                        </div>
-                        <i class="bi bi-chevron-right"></i>
-                    </div>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-
-        <div class="card-footer d-flex justify-content-center">
-            &copy; 2021 Todos los derechos reservados -&nbsp;<a href="#">#EkoSoftware</a>
-        </div>
-    </div>
-</div>
+    </li>
+    {% endif %}
+    {% endfor %}
+</ul>
 
 {% endblock content %}

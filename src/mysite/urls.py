@@ -22,6 +22,7 @@ from home.views import (
     home_screen_view,
     prueba_view,
     delete_alert_from_session,
+    redirect_no_url,
 )
 from account.views import (
     login_view,
@@ -39,6 +40,7 @@ urlpatterns = [
     path('admin/prices/', include('prices.urls')),
     path('admin/places/', include('places.urls')),
     path('app/', include('baseapp.urls')),
+    path('', redirect_no_url),
     path('delete-alert-from-session/<str:id>',
          delete_alert_from_session, name='delet-alert'),
 ]

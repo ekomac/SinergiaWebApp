@@ -2,6 +2,17 @@
 
 {% load static %}
 
+
+{% block thumbnail_menu_item %}
+
+<img class="me-3" src="{% static 'sinergia-software-logo.svg' %}" width="20" height="20" alt="">
+
+{% endblock thumbnail_menu_item %}
+
+{% block nav_items %}
+<li class="breadcrumb-item active" aria-current="page">Inicio</li>
+{% endblock nav_items %}
+
 {% block content %}
 
 <style>
@@ -10,91 +21,54 @@
     }
 </style>
 
-<div class="" style="max-width: 100%;">
-    <div class="card flex-fill shadow-lg bg-white m-3">
 
-        <div class="card-header d-flex justify-content-start align-items-center">
-            <img class="me-3" src="{% static 'sinergia-software-logo.svg' %}" width="20" height="20" alt="">Menú
-            principal
+<ul class="list-group list-group-flush">
+    <li class="list-group-item menu-item" onclick="location.href='{% url 'admin-home' %}'" style="cursor: pointer;">
+        <div class="d-inline-flex justify-content-start align-items-center">
+            <img src="{% static 'res/images/administration.png' %}" width="65" height="65" alt="">
+            <div class="d-flex flex-column align-items-top p-3">
+                <h3 style="color: rgb(90,90,90);">Administración</h3>
+                <div>Paneles de control del negocio</div>
+            </div>
         </div>
-
-        <div class="card-body">
-            <ul class="list-group list-group-flush">
-                <li class="list-group-item menu-item" onclick="menuItemClicked('admin')" style="cursor: pointer;">
-                    <div class="d-inline-flex justify-content-start align-items-center">
-                        <img src="{% static 'res/images/administration.png' %}" width="65" height="65" alt="">
-                        <div class="d-flex flex-column align-items-top p-3">
-                            <h3 style="color: rgb(90,90,90);">Administración</h3>
-                            <div>Paneles de control del negocio</div>
-                        </div>
-                    </div>
-                </li>
-                <li class="list-group-item menu-item" onclick="menuItemClicked('origin')" style="cursor: pointer;">
-                    <div class="d-inline-flex justify-content-start align-items-center">
-                        <img src="{% static 'res/images/withdraw-at-origin.png' %}" width="65" height="65" alt="">
-                        <div class="d-flex flex-column align-items-top p-3">
-                            <h3 style="color: rgb(90,90,90);">Retiros en origen</h3>
-                            <div>Recolección de paquetes de clientes</div>
-                        </div>
-                    </div>
-                </li>
-                <li class="list-group-item menu-item" onclick="menuItemClicked('central')" style="cursor: pointer;">
-                    <div class="d-inline-flex justify-content-start align-items-center">
-                        <img src="{% static 'res/images/central-deposit.png' %}" width="65" height="65" alt="">
-                        <div class="d-flex flex-column align-items-top p-3">
-                            <h3 style="color: rgb(90,90,90);">Depósito central</h3>
-                            <div>Gestión centralizada de envíos</div>
-                        </div>
-                    </div>
-                </li>
-                <li class="list-group-item menu-item" onclick="menuItemClicked('distrib')" style="cursor: pointer;">
-                    <div class="d-inline-flex justify-content-start align-items-center">
-                        <img src="{% static 'res/images/transfer.png' %}" width="65" height="65" alt="">
-                        <div class="d-flex flex-column align-items-top p-3">
-                            <h3 style="color: rgb(90,90,90);">Distribuidores</h3>
-                            <div>Para intermediarios</div>
-                        </div>
-                    </div>
-                </li>
-                <li class="list-group-item menu-item" onclick="menuItemClicked('partners')" style="cursor: pointer;">
-                    <div class="d-inline-flex justify-content-start align-items-center">
-                        <img src="{% static 'res/images/delivery.png' %}" width="65" height="65" alt="">
-                        <div class="d-flex flex-column align-items-top p-3">
-                            <h3 style="color: rgb(90,90,90);">Repartidores</h3>
-                            <div>Los tramos finales de las entregas</div>
-                        </div>
-                    </div>
-                </li>
-            </ul>
+    </li>
+    <li class="list-group-item menu-item" onclick="location.href='{% url 'baseapp:origin-index' %}'"
+        style="cursor: pointer;">
+        <div class="d-inline-flex justify-content-start align-items-center">
+            <img src="{% static 'res/images/withdraw-at-origin.png' %}" width="65" height="65" alt="">
+            <div class="d-flex flex-column align-items-top p-3">
+                <h3 style="color: rgb(90,90,90);">Retiros en origen</h3>
+                <div>Recolección de paquetes de clientes</div>
+            </div>
         </div>
-
-        <div class="card-footer d-flex justify-content-center">
-            &copy; 2021 Todos los derechos reservados -&nbsp;<a href="#">#EkoSoftware</a>
+    </li>
+    <li class="list-group-item menu-item" onclick="location.href='{% url 'baseapp:index' %}'" style="cursor: pointer;">
+        <div class="d-inline-flex justify-content-start align-items-center">
+            <img src="{% static 'res/images/central-deposit.png' %}" width="65" height="65" alt="">
+            <div class="d-flex flex-column align-items-top p-3">
+                <h3 style="color: rgb(90,90,90);">Depósito central</h3>
+                <div>Gestión centralizada de envíos</div>
+            </div>
         </div>
-    </div>
-</div>
-
-<script>
-    function menuItemClicked(menuItem) {
-        switch (menuItem) {
-            case 'admin':
-                window.location.href = "{% url 'admin-home' %}";
-                break;
-            case 'origin':
-                window.location.href = "{% url 'baseapp:origin-index' %}";
-                break;
-            case 'central':
-                window.location.href = "{% url 'admin-home' %}";
-                break;
-            case 'distrib':
-                window.location.href = "{% url 'admin-home' %}";
-                break;
-            default:
-                window.location.href = "{% url 'admin-home' %}";
-                break;
-
-        }
-    }
-</script>
+    </li>
+    <li class="list-group-item menu-item" onclick="location.href='{% url 'baseapp:index' %}'" style="cursor: pointer;">
+        <div class="d-inline-flex justify-content-start align-items-center">
+            <img src="{% static 'res/images/transfer.png' %}" width="65" height="65" alt="">
+            <div class="d-flex flex-column align-items-top p-3">
+                <h3 style="color: rgb(90,90,90);">Distribuidores</h3>
+                <div>Para intermediarios</div>
+            </div>
+        </div>
+    </li>
+    <li class="list-group-item menu-item" onclick="location.href='{% url 'baseapp:index' %}'" style="cursor: pointer;">
+        <div class="d-inline-flex justify-content-start align-items-center">
+            <img src="{% static 'res/images/delivery.png' %}" width="65" height="65" alt="">
+            <div class="d-flex flex-column align-items-top p-3">
+                <h3 style="color: rgb(90,90,90);">Repartidores</h3>
+                <div>Los tramos finales de las entregas</div>
+            </div>
+        </div>
+    </li>
+</ul>
 
 {% endblock content %}

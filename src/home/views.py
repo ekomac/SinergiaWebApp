@@ -9,13 +9,19 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db.models.aggregates import Count
 from django.db.models.query import QuerySet
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.http.response import HttpResponse, HttpResponseNotAllowed
 
 # Project
 from clients.models import Client
 from envios.models import Envio, TrackingMovement
 from account.models import Account
+from baseapp.views import app_view
+
+
+@login_required(login_url='/login/')
+def redirect_no_url(request):
+    return app_view(request)
 
 
 @login_required(login_url='/login/')

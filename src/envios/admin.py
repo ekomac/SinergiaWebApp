@@ -12,7 +12,7 @@ class EnvioAdmin(admin.ModelAdmin):
     list_display = ('recipient_address', 'recipient_town',
                     'recipient_zipcode', 'client', 'is_flex',
                     'shipment_status', 'detail', 'created_by',
-                    'date_created', 'history')
+                    'date_created')
     search_fields = ('recipient_address',
                      'recipient_zipcode', 'is_flex',
                      'shipment_status', 'detail', 'date_created',
