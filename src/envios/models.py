@@ -371,19 +371,13 @@ def base_create_tracking(instance: Envio) -> TrackingMovement:
         result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
         deposit=deposit
     )
-    # Tracking movement created
     return trackingmovement
-    # return TrackingMovement(
-    #     user=instance.created_by,
-    #     action=TrackingMovement.ACTION_ADDED_TO_SYSTEM,
-    #     result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
-    #     deposit=deposit
-    # )
 
 
 @receiver(post_save, sender=Envio, dispatch_uid="create_tracking_movement")
 def create_tracking(sender, instance, **kwargs):
-    base_create_tracking(instance).save()
+    if instance.shipment_status == Envio.STATUS_NEW:
+        base_create_tracking(instance).save()
 
 
 @receiver(m2m_changed, sender=TrackingMovement.envios.through,
@@ -405,26 +399,3 @@ def update_envio_status(sender, instance: TrackingMovement, action, **kwargs):
                 instance.envios.all().update(
                     shipment_status=Envio.STATUS_NEW
                 )
-
-# (ACTION_ADDED_TO_SYSTEM, "Carga en sistema"),
-# (ACTION_RECOLECTION, "Recolección"),
-# (ACTION_DEPOSIT, "Depósito"),
-# (ACTION_DELIVERY_ATTEMPT, "Intento de entrega"),
-
-
-# (RESULT_ADDED_TO_SYSTEM, 'Agregado al sistema'),
-# (RESULT_IN_DEPOSIT, 'En depósito'),
-# (RESULT_SUCCESSFUL_DELEIVERY, 'Entrega exitosa'),
-# (RESULT_REJECTED_AT_DESTINATION, 'Rechazado en lugar de destino'),
-# (RESULT_REPROGRAMED, 'Reprogramado'),
-# (RESULT_NO_ANSWER, 'Sin respuesta'),
-# (RESULT_TRANSFERED, 'Transferido'),
-# (RESULT_OTHER, 'Otro'),
-
-
-# STATUSES = [
-#         (STATUS_NEW, 'Nuevo'),
-#         (STATUS_MOVING, 'Viajando'),
-#         (STATUS_STILL, 'En depósito'),
-#         (STATUS_DELIVERED, 'Entregado'),
-#     ]

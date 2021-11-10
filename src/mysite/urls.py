@@ -33,7 +33,7 @@ urlpatterns = [
     path('admin/home', home_screen_view, name='admin-home'),
     path('admin/account/', include('account.urls')),
     path('superadmin/', admin.site.urls),
-    path('admin/login/', login_view, name="login"),
+    path('login/', login_view, name="login"),
     path('admin/logout/', logout_view, name="logout"),
     path('admin/envios/', include('envios.urls')),
     path('admin/prueba/', prueba_view, name='prueba'),

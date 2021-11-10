@@ -1,3 +1,4 @@
+from typing import List
 from envios.models import Envio, TrackingMovement
 
 
@@ -5,7 +6,7 @@ def withdraw_movement(
     carrier,
     client=None,
     deposit=None,
-    *envios_ids,
+    envios_ids: List[int] = [],
     **filters
 ) -> None:
 
@@ -20,16 +21,27 @@ def withdraw_movement(
     # No envios, no filters, all envios from client are selected
     if not envios_ids and not filters:
         envios = Envio.objects.filter(
-            shipment_status=Envio.STATUS_NEW, client=client)
+            shipment_status=Envio.STATUS_NEW,
+            client=client
+        )
         movement.envios.add(*envios)
 
     # Specific ids where selected
     elif envios_ids:
-        envios = Envio.objects.filter(id__in=list(envios_ids))
+        envios = Envio.objects.filter(
+            shipment_status=Envio.STATUS_NEW,
+            client=client,
+            id__in=envios_ids
+        )
 
     # Some filters where specified
     elif filters:
-        envios = Envio.objects.filter(**filters)
+        envios = Envio.objects.filter(
+            shipment_status=Envio.STATUS_NEW,
+            client=client,
+            ** filters
+        )
+        print(envios)
 
     # Add envios to the movement
     movement.envios.add(*envios)
@@ -40,6 +52,8 @@ def insert_movement(
     client=None,
     deposit=None,
     **filters
+
+
 ) -> None:
     pass
 

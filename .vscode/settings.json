@@ -61,7 +61,8 @@
         "**/*.html": "html"
     },
     "emmet.includeLanguages": {
-        "django-html": "html"
+        "django-html": "html",
+        "html": "html"
     },
     "beautify.language": {
         "html": [
@@ -120,4 +121,5 @@
     },
     "python.defaultInterpreterPath": "~/env/Scripts/python.exe",
     "workbench.startupEditor": "none",
+    "emmet.triggerExpansionOnTab": true,
 }

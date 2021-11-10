@@ -34,5 +34,15 @@
     {% endif %}
     {% endfor %}
 </ul>
+<h6 id="h6-nothing"></h6>
+
+<script>
+    $(document).ready(function () {
+        var elements = $('.list-menu-item').length;
+        if (elements == 0) {
+            $('#h6-nothing').html('No hay retiros en origen cargados :(');
+        }
+    });
+</script>
 
 {% endblock content %}

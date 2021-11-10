@@ -21,10 +21,10 @@
         {{ client.name }}
     </div>
     <h6 class="m-0 mt-2">
-        Estás a punto de retirar los {{ envios_count }} envíos cargados y disponibles en depósito
+        Estás a punto de retirar un envío cargado y disponible en depósito
     </h6>
     <hr>
-    <h6>¿Confirmás que retiras los siguientes envíos?</h6>
+    <h6>¿Confirmás que retiras el envío del depósito?</h6>
 </div>
 
 {% endblock optional_subheader %}
@@ -32,11 +32,9 @@
 {% block content %}
 
 <div>
-    <ol>
-        {% for envio in envios %}
+    <ul>
         <li>{{envio.recipient_address}}, {{envio.recipient_zipcode}} {{ envio.recipient_town }}</li>
-        {% endfor %}
-    </ol>
+    </ul>
 </div>
 
 
@@ -45,8 +43,9 @@
 {% block optional_footer %}
 <div class="d-flex justify-content-end m-3">
     <button type="button" class="btn btn-secondary btn-sm mx-1"
-        onclick='location.href="{% url 'baseapp:index' %}"'>Cancelar</button>
-    <form method='POST' id="form" name="form" target="_top" enctype="multipart/form-data">{% csrf_token %}
+        onclick="location.href='{% url "baseapp:index" %}'">Cancelar</button>
+    <form method='POST' id="form" name="form" target="_top">{% csrf_token %}
+        <input type="text" name="envio_id" id="id_envio_id" style="display: none;" value="{{envio_id}}">
         <button type="submit" class="btn btn-primary btn-sm mx-1">Confirmar</button>
     </form>
 </div>

@@ -167,9 +167,9 @@ class PDFReport(object):
         client_id: int,
         town_id: int
     ) -> QRFlowable:
-        inner_envio = f"'envio_id': '{envio_id}',"
-        inner_cliente = f"'client_id':'{client_id}',"
-        inner_town = f"'town_id':'{town_id}'"
+        inner_envio = f'"envio_id": "{envio_id}",'
+        inner_cliente = f'"client_id":"{client_id}",'
+        inner_town = f'"town_id":"{town_id}"'
         qr_value = "{" + inner_envio + inner_cliente + inner_town + "}"
         return QRFlowable(qr_value, 0.55)
 
