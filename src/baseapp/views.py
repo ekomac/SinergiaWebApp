@@ -63,6 +63,7 @@ def origin_select_all_confirm_view(request, pk):
     if request.method == 'POST':
         user = request.user
         withdraw_movement(
+
             carrier=user,
             client=client
         )
@@ -163,6 +164,7 @@ def origin_select_by_filter_view(request, pk):
             filters = {"recipient_town__id__in": selected_ids}
         user = request.user
         withdraw_movement(
+            author=user,
             carrier=user,
             client=client,
             **filters
@@ -174,10 +176,10 @@ def origin_select_by_filter_view(request, pk):
         client=client
     ).order_by('-id').count()
     return render(request, 'baseapp/origin/confirm_filter_by.html', context)
-# ############################ ! ORIGIN ##############################
+# ############################## ! ORIGIN ##############################
 
 
-# ############################ ! CENTRAL ##############################
+# ############################## ! CENTRAL ##############################
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
 def central_index_view(request):

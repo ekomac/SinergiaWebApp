@@ -3,6 +3,7 @@ from envios.models import Envio, TrackingMovement
 
 
 def withdraw_movement(
+    author,
     carrier,
     client=None,
     deposit=None,
@@ -12,6 +13,7 @@ def withdraw_movement(
 
     # Create the movement
     movement = TrackingMovement(
+        created_by=author,
         carrier=carrier,
         action=TrackingMovement.ACTION_RECOLECTION,
         result=TrackingMovement.RESULT_TRANSFERED,

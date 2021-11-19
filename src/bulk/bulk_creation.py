@@ -153,7 +153,8 @@ def create_codigos_postales():
 
 
 def main():
-    with open(settings.BASE_DIR+'\\base_data.json') as data:
+    with open(settings.BASE_DIR+'\\bulk\\base_data.json') as data:
+        data = json.load(data)
         mensajerias = data['mensajerias']
         flexs = data['flexs']
         partidos = data['partidos']
