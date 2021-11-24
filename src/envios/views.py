@@ -23,7 +23,7 @@ from account.decorators import allowed_users, allowed_users_in_class_view
 # Project apps
 from account.models import Account
 from envios.forms import BulkLoadEnviosForm, CreateEnvioForm
-from envios.models import BulkLoadEnvios, Envio, TrackingMovement
+from envios.models import BulkLoadEnvios, Deposit, Envio, TrackingMovement
 from envios.utils import bulk_create_envios, create_xlsx_workbook
 from places.models import Partido, Town
 from clients.models import Client
@@ -199,6 +199,9 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
+        if deposit := Deposit.objects.filter(
+                client=form.instance.client).first():
+            form.instance.deposit = deposit
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
@@ -298,29 +301,6 @@ def map_town_to_dict(town):
         'name': town.name.title(),
         'partido_id': town.partido.id,
     }
-
-
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
-def create_envio_view(request):
-
-    context = {}
-
-    user = request.user
-    if not user.is_authenticated:
-        return redirect('login')
-
-    form = CreateEnvioForm(request.POST or None, request.FILES or None)
-    if form.is_valid():
-        obj = form.save(commit=False)
-        created_by = Account.objects.filter(email=user.email).first()
-        obj.created_by = created_by
-        obj.save()
-        form = CreateEnvioForm()
-
-    context['form'] = form
-
-    return render(request, "envios/create.html", context)
 
 
 @login_required(login_url='/login/')

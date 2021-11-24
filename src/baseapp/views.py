@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
+from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
+from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
 from account.decorators import allowed_users
@@ -15,7 +17,7 @@ from .basic_movements import withdraw_movement
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
-def app_view(request):
+def app_view(request) -> HttpResponse:
 
     return render(request, 'baseapp/index.html', {})
 
@@ -23,7 +25,7 @@ def app_view(request):
 # ############################ ! ORIGIN ##############################
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "EmployeeTier1"])
-def origin_index_view(request):
+def origin_index_view(request) -> HttpResponse:
     context = {'clients': Client.objects.annotate(
         num_envios=Count(
             'envio', filter=Q(
@@ -36,7 +38,7 @@ def origin_index_view(request):
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "EmployeeTier1"])
-def origin_client_view(request, pk):
+def origin_client_view(request, pk) -> HttpResponse:
     context = {}
     client = get_object_or_404(Client, pk=pk)
     context['client'] = client
@@ -49,7 +51,7 @@ def origin_client_view(request, pk):
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "EmployeeTier1"])
-def origin_select_all_confirm_view(request, pk):
+def origin_select_all_confirm_view(request, pk) -> HttpResponse:
     context = {}
     client = get_object_or_404(Client, pk=pk)
     envios = Envio.objects.filter(
@@ -63,7 +65,7 @@ def origin_select_all_confirm_view(request, pk):
     if request.method == 'POST':
         user = request.user
         withdraw_movement(
-
+            author=user,
             carrier=user,
             client=client
         )
@@ -74,7 +76,7 @@ def origin_select_all_confirm_view(request, pk):
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "EmployeeTier1"])
-def origin_select_id_view(request, pk):
+def origin_select_id_view(request, pk) -> HttpResponse:
     context = {}
     client = get_object_or_404(Client, pk=pk)
     context['client'] = client
@@ -86,7 +88,7 @@ def origin_select_id_view(request, pk):
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "EmployeeTier1"])
-def origin_select_one_confirm_view(request, pk):
+def origin_select_one_confirm_view(request, pk) -> HttpResponse:
     context = {}
     client = get_object_or_404(Client, pk=pk)
     context['client'] = client
@@ -99,6 +101,7 @@ def origin_select_one_confirm_view(request, pk):
         envio_id = int(request.POST.get('envio_id'))
         user = request.user
         withdraw_movement(
+            author=user,
             carrier=user,
             client=client,
             envios_ids=[envio_id]
@@ -110,7 +113,7 @@ def origin_select_one_confirm_view(request, pk):
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "EmployeeTier1"])
-def origin_select_filter_type_view(request, pk):
+def origin_select_filter_type_view(request, pk) -> HttpResponse:
     context = {}
     client = get_object_or_404(Client, pk=pk)
     context['client'] = client
@@ -123,7 +126,7 @@ def origin_select_filter_type_view(request, pk):
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "EmployeeTier1"])
-def origin_select_by_filter_view(request, pk):
+def origin_select_by_filter_view(request, pk) -> HttpResponse:
     context = {}
     client = get_object_or_404(Client, pk=pk)
     context['client'] = client
@@ -180,40 +183,99 @@ def origin_select_by_filter_view(request, pk):
 
 
 # ############################## ! CENTRAL ##############################
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
-def central_index_view(request):
-    context = {}
-    context['users'] = Account.objects.filter(
-        carrier__action=TrackingMovement.ACTION_RECOLECTION,
-        carrier__result=TrackingMovement.RESULT_TRANSFERED,
-        carrier__envios__shipment_status=Envio.STATUS_MOVING
+def carriers_queryset() -> QuerySet:
+    """
+    Returns all (distinct) accounts that are carriers, meaning that they have
+    at least one envio with status moving, and that have at least one
+    movement with action recolection and result transfered.
+    It also annotates the accounts with the number of envios that have those
+    three conditions.
+    Returns:
+        django.db.models.query.QuerySet[Account]: Accounts that are carriers
+        ordered by the number of envios that have those three conditions.
+    """
+    return Account.objects.filter(
+        movement_carrier__action=TrackingMovement.ACTION_RECOLECTION,
+        movement_carrier__result=TrackingMovement.RESULT_TRANSFERED,
+        movement_carrier__envios__shipment_status=Envio.STATUS_MOVING
     ).distinct().annotate(
         envios=Count(
-            'carrier',
-            filter=Q(carrier__action=TrackingMovement.ACTION_RECOLECTION) |
-            Q(carrier__result=TrackingMovement.RESULT_TRANSFERED) |
-            Q(carrier__envios__shipment_status=Envio.STATUS_MOVING)
+            'movement_carrier',
+            filter=Q(movement_carrier__action=TrackingMovement.ACTION_RECOLECTION) |
+            Q(movement_carrier__result=TrackingMovement.RESULT_TRANSFERED) |
+            Q(movement_carrier__envios__shipment_status=Envio.STATUS_MOVING)
         )
     ).order_by('-envios')
-    return render(request, 'baseapp/central/index.html', context)
 
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
-def central_receive_user_view(request, pk):
+def central_index_view(request) -> HttpResponse:
+    return render(
+        request,
+        'baseapp/central/index.html',
+        {'users': carriers_queryset()}
+    )
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def central_receive_user_view(request, pk) -> HttpResponse:
     context = {}
-    context['users'] = Account.objects.filter(
-        carrier__action=TrackingMovement.ACTION_RECOLECTION,
-        carrier__result=TrackingMovement.RESULT_TRANSFERED,
-        carrier__envios__shipment_status=Envio.STATUS_MOVING
-    ).distinct().annotate(
-        envios=Count(
-            'carrier',
-            filter=Q(carrier__action=TrackingMovement.ACTION_RECOLECTION) |
-            Q(carrier__result=TrackingMovement.RESULT_TRANSFERED) |
-            Q(carrier__envios__shipment_status=Envio.STATUS_MOVING)
+    carrier = get_object_or_404(Account, pk=pk)
+    context['carrier'] = carrier
+    context['envios'] = Envio.objects.filter(
+        carrier=carrier, shipment_status=Envio.STATUS_MOVING).count()
+    return render(request, 'baseapp/central/receive/carrier.html', context)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def central_receive_select_all_confirm_view(request, pk) -> HttpResponse:
+    context = {}
+    carrier = get_object_or_404(Account, pk=pk)
+    context['carrier'] = carrier
+
+    envios = Envio.objects.filter(
+        carrier=carrier, shipment_status=Envio.STATUS_MOVING)
+    context['envios'] = envios
+    context['envios_count'] = envios.count()
+    if request.method == 'POST':
+        user = request.user
+        withdraw_movement(
+            author=user,
+            carrier=user,
+            client=client
         )
-    ).order_by('-envios')
-    return render(request, 'baseapp/central/index.html', context)
+        msg = 'Los envíos se retiraron correctamente'
+        return create_alert_and_redirect(request, msg, 'baseapp:index')
+    return render(request, 'baseapp/central/receive/confirm_all.html', context)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def central_receive_select_id_view(request, pk) -> HttpResponse:
+    context = {}
+    return render(request, '', context)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def central_receive_select_one_confirm_view(request, pk) -> HttpResponse:
+    context = {}
+    return render(request, '', context)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def central_receive_select_filter_type_view(request, pk) -> HttpResponse:
+    context = {}
+    return render(request, '', context)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def central_receive_select_by_filter_view(request, pk) -> HttpResponse:
+    context = {}
+    return render(request, '', context)
 # ############################ ! CENTRAL ##############################

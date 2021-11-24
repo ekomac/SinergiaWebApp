@@ -16,6 +16,25 @@ def upload_location(instance, filename, *args, **kwargs):
     return f'envios/{client_id}-{client_name}/{envio_id}-{filename}'
 
 
+class Deposit(models.Model):
+
+    town = models.ForeignKey(Town, null=True, on_delete=models.SET_NULL)
+    name = models.CharField(verbose_name="name", max_length=50)
+    central = models.BooleanField(default=False)
+    client = models.ForeignKey(
+        Client, verbose_name='client',
+        on_delete=models.CASCADE, blank=True, null=True)
+    history = HistoricalRecords()
+
+    def __str__(self):
+        owner = 'Sinergia' if self.central else self.client.name
+        return f'{self.name} ({owner})'
+
+    class Meta:
+        verbose_name = 'Depósito'
+        verbose_name_plural = 'Depósitos'
+
+
 class Envio(models.Model):
 
     STATUS_NEW = 'N'
@@ -45,8 +64,9 @@ class Envio(models.Model):
     date_created = models.DateTimeField(
         verbose_name="Fecha de creación", auto_now_add=True)
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        verbose_name="Usuario", blank=False, null=False)
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        verbose_name="Creado por", related_name="Creator",
+        blank=True, null=True, default=None)
     shipment_status = models.CharField(
         verbose_name="Estado",
         max_length=2, choices=STATUSES, default=STATUS_NEW)
@@ -90,7 +110,15 @@ class Envio(models.Model):
     bulk_upload_id = models.ForeignKey(
         'BulkLoadEnvios', verbose_name="ID de carga masiva",
         on_delete=models.CASCADE, blank=True, null=True)
+    carrier = models.ForeignKey(
+        'account.Account', related_name="Carrier",
+        verbose_name="ID de carga masiva", blank=True, null=True,
+        default=None, on_delete=models.SET_NULL)
+    deposit = models.ForeignKey(
+        Deposit, on_delete=models.SET_NULL,
+        verbose_name="deposit", default=None, blank=True, null=True)
     history = HistoricalRecords()
+    tracked = models.BooleanField(default=False)
 
     def __str__(self):
         address = self.recipient_address
@@ -124,25 +152,6 @@ class Bolson(models.Model):
     class Meta:
         verbose_name = 'Bolsón'
         verbose_name_plural = 'Bolsones'
-
-
-class Deposit(models.Model):
-
-    town = models.ForeignKey(Town, null=True, on_delete=models.SET_NULL)
-    name = models.CharField(verbose_name="name", max_length=50)
-    is_ours = models.BooleanField(default=False)
-    client = models.ForeignKey(
-        Client, verbose_name='client',
-        on_delete=models.CASCADE, blank=True, null=True)
-    history = HistoricalRecords()
-
-    def __str__(self):
-        owner = 'Sinergia' if self.is_ours else self.client.name
-        return f'{self.name} ({owner})'
-
-    class Meta:
-        verbose_name = 'Depósito'
-        verbose_name_plural = 'Depósitos'
 
 
 class TrackingMovement(models.Model):
@@ -179,11 +188,11 @@ class TrackingMovement(models.Model):
 
     envios = models.ManyToManyField(Envio, verbose_name="Envios relacionados")
     created_by = models.ForeignKey('account.Account',
-                                   related_name='created_by',
+                                   related_name='movement_created_by',
                                    null=True, on_delete=models.SET_NULL,
                                    verbose_name="author")
     carrier = models.ForeignKey('account.Account',
-                                related_name='carrier', blank=True,
+                                related_name='movement_carrier', blank=True,
                                 null=True, on_delete=models.SET_NULL,
                                 verbose_name="user carrying package")
     action = models.CharField(verbose_name="movement action", max_length=50,
@@ -366,36 +375,40 @@ class BulkLoadEnvios(models.Model):
 def base_create_tracking(instance: Envio) -> TrackingMovement:
     deposit = Deposit.objects.filter(client=instance.client).first()
     trackingmovement = instance.trackingmovement_set.create(
-        user=instance.created_by,
+        created_by=instance.created_by,
         action=TrackingMovement.ACTION_ADDED_TO_SYSTEM,
         result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
         deposit=deposit
     )
+    instance.tracked = True
+    instance.save()
     return trackingmovement
 
 
 @receiver(post_save, sender=Envio, dispatch_uid="create_tracking_movement")
 def create_tracking(sender, instance, **kwargs):
-    if instance.shipment_status == Envio.STATUS_NEW:
+    # This ckecks makes sure is a freshly created instance
+    if instance.shipment_status == Envio.STATUS_NEW and not instance.tracked:
         base_create_tracking(instance).save()
 
 
 @receiver(m2m_changed, sender=TrackingMovement.envios.through,
-          dispatch_uid="update_envio_is_moving")
+          dispatch_uid="update_envio_status")
 def update_envio_status(sender, instance: TrackingMovement, action, **kwargs):
     if action == 'post_add':
+        if instance is not TrackingMovement:
+            return
         if instance.action == TrackingMovement.ACTION_RECOLECTION:
             if instance.result == TrackingMovement.RESULT_TRANSFERED:
                 instance.envios.all().update(
-                    shipment_status=Envio.STATUS_MOVING
+                    shipment_status=Envio.STATUS_MOVING,
+                    carrier=instance.carrier,
+                    deposit=None,
                 )
         if instance.action == TrackingMovement.ACTION_DEPOSIT:
             if instance.result == TrackingMovement.RESULT_IN_DEPOSIT:
                 instance.envios.all().update(
-                    shipment_status=Envio.STATUS_STILL
-                )
-        if instance.action == TrackingMovement.ACTION_ADDED_TO_SYSTEM:
-            if instance.result == TrackingMovement.RESULT_ADDED_TO_SYSTEM:
-                instance.envios.all().update(
-                    shipment_status=Envio.STATUS_NEW
+                    shipment_status=Envio.STATUS_STILL,
+                    carrier=None,
+                    deposit=instance.deposit,
                 )

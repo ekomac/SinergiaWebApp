@@ -3,6 +3,7 @@ import os
 import random
 import json
 from django.conf import settings
+from envios.models import Deposit
 from places.models import Partido, Town, Zone, ZipCode
 from prices.models import DeliveryCode, FlexCode
 from account.models import Account
@@ -152,6 +153,17 @@ def create_codigos_postales():
             del towns
 
 
+def create_central_deposit():
+    """
+    Creates the cental main deposit.
+    """
+    Deposit(
+        town=Town.objects.filter(
+            name='San Miguel', partido__name='San Miguel').first(),
+        name='Depósito central', central=True
+    ).save()
+
+
 def main():
     with open(settings.BASE_DIR+'\\bulk\\base_data.json') as data:
         data = json.load(data)
@@ -171,4 +183,5 @@ def main():
         create_codigos_postales()
         create_user_groups()
         create_users(names, lasts)
+        create_central_deposit()
     return True

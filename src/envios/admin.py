@@ -44,8 +44,8 @@ class BolsonAdmin(admin.ModelAdmin):
 
 
 class DepositAdmin(admin.ModelAdmin):
-    list_display = ('name', 'town', 'is_ours', 'client',)
-    search_fields = ('name', 'town', 'is_ours', 'client',)
+    list_display = ('name', 'town', 'central', 'client',)
+    search_fields = ('name', 'town', 'central', 'client',)
 
     filter_horizontal = ()
     list_filter = ()

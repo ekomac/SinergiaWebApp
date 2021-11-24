@@ -1,12 +1,13 @@
 from typing import List
-from envios.models import Envio, TrackingMovement
+from account.models import Account
+from clients.models import Client
+from envios.models import Deposit, Envio, TrackingMovement
 
 
 def withdraw_movement(
-    author,
-    carrier,
+    author: Account,
+    carrier: Account,
     client=None,
-    deposit=None,
     envios_ids: List[int] = [],
     **filters
 ) -> None:
@@ -26,8 +27,6 @@ def withdraw_movement(
             shipment_status=Envio.STATUS_NEW,
             client=client
         )
-        movement.envios.add(*envios)
-
     # Specific ids where selected
     elif envios_ids:
         envios = Envio.objects.filter(
@@ -50,13 +49,37 @@ def withdraw_movement(
 
 
 def insert_movement(
-    carrier,
-    client=None,
-    deposit=None,
+    author: Account,
+    carrier: Account,
+    deposit: Deposit = None,
+    envios_ids: List[int] = [],
     **filters
-
-
 ) -> None:
+    # Create the movement
+    movement = TrackingMovement(
+        created_by=author,
+        deposit=deposit,
+        action=TrackingMovement.ACTION_DEPOSIT,
+        result=TrackingMovement.RESULT_IN_DEPOSIT,
+    )
+    movement.save()
+
+    # All envios from carrier are selected
+    if not envios_ids and not filters:
+        envios = Envio.objects.filter(
+            shipment_status=Envio.STATUS_MOVING,
+            carrier=carrier,
+        )
+    movement.envios.add(*envios)
+
+    pass
+
+
+def transfer_movement() -> None:
+    pass
+
+
+def delivery_attempt() -> None:
     pass
 
 
@@ -67,12 +90,3 @@ def update_envio_movement(
     **filters
 ) -> None:
     pass
-
-
-def envios_filtered(*ids, **filters):
-    if ids:
-        return Envio.objects.filter(id__in=list(ids))
-    if filters:
-        Envio.objects.filter(**filters)
-        pass
-    raise Envio.DoesNotExist
