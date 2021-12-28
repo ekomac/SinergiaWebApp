@@ -1,0 +1,64 @@
+{% extends 'base_app.html' %}
+
+{% load static %}
+
+{% block thumbnail_menu_item %}
+
+<img class="me-3" src="{% static 'res/images/deposit.png' %}" width="20" height="20" alt="">
+
+{% endblock thumbnail_menu_item %}
+
+{% block nav_items %}
+<li class="breadcrumb-item"><a href="{% url 'baseapp:index' %}">Inicio</a></li>
+<li class="breadcrumb-item active" aria-current="page">Depositar</a></li>
+{% endblock nav_items %}
+
+
+{% block content %}
+
+{% if carriers %}
+<ul class="list-group list-group-flush">
+    {% for user in carriers %}
+    {% if user.envios > 0 %}
+    <li class="list-group-item list-group-item-action list-menu-item p-2"
+        onclick="location.href='{% url 'baseapp:deposit-select-deposit' user.pk %}'" style="cursor: pointer;">
+        <div class="d-flex flex-row justify-content-between align-items-center my-2">
+            <div class="d-flex flex-column flex-wrap justify-content-center align-items-bottom">
+                <h6 class="p-0 m-0" style="color: rgb(90,90,90);"><span
+                        class="badge bg-secondary">@{{ user.username }}</span></h6>
+                <h4 class="p-0 m-0" style="color: rgb(90,90,90);">{{ user.first_name }} {{ user.last_name }}</h4>
+                <div style="color: rgb(90,90,90);">Portando&nbsp;{{ user.envios }}&nbsp;envíos
+                </div>
+            </div>
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </li>
+    {% endif %}
+    {% endfor %}
+</ul>
+{% else %}
+<div class="d-flex flex-column justify-content-center align-items-center invisible" id="nothing-found-div">
+    <h6 id="h6-nothing">
+        {% if can_watch_other %}
+        No hay envíos para depositar :(
+        {% else %}
+        No tenés envíos para depositar :(
+        {% endif %}
+    </h6>
+    <img src="{% static 'res/images/nothing-found.png' %}" width="200" height="200" alt="">
+</div>
+{% endif %}
+
+<script>
+    $(document).ready(function () {
+        var elements = $('.list-menu-item').length;
+        if (elements == 0) {
+            var element = document.getElementById("nothing-found-div")
+            element.classList.remove("invisible");
+            element.classList.add("visible");
+        }
+    });
+</script>
+
+
+{% endblock content %}

@@ -1,0 +1,53 @@
+{% extends 'base_app.html' %}
+
+{% load static %}
+
+{% block thumbnail_menu_item %}
+
+<img class="me-3" src="{% static 'res/images/withdraw-at-origin.png' %}" width="20" height="20" alt="">
+
+{% endblock thumbnail_menu_item %}
+
+{% block nav_items %}
+<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'baseapp_withdraw:withdraw-index' %}">Retirar</a></li>
+<li class="breadcrumb-item"><a href="{% url 'baseapp_withdraw:withdraw-deposit' deposit.pk %}">{{deposit.name}}</a></li>
+<li class="breadcrumb-item active" aria-current="page">Todos</li>
+{% endblock nav_items %}
+
+{% block optional_subheader %}
+<div class="p-3 mb-0 pb-1">
+    <div class="d-inline-flex bg-dark px-1 m-0 rounded fw-bold fs-5" style="color: white;">
+        {{ deposit.name }}
+    </div>
+    <h6 class="m-0 mt-2">
+        Estás a punto de retirar los {{ envios_count }} envíos cargados y disponibles en depósito
+    </h6>
+    <hr>
+    <h6>¿Confirmás que retiras los siguientes envíos?</h6>
+</div>
+
+{% endblock optional_subheader %}
+
+{% block content %}
+
+<div>
+    <ol>
+        {% for envio in envios %}
+        <li>{{envio.street}}, {{envio.zipcode}} {{ envio.town }}</li>
+        {% endfor %}
+    </ol>
+</div>
+
+
+{% endblock content %}
+
+{% block optional_footer %}
+<div class="d-flex justify-content-end m-3">
+    <button type="button" class="btn btn-secondary btn-sm mx-1"
+        onclick='location.href="{% url 'baseapp_withdraw:index' %}"'>Cancelar</button>
+    <form method='POST' id="form" name="form" target="_top" enctype="multipart/form-data">{% csrf_token %}
+        <button type="submit" class="btn btn-primary btn-sm mx-1">Confirmar</button>
+    </form>
+</div>
+{% endblock optional_footer %}

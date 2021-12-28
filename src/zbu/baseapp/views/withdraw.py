@@ -1,0 +1,228 @@
+# Main library
+import json
+
+# Django
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count
+from django.http.response import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+
+# Project
+from account.decorators import allowed_users
+from account.models import Account
+from baseapp.api.api import withdraw_movement
+from envios.models import Envio
+from places.models import Deposit, Zone, Partido, Town
+from utils.alerts.views import create_alert_and_redirect
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+def index_view(request) -> HttpResponse:
+    deposits = Deposit.objects.annotate(
+        num_envios=Count(
+            'envio'
+        )).order_by('-num_envios')
+    context = {
+        'deposits': deposits,
+    }
+    return render(request, 'baseapp/withdraw/index.html', context)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+def select_carrier_view(request, deposit_pk) -> HttpResponse:
+    context = {}
+    deposit = get_object_or_404(Deposit, pk=deposit_pk)
+    context['deposit'] = deposit
+    if not request.user.groups.filter(
+            name__in=["Admins", "EmployeeTier1"]).exists():
+        return redirect(
+            'withdraw-deposit', deposit_pk=deposit_pk,
+            carrier_pk=request.user.pk
+        )
+    context['deposit_JSON'] = json.dumps(
+        deposit, default=str, sort_keys=True, indent=4
+    )
+    # carriers = Account.objects.filter(
+    #     groups__name__in=['Admin', 'EmployeeTier1', 'EmployeeTier2'])
+    carriers = Account.objects.filter(
+        groups__name__in=['Admins', 'EmployeeTier1', 'EmployeeTier2']
+    ).annotate(envios=Count('Carrier')).order_by('envios').distinct().values(
+        "pk", "username", "first_name", "last_name", "envios")
+    # context['carriers_html'] = carriers_as_html_li(deposit_pk, carriers)
+    carriers = [json.dumps(carrier, indent=4)
+                for carrier in carriers if carrier['envios'] > 0]
+    context['carriers'] = json.dumps(carriers)
+    return render(request, 'baseapp/withdraw/select_carrier.html', context)
+
+
+@ login_required(login_url='/login/')
+@ allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+def deposit_view(request, deposit_pk, carrier_pk) -> HttpResponse:
+    context = {}
+    deposit = get_object_or_404(Deposit, pk=deposit_pk)
+    context['deposit'] = deposit
+    context['envios_count'] = deposit.envio_set.count()
+    return render(request, 'baseapp/withdraw/deposit.html', context)
+
+
+@ login_required(login_url='/login/')
+@ allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+def select_all_confirm_view(request, deposit_pk, carrier_pk) -> HttpResponse:
+    context = {}
+    deposit = get_object_or_404(Deposit, pk=deposit_pk)
+    envios = Envio.objects.filter(
+        status__in=[Envio.STATUS_NEW, Envio.STATUS_STILL], deposit=deposit)
+    context['deposit'] = deposit
+    context['envios'] = envios
+    context['envios_count'] = envios.count()
+    if request.method == 'POST':
+        user = request.user
+        withdraw_movement(
+            author=user,
+            carrier=user,
+            deposit=deposit
+        )
+        msg = 'Los envíos se retiraron correctamente'
+        return create_alert_and_redirect(request, msg, 'baseapp:index')
+    return render(request, 'baseapp/withdraw/confirm_all.html', context)
+
+
+@ login_required(login_url='/login/')
+@ allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+def scan_view(request, deposit_pk, carrier_pk) -> HttpResponse:
+    context = {}
+    deposit = get_object_or_404(Deposit, pk=deposit_pk)
+    context['deposit'] = deposit
+    envios = Envio.objects.filter(
+        status__in=[Envio.STATUS_NEW, Envio.STATUS_STILL], deposit=deposit)
+    context['ids'] = "-".join(list(map(lambda x: str(x.pk), envios)))
+    return render(request, 'baseapp/withdraw/select_id.html', context)
+
+
+@ login_required(login_url='/login/')
+@ allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+def scanned_confirm_view(request, deposit_pk, carrier_pk) -> HttpResponse:
+    context = {}
+    deposit = get_object_or_404(Deposit, pk=deposit_pk)
+    context['deposit'] = deposit
+    if request.method == 'GET':
+        envio_id = request.GET.get('envio_id')
+        context['envio'] = get_object_or_404(Envio, pk=envio_id)
+        context['envio_id'] = envio_id
+    if request.method == 'POST':
+        print(request.POST)
+        envio_id = int(request.POST.get('envio_id'))
+        user = request.user
+        withdraw_movement(
+            author=user,
+            carrier=user,
+            deposit=deposit,
+            envios_ids=[envio_id]
+        )
+        msg = 'El envío se retiró correctamente'
+        return create_alert_and_redirect(request, msg, 'baseapp:index')
+    return render(request, 'baseapp/withdraw/confirm_one.html', context)
+
+
+@ login_required(login_url='/login/')
+@ allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+def select_filter_by_view(request, deposit_pk, carrier_pk) -> HttpResponse:
+    context = {}
+    deposit = get_object_or_404(Deposit, pk=deposit_pk)
+    context['deposit'] = deposit
+    context['envios_count'] = deposit.envio_set.count()
+    return render(request, 'baseapp/withdraw/select_filtered.html', context)
+
+
+@ login_required(login_url='/login/')
+@ allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+def confirm_filtered_view(request, deposit_pk, carrier_pk) -> HttpResponse:
+    context = {}
+    deposit = get_object_or_404(Deposit, pk=deposit_pk)
+    context['deposit'] = deposit
+    context['envios_count'] = deposit.envio_set.count()
+
+    if request.method == 'GET':
+        filter_by = request.GET.get('filter_by')
+        context['filter_by'] = filter_by
+
+        if filter_by == 'zone':
+            context['filter_by_name'] = 'zonas'
+            part_1 = 'partido__town__destination__'
+            part_2 = 'receiver__envio__status'
+            filters = {
+                part_1 + part_2: Envio.STATUS_NEW,
+                'partido__town__destination__receiver__envio__deposit': deposit
+            }
+            context['objects'] = Zone.objects.filter(
+                **filters).distinct().order_by('name')
+        elif filter_by == 'partido':
+            context['filter_by_name'] = 'partidos'
+            part_1 = 'town__destination__receiver'
+            part_2 = '__envio__status__in'
+            filters = {
+                part_1 + part_2: [Envio.STATUS_NEW, Envio.STATUS_STILL],
+                'town__destination__receiver__envio__deposit': deposit
+            }
+            context['objects'] = Partido.objects.filter(
+                **filters).distinct().order_by('name')
+        elif filter_by == 'town':
+            context['filter_by_name'] = 'localidades'
+            context['objects'] = Town.objects.filter(
+                destination__receiver__envio__status__in=[
+                    Envio.STATUS_NEW, Envio.STATUS_STILL],
+                destination__receiver__envio__deposit=deposit
+            ).distinct().order_by('name')
+
+    if request.method == 'POST':
+        filter_by = request.POST.get('filter_by')
+        selected_ids = request.POST.get('selected_ids').split("-")
+        filters = {}
+        if filter_by == 'zone':
+            filters = {"town__partido__zone__id__in": selected_ids}
+        elif filter_by == 'partido':
+            filters = {"town__partido__id__in": selected_ids}
+        else:
+            filters = {"town__id__in": selected_ids}
+        user = request.user
+        withdraw_movement(
+            author=user,
+            carrier=user,
+            deposit=deposit,
+            **filters
+        )
+        msg = 'Los envíos se retiraron correctamente'
+        return create_alert_and_redirect(request, msg, 'baseapp:index')
+    return render(request, 'baseapp/withdraw/confirm_filter_by.html', context)
+
+
+def carriers_as_html_li(deposit_pk, carriers):
+    return json.dumps(list(map(lambda carrier: carrier_as_html_li(
+        deposit_pk, carrier), carriers)))
+
+
+def carrier_as_html_li(deposit_pk, carrier):
+    return f"""
+    <li class="list-group-item list-group-item-action list-menu-item p-2"
+        onclick="location.href='/app/withdraw/{deposit_pk}/to/{carrier.pk}'"
+            style="cursor: pointer;">
+        <div class="d-flex flex-row justify-content-between
+            align-items-center my-2">
+            <div class="d-flex flex-column flex-wrap
+                justify-content-center align-items-bottom">
+                <h6 class="p-0 m-0" style="color: rgb(90,90,90);">
+                    <span class="badge bg-secondary">@{carrier.username}</span>
+                </h6>
+                <h4 class="p-0 m-0"
+                    style="color: rgb(90,90,90);">
+                    {carrier.first_name} {carrier.last_name}</h4>
+                <div style="color: rgb(90,90,90);">
+                    Portando&nbsp;{carrier.envios}&nbsp;envíos
+                </div>
+            </div>
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </li>
+    """

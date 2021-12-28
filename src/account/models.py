@@ -88,7 +88,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
     dni_img = models.ImageField(verbose_name='doc picture',
                                 upload_to=doc_upload_location,
                                 blank=True, null=True)
-
     # USER DOCUMENTATION
     # role (client
     # admin

@@ -1,0 +1,58 @@
+{% extends 'base_app.html' %}
+
+{% load static %}
+
+{% block thumbnail_menu_item %}
+
+<img class="me-3" src="{% static 'res/images/withdraw-at-origin.png' %}" width="20" height="20" alt="">
+
+{% endblock thumbnail_menu_item %}
+
+{% block nav_items %}
+<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'app_withdraw:index' %}">Depositar</a></li>
+<li class="breadcrumb-item"><a href="{% url 'app_deposit:select-deposit' carrier.pk %}">{{ carrier.username }}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'app_deposit:carrier' carrier.pk deposit.pk %}">{{ deposit.name }}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'app_deposit:scan' carrier.pk deposit.pk %}">Escáner</a></li>
+<li class="breadcrumb-item active" aria-current="page">Envío escaneado</li>
+{% endblock nav_items %}
+
+{% block optional_subheader %}
+<div class="p-3 mb-0 pb-1">
+    <div class="d-inline mb-2 ">
+        <div class="d-inline-flex bg-dark px-1 rounded fw-bold" style="color: white;">
+            {{ carrier.first_name }} {{ carrier.last_name }} ({{ envios_count }})
+        </div>
+        <h6 class="fw-bold m-1">
+            Deposita en
+        </h6>
+        <div class="d-inline-flex bg-warning px-1 m-0 rounded fw-bold" style="color: white;">
+            {{ deposit.name }} ({{ deposit.client.name }})
+        </div>
+    </div>
+    <hr>
+    <h6>¿Confirmás que se deposita el envío en el depósito?</h6>
+</div>
+{% endblock optional_subheader %}
+
+{% block content %}
+
+<div>
+    <ul>
+        <li><strong>{{envio.full_address}}</strong> de {{ envio.client }}</li>
+    </ul>
+</div>
+
+
+{% endblock content %}
+
+{% block optional_footer %}
+<div class="d-flex justify-content-end m-3">
+    <button type="button" class="btn btn-secondary btn-sm mx-1"
+        onclick="location.href='{% url "index" %}'">Cancelar</button>
+    <form method='POST' id="form" name="form" target="_top">{% csrf_token %}
+        <input type="text" name="envio_id" id="id_envio_id" style="display: none;" value="{{envio_id}}">
+        <button type="submit" class="btn btn-primary btn-sm mx-1">Confirmar</button>
+    </form>
+</div>
+{% endblock optional_footer %}

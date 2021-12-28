@@ -1,7 +1,6 @@
 from django.contrib import admin
 from envios.models import (
     BulkLoadEnvios,
-    Deposit,
     Envio,
     Bolson,
     TrackingMovement
@@ -9,14 +8,14 @@ from envios.models import (
 
 
 class EnvioAdmin(admin.ModelAdmin):
-    list_display = ('recipient_address', 'recipient_town',
-                    'recipient_zipcode', 'client', 'is_flex',
-                    'shipment_status', 'detail', 'created_by',
-                    'date_created')
-    search_fields = ('recipient_address',
-                     'recipient_zipcode', 'is_flex',
-                     'shipment_status', 'detail', 'date_created',
-                     'recipient_zipcode',)
+    list_display = ('street', 'town',
+                    'zipcode', 'client', 'is_flex',
+                    'status', 'detail', 'created_by',
+                    'date_created', 'deposit', 'carrier')
+    search_fields = ('street',
+                     'zipcode', 'is_flex',
+                     'status', 'detail', 'date_created',
+                     'zipcode', 'deposit', 'carrier')
 
     filter_horizontal = ()
     list_filter = ()
@@ -43,7 +42,7 @@ class BolsonAdmin(admin.ModelAdmin):
     fieldsets = ()
 
 
-class DepositAdmin(admin.ModelAdmin):
+class DepositOldAdmin(admin.ModelAdmin):
     list_display = ('name', 'town', 'central', 'client',)
     search_fields = ('name', 'town', 'central', 'client',)
 
@@ -65,6 +64,5 @@ class TrackingMovementAdmin(admin.ModelAdmin):
 
 admin.site.register(Envio, EnvioAdmin)
 admin.site.register(BulkLoadEnvios, BulkLoadEnviosAdmin)
-admin.site.register(Deposit, DepositAdmin)
 admin.site.register(Bolson, BolsonAdmin)
 admin.site.register(TrackingMovement, TrackingMovementAdmin)

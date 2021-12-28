@@ -226,12 +226,12 @@
 
                 <!-- START ADDRESS -->
                 <div class="col-12 col-lg-6">
-                    <label for="{{form.recipient_address.id_for_label}}" class="form-label">Domicilio</label>
-                    {{ form.recipient_address }}
+                    <label for="{{form.street.id_for_label}}" class="form-label">Domicilio</label>
+                    {{ form.street }}
                 </div>
                 <div class="col-12 col-lg-6">
-                    <label for="{{form.recipient_entrances.id_for_label}}" class="form-label">Entrecalles
-                        (observaciones)</label> {{ form.recipient_entrances}}
+                    <label for="{{form.remarks.id_for_label}}" class="form-label">Entrecalles
+                        (observaciones)</label> {{ form.remarks}}
                 </div>
                 <!-- END ADDRESS -->
 
@@ -248,13 +248,13 @@
                     </select>
                 </div>
                 <div class="col-lg-7 col-xl-7 col-xxl-6">
-                    <label for="{{ form.recipient_town.id_for_label }}" class="form-label">Localidad</label>
-                    {{ form.recipient_town }}
+                    <label for="{{ form.town.id_for_label }}" class="form-label">Localidad</label>
+                    {{ form.town }}
                 </div>
                 <div class="col-lg-3 col-xl col-xxl-2">
-                    <label for="{{form.recipient_zipcode.id_for_label}}" class="form-label">Cód.
+                    <label for="{{form.zipcode.id_for_label}}" class="form-label">Cód.
                         postal</label>
-                    {{ form.recipient_zipcode}}
+                    {{ form.zipcode}}
                 </div>
                 <!-- END EXTENDED ADDRESS INFO -->
 
@@ -268,28 +268,28 @@
 
                 <!-- START RECIPIENT'S DATA -->
                 <div class="col-12 col-md-7 col-xl-5">
-                    <label for="{{form.recipient_name.id_for_label}}" class="form-label">Destinatario</label>
-                    {{ form.recipient_name}}
+                    <label for="{{form.name.id_for_label}}" class="form-label">Destinatario</label>
+                    {{ form.name}}
                 </div>
                 <div class="col-12 col-md-5 col-xl-4">
-                    <label for="{{form.recipient_doc.id_for_label}}" class="form-label">N° de DNI</label>
-                    {{ form.recipient_doc}}
+                    <label for="{{form.doc.id_for_label}}" class="form-label">N° de DNI</label>
+                    {{ form.doc}}
                 </div>
                 <div class="col-12 col-md-5 col-xl-3">
-                    <label for="{{form.recipient_phone.id_for_label}}" class="form-label">N° de
+                    <label for="{{form.phone.id_for_label}}" class="form-label">N° de
                         Teléfono</label>
-                    {{ form.recipient_phone}}
+                    {{ form.phone}}
                 </div>
                 <!-- END RECIPIENT'S DATA -->
 
 
                 <!-- START RECIPIENT'S CHARGE -->
                 <div class="col-lg-7 col-xl-6 col-xxl-4">
-                    <label for="{{form.recipient_charge.id_for_label}}" class="form-label">Cobrarle al
+                    <label for="{{form.charge.id_for_label}}" class="form-label">Cobrarle al
                         destinatario</label>
                     <div class="input-group mb-3">
                         <span class="input-group-text">$</span>
-                        {{ form.recipient_charge }}
+                        {{ form.charge }}
                         <span class="input-group-text">.00</span>
                     </div>
                 </div>
@@ -342,7 +342,7 @@
 
         $("#detailNotVisible").hide();
 
-        $('#id_recipient_town').find('option:not(:first)').remove();
+        $('#id_town').find('option:not(:first)').remove();
 
         $('#create_form').submit(function (event) {
             event.preventDefault(); //this will prevent the default submit
@@ -401,9 +401,9 @@
             var placesFromPartido = places.filter(function (place) {
                 return place.partido_id == selectedPartidoId;
             });
-            $('#id_recipient_town').find('option:not(:first)').remove();
+            $('#id_town').find('option:not(:first)').remove();
             for (var element of placesFromPartido) {
-                $('#id_recipient_town').append('<option value="' + element.id + '">' + element.name +
+                $('#id_town').append('<option value="' + element.id + '">' + element.name +
                     '</option>');
             }
         });

@@ -6,7 +6,7 @@ from envios.bulkutil.exceptions import (
 from envios.bulkutil.extractor import Extractor
 from envios.models import BulkLoadEnvios, Envio
 from clients.models import Client
-from places.models import Town
+from places.models import Deposit, Town
 
 
 class BulkLoadEnviosForm(forms.ModelForm):
@@ -16,6 +16,15 @@ class BulkLoadEnviosForm(forms.ModelForm):
         queryset=Client.objects.all(),
         widget=forms.Select(attrs={
             'class': ' form-select',
+        }),
+    )
+
+    deposit = forms.ModelChoiceField(
+        label="Deposit", required=True,
+        queryset=Deposit.objects.all(),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'required': 'required',
         }),
     )
 
@@ -81,6 +90,7 @@ class BulkLoadEnviosForm(forms.ModelForm):
         if not self.found_errors:
             bulk_load.load_status = BulkLoadEnvios.LOADING_STATUS_FINISHED
         bulk_load.client = self.cleaned_data['client']
+        bulk_load.deposit = self.cleaned_data['deposit']
         bulk_load.csv_result = self.result
         bulk_load.errors = self.found_errors
         bulk_load.requires_manual_fix = self.requires_manual_fix
@@ -98,6 +108,7 @@ class CreateEnvioForm(forms.ModelForm):
             'class': ' form-select',
         }),
     )
+
     detail = forms.CharField(label='Detalle', required=True,
                              initial="0-1",
                              widget=forms.TextInput(attrs={
@@ -105,7 +116,7 @@ class CreateEnvioForm(forms.ModelForm):
                                  'type': 'text',
                              }),)
 
-    recipient_name = forms.CharField(
+    name = forms.CharField(
         label='Nombre del destinatario', required=False,
         widget=forms.TextInput(
             attrs={
@@ -115,7 +126,7 @@ class CreateEnvioForm(forms.ModelForm):
             }),
     )
 
-    recipient_doc = forms.CharField(
+    doc = forms.CharField(
         label='DNI', required=False,
         widget=forms.TextInput(
             attrs={
@@ -126,7 +137,7 @@ class CreateEnvioForm(forms.ModelForm):
             }),
     )
 
-    recipient_phone = forms.CharField(
+    phone = forms.CharField(
         label='Teléfono', required=False,
         widget=forms.TextInput(
             attrs={
@@ -137,7 +148,7 @@ class CreateEnvioForm(forms.ModelForm):
             })
     )
 
-    recipient_address = forms.CharField(
+    street = forms.CharField(
         label='Domicilio', required=True,
         widget=forms.TextInput(
             attrs={
@@ -147,7 +158,7 @@ class CreateEnvioForm(forms.ModelForm):
             })
     )
 
-    recipient_entrances = forms.CharField(
+    remarks = forms.CharField(
         label='Domicilio', required=False,
         widget=forms.TextInput(
             attrs={
@@ -157,7 +168,7 @@ class CreateEnvioForm(forms.ModelForm):
             })
     )
 
-    recipient_town = forms.ModelChoiceField(
+    town = forms.ModelChoiceField(
         label="Localidad", required=True,
         queryset=Town.objects.all(),
         widget=forms.Select(attrs={
@@ -166,7 +177,7 @@ class CreateEnvioForm(forms.ModelForm):
         }),
     )
 
-    recipient_zipcode = forms.CharField(
+    zipcode = forms.CharField(
         label='Código postal', required=False,
         widget=forms.TextInput(
             attrs={
@@ -227,14 +238,14 @@ class CreateEnvioForm(forms.ModelForm):
         fields = [
             'client',
             'detail',
-            'recipient_name',
-            'recipient_doc',
-            'recipient_phone',
-            'recipient_address',
-            'recipient_entrances',
-            'recipient_town',
-            'recipient_zipcode',
-            'recipient_charge',
+            'name',
+            'doc',
+            'phone',
+            'street',
+            'remarks',
+            'town',
+            'zipcode',
+            'charge',
             'max_delivery_date',
             'is_flex',
             'flex_id',

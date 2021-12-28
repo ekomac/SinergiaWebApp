@@ -1,0 +1,76 @@
+{% extends 'base_app.html' %}
+
+{% load static %}
+
+{% block thumbnail_menu_item %}
+
+<img class="me-3" src="{% static 'res/images/central-deposit.png' %}" width="20" height="20" alt="">
+
+{% endblock thumbnail_menu_item %}
+
+{% block nav_items %}
+<li class="breadcrumb-item"><a href="{% url 'baseapp:index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'baseapp:deposit-index' %}">Depositar</a></li>
+<li class="breadcrumb-item"><a href="{% url 'baseapp:deposit-select-deposit' carrier.pk %}">{{ carrier.username }}</a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">{{ deposit.name }}</li>
+{% endblock nav_items %}
+
+
+{% block optional_subheader %}
+<div class="p-3 mb-0 pb-1">
+    <div class="d-inline-flex bg-dark px-1 m-0 rounded fw-bold fs-5" style="color: white;">
+        {{ carrier.first_name }} {{ carrier.last_name }}
+    </div>
+    <h6 class="m-0 my-2">
+        Portando {{ envios_count }} envíos a depositar en
+    </h6>
+    <div class="d-inline-flex bg-warning px-1 m-0 rounded fw-bold fs-6" style="color: white;">
+        {{ deposit.name }} ({{ deposit.client.name }})
+    </div>
+    <div class="fw-bold">
+        En {{ deposit.address }}, {{ deposit.zip_code }} {{ deposit.town }}
+    </div>
+    <hr>
+    <h6>Seleccioná que envíos vas a depositar:</h6>
+</div>
+
+{% endblock optional_subheader %}
+
+
+{% block content %}
+
+<ul class="list-group list-group-flush bg-white">
+    <li class="list-group-item list-menu-item p-3"
+        onclick="location.href='{% url 'baseapp:deposit-all' carrier.pk deposit.pk %}'" style="cursor: pointer;">
+        <div class="d-flex flex-row justify-content-between align-items-center my-2">
+            <div class="d-flex flex-column justify-content-center align-items-bottom">
+                Todos&nbsp;los&nbsp;envíos&nbsp;disponibles
+            </div>
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </li>
+    <li class="list-group-item list-menu-item p-3"
+        onclick="location.href='{% url 'baseapp:deposit-select-id' carrier.pk deposit.pk %}'" style="cursor: pointer;">
+        <div class="d-flex flex-row justify-content-between align-items-center my-2">
+            <div class="d-flex flex-column justify-content-center align-items-bottom">
+                Algunos&nbsp;envíos&nbsp;específicos&nbsp;(escaneados)
+            </div>
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </li>
+    <li class="list-group-item list-menu-item p-3"
+        onclick="location.href='{% url 'baseapp:deposit-select-filter-type' carrier.pk deposit.pk %}'" style="cursor:
+        pointer;">
+        <div class="d-flex flex-row justify-content-between align-items-center my-2">
+            <div class="d-flex flex-column justify-content-center align-items-bottom">
+                Algunos&nbsp;envíos&nbsp;según&nbsp;filtros&nbsp;especializados
+            </div>
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </li>
+
+</ul>
+
+
+{% endblock content %}

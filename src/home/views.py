@@ -4,19 +4,20 @@ from itertools import groupby
 from datetime import datetime, timedelta
 from typing import Dict, List
 
+
 # Django
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db.models.aggregates import Count
 from django.db.models.query import QuerySet
-from django.shortcuts import redirect, render
 from django.http.response import HttpResponse, HttpResponseNotAllowed
+from django.shortcuts import render
 
 # Project
+from account.decorators import allowed_users
 from clients.models import Client
 from envios.models import Envio, TrackingMovement
-from account.models import Account
-from baseapp.views import app_view
+# from account.models import Account
 
 
 @login_required(login_url='/login/')
@@ -25,19 +26,42 @@ def redirect_no_url(request):
 
 
 @login_required(login_url='/login/')
-def home_screen_view(request):
+@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+def app_view(request) -> HttpResponse:
+    """
+    Renders the app's index view.
+    """
+    context = {}
+    is_carrier = request.user.Carrier.count() > 0
+    can_transfer_any = request.user.groups.filter(
+        name__in=["Admins", "EmployeeTier1"]).exists()
+    # If user is carrying something, he can transfer it
+    if is_carrier:
+        print("is carrier")
+        context['user_can_transfer'] = True
+    # If user is not carrying anything, he can transfer
+    # anything if he is an admin or a tier 1 employee
+    elif not is_carrier and can_transfer_any:
+        context['user_can_transfer'] = True
+    else:
+        context['user_can_transfer'] = False
+    return render(request, 'baseapp_index.html', context)
+
+
+@login_required(login_url='/login/')
+def admin_home_screen_view(request):
     clients_with_envios = get_clients_with_envios_queryset()
     envios_at_deposit = get_envios_at_deposit()
-    carriers_with_envios = get_carriers_with_envios_queryset()
+    # carriers_with_envios = get_carriers_with_envios_queryset()
     main_stats = {
         'at_origin': Envio.objects.filter(
-            shipment_status=Envio.STATUS_NEW).count(),
+            status=Envio.STATUS_NEW).count(),
         'at_deposit': Envio.objects.filter(
-            shipment_status=Envio.STATUS_STILL).count(),
+            status=Envio.STATUS_STILL).count(),
         'moving': Envio.objects.filter(
-            shipment_status=Envio.STATUS_MOVING).count(),
+            status=Envio.STATUS_MOVING).count(),
         'delivered_today': TrackingMovement.objects.filter(
-            envios__shipment_status=Envio.STATUS_DELIVERED).count(),
+            envios__status=Envio.STATUS_DELIVERED).count(),
     }
     context = {
         'selected_tab': 'home-tab',
@@ -57,7 +81,7 @@ def get_clients_with_envios_queryset() -> QuerySet:
     ).annotate(
         envio_count=Count(
             'envio', filter=Q(
-                envio__shipment_status=Envio.STATUS_NEW
+                envio__status=Envio.STATUS_NEW
             )
         ),
         priorities=Count(
@@ -75,7 +99,7 @@ def get_clients_with_envios_queryset() -> QuerySet:
 
 def get_envios_at_deposit() -> QuerySet:
     return Envio.objects.filter(
-        shipment_status=Envio.STATUS_STILL,
+        status=Envio.STATUS_STILL,
     ).annotate(
         client_count=Count(
             'client__name'
@@ -87,7 +111,7 @@ def get_all():
     now = datetime.now()
     today = datetime(now.year, now.month, now.day, 0, 0, 0, 0)
     tomorrow = today + timedelta(days=1)
-    moving_envios = Envio.objects.filter(shipment_status=Envio.STATUS_MOVING)
+    moving_envios = Envio.objects.filter(status=Envio.STATUS_MOVING)
     data = []
     for envio in moving_envios:
         carrier = TrackingMovement.objects.filter(
@@ -95,7 +119,7 @@ def get_all():
             action=TrackingMovement.ACTION_RECOLECTION,
             result=TrackingMovement.RESULT_TRANSFERED
         ).last().carrier
-        town = envio.recipient_town
+        town = envio.town
         data.append([carrier, envio, town])
 
     data = sorted(data, key=lambda row: row[0].id)
@@ -108,7 +132,7 @@ def get_all():
         envios_count = len(group)
         row['envios'] = envios_count
         delivered = len([mov.envios.filter(
-            shipment_status=Envio.STATUS_DELIVERED
+            status=Envio.STATUS_DELIVERED
         ).count() for mov in TrackingMovement.objects.filter(
             action=TrackingMovement.ACTION_DELIVERY_ATTEMPT,
             result=TrackingMovement.RESULT_DELIVERED,
@@ -128,26 +152,26 @@ def get_all():
 
 def get_carriers_with_envios_queryset() -> Dict[str, List[Envio]]:
 
-    moving_envios = sorted(list(map(
-        lambda envio: (
-            envio, TrackingMovement.objects.filter(
-                envios=envio,
-                action=TrackingMovement.ACTION_RECOLECTION,
-                result=TrackingMovement.RESULT_TRANSFERED
-            ).last().carrier
-        ),
-        list(Envio.objects.filter(shipment_status=Envio.STATUS_MOVING))
-    )), key=lambda envio: envio[1].id)
+    # moving_envios = sorted(list(map(
+    #     lambda envio: (
+    #         envio, TrackingMovement.objects.filter(
+    #             envios=envio,
+    #             action=TrackingMovement.ACTION_RECOLECTION,
+    #             result=TrackingMovement.RESULT_TRANSFERED
+    #         ).last().carrier
+    #     ),
+    #     list(Envio.objects.filter(status=Envio.STATUS_MOVING))
+    # )), key=lambda envio: envio[1].id)
     # moving_envios = sorted(moving_envios, key=lambda envio: envio[1].id)
 
-    grouped_envios = [list(g) for _, g in groupby(
-        moving_envios, key=lambda envio: envio[1].id)]
+    # grouped_envios = [list(g) for _, g in groupby(
+    #     moving_envios, key=lambda envio: envio[1].id)]
     # for g in grouped_envios:
     # print("g -->", g)
     # print('\n')
 
     envios = Envio.objects.filter(
-        shipment_status=Envio.STATUS_MOVING
+        status=Envio.STATUS_MOVING
     ).order_by()
     result = {}
     for envio in envios:
@@ -160,14 +184,14 @@ def get_carriers_with_envios_queryset() -> Dict[str, List[Envio]]:
             key = carrier.id if carrier else -1
             if key in result:
                 result[key]['envios'] += 1
-                town = envio.recipient_town.name.title()
+                town = envio.town.name.title()
                 if town not in result[key]['towns']:
                     result[key]['towns'] += ", " + town
             else:
                 result[key] = {
                     'carrier': carrier if key != -1 else "",
                     'envios': 1,
-                    'towns': envio.recipient_town.name.title()
+                    'towns': envio.town.name.title()
                 }
                 if key != -1:
                     # print("No es menos uno")

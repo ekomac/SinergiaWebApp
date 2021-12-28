@@ -1,5 +1,5 @@
 from django.contrib import admin
-from places.models import Partido, ZipCode, Town, Zone
+from places.models import Deposit, Partido, ZipCode, Town, Zone
 
 
 class ZoneAdmin(admin.ModelAdmin):
@@ -37,7 +37,20 @@ class ZipCodeAdmin(admin.ModelAdmin):
     fieldsets = ()
 
 
+class DepositAdmin(admin.ModelAdmin):
+    list_display = ('date_created', 'created_by', 'is_active',
+                    'client', 'name', 'address', 'zip_code', 'town',
+                    'phone', 'email')
+    search_fields = ('created_by', 'is_active',
+                     'client', 'name', 'address', 'zip_code', 'town',
+                     'phone', 'email')
+    filter_horizontal = ()
+    list_filter = ()
+    fieldsets = ()
+
+
 admin.site.register(Zone, ZoneAdmin)
 admin.site.register(Partido, PartidoAdmin)
 admin.site.register(Town, TownAdmin)
 admin.site.register(ZipCode, ZipCodeAdmin)
+admin.site.register(Deposit, DepositAdmin)

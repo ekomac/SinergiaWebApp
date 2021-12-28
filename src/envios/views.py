@@ -22,10 +22,10 @@ from account.decorators import allowed_users, allowed_users_in_class_view
 
 # Project apps
 from account.models import Account
-from envios.forms import BulkLoadEnviosForm, CreateEnvioForm
-from envios.models import BulkLoadEnvios, Deposit, Envio, TrackingMovement
+from envios.forms import (BulkLoadEnviosForm, CreateEnvioForm)
+from envios.models import (BulkLoadEnvios, Envio, TrackingMovement)
 from envios.utils import bulk_create_envios, create_xlsx_workbook
-from places.models import Partido, Town
+from places.models import Deposit, Partido, Town
 from clients.models import Client
 from envios.reports import PDFReport
 
@@ -154,13 +154,13 @@ def get_envio_queryset(
                 .filter(
                     Q(created_by__first_name__icontains=query) |
                     Q(created_by__last_name__icontains=query) |
-                    Q(recipient_name__icontains=query) |
-                    Q(recipient_doc__icontains=query) |
-                    Q(recipient_phone__icontains=query) |
-                    Q(recipient_address__icontains=query) |
-                    Q(recipient_entrances__icontains=query) |
-                    Q(recipient_town__name__icontains=query) |
-                    Q(recipient_zipcode__icontains=query) |
+                    Q(name__icontains=query) |
+                    Q(doc__icontains=query) |
+                    Q(phone__icontains=query) |
+                    Q(street__icontains=query) |
+                    Q(remarks__icontains=query) |
+                    Q(town__name__icontains=query) |
+                    Q(zipcode__icontains=query) |
                     Q(client__name__icontains=query) |
                     Q(flex_id__icontains=query),
                 )
@@ -235,6 +235,7 @@ def bulk_create_envios_view(request):
             return redirect('envios:bulk-handle', pk=obj.pk)
     context['upload_form'] = form
     context['selected_tab'] = 'shipments-tab'
+    context['deposits'] = get_deposits_as_JSON()
     return render(request, 'envios/bulk/add.html', context)
 
 
@@ -285,10 +286,6 @@ def print_excel_file(request, pk):
     return response
 
 
-class MissingColumn(Exception):
-    pass
-
-
 def get_localidades_as_JSON():
     query = Town.objects.all().order_by('name')
     mapped = list(map(map_town_to_dict, query))
@@ -300,6 +297,20 @@ def map_town_to_dict(town):
         'id': town.id,
         'name': town.name.title(),
         'partido_id': town.partido.id,
+    }
+
+
+def get_deposits_as_JSON():
+    query = Deposit.objects.all().order_by('client', 'name')
+    mapped = list(map(map_deposit_to_dict, query))
+    return json.dumps(mapped)
+
+
+def map_deposit_to_dict(deposit):
+    return {
+        'id': deposit.id,
+        'name': deposit.full_name().title(),
+        'client_id': deposit.client.id,
     }
 
 

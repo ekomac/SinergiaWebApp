@@ -106,7 +106,6 @@
         "editor.defaultFormatter": "HookyQR.beautify"
     },
     "editor.formatOnSave": true,
-    "editor.formatOnPaste": true,
     "git.confirmSync": false,
     "gitlens.defaultDateFormat": null,
     // Whether to run code in Integrated Terminal.
@@ -122,4 +121,5 @@
     "python.defaultInterpreterPath": "~/env/Scripts/python.exe",
     "workbench.startupEditor": "none",
     "emmet.triggerExpansionOnTab": true,
+    "files.autoSave": "afterDelay",
 }

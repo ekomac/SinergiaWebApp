@@ -1,9 +1,10 @@
 from django.contrib.auth.models import Group
+from django.db.utils import IntegrityError
 import os
 import random
 import json
 from django.conf import settings
-from envios.models import Deposit
+from places.models import Deposit
 from places.models import Partido, Town, Zone, ZipCode
 from prices.models import DeliveryCode, FlexCode
 from account.models import Account
@@ -88,29 +89,39 @@ def encode_username(first, last):
 
 
 def create_users(names, lasts):
+    emails = []
     for i in range(1, 20):
-        rand1 = random.randint(0, len(names) - 1)
-        rand2 = random.randint(0, len(names) - 1)
-        first = names[rand1]
-        last = lasts[rand2]
-        email = f"{first.lower()}_{last.lower()}@sinergiamensajeria.com"
-        username = encode_username(first, last)
-        user = Account.objects.create_user(username=username,
-                                           email=email,
-                                           first_name=first,
-                                           last_name=last,
-                                           password='AMERICA123')
-        user.is_superuser = False
-        user.is_staff = True
-        user.is_active = True
-        user.save()
-        if i > 15:
-            group = Group.objects.filter(
-                name='EmployeeTier1').first()
-        else:
-            group = Group.objects.filter(
-                name='EmployeeTier2').first()
-        user.groups.add(group)
+        while True:
+            try:
+                rand1 = random.randint(0, len(names) - 1)
+                rand2 = random.randint(0, len(names) - 1)
+                first = names[rand1]
+                last = lasts[rand2]
+                domain = "sinergiamensajeria.com"
+                while True:
+                    email = f"{first.lower()}_{last.lower()}@{domain}"
+                    if email not in emails:
+                        break
+                username = encode_username(first, last)
+                user = Account.objects.create_user(username=username,
+                                                   email=email,
+                                                   first_name=first,
+                                                   last_name=last,
+                                                   password='AMERICA123')
+                user.is_superuser = False
+                user.is_staff = True
+                user.is_active = True
+                user.save()
+                if i > 15:
+                    group = Group.objects.filter(
+                        name='EmployeeTier1').first()
+                else:
+                    group = Group.objects.filter(
+                        name='EmployeeTier2').first()
+                user.groups.add(group)
+                break
+            except IntegrityError as e:
+                print(e)
 
 
 def create_codigos_postales():
@@ -160,7 +171,12 @@ def create_central_deposit():
     Deposit(
         town=Town.objects.filter(
             name='San Miguel', partido__name='San Miguel').first(),
-        name='Depósito central', central=True
+        name='Depósito central',
+        zip_code='1663',
+        address='Dorrego',
+        is_active=True,
+        created_by=Account.objects.filter(
+            email="sinergia@ekosoftware.com.ar").first(),
     ).save()
 
 

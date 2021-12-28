@@ -1,0 +1,68 @@
+{% extends 'base_app.html' %}
+
+{% load static %}
+
+{% block thumbnail_menu_item %}
+
+<img class="me-3" src="{% static 'res/images/withdraw-at-origin.png' %}" width="20" height="20" alt="">
+
+{% endblock thumbnail_menu_item %}
+
+{% block nav_items %}
+<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'app_withdraw:index' %}">Retirar</a></li>
+<li class="breadcrumb-item active" aria-current="page">{{deposit.name}}</li>
+{% endblock nav_items %}
+
+{% block optional_subheader %}
+<div class="p-3 mb-0 pb-1">
+    <div class="d-inline-flex mb-2">
+        <div class="d-inline bg-warning px-1 rounded fw-bold" style="color: white;">
+            {{ carrier.first_name }} {{ carrier.last_name }} ({{ carrier.username }})
+        </div>
+        <div class="fw-bold mx-1">Retira de</div>
+    </div>
+    <div class="d-inline-flex bg-dark px-1 m-0 rounded fw-bold" style="color: white;">
+        {{ deposit.name }} ({{ envios_count }} envíos)
+    </div>
+    <hr>
+    <h6>Seleccioná que envíos vas a retirar:</h6>
+</div>
+{% endblock optional_subheader %}
+
+{% block content %}
+
+
+<ul class="list-group list-group-flush bg-white">
+    <li class="list-group-item list-menu-item p-3"
+        onclick="location.href='{% url 'app_withdraw:confirm-all' deposit.pk carrier.pk %}'" style="cursor: pointer;">
+        <div class="d-flex flex-row justify-content-between align-items-center my-2">
+            <div class="d-flex flex-column justify-content-center align-items-bottom">
+                Todos&nbsp;los&nbsp;envíos&nbsp;disponibles
+            </div>
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </li>
+    <li class="list-group-item list-menu-item p-3"
+        onclick="location.href='{% url 'app_withdraw:scan' deposit.pk carrier.pk %}'" style="cursor: pointer;">
+        <div class="d-flex flex-row justify-content-between align-items-center my-2">
+            <div class="d-flex flex-column justify-content-center align-items-bottom">
+                Algunos&nbsp;envíos&nbsp;específicos&nbsp;(escaneados)
+            </div>
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </li>
+    <li class="list-group-item list-menu-item p-3"
+        onclick="location.href='{% url 'app_withdraw:filter-by' deposit.pk carrier.pk %}'" style="cursor:
+        pointer;">
+        <div class="d-flex flex-row justify-content-between align-items-center my-2">
+            <div class="d-flex flex-column justify-content-center align-items-bottom">
+                Algunos&nbsp;envíos&nbsp;según&nbsp;filtros&nbsp;especializados
+            </div>
+            <i class="bi bi-chevron-right"></i>
+        </div>
+    </li>
+
+</ul>
+
+{% endblock content %}

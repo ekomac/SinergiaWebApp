@@ -6,7 +6,9 @@ from django.db.models.signals import m2m_changed, post_save
 from django.template.defaultfilters import truncatechars
 from simple_history.models import HistoricalRecords
 from clients.models import Client
-from places.models import Town
+from places.models import Deposit, Town
+
+not_specified = 'No especificado'
 
 
 def upload_location(instance, filename, *args, **kwargs):
@@ -16,43 +18,67 @@ def upload_location(instance, filename, *args, **kwargs):
     return f'envios/{client_id}-{client_name}/{envio_id}-{filename}'
 
 
-class Deposit(models.Model):
-
-    town = models.ForeignKey(Town, null=True, on_delete=models.SET_NULL)
-    name = models.CharField(verbose_name="name", max_length=50)
-    central = models.BooleanField(default=False)
-    client = models.ForeignKey(
-        Client, verbose_name='client',
-        on_delete=models.CASCADE, blank=True, null=True)
-    history = HistoricalRecords()
+class Destination(models.Model):
+    street = models.CharField(
+        verbose_name="Domicilio de entrega", max_length=100,
+        blank=False, null=False)
+    remarks = models.CharField(
+        verbose_name="Observaciones de entrega", max_length=500,
+        blank=True, null=True)
+    town = models.ForeignKey(
+        Town, on_delete=models.CASCADE,
+        verbose_name="Localidad de entrega", blank=False, null=False)
+    zipcode = models.CharField(
+        verbose_name="Cod. Postal de entrega", max_length=10,
+        blank=True, null=True)
 
     def __str__(self):
-        owner = 'Sinergia' if self.central else self.client.name
-        return f'{self.name} ({owner})'
-
-    class Meta:
-        verbose_name = 'Depósito'
-        verbose_name_plural = 'Depósitos'
+        return f'{self.street}, {self.zipcode} {self.town}'
 
 
-class Envio(models.Model):
+class Receiver(Destination):
+    name = models.CharField(
+        verbose_name="Nombre destinatario", max_length=50,
+        blank=True, null=True)
+    doc = models.CharField(
+        verbose_name="DNI destinatario", max_length=50,
+        blank=True, null=True)
+    phone = models.CharField(
+        verbose_name="Teléfono destinatario", max_length=14,
+        blank=True, null=True)
+
+    def __str__(self):
+        recipient = f'{self.name}({self.doc})' or not_specified
+        address = f'{self.street}, {self.zipcode} {self.town}'
+        return f'{recipient}, {address}'
+
+
+class Envio(Receiver):
 
     STATUS_NEW = 'N'
+    STATUS_NEW_TEXT = 'Nuevo'
     STATUS_MOVING = 'M'
+    STATUS_MOVING_TEXT = 'Viajando'
     STATUS_STILL = 'S'
+    STATUS_STILL_TEXT = 'En depósito'
     STATUS_DELIVERED = 'D'
+    STATUS_DELIVERED_TEXT = 'Entregado'
+
+    SCHEDULE_INDEX_7_10 = '07-10'
+    SCHEDULE_PHRASE_7_10 = '7 a 10 h'
+    SCHEDULE_INDEX_10_13 = '10-13'
+    SCHEDULE_PHRASE_10_13 = '10 a 13 h'
+    SCHEDULE_INDEX_13_16 = '13-16'
+    SCHEDULE_PHRASE_13_16 = '13 a 16 h'
+    SCHEDULE_INDEX_16_ON = '16+'
+    SCHEDULE_PHRASE_16_ON = '+16 h'
 
     STATUSES = [
-        (STATUS_NEW, 'Nuevo'),
-        (STATUS_MOVING, 'Viajando'),
-        (STATUS_STILL, 'En depósito'),
-        (STATUS_DELIVERED, 'Entregado'),
+        (STATUS_NEW, STATUS_NEW_TEXT),
+        (STATUS_MOVING, STATUS_MOVING_TEXT),
+        (STATUS_STILL, STATUS_STILL_TEXT),
+        (STATUS_DELIVERED, STATUS_DELIVERED_TEXT),
     ]
-
-    SCHEDULE_INDEX_7_10, SCHEDULE_PHRASE_7_10 = '07-10', '7 a 10 h'
-    SCHEDULE_INDEX_10_13, SCHEDULE_PHRASE_10_13 = '10-13', '10 a 13 h'
-    SCHEDULE_INDEX_13_16, SCHEDULE_PHRASE_13_16 = '13-16', '13 a 16 h'
-    SCHEDULE_INDEX_16_ON, SCHEDULE_PHRASE_16_ON = '16+', '+16 h'
 
     SCHEDULES = [
         (SCHEDULE_INDEX_7_10, SCHEDULE_PHRASE_7_10),
@@ -67,36 +93,22 @@ class Envio(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         verbose_name="Creado por", related_name="Creator",
         blank=True, null=True, default=None)
-    shipment_status = models.CharField(
+    status = models.CharField(
         verbose_name="Estado",
         max_length=2, choices=STATUSES, default=STATUS_NEW)
+    carrier = models.ForeignKey(
+        'account.Account', related_name="Carrier",
+        verbose_name="Portador", blank=True, null=True,
+        default=None, on_delete=models.SET_NULL)
+    deposit = models.ForeignKey(
+        'places.Deposit', on_delete=models.SET_NULL,
+        verbose_name="Depósito", default=None, blank=True, null=True)
     detail = models.CharField(verbose_name="Detalle",
                               max_length=2000, default='0-1')
     client = models.ForeignKey(
         Client, on_delete=models.CASCADE, verbose_name="Cliente",
         blank=False, null=False)
-    recipient_name = models.CharField(
-        verbose_name="Nombre destinatario", max_length=50,
-        blank=True, null=True)
-    recipient_doc = models.CharField(
-        verbose_name="DNI destinatario", max_length=50,
-        blank=True, null=True)
-    recipient_phone = models.CharField(
-        verbose_name="Teléfono destinatario", max_length=14,
-        blank=True, null=True)
-    recipient_address = models.CharField(
-        verbose_name="Domicilio de entrega", max_length=100,
-        blank=False, null=False)
-    recipient_entrances = models.CharField(
-        verbose_name="Observaciones de entrega", max_length=500,
-        blank=True, null=True)
-    recipient_town = models.ForeignKey(
-        Town, on_delete=models.CASCADE,
-        verbose_name="Localidad de entrega", blank=False, null=False)
-    recipient_zipcode = models.CharField(
-        verbose_name="Cod. Postal de entrega", max_length=10,
-        blank=True, null=True)
-    recipient_charge = models.DecimalField(
+    charge = models.DecimalField(
         verbose_name="Cargos al destinatario",
         decimal_places=2, max_digits=40, blank=True, null=True)
     max_delivery_date = models.DateField(
@@ -110,22 +122,31 @@ class Envio(models.Model):
     bulk_upload_id = models.ForeignKey(
         'BulkLoadEnvios', verbose_name="ID de carga masiva",
         on_delete=models.CASCADE, blank=True, null=True)
-    carrier = models.ForeignKey(
-        'account.Account', related_name="Carrier",
-        verbose_name="ID de carga masiva", blank=True, null=True,
-        default=None, on_delete=models.SET_NULL)
-    deposit = models.ForeignKey(
-        Deposit, on_delete=models.SET_NULL,
-        verbose_name="deposit", default=None, blank=True, null=True)
     history = HistoricalRecords()
     tracked = models.BooleanField(default=False)
 
     def __str__(self):
-        address = self.recipient_address
-        town = self.recipient_town.name
+        address = self.full_address()
         client = self.client
-        status = self.get_shipment_status_display()
-        return f'{address}, {town.title()} from {client} ({status})'
+        status = self.get_status_display()
+        where = self.carrier if self.carrier else self.deposit.name
+        return f'{address} @{where} ({status}) >>> {client}'
+
+    def full_address(self):
+        return f'{self.street}, {self.zipcode} {self.town.name.title()}'
+
+    def get_status(self):
+        status = self.get_status_display()
+        carrier = self.carrier
+        deposit = self.deposit
+        if status == self.STATUS_DELIVERED:
+            return status
+        if status in [self.STATUS_NEW, self.STATUS_STILL] and deposit:
+            return f'{status}: "{deposit}"'
+        if status == self.STATUS_MOVING and carrier:
+            return f'{status} con {carrier.username}' +\
+                f' ({carrier.first_name} {carrier.last_name})'
+        return status
 
     class Meta:
         verbose_name = 'Envío'
@@ -160,6 +181,7 @@ class TrackingMovement(models.Model):
     ACTION_RECOLECTION = "RC"
     ACTION_DEPOSIT = "DP"
     ACTION_DELIVERY_ATTEMPT = 'DA'
+    ACTION_TRANSFER = 'TR'
     ACTIONS = [
         (ACTION_ADDED_TO_SYSTEM, "Carga en sistema"),
         (ACTION_RECOLECTION, "Recolección"),
@@ -204,7 +226,7 @@ class TrackingMovement(models.Model):
     comment = models.TextField(verbose_name="comment", max_length=200,
                                default=None, blank=True, null=True)
     deposit = models.ForeignKey(
-        Deposit, on_delete=models.SET_NULL,
+        'places.Deposit', on_delete=models.SET_NULL,
         verbose_name="deposit", default=None, blank=True, null=True)
     date_created = models.DateTimeField(
         verbose_name="action's date time",
@@ -254,7 +276,7 @@ class PriceCalculator(object):
         envio = self.envio
 
         # Get the town of recipient's address
-        town = envio.recipient_town
+        town = envio.town
 
         #  Get the code. If 'envio' is from flex, return flex's code for
         # given town, else the normal code.
@@ -344,6 +366,9 @@ class BulkLoadEnvios(models.Model):
     client = models.ForeignKey(
         Client, on_delete=models.SET_NULL,
         verbose_name="Usuario", blank=True, null=True)
+    deposit = models.ForeignKey(
+        Deposit, on_delete=models.SET_NULL,
+        verbose_name="Depósito", blank=True, null=True)
     csv_result = models.TextField(
         verbose_name="Resultado",
         blank=True, null=True, default=None)
@@ -387,28 +412,138 @@ def base_create_tracking(instance: Envio) -> TrackingMovement:
 
 @receiver(post_save, sender=Envio, dispatch_uid="create_tracking_movement")
 def create_tracking(sender, instance, **kwargs):
+    print("Create tracking movement")
     # This ckecks makes sure is a freshly created instance
-    if instance.shipment_status == Envio.STATUS_NEW and not instance.tracked:
+    if instance.status == Envio.STATUS_NEW and not instance.tracked:
+        return
         base_create_tracking(instance).save()
 
 
 @receiver(m2m_changed, sender=TrackingMovement.envios.through,
           dispatch_uid="update_envio_status")
 def update_envio_status(sender, instance: TrackingMovement, action, **kwargs):
+    return
+    print("updated")
+    print(sender, "sender", type(sender))
+    print(instance, "instance", type(instance))
     if action == 'post_add':
+        print("adding?")
         if instance is not TrackingMovement:
+            print("not instance")
             return
-        if instance.action == TrackingMovement.ACTION_RECOLECTION:
-            if instance.result == TrackingMovement.RESULT_TRANSFERED:
-                instance.envios.all().update(
-                    shipment_status=Envio.STATUS_MOVING,
-                    carrier=instance.carrier,
-                    deposit=None,
-                )
+        # if instance.action == TrackingMovement.ACTION_RECOLECTION:
+        #     print("recolected")
+        #     if instance.result == TrackingMovement.RESULT_TRANSFERED:
+        #         print("transfered")
+        #         instance.envios.all().update(
+        #             status=Envio.STATUS_MOVING,
+        #             carrier=instance.carrier,
+        #             deposit=None,
+        #         )
+        #         print(instance.envios.all())
         if instance.action == TrackingMovement.ACTION_DEPOSIT:
+            print("deposited")
             if instance.result == TrackingMovement.RESULT_IN_DEPOSIT:
+                print("status in deposit")
                 instance.envios.all().update(
-                    shipment_status=Envio.STATUS_STILL,
+                    status=Envio.STATUS_STILL,
                     carrier=None,
                     deposit=instance.deposit,
                 )
+                print(instance.envios.all())
+
+
+class Subprueba(models.Model):
+
+    name = models.CharField(max_length=50)
+
+
+class Prueba(Subprueba):
+    value = models.BooleanField(default=True)
+
+
+# class Address2(models.Model):
+#     street = models.CharField(
+#         verbose_name="Domicilio de entrega", max_length=100,
+#         blank=False, null=False)
+#     entrances = models.CharField(
+#         verbose_name="Observaciones de entrega", max_length=500,
+#         blank=True, null=True)
+#     town = models.ForeignKey(
+#         Town, on_delete=models.CASCADE,
+#         verbose_name="Localidad de entrega", blank=False, null=False)
+#     zipcode = models.CharField(
+#         verbose_name="Cod. Postal de entrega", max_length=10,
+#         blank=True, null=True)
+
+#     def __str__(self):
+#         return f'{self.street}, {self.zipcode} {self.town}'
+
+
+# class Recipient2(Address2):
+
+#     name = models.CharField(
+#         verbose_name="Nombre destinatario", max_length=50,
+#         blank=True, null=True)
+#     doc = models.CharField(
+#         verbose_name="DNI destinatario", max_length=50,
+#         blank=True, null=True)
+#     phone = models.CharField(
+#         verbose_name="Teléfono destinatario", max_length=14,
+#         blank=True, null=True)
+
+#     def __str__(self):
+#         return f'{self.name} ({self.doc}) @ {self.street}' +\
+#             f', {self.zipcode} {self.town}'
+
+
+# class Envio2(Recipient2):
+
+#     date_created = models.DateTimeField(
+#         verbose_name="Fecha de creación", auto_now_add=True)
+#     created_by = models.ForeignKey(
+#         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+#         verbose_name="Creado por", related_name="Creator2",
+#         blank=True, null=True, default=None)
+#     status = models.CharField(
+#         verbose_name="Estado",
+#         max_length=2, choices=consts.STATUSES, default=consts.STATUS_NEW)
+#     detail = models.CharField(verbose_name="Detalle",
+#                               max_length=2000, default='0-1')
+#     client = models.ForeignKey(
+#         Client, on_delete=models.CASCADE, verbose_name="Cliente",
+#         blank=False, null=False)
+#     charge = models.DecimalField(
+#         verbose_name="Cargos al destinatario",
+#         decimal_places=2, max_digits=40, blank=True, null=True)
+#     max_delivery_date = models.DateField(
+#         verbose_name="Fecha máxima de entrega", blank=True, null=True)
+#     is_flex = models.BooleanField(verbose_name="Es Flex", default=False)
+#     flex_id = models.CharField(
+#         verbose_name="ID de Flex", max_length=50, blank=True, null=True)
+#     delivery_schedule = models.CharField(
+#         verbose_name='Horario de entrega', choices=consts.SCHEDULES,
+#         max_length=5, blank=True, null=True, default=None)
+#     bulk_upload_id = models.ForeignKey(
+#         'BulkLoadEnvios', verbose_name="ID de carga masiva",
+#         on_delete=models.CASCADE, blank=True, null=True)
+#     carrier = models.ForeignKey(
+#         'account.Account', related_name="Carrier2",
+#         verbose_name="ID de carga masiva", blank=True, null=True,
+#         default=None, on_delete=models.SET_NULL)
+#     deposit = models.ForeignKey(
+#         Deposit, on_delete=models.SET_NULL,
+#         verbose_name="deposit", default=None, blank=True, null=True)
+#     history = HistoricalRecords()
+#     tracked = models.BooleanField(default=False)
+
+#     def __str__(self):
+#         address = self.street
+#         town = self.town.name
+#         client = self.client
+#         status = self.get_status_display()
+#         return f'{address}, {town.title()} de {client} ({status})'
+
+#     class Meta:
+#         verbose_name = 'Envío'
+#         verbose_name_plural = 'Envíos'

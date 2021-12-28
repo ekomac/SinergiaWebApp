@@ -3,7 +3,7 @@ from typing import Any, Callable, Dict, List, Tuple
 
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
-from envios.models import BulkLoadEnvios, Deposit, Envio, TrackingMovement
+from envios.models import BulkLoadEnvios, Envio, TrackingMovement
 from places.models import Partido, Town
 
 
@@ -255,18 +255,22 @@ def bulk_create_envios(
             continue
         cols = row.split(",")
         kwargs = __cols_to_kwargs(cols, bulk_load_envios)
-        envios.append(Envio(**kwargs))
-    envios = Envio.objects.bulk_create(envios)
+        envio = Envio(**kwargs)
+        print("deposit", bulk_load_envios.deposit)
+        envio.deposit = bulk_load_envios.deposit
+        print("envio.deposit", envio.deposit)
+        envio.save()
+        envios.append(envio)
+    # envios = Envio.objects.bulk_create(envios)
     # for envio in envios:
     #     # For every envio, create a tracking movement
     #     base_create_tracking(envio)
-    deposit = Deposit.objects.filter(client=envios[0].client).first()
     author = envios[0].created_by
     tm = TrackingMovement(
         created_by=author,
         action=TrackingMovement.ACTION_ADDED_TO_SYSTEM,
         result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
-        deposit=deposit
+        deposit=bulk_load_envios.deposit
     )
     tm.save()
     tm.envios.add(*envios)
@@ -276,17 +280,20 @@ def bulk_create_envios(
 def __cols_to_kwargs(
     cols: List[str], bulk_load_envios: BulkLoadEnvios
 ) -> Dict[str, Any]:
+    import inspect
+    print("inspect", inspect.getargspec(Envio.__init__))
     kwargs = {
-        'recipient_address': cols[1],
-        'recipient_entrances': cols[2],
-        'recipient_zipcode': cols[3],
-        'recipient_town': Town.objects.get(pk=cols[4]),
-        'recipient_name': cols[6],
-        'recipient_doc': cols[7],
-        'recipient_phone': cols[8],
+        'street': cols[1],
+        'remarks': cols[2],
+        'zipcode': cols[3],
+        'town': Town.objects.get(pk=cols[4]),
+        'name': cols[6],
+        'doc': cols[7],
+        'phone': cols[8],
         'detail': cols[9] if cols[9] else "0-1",
         'created_by': bulk_load_envios.created_by,
         'client': bulk_load_envios.client,
+        # 'state_ptr__deposit': bulk_load_envios.deposit,
         'bulk_upload_id': bulk_load_envios,
     }
     if cols[0]:

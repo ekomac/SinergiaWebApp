@@ -77,11 +77,11 @@
                                 <option value="is_flex" {% if order_by == 'is_flex' %}selected{% endif %}>
                                     Mensajería&nbsp;primero
                                 </option>
-                                <option value="recipient_town__name"
-                                    {% if order_by == 'recipient_town__name' %}selected{% endif %}>Localidad&nbsp;A-Z
+                                <option value="town__name" {% if order_by == 'town__name' %}selected{% endif %}>
+                                    Localidad&nbsp;A-Z
                                 </option>
-                                <option value="recipient_town__name_desc"
-                                    {% if order_by == 'recipient_town__name_desc' %}selected{% endif %}>
+                                <option value="town__name_desc"
+                                    {% if order_by == 'town__name_desc' %}selected{% endif %}>
                                     Localidad&nbsp;Z-A
                                 </option>
                                 <option value="client__name" {% if order_by == 'client__name' %}selected{% endif %}>

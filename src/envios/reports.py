@@ -122,17 +122,17 @@ class PDFReport(object):
     def get_story_from_data(self, envio: Envio) -> List[Any]:
         header = self.get_table_header(envio.client.name, envio.client.id)
         qr_code = self.get_qr_code(
-            envio.id, envio.client.id, envio.recipient_town.id)
+            envio.id, envio.client.id, envio.town.id)
         table_below_qr_code = self.get_table_below_qr_code(
             envio.id,
-            envio.recipient_town.name,
-            envio.recipient_town.partido.name)
+            envio.town.name,
+            envio.town.partido.name)
         final_table = self.get_final_table(
-            name=envio.recipient_name,
-            address=envio.recipient_address,
-            zip_code=envio.recipient_zipcode,
-            entrances=envio.recipient_entrances,
-            phone=envio.recipient_phone
+            name=envio.name,
+            address=envio.street,
+            zip_code=envio.zipcode,
+            entrances=envio.remarks,
+            phone=envio.phone
         )
         return [header, qr_code, table_below_qr_code, final_table]
 

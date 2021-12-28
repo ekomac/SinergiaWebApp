@@ -33,7 +33,7 @@
     </td>
     <td>{{ obj.client.name }}</td>
     <td>
-        {% if obj.recipient_address %}{{ obj.recipient_address |title }},{% if obj.recipient_zipcode %}&nbsp;{{ obj.recipient_zipcode }}{% endif %}&nbsp;{{ obj.recipient_town.name |title }},&nbsp;{{ obj.recipient_town.partido.name |title }}{% endif %}
+        {% if obj.street %}{{ obj.street |title }},{% if obj.zipcode %}&nbsp;{{ obj.zipcode }}{% endif %}&nbsp;{{ obj.town.name |title }},&nbsp;{{ obj.town.partido.name |title }}{% endif %}
     </td>
     <td class="cell-centered">
         {% if obj.max_delivery_date %}{{ obj.max_delivery_date }}{% else %}No tiene{% endif %}

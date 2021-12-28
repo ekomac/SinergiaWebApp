@@ -60,9 +60,19 @@
                         {% endfor %}
                     </div>
                 </div>
-                <div class="col-12 col-xl-auto mt-2">
+            </div>
+            <div class="row mt-3 mb-4">
+                <div class="col-12 col-lg-6 mt-2">
                     <label for="id_client" class="form-label">Cliente</label>
                     {{upload_form.client}}
+                    <div class="invalid-feedback">
+                        {% for error in upload_form.client.errors %}{{error}}<br>{% endfor %}
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-6 mt-2">
+                    <label for="id_deposit" class="form-label">Depósito</label>
+                    {{upload_form.deposit}}
                     <div class="invalid-feedback">
                         {% for error in upload_form.client.errors %}{{error}}<br>{% endfor %}
                     </div>
@@ -85,5 +95,64 @@
     </form>
 
 </div>
+
+<script>
+    var deposits = JSON.parse('{{ deposits | escapejs }}');
+    $(document).ready(function () {
+        $('#id_deposit').find('option:not(:first)').remove();
+        $.event.special.inputchange = {
+            setup: function () {
+                var self = this,
+                    val;
+                $.data(this, 'timer', window.setInterval(function () {
+                    val = self.value;
+                    if ($.data(self, 'cache') != val) {
+                        $.data(self, 'cache', val);
+                        $(self).trigger('inputchange');
+                    }
+                }, 20));
+            },
+            teardown: function () {
+                window.clearInterval($.data(this, 'timer'));
+            },
+            add: function () {
+                $.data(this, 'cache', this.value);
+            }
+        };
+
+        console.log(JSON.stringify(deposits));
+        console.log("hello world");
+        $('#id_client').on('inputchange', function () {
+            var selectedClientId = this.value.toString();
+            console.log(selectedClientId);
+            if (![null, undefined, ''].includes(selectedClientId)) {
+                var depositsFromClient = deposits.filter(function (deposit) {
+                    return deposit.client_id == selectedClientId;
+                });
+                console.log("depositsFromClient", depositsFromClient);
+                $('#id_deposit').find('option:not(:first)').remove();
+                for (var element of depositsFromClient) {
+                    $('#id_deposit').append('<option value="' + element.id + '">' + element.name +
+                        '</option>');
+                }
+            } else {
+                $('#id_deposit').find('option:not(:first)').remove();
+            }
+        });
+    });
+
+    function setClientListener() {
+        $('#id_client').on('inputchange', function () {
+            alert("hola");
+            /*
+            $('#id_town').find('option:not(:first)').remove();
+            for (var element of placesFromPartido) {
+                $('#id_town').append('<option value="' + element.id + '">' + element.name +
+                    '</option>');
+            }
+            */
+        });
+    }
+</script>
 
 {% endblock content %}

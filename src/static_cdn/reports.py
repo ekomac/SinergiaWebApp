@@ -130,7 +130,7 @@ class PDFReport(object):
             envio.recipient_town.name,
             envio.recipient_town.partido.name)
         final_table = self.get_final_table(
-            envio_recipient=envio.recipient_name,
+            envio_recipient=envio.name,
             envio_address=envio.recipient_address,
             envio_zip_code=envio.recipient_zipcode,
             envio_reference=envio.recipient_entrances,

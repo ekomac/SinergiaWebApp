@@ -33,7 +33,11 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
 
     # OWN APPS
-    'baseapp',
+    # 'baseapp',
+    'app_withdraw',
+    'app_deposit',
+    'app_transfer',
+    'app_deliver',
     'account',
     'clients',
     'envios',
