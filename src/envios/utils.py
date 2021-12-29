@@ -266,7 +266,7 @@ def bulk_create_envios(
     # for envio in envios:
     #     # For every envio, create a tracking movement
     #     base_create_tracking(envio)
-    author = envios[0].created_by
+    author = envios[0].updated_by
     tm = TrackingMovement(
         created_by=author,
         action=TrackingMovement.ACTION_ADDED_TO_SYSTEM,
@@ -292,7 +292,7 @@ def __cols_to_kwargs(
         'doc': cols[7],
         'phone': cols[8],
         'detail': cols[9] if cols[9] else "0-1",
-        'created_by': bulk_load_envios.created_by,
+        'updated_by': bulk_load_envios.created_by,
         'client': bulk_load_envios.client,
         # 'state_ptr__deposit': bulk_load_envios.deposit,
         'bulk_upload_id': bulk_load_envios,

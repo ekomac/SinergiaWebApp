@@ -87,9 +87,9 @@ class Envio(Receiver):
 
     date_created = models.DateTimeField(
         verbose_name="Fecha de creación", auto_now_add=True)
-    created_by = models.ForeignKey(
+    updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
-        verbose_name="Creado por", related_name="Creator",
+        verbose_name="Editado por", related_name="Editor",
         blank=True, null=True, default=None)
     status = models.CharField(
         verbose_name="Estado",

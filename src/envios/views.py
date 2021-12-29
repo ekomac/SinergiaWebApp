@@ -153,8 +153,8 @@ def get_envio_queryset(
                 .filter(**filters)
                 # Query filters
                 .filter(
-                    Q(created_by__first_name__icontains=query) |
-                    Q(created_by__last_name__icontains=query) |
+                    Q(updated_by__first_name__icontains=query) |
+                    Q(updated_by__last_name__icontains=query) |
                     Q(name__icontains=query) |
                     Q(doc__icontains=query) |
                     Q(phone__icontains=query) |
@@ -185,10 +185,10 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        tracking_movements = TrackingMovement.objects.filter(
-            Q()
-        )
-        context['tracking_movements'] = tracking_movements
+        # tracking_movements = TrackingMovement.objects.filter(
+        #     Q()
+        # )
+        # context['tracking_movements'] = tracking_movements
         return context
 
 
@@ -198,15 +198,46 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
     template_name = "envios/envio/add.html"
     form_class = CreateEnvioForm
 
-    def form_valid(self, form):
-        form.instance.created_by = self.request.user
-        if deposit := Deposit.objects.filter(
-                client=form.instance.client).first():
-            form.instance.deposit = deposit
-        return super().form_valid(form)
+    # def form_valid(self, form):
+    #     form.instance.created_by = self.request.user
+    #     if deposit := Deposit.objects.filter(
+    #             client=form.instance.client).first():
+    #         form.instance.deposit = deposit
+    #     return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
+        """
+        Overrides default method. If the user is representing a client,
+        the form will be pre-filled with the client's deposits and will
+        hide the client selection.
+
+        Returns:
+            [type]: [description]
+        """
         ctx = super(EnvioCreate, self).get_context_data(**kwargs)
+        # Gets current user
+        user = ctx['view'].request.user
+
+        # Checks if the user is a client
+        is_client = (user.groups.exists()) and (
+            user.groups.filter(name__in=["Clients"]).exists()
+        ) and (user.client is not None)
+        # Sends it to template
+        ctx['is_client'] = is_client
+
+        if is_client:
+            # Gets the client if the user is a client
+            client = Client.objects.get(pk=user.client.id)
+            # And sends it to template
+            ctx['client'] = client
+            # Gets the deposit of the client
+            # ctx['deposits'] = get_deposits_as_JSON(client_id=user.client.pk)
+            ctx['form'].fields['deposit'].queryset = Deposit.objects.filter(
+                client__pk=client.pk)
+        else:
+            # Gets all deposits
+            ctx['deposits'] = get_deposits_as_JSON()
+
         ctx['selected_tab'] = 'shipments-tab'
         ctx['partidos'] = Partido.objects.all().order_by("name")
         ctx['places'] = get_localidades_as_JSON()
@@ -215,7 +246,7 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('envios:envio-detail', kwargs={'pk': self.object.pk})
 
-    @allowed_users_in_class_view(roles=["Admins"])
+    @allowed_users_in_class_view(roles=["Admins", "Clients"])
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -301,8 +332,10 @@ def map_town_to_dict(town):
     }
 
 
-def get_deposits_as_JSON():
+def get_deposits_as_JSON(client_id: int = None):
     query = Deposit.objects.all().order_by('client', 'name')
+    if client_id is not None:
+        query = Deposit.objects.filter(pk=client_id).order_by('client', 'name')
     mapped = list(map(map_deposit_to_dict, query))
     return json.dumps(mapped)
 

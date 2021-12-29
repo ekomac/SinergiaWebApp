@@ -10,7 +10,7 @@ from envios.models import (
 class EnvioAdmin(admin.ModelAdmin):
     list_display = ('street', 'town',
                     'zipcode', 'client', 'is_flex',
-                    'status', 'detail', 'created_by',
+                    'status', 'detail', 'updated_by',
                     'date_created', 'deposit', 'carrier')
     search_fields = ('street',
                      'zipcode', 'is_flex',
@@ -49,17 +49,6 @@ class DepositOldAdmin(admin.ModelAdmin):
     filter_horizontal = ()
     list_filter = ()
     fieldsets = ()
-
-
-# class TrackingMovementAdmin(admin.ModelAdmin):
-#     list_display = ('created_by', 'date_created', 'action', 'result',
-#                     'comment', 'deposit', 'carrier')
-#     search_fields = ('created_by', 'action', 'result', 'comment',
-#                      'deposit', 'carrier')
-
-#     filter_horizontal = ()
-#     list_filter = ()
-#     fieldsets = ()
 
 
 admin.site.register(Envio, EnvioAdmin)

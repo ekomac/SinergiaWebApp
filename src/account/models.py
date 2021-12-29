@@ -3,6 +3,7 @@ from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
 from simple_history.models import HistoricalRecords
+from clients.models import Client
 
 
 class MyAccountManager(BaseUserManager):
@@ -74,6 +75,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     profile_picture = models.ImageField(verbose_name="profile picture",
                                         upload_to=profile_pic_upload_location,
                                         blank=True, null=True)
+    client = models.ForeignKey(
+        Client, on_delete=models.CASCADE, null=True, blank=True)
     history = HistoricalRecords()
 
     # USER INFO

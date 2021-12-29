@@ -166,9 +166,9 @@ class Deposit(models.Model):
 
     def __str__(self):
         name = self.name
-        client = f' >>> {self.client.name}' if self.client else ""
+        client = f'{self.client.name}' if self.client else "Sinergia"
         address = f'{self.address.title()}, {self.zip_code} {self.town}'
-        return f'{name} @ {address}{client}'
+        return f'{name} de {client} en {address}'
 
     def full_name(self):
         return self.__str__()

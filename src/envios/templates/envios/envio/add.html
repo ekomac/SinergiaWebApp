@@ -35,11 +35,22 @@
 
 
                 <!-- START CLIENTE INPUT -->
-                <div class="col-md-12 col-lg-6 col-xl-5">
+                <div class="col-md-12 col-lg-6 col-xl-5 {% if is_client %}d-none{% endif %}">
                     <label for="{{form.client.id_for_label}}" class="form-label">Cliente</label>
                     {{ form.client}}
                 </div>
                 <!-- END CLIENT INPUT -->
+
+
+                <!-- START DEPO INPUT -->
+                <div class="col-md-12 col-lg-6 col-xl-5">
+                    <label for="id_deposit" class="form-label">Depósito</label>
+                    {{form.deposit}}
+                    <div class="invalid-feedback">
+                        {% for error in form.client.errors %}{{error}}<br>{% endfor %}
+                    </div>
+                </div>
+                <!-- END DEPO INPUT -->
 
 
                 <!-- START DEFAULT DETAIL CHECKBOX -->
@@ -285,11 +296,11 @@
 
                 <!-- START RECIPIENT'S CHARGE -->
                 <div class="col-lg-7 col-xl-6 col-xxl-4">
-                    <label for="{{form.charge.id_for_label}}" class="form-label">Cobrarle al
-                        destinatario</label>
+                    <label for="{{form.charge.id_for_label}}" class="form-label">Cobrarle al destinatario</label>
                     <div class="input-group mb-3">
                         <span class="input-group-text">$</span>
-                        {{ form.charge }}
+                        <input type="number" id="id_charge" name="charge" class="form-control" step="1.0" min="0"
+                            max="999999999" aria-label="Cargos al destinatario (al peso más cercano)">
                         <span class="input-group-text">.00</span>
                     </div>
                 </div>
@@ -322,6 +333,68 @@
 
 </div>
 
+{% if not client %}
+<script>
+    var deposits = JSON.parse('{{ deposits | escapejs }}');
+    $('#id_deposit').find('option:not(:first)').remove();
+    $.event.special.inputchange = {
+        setup: function () {
+            var self = this,
+                val;
+            $.data(this, 'timer', window.setInterval(function () {
+                val = self.value;
+                if ($.data(self, 'cache') != val) {
+                    $.data(self, 'cache', val);
+                    $(self).trigger('inputchange');
+                }
+            }, 20));
+        },
+        teardown: function () {
+            window.clearInterval($.data(this, 'timer'));
+        },
+        add: function () {
+            $.data(this, 'cache', this.value);
+        }
+    };
+    $('#id_client').on('inputchange', function () {
+        var selectedClientId = this.value.toString();
+        console.log(selectedClientId);
+        if (![null, undefined, ''].includes(selectedClientId)) {
+            var depositsFromClient = deposits.filter(function (deposit) {
+                return deposit.client_id == selectedClientId;
+            });
+            console.log("depositsFromClient", depositsFromClient);
+            $('#id_deposit').find('option:not(:first)').remove();
+            for (var element of depositsFromClient) {
+                $('#id_deposit').append('<option value="' + element.id + '">' + element.name +
+                    '</option>');
+            }
+        } else {
+            $('#id_deposit').find('option:not(:first)').remove();
+        }
+    });
+</script>
+{% else %}
+<script>
+    /*
+    var deposits = JSON.parse('{{ deposits | escapejs }}');
+    var client_id = "{{ client.pk }}";
+    var clientElement = document.getElementById('id_client');
+    clientElement.value = client_id;
+    console.log(document.getElementById('id_client').value);
+    if (![null, undefined, ''].includes(client_id)) {
+        console.log("hola");
+        $('#id_deposit').find('option:not(:first)').remove();
+        console.log(JSON.stringify(deposits));
+        deposits.filter(deposit => deposit.client_id == client_id).forEach(deposit => $('#id_deposit').append(
+            '<option value="' + deposit.id + '">' + deposit.name + '</option>'));
+    } else {
+        $('#id_deposit').find('option:not(:first)').remove();
+    }
+    */
+</script>
+{% endif %}
+
 <script>
     var places = JSON.parse('{{ places | escapejs }}');
 
@@ -339,16 +412,6 @@
     }
 
     $(document).ready(function () {
-
-        $("#detailNotVisible").hide();
-
-        $('#id_town').find('option:not(:first)').remove();
-
-        $('#create_form').submit(function (event) {
-            event.preventDefault(); //this will prevent the default submit
-            updateDetails();
-            $(this).unbind('submit').submit(); // continue the submit unbind preventDefault
-        });
 
         $.event.special.inputchange = {
             setup: function () {
@@ -369,6 +432,37 @@
                 $.data(this, 'cache', this.value);
             }
         };
+        /*
+        $('#id_client').on('inputchange', function () {
+            var selectedClientId = this.value.toString();
+            console.log(selectedClientId);
+            if (![null, undefined, ''].includes(selectedClientId)) {
+                var depositsFromClient = deposits.filter(function (deposit) {
+                    return deposit.client_id == selectedClientId;
+                });
+                console.log("depositsFromClient", depositsFromClient);
+                $('#id_deposit').find('option:not(:first)').remove();
+                for (var element of depositsFromClient) {
+                    $('#id_deposit').append('<option value="' + element.id + '">' + element.name +
+                        '</option>');
+                }
+            } else {
+                $('#id_deposit').find('option:not(:first)').remove();
+            }
+        });
+        */
+
+        $("#detailNotVisible").hide();
+
+        $('#id_town').find('option:not(:first)').remove();
+
+        $('#create_form').submit(function (event) {
+            event.preventDefault(); //this will prevent the default submit
+            updateDetails();
+            $(this).unbind('submit').submit(); // continue the submit unbind preventDefault
+        });
+
+
 
         $('#simpleEditorCheckDiv').hide(200);
         $("#defaultDetailCheckbox").click(function () {

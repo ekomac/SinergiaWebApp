@@ -100,6 +100,11 @@ class BulkLoadEnviosForm(forms.ModelForm):
 
 
 class CreateEnvioForm(forms.ModelForm):
+
+    def __init__(self, client: Client = None, *args, **kwargs):
+        super(CreateEnvioForm, self).__init__(*args, **kwargs)
+        self.client = client
+
     client = forms.ModelChoiceField(
         label="Cliente", required=True,
         queryset=Client.objects.all(),
@@ -221,15 +226,24 @@ class CreateEnvioForm(forms.ModelForm):
 
     recipient_charge = forms.DecimalField(
         label='Cobrar al cliente', required=False,
-        widget=forms.TextInput(
-            attrs={
-                'class': 'form-control',
-                'type': 'number',
-                'placeholder': '0',
-                'min': '0',
-                'max': '999999999',
-                'step': '1'
-            })
+        # widget=forms.NumberInput(
+        #     attrs={
+        #         'class': 'form-control',
+        #         'type': 'number',
+        #         'placeholder': '0',
+        #         'min': '0',
+        #         'max': '999999999',
+        #         'step': '1.00'
+        #     })
+    )
+
+    deposit = forms.ModelChoiceField(
+        label="Deposit", required=True,
+        queryset=Deposit.objects.all(),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'required': 'required',
+        }),
     )
 
     class Meta:
@@ -249,6 +263,7 @@ class CreateEnvioForm(forms.ModelForm):
             'is_flex',
             'flex_id',
             'delivery_schedule',
+            'deposit',
         ]
         widgets = {
             'delivery_schedule': forms.Select(attrs={
