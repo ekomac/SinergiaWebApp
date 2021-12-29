@@ -44,7 +44,7 @@ urlpatterns = [
     path('app/withdraw/', include('app_withdraw.urls')),
     path('app/deposit/', include('app_deposit.urls')),
     path('app/transfer/', include('app_transfer.urls')),
-    # path('app/deliver/', include('app_deliver.urls')),
+    path('app/deliver/', include('app_deliver.urls')),
     path('', redirect_no_url),
     path('delete-alert-from-session/<str:id>',
          delete_alert_from_session, name='delet-alert'),

@@ -64,7 +64,8 @@
         </div>
     </li>
     {% endif %}
-    <li class="list-group-item menu-item" onclick="location.href='{% url 'index' %}'" style="cursor: pointer;">
+    <li class="list-group-item menu-item" onclick="location.href='{% url 'app_deliver:scan' %}'"
+        style="cursor: pointer;">
         <div class="d-inline-flex justify-content-start align-items-center">
             <img src="{% static 'res/images/deliver.png' %}" width="65" height="65" alt="">
             <div class="d-flex flex-column align-items-top p-3">

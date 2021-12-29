@@ -16,7 +16,8 @@ from django.shortcuts import render
 # Project
 from account.decorators import allowed_users
 from clients.models import Client
-from envios.models import Envio, TrackingMovement
+from envios.models import Envio
+from tracking.models import TrackingMovement
 # from account.models import Account
 
 

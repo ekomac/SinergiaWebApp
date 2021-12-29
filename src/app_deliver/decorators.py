@@ -1,37 +1,35 @@
 from django.shortcuts import redirect
 
 
-def transfer_safe(
-        roles=[], redirect_app: str = None, *redirect_args, **redirect_kwargs
-):
+def deliver_safe(redirect_app: str = None, *redirect_args, **redirect_kwargs):
     """
     Gentyle (and safely) redirects the user if he is not allowed to access
-    the app_transfer app, when he isn't carrying something and it's not
-    allowed to transfer in name of others.
+    the app_deliver app when he isn't carrying something or when trying to
+    deliver a Envio that is not carrying.
 
     Args:
-        roles (list, optional): If user isn't carrying something, is allowed to
-        transfer in name of other if he/she belongs to one ore more roles.
-        Defaults to [].
         redirect_app (callable, optional): execute this function when
-        user can't transfer. Defaults to None.
+        user can't deliver. Defaults to None.
     """
     def decorator(view_func):
         def wrapper_func(request, *args, **kwargs):
             # If the user is carrying a "Envío"
             is_carrier = request.user.Carrier.count() > 0
-            # If the user isn't carrying something and has an appropiate role
-            if not is_carrier and request.user.groups.exists() and \
-                    not request.user.groups.all().filter(
-                        name__in=roles).exists():
+            print("is_carrier", is_carrier)
+            envio_id = request.GET.get('eid', None)
+            # If the user isn't carrying something
+            if not is_carrier or (is_carrier and envio_id is not None and
+                                  not request.user.Carrier.filter(
+                                      pk=envio_id).exists()
+                                  ):
                 # And the redirect is correctly provided
                 if not redirect_app:  # (Implicit booleaness)
                     raise ValueError("redirect_app is required")
                 # Redirect to the appropiate app
                 return redirect(
                     redirect_app, *redirect_args, **redirect_kwargs)
-            # If the user is carrying something or has an appropiate role
-            # Execute the function as intended
+            # If the user is carrying something,
+            # execute the function as intended
             return view_func(request, *args, **kwargs)
         return wrapper_func
     return decorator

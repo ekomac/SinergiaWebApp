@@ -3,7 +3,8 @@ from typing import Any, Callable, Dict, List, Tuple
 
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
-from envios.models import BulkLoadEnvios, Envio, TrackingMovement
+from envios.models import BulkLoadEnvios, Envio
+from tracking.models import TrackingMovement
 from places.models import Partido, Town
 
 

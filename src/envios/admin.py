@@ -3,7 +3,7 @@ from envios.models import (
     BulkLoadEnvios,
     Envio,
     Bolson,
-    TrackingMovement
+    # TrackingMovement
 )
 
 
@@ -51,18 +51,18 @@ class DepositOldAdmin(admin.ModelAdmin):
     fieldsets = ()
 
 
-class TrackingMovementAdmin(admin.ModelAdmin):
-    list_display = ('created_by', 'date_created', 'action', 'result',
-                    'comment', 'deposit', 'carrier')
-    search_fields = ('created_by', 'action', 'result', 'comment',
-                     'deposit', 'carrier')
+# class TrackingMovementAdmin(admin.ModelAdmin):
+#     list_display = ('created_by', 'date_created', 'action', 'result',
+#                     'comment', 'deposit', 'carrier')
+#     search_fields = ('created_by', 'action', 'result', 'comment',
+#                      'deposit', 'carrier')
 
-    filter_horizontal = ()
-    list_filter = ()
-    fieldsets = ()
+#     filter_horizontal = ()
+#     list_filter = ()
+#     fieldsets = ()
 
 
 admin.site.register(Envio, EnvioAdmin)
 admin.site.register(BulkLoadEnvios, BulkLoadEnviosAdmin)
 admin.site.register(Bolson, BolsonAdmin)
-admin.site.register(TrackingMovement, TrackingMovementAdmin)
+# admin.site.register(TrackingMovement, TrackingMovementAdmin)

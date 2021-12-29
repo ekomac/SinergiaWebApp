@@ -81,7 +81,6 @@ class BulkLoadEnviosForm(forms.ModelForm):
         if BulkLoadEnvios.objects.filter(
                 hashed_file=self.hash_from_file,
                 load_status=BulkLoadEnvios.LOADING_STATUS_PROCESSING).exists():
-            print("found")
             BulkLoadEnvios.objects.filter(
                 hashed_file=self.hash_from_file,
                 load_status=BulkLoadEnvios.LOADING_STATUS_PROCESSING).delete()

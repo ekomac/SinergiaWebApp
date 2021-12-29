@@ -19,6 +19,7 @@ from utils.alerts.views import create_alert_and_redirect
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@transfer_safe(roles=["Admins", "EmployeeTier1"], redirect_app='index')
 def index_view(request) -> HttpResponse:
     # If user is not an admin or a tier1, skip to receiver selection
     if not request.user.groups.filter(

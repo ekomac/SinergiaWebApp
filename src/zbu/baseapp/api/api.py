@@ -1,7 +1,8 @@
 from typing import List
 from account.models import Account
 # from clients.models import Client
-from envios.models import Envio, TrackingMovement
+from envios.models import Envio
+from tracking.models import TrackingMovement
 from places.models import Deposit
 
 

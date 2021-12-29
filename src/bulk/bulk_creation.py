@@ -166,18 +166,24 @@ def create_codigos_postales():
 
 def create_central_deposit():
     """
-    Creates the cental main deposit.
+    Creates the central main deposit.
     """
     Deposit(
         town=Town.objects.filter(
-            name='San Miguel', partido__name='San Miguel').first(),
+            name='SAN MIGUEL', partido__name='SAN MIGUEL').first(),
         name='Depósito central',
         zip_code='1663',
         address='Dorrego',
+        phone="+54 9 11 6649-1969",
         is_active=True,
+        email="jcmacielhenning@gmail.com",
         created_by=Account.objects.filter(
-            email="sinergia@ekosoftware.com.ar").first(),
+            email="jcmacielhenning@gmail.com").first(),
     ).save()
+
+
+def create_demo_clients_deposits(demo_clients):
+    pass
 
 
 def main():
@@ -188,6 +194,7 @@ def main():
         partidos = data['partidos']
         localidades = data['localidades']
         demo_clients = data['demo_clients']
+        demo_deposits = data['demo_deposits']
         names = data['NAMES']
         lasts = data['LASTS']
         create_mensajerias(mensajerias)
@@ -196,8 +203,13 @@ def main():
         create_partidos(partidos)
         create_localidades(localidades)
         create_demo_clients(demo_clients)
+        create_demo_clients_deposits(demo_deposits)
         create_codigos_postales()
         create_user_groups()
         create_users(names, lasts)
         create_central_deposit()
     return True
+
+
+if __name__ == '__main__':
+    main()

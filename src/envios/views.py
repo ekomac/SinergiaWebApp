@@ -22,8 +22,9 @@ from account.decorators import allowed_users, allowed_users_in_class_view
 
 # Project apps
 from account.models import Account
-from envios.forms import (BulkLoadEnviosForm, CreateEnvioForm)
-from envios.models import (BulkLoadEnvios, Envio, TrackingMovement)
+from envios.forms import BulkLoadEnviosForm, CreateEnvioForm
+from envios.models import BulkLoadEnvios, Envio
+from tracking.models import TrackingMovement
 from envios.utils import bulk_create_envios, create_xlsx_workbook
 from places.models import Deposit, Partido, Town
 from clients.models import Client
@@ -310,7 +311,7 @@ def map_deposit_to_dict(deposit):
     return {
         'id': deposit.id,
         'name': deposit.full_name().title(),
-        'client_id': deposit.client.id,
+        'client_id': deposit.client.id if deposit.client else 0,
     }
 
 

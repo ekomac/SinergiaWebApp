@@ -1,6 +1,7 @@
 from typing import List
 from account.models import Account
-from envios.models import Envio, TrackingMovement
+from envios.models import Envio
+from tracking.models import TrackingMovement
 
 
 def transfer_movement(
