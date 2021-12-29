@@ -24,7 +24,6 @@ from account.decorators import allowed_users, allowed_users_in_class_view
 from account.models import Account
 from envios.forms import BulkLoadEnviosForm, CreateEnvioForm
 from envios.models import BulkLoadEnvios, Envio
-from tracking.models import TrackingMovement
 from envios.utils import bulk_create_envios, create_xlsx_workbook
 from places.models import Deposit, Partido, Town
 from clients.models import Client
