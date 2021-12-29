@@ -2,11 +2,11 @@ from django import forms
 from django.core.validators import FileExtensionValidator
 
 
-class BulkLoadEnviosForm(forms.Form):
-    file = forms.FileField(
+class DeliverForm(forms.Form):
+    proof = forms.FileField(
         allow_empty_file=True,
         label="Si querés escanear alguna foto o archivo:",
-        required=True,
+        required=False,
         widget=forms.FileInput(attrs={
             'class': 'form-control',
         }),
@@ -16,3 +16,6 @@ class BulkLoadEnviosForm(forms.Form):
              'ppt', 'pptx', 'txt', 'csv', 'bmp',
              'tiff', 'tif', ]
         )])
+    result = forms.CharField(label="Resultado")
+    eid = forms.CharField(label="Envio id")
+    comment = forms.CharField(label="Comentario", required=False)

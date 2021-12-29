@@ -54,13 +54,13 @@ class TrackingMovement(models.Model):
                                 related_name='movement_carrier', blank=True,
                                 null=True, on_delete=models.SET_NULL,
                                 verbose_name="user carrying package")
-    action = models.CharField(verbose_name="movement action", max_length=50,
+    action = models.CharField(verbose_name="Acción", max_length=50,
                               default=ACTION_ADDED_TO_SYSTEM,
                               blank=False, null=False, choices=ACTIONS)
-    result = models.CharField(verbose_name="movement result", max_length=50,
+    result = models.CharField(verbose_name="Resultado", max_length=50,
                               default=RESULT_ADDED_TO_SYSTEM, blank=False,
                               null=False, choices=RESULTS)
-    comment = models.TextField(verbose_name="comment", max_length=200,
+    comment = models.TextField(verbose_name="Comentario", max_length=200,
                                default=None, blank=True, null=True)
     deposit = models.ForeignKey(
         'places.Deposit', on_delete=models.SET_NULL,

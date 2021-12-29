@@ -127,7 +127,14 @@ class Envio(Receiver):
         address = self.full_address()
         client = self.client
         status = self.get_status_display()
-        where = self.carrier if self.carrier else self.deposit.name
+        if status == self.STATUS_DELIVERED:
+            return f'{address} ({status}) de {client}'
+        if self.carrier is not None:
+            where = self.carrier
+        elif self.deposit is not None:
+            where = self.deposit.name
+        else:
+            where = not_specified
         return f'{address} @{where} ({status}) >>> {client}'
 
     def full_address(self):
@@ -139,9 +146,10 @@ class Envio(Receiver):
         deposit = self.deposit
         if status == self.STATUS_DELIVERED:
             return status
-        if status in [self.STATUS_NEW, self.STATUS_STILL] and deposit:
-            return f'{status}: "{deposit}"'
-        if status == self.STATUS_MOVING and carrier:
+        if status in [self.STATUS_NEW, self.STATUS_STILL]:
+            if deposit is not None:
+                return f'{status}: "{deposit}"'
+        if status == self.STATUS_MOVING and carrier is not None:
             return f'{status} con {carrier.username}' +\
                 f' ({carrier.first_name} {carrier.last_name})'
         return status
