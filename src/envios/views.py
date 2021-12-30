@@ -183,11 +183,15 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
     template_name = "envios/envio/detail.html"
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # tracking_movements = TrackingMovement.objects.filter(
-        #     Q()
-        # )
-        # context['tracking_movements'] = tracking_movements
+        context = super(EnvioDetailView, self).get_context_data(**kwargs)
+        envio = context['object']
+        if envio.status == Envio.STATUS_DELIVERED:
+            delivered_tracking_movement = envio.trackingmovement_set.filter(
+                result='success').first()
+            delivered_date = delivered_tracking_movement.date_created
+            context['delivered_date'] = delivered_date
+            deliverer = delivered_tracking_movement.created_by
+            context['deliverer'] = deliverer
         return context
 
 
@@ -245,13 +249,13 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('envios:envio-detail', kwargs={'pk': self.object.pk})
 
-    @allowed_users_in_class_view(roles=["Admins", "Clients"])
+    @ allowed_users_in_class_view(roles=["Admins", "Clients"])
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
 
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
+@ login_required(login_url='/login/')
+@ allowed_users(roles=["Admins"])
 def bulk_create_envios_view(request):
     context = {}
     form = BulkLoadEnviosForm()
@@ -270,8 +274,8 @@ def bulk_create_envios_view(request):
     return render(request, 'envios/bulk/add.html', context)
 
 
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
+@ login_required(login_url='/login/')
+@ allowed_users(roles=["Admins"])
 def success_bulk_create_envios_view(request, pk):
     bulk_load = BulkLoadEnvios.objects.get(id=pk)
     envios = bulk_create_envios(bulk_load)
@@ -282,8 +286,8 @@ def success_bulk_create_envios_view(request, pk):
     return render(request, 'envios/bulk/success.html', context)
 
 
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
+@ login_required(login_url='/login/')
+@ allowed_users(roles=["Admins"])
 def download_shipment_labels_file_response(_, ids):
     ids = ids.split('-')
     envios = Envio.objects.filter(id__in=ids)
@@ -295,8 +299,8 @@ def download_shipment_labels_file_response(_, ids):
     return response
 
 
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
+@ login_required(login_url='/login/')
+@ allowed_users(roles=["Admins"])
 def handle_bulk_create_envios_view(request, pk):
     obj = BulkLoadEnvios.objects.get(id=pk)
     context = {
@@ -307,7 +311,7 @@ def handle_bulk_create_envios_view(request, pk):
     return render(request, 'envios/bulk/handler.html', context)
 
 
-@login_required(login_url='/login/')
+@ login_required(login_url='/login/')
 def print_excel_file(request, pk):
     obj = BulkLoadEnvios.objects.get(id=pk)
     wb = create_xlsx_workbook(obj.csv_result, obj.cells_to_paint)
@@ -347,13 +351,45 @@ def map_deposit_to_dict(deposit):
     }
 
 
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
-def update_envio(request):
+@ login_required(login_url='/login/')
+@ allowed_users(roles=["Admins"])
+def update_envio(request, pk):
     return render(request, 'envios/update.html', {})
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
-def delete_envio(request):
+@allowed_users(roles="Admins")
+def edit_zone_view(request, pk):
+
+    zone = get_object_or_404(Zone, pk=pk)
+    form = UpdateZoneForm(instance=zone)
+
+    if request.method == 'POST':
+        form = UpdateZoneForm(request.POST or None, instance=zone)
+
+        if form.is_valid():
+            obj = form.save(commit=False)
+            author = Account.objects.filter(email=request.user.email).first()
+            obj.updated_by = author
+            obj.save()
+            zone = obj
+            ids = request.POST.get('selected_partidos_ids', None)
+            update_partido_ids(ids, obj, author)
+            msg = f'La zona "{obj.name.title()}" se actualizó correctamente.'
+            return update_alert_and_redirect(
+                request, msg, 'places:zone-detail', obj.pk)
+
+    context = {
+        'form': form,
+        'partidos': Partido.objects.all(),
+        'partidosTotal': Partido.objects.count(),
+        'partidos_ids': get_partidos_ids(zone),
+        'selected_tab': 'zone-tab',
+    }
+    return render(request, "places/zone/edit.html", context)
+
+
+@ login_required(login_url='/login/')
+@ allowed_users(roles=["Admins"])
+def delete_envio(request, pk):
     return render(request, 'envios/delete.html', {})
