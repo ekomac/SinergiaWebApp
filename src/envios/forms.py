@@ -1,12 +1,13 @@
 import hashlib
 from django import forms
 from django.core.validators import FileExtensionValidator
+from deposit.models import Deposit
 from envios.bulkutil.exceptions import (
     InvalidExcelFileError, InvalidPdfFileError)
 from envios.bulkutil.extractor import Extractor
 from envios.models import BulkLoadEnvios, Envio
 from clients.models import Client
-from places.models import Deposit, Town
+from places.models import Town
 
 
 class BulkLoadEnviosForm(forms.ModelForm):
@@ -226,15 +227,6 @@ class CreateEnvioForm(forms.ModelForm):
 
     recipient_charge = forms.DecimalField(
         label='Cobrar al cliente', required=False,
-        # widget=forms.NumberInput(
-        #     attrs={
-        #         'class': 'form-control',
-        #         'type': 'number',
-        #         'placeholder': '0',
-        #         'min': '0',
-        #         'max': '999999999',
-        #         'step': '1.00'
-        #     })
     )
 
     deposit = forms.ModelChoiceField(
@@ -243,6 +235,165 @@ class CreateEnvioForm(forms.ModelForm):
         widget=forms.Select(attrs={
             'class': 'form-select',
             'required': 'required',
+        }),
+    )
+
+    class Meta:
+        model = Envio
+        fields = [
+            'client',
+            'detail',
+            'name',
+            'doc',
+            'phone',
+            'street',
+            'remarks',
+            'town',
+            'zipcode',
+            'charge',
+            'max_delivery_date',
+            'is_flex',
+            'flex_id',
+            'delivery_schedule',
+            'deposit',
+        ]
+        widgets = {
+            'delivery_schedule': forms.Select(attrs={
+                'class': 'form-select',
+            })
+        }
+
+
+class UpdateEnvioForm(forms.ModelForm):
+
+    client = forms.ModelChoiceField(
+        label="Cliente", required=True,
+        queryset=Client.objects.all(),
+        widget=forms.Select(attrs={
+            'class': ' form-select',
+        }),
+    )
+
+    detail = forms.CharField(label='Detalle', required=True,
+                             initial="0-1",
+                             widget=forms.TextInput(attrs={
+                                 'class': 'form-control',
+                                 'type': 'text',
+                             }),)
+
+    name = forms.CharField(
+        label='Nombre del destinatario', required=False,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': 'Juan Pérez',
+            }),
+    )
+
+    doc = forms.CharField(
+        label='DNI', required=False,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': '30.123.567',
+                'pattern': r'^\d{7,8}$',
+            }),
+    )
+
+    phone = forms.CharField(
+        label='Teléfono', required=False,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': '11 1234-5678',
+                'pattern': r'^\d{4,15}$'
+            })
+    )
+
+    street = forms.CharField(
+        label='Domicilio', required=True,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': 'Av. del Libertador 256',
+            })
+    )
+
+    remarks = forms.CharField(
+        label='Domicilio', required=False,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': 'Portones negros',
+            })
+    )
+
+    town = forms.ModelChoiceField(
+        label="Localidad", required=True,
+        queryset=Town.objects.all(),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'required': 'required',
+        }),
+    )
+
+    zipcode = forms.CharField(
+        label='Código postal', required=False,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': '1663',
+                'pattern': r'^\d*$',
+            })
+    )
+
+    max_delivery_date = forms.DateField(
+        label='Fecha máxima de entrega', required=False,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control datepicker',
+                'placeholder': 'Fecha desde',
+                'type': 'date',
+            })
+    )
+
+    is_flex = forms.BooleanField(
+        label='¿Es envío de Flex?', required=False,
+        initial=False,
+        widget=forms.CheckboxInput(
+            attrs={
+                'class': 'form-check-input',
+                'type': 'checkbox',
+            })
+    )
+
+    flex_id = forms.CharField(
+        label='Tracking ID de Flex', required=False,
+        widget=forms.TextInput(
+            attrs={
+                'type': 'text',
+                'class': 'form-control',
+                'placeholder': 'N° de ID',
+                'disabled': 'disabled'
+            }
+        )
+    )
+
+    recipient_charge = forms.DecimalField(
+        label='Cobrar al cliente', required=False,
+    )
+
+    deposit = forms.ModelChoiceField(
+        label="Deposit",
+        queryset=Deposit.objects.all(),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
         }),
     )
 

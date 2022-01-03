@@ -9,8 +9,9 @@ from .views import (
     download_shipment_labels_file_response,
     success_bulk_create_envios_view,
     print_excel_file,
-    update_envio,
-    delete_envio,
+    # update_envio,
+    edit_envio_view,
+    delete_envio_view,
 )
 
 app_name = 'envios'
@@ -20,8 +21,8 @@ urlpatterns = [
     path('', envios_view, name="envio-list"),
     path('<int:pk>/', EnvioDetailView.as_view(), name="envio-detail"),
     path('add/', EnvioCreate.as_view(), name="envio-add"),
-    path('<int:pk>/edit/', update_envio, name="envio-edit"),
-    path('<int:pk>/delete/', delete_envio, name="envio-delete"),
+    path('<int:pk>/edit/', edit_envio_view, name="envio-edit"),
+    path('<int:pk>/delete/', delete_envio_view, name="envio-delete"),
     # ******************************* ENVIOS *******************************
 
 

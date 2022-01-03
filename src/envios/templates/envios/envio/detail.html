@@ -1,6 +1,20 @@
 {% extends 'base_system.html' %}
 
 {% block content %}
+<style>
+    .table thead th {
+        border-bottom: 2px solid #C556FF;
+    }
+
+    .spaced-tr {
+        line-height: 45px;
+    }
+
+    .date {
+        color: #C556FF;
+        color: red;
+    }
+</style>
 <div class="col-md-12 col-xl-7 col-xxl-6 d-flex-block">
     <div class="card flex-fill shadow-lg">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -63,13 +77,17 @@
                     <h2>#{{ object.id }} | {{ object.full_address }}</h2>
                 </div>
                 <div class="mt-1 d-flex aling-items-center">
-                    <i class="bi bi-person-badge"></i> Ultima vez actualizado por&nbsp;<a href="#"
-                        data-bs-toggle="tooltip" data-bs-html="true"
-                        title="{{ object.updated_by.first_name }}&nbsp;{{ object.updated_by.last_name }}<em><br>{% if object.updated_by.client != None %}&nbsp;({{ object.updated_by.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ object.updated_by.username }}</a>
+                    <i class="bi bi-clock-history"></i>&nbsp;Ultima vez
+                    actualizado{% if object.updated_by != None %}&nbsp;por&nbsp;<a href="#" data-bs-toggle="tooltip"
+                        data-bs-html="true"
+                        title="{{ object.updated_by.first_name }}&nbsp;{{ object.updated_by.last_name }}<em><br>{% if object.updated_by.client != None %}&nbsp;({{ object.updated_by.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ object.updated_by.username }}</a>{% else %}&nbsp;con&nbsp;un
+                    evento adminsitrativo{% endif %}&nbsp;el&nbsp;{{ object.date_updated|date:"d/m/Y H:i" }}
                 </div>
                 <div class="d-flex align-items-center flex-row w-sm-100 mt-1">
+                    {% if envio.status == 'N' %}
                     <a href="{% url 'envios:envio-edit' pk=object.id %}" class="btn btn-secondary btn-sm me-1"><i
                             class="bi bi-pencil-square me-1"></i>Editar</a>
+                    {% endif %}
                     <a href="{% url 'envios:envio-delete' object.id %}" class="btn btn-danger btn-sm me-1"><i
                             class="bi bi-pencil-square me-1"></i>Eliminar</a>
                 </div>
@@ -127,6 +145,11 @@
                         </tr>
                         {% endif %}
                         <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-card-list"></i> Detalle
+                            </td>
+                            <td>{{ object.get_detail_readable }}</td>
+                        </tr>
+                        <tr>
                             <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-geo"></i> Destino
                             </td>
                             <td>
@@ -143,14 +166,19 @@
                             </td>
 
                         </tr>
-                        {% if object.receiver != None and object.receiver != '' %}
+                        {% if object.receiver.name != None and object.receiver.name != '' %}
                         <tr>
                             <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-person"></i>
                                 Destinatario
                             </td>
-                            <td>{{ object.receiver.name }}
-                                {% if object.receiver.doc != None and object.receiver.doc != '' %}({{ object.receiver.doc }}){% endif %}
-                            </td>
+                            <td>{{ object.receiver.name }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if object.receiver.doc != None and object.receiver.doc != '' %}
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-person-badge"></i> Nro.
+                                Doc. Destinatario</td>
+                            <td>{{ object.receiver.doc }}</td>
                         </tr>
                         {% endif %}
                         {% if object.phone != None and object.phone != '' %}
@@ -189,6 +217,37 @@
                 </table>
 
             </div>
+
+        </div>
+    </div>
+
+    <div class="card flex-fill shadow-lg mt-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Movimientos del envío
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr class="bg-dark text-white fw-bold">
+                        <th>Fecha</th>
+                        <th>Movimiento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="spaced-tr p-2">
+                        <td class="" style="color: #C556FF;">Prueba</td>
+                        <td>Item</td>
+                    </tr>
+                    {% for movement in movements %}
+                    <tr class="spaced-tr p-2">
+                        <td style="color: #C556FF;">{{movement.date_created|date:"d/m/Y H:i"}}</td>
+                        <td>{{ movement.result }}{{ movement. }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
 
         </div>
     </div>

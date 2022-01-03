@@ -10,10 +10,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 # Project
 from account.decorators import allowed_users
 from account.models import Account
-from app_transfer.api.transfer import transfer_movement
 from app_transfer.decorators import transfer_safe
 from envios.models import Envio
 from places.models import Partido, Town, Zone
+from tracking.api import transfer
 from utils.alerts.views import create_alert_and_redirect
 
 
@@ -96,7 +96,7 @@ def confirm_all_view(request, carrier_pk, receiver_pk) -> HttpResponse:
     context['r_envios_count'] = Envio.objects.filter(
         carrier=receiver, status=Envio.STATUS_MOVING).count()
     if request.method == 'POST':
-        transfer_movement(
+        transfer(
             author=request.user,
             receiver=receiver,
             carrier=carrier,
@@ -142,7 +142,7 @@ def confirm_scanned_view(request, carrier_pk, receiver_pk) -> HttpResponse:
             carrier=receiver, status=Envio.STATUS_MOVING).count()
     if request.method == 'POST':
         envio_id = int(request.POST.get('envio_id'))
-        transfer_movement(
+        transfer(
             author=request.user,
             carrier=carrier,
             receiver=receiver,
@@ -223,7 +223,7 @@ def confirm_filtered_view(request, carrier_pk, receiver_pk) -> HttpResponse:
             filters = {'town__partido__pk__in': selected_ids}
         else:
             filters = {'town__pk__in': selected_ids}
-        transfer_movement(
+        transfer(
             author=request.user,
             carrier=carrier,
             receiver=receiver,

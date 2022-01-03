@@ -1,3 +1,4 @@
+from typing import List
 from utils.alerts.views import SuccessfulDeletionAlertMixin
 
 
@@ -20,22 +21,30 @@ class DeleteObjectsUtil(SuccessfulDeletionAlertMixin):
     REPR_FEMALE = 'la'
 
     def __init__(
-            self, model=None, model_ids='', order_by=None, request=None,
-            selected_tab=None, gender_repr=None) -> None:
+        self,
+        model=None,
+        model_ids: List[int] = None,
+        order_by=None,
+        request=None,
+        selected_tab=None,
+        repr_as=None
+    ) -> None:
 
         self.model = model
         if not self.model:
-            raise NotEnoughAttributes("A model args kwarg be specified.")
+            raise NotEnoughAttributes("A model arg must be specified.")
 
         self.request = request
-        if not self.request:
+        if self.request is None:
             raise NotEnoughAttributes(
                 "The request kwarg is mandatory.")
 
         self.model_ids = model_ids
-        if self.model_ids == '':
+        if self.model_ids is None:
             raise NotEnoughAttributes(
                 "At least one model id must be given as kwarg.")
+        if type(self.model_ids) is str or type(self.model_ids) is int:
+            self.model_ids = [self.model_ids]
 
         try:
             self.verbose_name = self.model._meta.verbose_name
@@ -61,7 +70,7 @@ class DeleteObjectsUtil(SuccessfulDeletionAlertMixin):
             pk__in=self.model_ids).order_by(order_by)
         self.names = [obj.__str__() for obj in self.objects]
         self.total_count = len(self.objects)
-        self.gender_repr = gender_repr if gender_repr else self.REPR_MALE
+        self.gender_repr = repr_as if repr_as else self.REPR_MALE
 
     def get_context_data(self):
         context = {}

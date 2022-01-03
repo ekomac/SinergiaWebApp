@@ -11,7 +11,7 @@
             <input id="item-checker-{{obj.id}}" class="form-check-input item-checker" type="checkbox" value="">
         </div>
     </td>
-    <td>{{ obj.date_created }}</td>
+    <td>{{ obj.date_created|date:"d/m/Y H:i" }}</td>
     <td class="cell-centered">
         {% if obj.status == 'N' %}
         <span class="badge rounded-pill bg-danger">{{obj.get_status_display}}</span>
@@ -33,7 +33,7 @@
     </td>
     <td>{{ obj.client.name }}</td>
     <td>
-        {% if obj.street %}{{ obj.street |title }},{% if obj.zipcode %}&nbsp;{{ obj.zipcode }}{% endif %}&nbsp;{{ obj.town.name |title }},&nbsp;{{ obj.town.partido.name |title }}{% endif %}
+        {{ obj.full_address|title |truncatewords:8}}
     </td>
     <td class="cell-centered">
         {% if obj.max_delivery_date %}{{ obj.max_delivery_date }}{% else %}No tiene{% endif %}

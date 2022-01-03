@@ -3,7 +3,7 @@ from account.models import Account
 # from clients.models import Client
 from envios.models import Envio
 from tracking.models import TrackingMovement
-from places.models import Deposit
+from deposit.models import Deposit
 
 
 def deposit_movement(
@@ -14,7 +14,9 @@ def deposit_movement(
     **filters
 ) -> None:
 
-    print("depositing")
+    if deposit is None:
+        raise ValueError('Deposit is required')
+
     # Create the movement
     movement = TrackingMovement(
         created_by=author,
@@ -26,7 +28,6 @@ def deposit_movement(
 
     # No envios, no filters, all envios from carrier are selected
     if not envios_ids and not filters:
-        print("depositing by scanned")
         envios = Envio.objects.filter(
             status=Envio.STATUS_MOVING,
             carrier=carrier,
@@ -34,7 +35,6 @@ def deposit_movement(
 
     # Specific ids where selected
     elif envios_ids:
-        print("depositing by ids")
         envios = Envio.objects.filter(
             status=Envio.STATUS_MOVING,
             carrier=carrier,
@@ -43,7 +43,6 @@ def deposit_movement(
 
     # Some filters where specified
     elif filters:
-        print("depositing by filters")
         envios = Envio.objects.filter(
             status=Envio.STATUS_MOVING,
             carrier=carrier,
@@ -57,5 +56,4 @@ def deposit_movement(
         deposit=deposit,
         carrier=None,
     )
-    print("deposited")
     return

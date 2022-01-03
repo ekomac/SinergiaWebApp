@@ -501,12 +501,11 @@ def edit_zone_view(request, pk):
 
         if form.is_valid():
             obj = form.save(commit=False)
-            author = Account.objects.filter(email=request.user.email).first()
-            obj.updated_by = author
+            obj.updated_by = request.user
             obj.save()
             zone = obj
             ids = request.POST.get('selected_partidos_ids', None)
-            update_partido_ids(ids, obj, author)
+            update_partido_ids(ids, obj, request.user)
             msg = f'La zona "{obj.name.title()}" se actualizó correctamente.'
             return update_alert_and_redirect(
                 request, msg, 'places:zone-detail', obj.pk)

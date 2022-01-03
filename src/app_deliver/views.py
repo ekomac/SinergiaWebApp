@@ -8,10 +8,10 @@ from django.shortcuts import redirect, render
 # Project
 from account.decorators import allowed_users
 from account.models import Account
-from app_deliver.api.deliver import delivery_movement
 from app_deliver.decorators import deliver_safe
 from app_deliver.forms import DeliverForm
 from envios.models import Envio
+from tracking.api import delivery
 from utils.alerts.views import create_alert_and_redirect
 
 
@@ -56,7 +56,7 @@ def select_result_view(request):
     if request.method == 'POST':
         form = DeliverForm(request.POST or None, request.FILES or None)
         if form.is_valid():
-            envio = delivery_movement(
+            envio = delivery(
                 author=request.user,
                 result_obtained=request.POST['result'],
                 envio_id=request.POST['eid'],
@@ -81,17 +81,17 @@ def select_result_view(request):
     return render(request, 'app_deliver/select_result.html', context)
 
 
-@ login_required(login_url='/login/')
-@ allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
-@ deliver_safe(redirect_app='index')
+@login_required(login_url='/login/')
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
+@deliver_safe(redirect_app='index')
 def confirm_result_view(request):
     context = {}
     return render(request, 'app_deliver/confirm_scanned.html', context)
 
 
-@ login_required(login_url='/login/')
-@ allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
-@ deliver_safe(redirect_app='index')
+@login_required(login_url='/login/')
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
+@deliver_safe(redirect_app='index')
 def confirm_other_view(request):
     context = {}
     return render(request, 'app_deliver/confirm_scanned.html', context)

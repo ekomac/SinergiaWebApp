@@ -7,9 +7,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 # Project
 from account.decorators import allowed_users
 from account.models import Account
-from app_deposit.api.deposit import deposit_movement
+from deposit.models import Deposit
 from envios.models import Envio
-from places.models import Deposit, Partido, Town, Zone
+from places.models import Partido, Town, Zone
+from tracking.api import deposit
 from utils.alerts.views import create_alert_and_redirect
 
 
@@ -41,7 +42,7 @@ def select_deposit_view(request, carrier_pk):
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)
     context['carrier'] = carrier
-    context['deposits'] = Deposit.objects.all()
+    context['deposits'] = Deposit.objects.filter(client__isnull=True)
     return render(request, 'app_deposit/select_deposit.html', context)
 
 
@@ -62,17 +63,17 @@ def carrier_view(request, carrier_pk, deposit_pk) -> HttpResponse:
 def confirm_all_view(request, carrier_pk, deposit_pk) -> HttpResponse:
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)
-    deposit = get_object_or_404(Deposit, pk=deposit_pk)
+    _deposit = get_object_or_404(Deposit, pk=deposit_pk)
     context['carrier'] = carrier
-    context['deposit'] = deposit
+    context['deposit'] = _deposit
     envios = Envio.objects.filter(carrier=carrier, status=Envio.STATUS_MOVING)
     context['envios'] = envios
     context['envios_count'] = envios.count()
     print("carrier", carrier.username)
     if request.method == 'POST':
-        deposit_movement(
+        deposit(
             author=request.user,
-            deposit=deposit,
+            deposit=_deposit,
             carrier=carrier,
         )
         msg = 'Los envíos se retiraron correctamente'
@@ -99,9 +100,9 @@ def scan_view(request, carrier_pk, deposit_pk) -> HttpResponse:
 def confirm_scanned_view(request, carrier_pk, deposit_pk) -> HttpResponse:
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)
-    deposit = get_object_or_404(Deposit, pk=deposit_pk)
+    _deposit = get_object_or_404(Deposit, pk=deposit_pk)
     context['carrier'] = carrier
-    context['deposit'] = deposit
+    context['deposit'] = _deposit
     if request.method == 'GET':
         envio_id = request.GET.get('envio_id')
         context['envio'] = get_object_or_404(Envio, pk=envio_id)
@@ -109,10 +110,10 @@ def confirm_scanned_view(request, carrier_pk, deposit_pk) -> HttpResponse:
         context['envios_count'] = Envio.objects.filter(carrier=carrier).count()
     if request.method == 'POST':
         envio_id = int(request.POST.get('envio_id'))
-        deposit_movement(
+        deposit(
             author=request.user,
             carrier=carrier,
-            deposit=deposit,
+            deposit=_deposit,
             envios_ids=[envio_id]
         )
         msg = 'El envío se depositó correctamente'
@@ -136,9 +137,9 @@ def filter_by_view(request, carrier_pk, deposit_pk) -> HttpResponse:
 def confirmed_filtered_view(request, carrier_pk, deposit_pk) -> HttpResponse:
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)
-    deposit = get_object_or_404(Deposit, pk=deposit_pk)
+    _deposit = get_object_or_404(Deposit, pk=deposit_pk)
     context['carrier'] = carrier
-    context['deposit'] = deposit
+    context['deposit'] = _deposit
     context['envios_count'] = carrier.Carrier.count()
 
     if request.method == 'GET':
@@ -181,10 +182,10 @@ def confirmed_filtered_view(request, carrier_pk, deposit_pk) -> HttpResponse:
             filters = {'town__partido__pk__in': selected_ids}
         else:
             filters = {'town__pk__in': selected_ids}
-        deposit_movement(
+        deposit(
             author=request.user,
             carrier=carrier,
-            deposit=deposit,
+            deposit=_deposit,
             **filters
         )
         msg = 'Los envíos se depositaron correctamente'

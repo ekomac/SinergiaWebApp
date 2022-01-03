@@ -34,17 +34,20 @@ INSTALLED_APPS = [
 
     # OWN APPS
     # 'baseapp',
-    'app_withdraw',
-    'app_deposit',
-    'app_transfer',
     'app_deliver',
+    'app_deposit',
+    'app_tickets',
+    'app_transfer',
+    'app_withdraw',
     'account',
     'clients',
+    'deposit',
     'envios',
     'home',
     'places',
     'prices',
     'staff',
+    'tickets',
     'tracking',
 
     # DJANGO

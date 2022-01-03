@@ -20,6 +20,7 @@
         display: none;
     }
 </style>
+
 <div class="col-md-12 col-lg-10 col-xl-8 col-xxl-6 d-flex-block">
     <form method='POST' id="create_form" class="card flex-fill shadow-lg bg-white" name="create_form" target="_top"
         enctype="multipart/form-data">{% csrf_token %}
@@ -47,7 +48,7 @@
                     <label for="id_file" class="form-label">Archivo con envíos (PDF MercadoLibre o
                         TiendaNube, Excel)</label>
                     <input class="form-control {% if upload_form.file.errors %}is-invalid{% endif %}" type="file"
-                        id="id_file" name="file" required>
+                        id="id_file" name="file" title="Elegir archivo" required />
                     {% comment %} {{ upload_form.file }} {% endcomment %}
                     <div class="invalid-feedback">
                         {% for error in upload_form.file.errors %}

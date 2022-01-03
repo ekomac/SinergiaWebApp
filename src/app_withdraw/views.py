@@ -10,9 +10,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 # Project
 from account.decorators import allowed_users
 from account.models import Account
-from app_withdraw.api.withdraw import withdraw_movement
+from deposit.models import Deposit
 from envios.models import Envio
-from places.models import Deposit, Zone, Partido, Town
+from places.models import Zone, Partido, Town
+from tracking.api import withdraw
 from utils.alerts.views import create_alert_and_redirect
 
 
@@ -87,7 +88,7 @@ def confirm_all_view(request, deposit_pk, carrier_pk) -> HttpResponse:
     context['carrier'] = get_object_or_404(Account, pk=carrier_pk)
     if request.method == 'POST':
         user = request.user
-        withdraw_movement(
+        withdraw(
             author=user,
             carrier=user,
             deposit=deposit
@@ -125,7 +126,7 @@ def confirm_scanned_view(request, deposit_pk, carrier_pk) -> HttpResponse:
     if request.method == 'POST':
         print(request.POST)
         envio_id = int(request.POST.get('envio_id'))
-        withdraw_movement(
+        withdraw(
             author=request.user,
             carrier=carrier,
             deposit=deposit,
@@ -200,7 +201,7 @@ def confirm_filtered_view(request, deposit_pk, carrier_pk) -> HttpResponse:
         else:
             filters = {"town__id__in": selected_ids}
         user = request.user
-        withdraw_movement(
+        withdraw(
             author=user,
             carrier=carrier,
             deposit=deposit,

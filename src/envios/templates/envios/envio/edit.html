@@ -22,7 +22,7 @@
                 Crear objeto
             </div>
             <div>
-                <a href="{{ request.META.HTTP_REFERER }}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+                <a href="{% url 'envios:envio-detail' pk=envio.pk %}"><i class="bi bi-arrow-left-short"></i>Volver</a>
             </div>
         </div>
 
@@ -56,7 +56,8 @@
                 <!-- START DEFAULT DETAIL CHECKBOX -->
                 <div class="col-12">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="defaultDetailCheckbox" checked>
+                        <input class="form-check-input" type="checkbox" id="defaultDetailCheckbox"
+                            {% if form.detail.value == '0-1' %}checked{% endif %}>
                         <label for="defaultDetailCheckbox" class="form-check-label">
                             Es un paquete de menos de 5 kg.
                         </label>
@@ -211,8 +212,8 @@
                 <!-- START FLEX CHECKBOX -->
                 <div class="col-12">
                     <div class="form-check">
-                        {{form.is_flex}}
-                        <label for="{{form.is_flex.id_for_label}}" class="form-check-label">
+                        {{ form.is_flex }}
+                        <label for="{{ form.is_flex.id_for_label }}" class="form-check-label">
                             Es envío de Flex (Mercado Libre Envíos)
                         </label>
                     </div>
@@ -222,8 +223,8 @@
 
                 <!-- START FLEX ID -->
                 <div id="flexIdDiv" class="col-lg-7 col-xl-6 col-xxl-5">
-                    <label for="{{form.flex_id.id_for_label}}" class="form-label">Tracking ID Flex</label>
-                    {{ form.flex_id}}
+                    <label for="{{ form.flex_id.id_for_label }}" class="form-label">Tracking ID Flex</label>
+                    {{ form.flex_id }}
                 </div>
                 <!-- END FLEX ID -->
 
@@ -253,7 +254,8 @@
                     <select id="inputPartido" class="form-select">
                         <option selected>---------</option>
                         {% for partido in partidos %}
-                        <option id="option-{{partido.id}}" value="{{partido.id}}">{{partido.name | title}}
+                        <option id="option-{{partido.id}}" value="{{partido.id}}"
+                            {% if envio.town.partido.pk == partido.id %}selected{% endif %}>{{partido.name | title}}
                         </option>
                         {% endfor %}
                     </select>
@@ -299,8 +301,9 @@
                     <label for="{{form.charge.id_for_label}}" class="form-label">Cobrarle al destinatario</label>
                     <div class="input-group mb-3">
                         <span class="input-group-text">$</span>
-                        <input type="number" id="id_charge" name="charge" class="form-control" step="1.0" min="0"
-                            max="999999999" aria-label="Cargos al destinatario (al peso más cercano)">
+                        <input type="number" id="id_charge" name="charge" class="form-control" step="1" min="0"
+                            max="999999999" aria-label="Cargos al destinatario (al peso más cercano)"
+                            value="{{ form.charge.value }}">
                         <span class="input-group-text">.00</span>
                     </div>
                 </div>
@@ -323,7 +326,7 @@
 
                 <!-- START SUMBIT BUTTON -->
                 <div class="d-grid gap-2 d-md-flex">
-                    <input type="submit" value="Crear envío" class="btn btn-primary">
+                    <input type="submit" value="Actualizar envío" class="btn btn-primary">
                 </div>
                 <!-- END SUMBIT BUTTON -->
             </div>
@@ -333,71 +336,12 @@
 
 </div>
 
-{% if not is_client %}
 <script>
+    var towns = JSON.parse('{{ towns | escapejs }}');
+
     var deposits = JSON.parse('{{ deposits | escapejs }}');
-    $('#id_deposit').find('option:not(:first)').remove();
-    $.event.special.inputchange = {
-        setup: function () {
-            var self = this,
-                val;
-            $.data(this, 'timer', window.setInterval(function () {
-                val = self.value;
-                if ($.data(self, 'cache') != val) {
-                    $.data(self, 'cache', val);
-                    $(self).trigger('inputchange');
-                }
-            }, 20));
-        },
-        teardown: function () {
-            window.clearInterval($.data(this, 'timer'));
-        },
-        add: function () {
-            $.data(this, 'cache', this.value);
-        }
-    };
-    $('#id_client').on('inputchange', function () {
-        var selectedClientId = this.value.toString();
-        console.log(selectedClientId);
-        if (![null, undefined, ''].includes(selectedClientId)) {
-            var depositsFromClient = deposits.filter(function (deposit) {
-                return deposit.client_id == selectedClientId;
-            });
-            console.log("depositsFromClient", depositsFromClient);
-            $('#id_deposit').find('option:not(:first)').remove();
-            for (var element of depositsFromClient) {
-                $('#id_deposit').append('<option value="' + element.id + '">' + element.name +
-                    '</option>');
-            }
-        } else {
-            $('#id_deposit').find('option:not(:first)').remove();
-        }
-    });
-</script>
-{% else %}
-<script>
+
     /*
-    var deposits = JSON.parse('{{ deposits | escapejs }}');
-    var client_id = "{{ client.pk }}";
-    var clientElement = document.getElementById('id_client');
-    clientElement.value = client_id;
-    console.log(document.getElementById('id_client').value);
-    if (![null, undefined, ''].includes(client_id)) {
-        console.log("hola");
-        $('#id_deposit').find('option:not(:first)').remove();
-        console.log(JSON.stringify(deposits));
-        deposits.filter(deposit => deposit.client_id == client_id).forEach(deposit => $('#id_deposit').append(
-            '<option value="' + deposit.id + '">' + deposit.name + '</option>'));
-    } else {
-        $('#id_deposit').find('option:not(:first)').remove();
-    }
-    */
-</script>
-{% endif %}
-
-<script>
-    var places = JSON.parse('{{ places | escapejs }}');
-
     const detailInputs = {
         0: "max-5-package",
         1: "max-10-package",
@@ -406,6 +350,7 @@
         4: "urgent",
         5: "tramite",
     };
+    */
 
     function isNumeric(value) {
         return /^\d+$/.test(value);
@@ -432,25 +377,14 @@
                 $.data(this, 'cache', this.value);
             }
         };
-        /*
+
         $('#id_client').on('inputchange', function () {
             var selectedClientId = this.value.toString();
-            console.log(selectedClientId);
-            if (![null, undefined, ''].includes(selectedClientId)) {
-                var depositsFromClient = deposits.filter(function (deposit) {
-                    return deposit.client_id == selectedClientId;
-                });
-                console.log("depositsFromClient", depositsFromClient);
-                $('#id_deposit').find('option:not(:first)').remove();
-                for (var element of depositsFromClient) {
-                    $('#id_deposit').append('<option value="' + element.id + '">' + element.name +
-                        '</option>');
-                }
-            } else {
-                $('#id_deposit').find('option:not(:first)').remove();
-            }
+            showDepositsForClient(selectedClientId);
         });
-        */
+
+        var selectedClientId = $('#id_client').val();
+        showDepositsForClient(selectedClientId, "{{ envio.deposit.pk }}");
 
         $("#detailNotVisible").hide();
 
@@ -467,54 +401,94 @@
         $('#simpleEditorCheckDiv').hide(200);
         $("#defaultDetailCheckbox").click(function () {
             var isDefaultSelected = $(this).is(":checked");
-            if (isDefaultSelected) {
-                document.getElementById("id_detail").value = "0-1";
-                $('#detailDiv').hide(200);
-            } else {
-                $('#detailDiv').show(200);
-                $('#detailDiv').removeClass("hidden");
-            }
+            updateShowDetails(isDefaultSelected);
         });
 
         $("#id_is_flex").click(function () {
-            var isFlex = $(this).is(":checked");
-            if (isFlex) {
-                $('#id_flex_id').removeAttr('disabled');
-            } else {
-                $('#id_flex_id').attr('disabled', 'disabled');
-            }
+            //var isFlex = $(this).is(":checked");
+            toggleBlockFlexId();
         });
 
         setPartidoListener();
         setDetailsListeners();
+        showTownsForPartido('{{ previuoslySelectedTownId}}');
+        updateShowDetails(document.getElementById("defaultDetailCheckbox").checked);
+        setPreviouslyAddedDetails();
+        toggleBlockFlexId();
     });
+
+    function toggleBlockFlexId() {
+        var isFlex = $("#id_is_flex").is(":checked");
+        if (isFlex) {
+            $('#id_flex_id').removeAttr('disabled');
+        } else {
+            $('#id_flex_id').attr('disabled', 'disabled');
+        }
+    }
 
     function setPartidoListener() {
         $('#inputPartido').on('inputchange', function () {
             var selectedPartidoId = this.value.toString();
-            var placesFromPartido = places.filter(function (place) {
+            var townsFromPartido = towns.filter(function (place) {
                 return place.partido_id == selectedPartidoId;
             });
             $('#id_town').find('option:not(:first)').remove();
-            for (var element of placesFromPartido) {
+            for (var element of townsFromPartido) {
                 $('#id_town').append('<option value="' + element.id + '">' + element.name +
                     '</option>');
             }
         });
     }
 
+    function showTownsForPartido(selectedTownId = null) {
+        var selectedPartidoId = $('#inputPartido').val();
+        var townsFromPartido = towns.filter(function (town) {
+            return town.partido_id == selectedPartidoId;
+        });
+        $('#id_town').find('option:not(:first)').remove();
+        for (var element of townsFromPartido) {
+            var selected = "";
+            if (selectedTownId != null && selectedTownId == element.id) {
+                selected = " selected";
+            }
+            $('#id_town').append('<option value="' + element.id + '"' + selected + '>' + element.name + '</option>');
+        }
+    }
+
+    function updateShowDetails(isDefaultSelected) {
+        if (isDefaultSelected) {
+            document.getElementById("id_detail").value = "0-1";
+            $('#detailDiv').hide(200);
+        } else {
+            $('#detailDiv').show(200);
+            $('#detailDiv').removeClass("hidden");
+        }
+    }
+
     function setDetailsListeners() {
+        // We have 6 options
         for (let i = 0; i < 6; i++) {
+            // For each option (detailInput + i), we set a listener
             $('#detailInput' + i).on('inputchange', function () {
+                // We get the value of the input
                 var currentValue = this.value.toString();
+                // If the value is not empty and isn't 0 ans isn't a number
                 if (currentValue != "" && currentValue != "0" && isNumeric(currentValue)) {
+                    // We show the clear button
                     $('#btnClear' + i).removeClass("invisible");
                 }
-                if (currentValue == "" || currentValue == "0" || !isNumeric(currentValue)) {
+                // If the value is empty or 0 or isn't a number
+                else {
+                    // We hide the clear button
                     $('#btnClear' + i).addClass("invisible");
                 }
+                /*if (currentValue == "" || currentValue == "0" || !isNumeric(currentValue)) {
+                    $('#btnClear' + i).addClass("invisible");
+                }*/
             });
+            // For the clear button, we set a listener
             $('#btnClear' + i).on('click', function () {
+                // When pressed, set the detailInput's value to 0.
                 $('#detailInput' + i).val("0");
             });
         }
@@ -522,18 +496,58 @@
 
     function updateDetails() {
         try {
+            // Create empty array
             var detailsArray = [];
+            // We have 6 options, so each number is in detailInput0, detailInput1 ... detailInput5
             for (var i = 0; i < 6; i++) {
+                // Get the current amount
                 var amount = $("#detailInput" + i).val();
-                if (isNumeric(amount) && amount != "0") {
+                // If the amount is not empty, is not 0 and is a number
+                if (isNumeric(amount) && amount != "0" && amount != "") {
+                    // Add the amount to the array in the followinf format: "index-amount"
                     detailsArray.push(i.toString() + "-" + amount.toString());
                 }
             }
+            // Join the array with a comma
             var details = detailsArray.join(",");
+            // Update detail to be the joined array or "0-1" if array empty
             details = details == "" ? "0-1" : details;
+            // Update the detail input
             document.getElementById("id_detail").value = details
         } catch (e) {
             alert(e);
+        }
+    }
+
+    function setPreviouslyAddedDetails() {
+        var details = document.getElementById("id_detail").value;
+        if (details != "") {
+            details.split(",").forEach(function (detail) {
+                var detailArray = detail.split("-");
+                var index = detailArray[0];
+                var amount = detailArray[1];
+                $("#detailInput" + index).val(amount);
+            });
+        }
+    }
+
+
+    function showDepositsForClient(selectedClientId, selectedDepositId = null) {
+        if (![null, undefined, ''].includes(selectedClientId)) {
+            var depositsFromClient = deposits.filter(function (deposit) {
+                return deposit.client_id == selectedClientId;
+            });
+            $('#id_deposit').find('option:not(:first)').remove();
+            for (var element of depositsFromClient) {
+                var selected = '';
+                if (selectedDepositId == element.id) {
+                    selected = ' selected';
+                }
+                $('#id_deposit').append('<option value="' + element.id + '"' + selected + '>' + element.name +
+                    '</option>');
+            }
+        } else {
+            $('#id_deposit').find('option:not(:first)').remove();
         }
     }
 </script>

@@ -4,9 +4,19 @@ from django.conf import settings
 from django.template.defaultfilters import truncatechars
 from simple_history.models import HistoricalRecords
 from clients.models import Client
-from places.models import Deposit, Town
+from deposit.models import Deposit
+from places.models import Town
 
 not_specified = 'No especificado'
+
+DETAIL_CODES = {
+    "0": {'multiplier': 1, 'name': 'Paquete hasta 5k'},
+    "1": {'multiplier': 1.3, 'name': 'Bulto hasta 10k'},
+    "2": {'multiplier': 1.6, 'name': 'Bulto hasta 20k'},
+    "3": {'multiplier': 2, 'name': 'Miniflete'},
+    "4": {'multiplier': 3, 'name': 'Urgente'},
+    "5": {'multiplier': 1.2, 'name': 'Trámite'},
+}
 
 
 def upload_location(instance, filename, *args, **kwargs):
@@ -87,6 +97,8 @@ class Envio(Receiver):
 
     date_created = models.DateTimeField(
         verbose_name="Fecha de creación", auto_now_add=True)
+    date_updated = models.DateTimeField(
+        auto_now=True, verbose_name="date updated")
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         verbose_name="Editado por", related_name="Editor",
@@ -99,16 +111,16 @@ class Envio(Receiver):
         verbose_name="Portador", blank=True, null=True,
         default=None, on_delete=models.SET_NULL)
     deposit = models.ForeignKey(
-        'places.Deposit', on_delete=models.SET_NULL,
+        Deposit, on_delete=models.SET_NULL,
         verbose_name="Depósito", default=None, blank=True, null=True)
     detail = models.CharField(verbose_name="Detalle",
                               max_length=2000, default='0-1')
     client = models.ForeignKey(
         Client, on_delete=models.CASCADE, verbose_name="Cliente",
         blank=False, null=False)
-    charge = models.DecimalField(
+    charge = models.IntegerField(
         verbose_name="Cargos al destinatario",
-        decimal_places=2, max_digits=40, blank=True, null=True)
+        blank=True, null=True)
     max_delivery_date = models.DateField(
         verbose_name="Fecha máxima de entrega", blank=True, null=True)
     is_flex = models.BooleanField(verbose_name="Es Flex", default=False)
@@ -133,6 +145,8 @@ class Envio(Receiver):
             where = self.carrier
         elif self.deposit is not None:
             where = self.deposit.name
+        elif self.status == self.STATUS_DELIVERED:
+            where = ""
         else:
             where = not_specified
         return f'{address} @{where} ({status}) >>> {client}'
@@ -153,6 +167,18 @@ class Envio(Receiver):
             return f'{status} con {carrier.username}' +\
                 f' ({carrier.first_name} {carrier.last_name})'
         return status
+
+    def get_detail_readable(self):
+        details = map(self.map_detail, self.detail.split(","))
+        return ",".join(details)
+
+    def map_detail(self, detail):
+        parts = detail.split("-")
+        index = parts[0]
+        amount = parts[1]
+        if index in DETAIL_CODES.keys():
+            name = DETAIL_CODES[index]['name']
+            return f'{amount}x {name}'
 
     class Meta:
         verbose_name = 'Envío'
@@ -179,16 +205,6 @@ class Bolson(models.Model):
     class Meta:
         verbose_name = 'Bolsón'
         verbose_name_plural = 'Bolsones'
-
-
-DETAIL_CODES = {
-    "0": {'multiplier': 1, 'name': 'Paquete hasta 5k'},
-    "1": {'multiplier': 1.3, 'name': 'Bulto hasta 10k'},
-    "2": {'multiplier': 1.6, 'name': 'Bulto hasta 20k'},
-    "3": {'multiplier': 2, 'name': 'Miniflete'},
-    "4": {'multiplier': 3, 'name': 'Urgente'},
-    "5": {'multiplier': 1.2, 'name': 'Trámite'},
-}
 
 
 class PriceCalculator(object):

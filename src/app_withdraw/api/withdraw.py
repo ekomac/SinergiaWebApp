@@ -1,7 +1,7 @@
 from typing import List
 from account.models import Account
 from envios.models import Envio
-from places.models import Deposit
+from deposit.models import Deposit
 from tracking.models import TrackingMovement
 
 

@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models.query_utils import Q
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
@@ -21,13 +21,18 @@ from account.decorators import allowed_users, allowed_users_in_class_view
 
 
 # Project apps
+from envios.decorators import allow_only_client_in_class_view
 from account.models import Account
-from envios.forms import BulkLoadEnviosForm, CreateEnvioForm
+from deposit.models import Deposit
+from envios.forms import BulkLoadEnviosForm, CreateEnvioForm, UpdateEnvioForm
 from envios.models import BulkLoadEnvios, Envio
 from envios.utils import bulk_create_envios, create_xlsx_workbook
-from places.models import Deposit, Partido, Town
+from places.models import Partido, Town
 from clients.models import Client
 from envios.reports import PDFReport
+from utils.alerts.views import update_alert_and_redirect
+from utils.forms import CheckPasswordForm
+from utils.views import DeleteObjectsUtil
 
 
 ENVIOS_PER_PAGE = 30
@@ -182,17 +187,22 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
     model = Envio
     template_name = "envios/envio/detail.html"
 
+    @allow_only_client_in_class_view
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
-        context = super(EnvioDetailView, self).get_context_data(**kwargs)
-        envio = context['object']
+        ctx = super(EnvioDetailView, self).get_context_data(**kwargs)
+        envio = ctx['object']
+        ctx['movements'] = envio.trackingmovement_set.all()
         if envio.status == Envio.STATUS_DELIVERED:
             delivered_tracking_movement = envio.trackingmovement_set.filter(
                 result='success').first()
             delivered_date = delivered_tracking_movement.date_created
-            context['delivered_date'] = delivered_date
+            ctx['delivered_date'] = delivered_date
             deliverer = delivered_tracking_movement.created_by
-            context['deliverer'] = deliverer
-        return context
+            ctx['deliverer'] = deliverer
+        return ctx
 
 
 class EnvioCreate(LoginRequiredMixin, CreateView):
@@ -249,13 +259,13 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('envios:envio-detail', kwargs={'pk': self.object.pk})
 
-    @ allowed_users_in_class_view(roles=["Admins", "Clients"])
+    @allowed_users_in_class_view(roles=["Admins", "Clients"])
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
 
-@ login_required(login_url='/login/')
-@ allowed_users(roles=["Admins"])
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
 def bulk_create_envios_view(request):
     context = {}
     form = BulkLoadEnviosForm()
@@ -274,8 +284,8 @@ def bulk_create_envios_view(request):
     return render(request, 'envios/bulk/add.html', context)
 
 
-@ login_required(login_url='/login/')
-@ allowed_users(roles=["Admins"])
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
 def success_bulk_create_envios_view(request, pk):
     bulk_load = BulkLoadEnvios.objects.get(id=pk)
     envios = bulk_create_envios(bulk_load)
@@ -286,8 +296,8 @@ def success_bulk_create_envios_view(request, pk):
     return render(request, 'envios/bulk/success.html', context)
 
 
-@ login_required(login_url='/login/')
-@ allowed_users(roles=["Admins"])
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
 def download_shipment_labels_file_response(_, ids):
     ids = ids.split('-')
     envios = Envio.objects.filter(id__in=ids)
@@ -299,8 +309,8 @@ def download_shipment_labels_file_response(_, ids):
     return response
 
 
-@ login_required(login_url='/login/')
-@ allowed_users(roles=["Admins"])
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
 def handle_bulk_create_envios_view(request, pk):
     obj = BulkLoadEnvios.objects.get(id=pk)
     context = {
@@ -311,7 +321,7 @@ def handle_bulk_create_envios_view(request, pk):
     return render(request, 'envios/bulk/handler.html', context)
 
 
-@ login_required(login_url='/login/')
+@login_required(login_url='/login/')
 def print_excel_file(request, pk):
     obj = BulkLoadEnvios.objects.get(id=pk)
     wb = create_xlsx_workbook(obj.csv_result, obj.cells_to_paint)
@@ -351,45 +361,67 @@ def map_deposit_to_dict(deposit):
     }
 
 
-@ login_required(login_url='/login/')
-@ allowed_users(roles=["Admins"])
-def update_envio(request, pk):
-    return render(request, 'envios/update.html', {})
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
+def edit_envio_view(request, pk):
+
+    envio = get_object_or_404(Envio, pk=pk)
+    if envio.status != Envio.STATUS_NEW:
+        return redirect('envios:envio-detail', pk=pk)
+    form = UpdateEnvioForm(instance=envio)
+
+    if request.method == 'POST':
+        form = UpdateEnvioForm(request.POST or None, instance=envio)
+
+        if form.is_valid():
+            obj = form.save()
+            obj.updated_by = request.user
+            obj.save()
+            msg = f'El envío "{obj.full_address()} de {obj.client}" '\
+                + 'se actualizó correctamente.'
+            return update_alert_and_redirect(
+                request, msg, 'envios:envio-detail', obj.pk)
+
+    context = {
+        'form': form,
+        'envio': envio,
+    }
+
+    context['deposits'] = get_deposits_as_JSON()
+
+    context['selected_tab'] = 'shipments-tab'
+    context['partidos'] = Partido.objects.all().order_by("name")
+    context['towns'] = get_localidades_as_JSON()
+    context['previuoslySelectedPartidoId'] = envio.town.partido.id
+    context['previuoslySelectedTownId'] = envio.town.id
+
+    return render(request, "envios/envio/edit.html", context)
 
 
 @login_required(login_url='/login/')
 @allowed_users(roles="Admins")
-def edit_zone_view(request, pk):
+def delete_envio_view(request, pk, **kwargs):
 
-    zone = get_object_or_404(Zone, pk=pk)
-    form = UpdateZoneForm(instance=zone)
+    delete_utility = DeleteObjectsUtil(
+        model=Envio,
+        model_ids=pk,
+        order_by='date_created',
+        request=request,
+        selected_tab='envios-tab'
+    )
 
+    context = {}
     if request.method == 'POST':
-        form = UpdateZoneForm(request.POST or None, instance=zone)
-
+        form = CheckPasswordForm(request.POST or None,
+                                 current_password=request.user.password)
         if form.is_valid():
-            obj = form.save(commit=False)
-            author = Account.objects.filter(email=request.user.email).first()
-            obj.updated_by = author
-            obj.save()
-            zone = obj
-            ids = request.POST.get('selected_partidos_ids', None)
-            update_partido_ids(ids, obj, author)
-            msg = f'La zona "{obj.name.title()}" se actualizó correctamente.'
-            return update_alert_and_redirect(
-                request, msg, 'places:zone-detail', obj.pk)
+            delete_utility.delete_objects()
+            delete_utility.create_alert()
+            return redirect('envios:envio-list')
+    else:  # Meaning is a GET request
+        form = CheckPasswordForm()
+    context = delete_utility.get_context_data()
+    context['form'] = form
+    # context['password_match'] = passwords_match
 
-    context = {
-        'form': form,
-        'partidos': Partido.objects.all(),
-        'partidosTotal': Partido.objects.count(),
-        'partidos_ids': get_partidos_ids(zone),
-        'selected_tab': 'zone-tab',
-    }
-    return render(request, "places/zone/edit.html", context)
-
-
-@ login_required(login_url='/login/')
-@ allowed_users(roles=["Admins"])
-def delete_envio(request, pk):
-    return render(request, 'envios/delete.html', {})
+    return render(request, "envios/envio/delete.html", context)
