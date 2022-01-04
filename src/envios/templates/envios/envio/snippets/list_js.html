@@ -72,14 +72,13 @@
         $('#checkAll').prop('checked', checkedItemsCount == totalCheckBoxes);
         // Update selected count
         $('#selectedCount').text(checkedItemsCount + " de " + totalEnvios + " elementos seleccionados");
-        // Enable bulk edit btn only if more than one checked
-        isEnabled('bulkEditDelivery', checkedItemsCount > 1);
-        // Enable delete btn if at least 1 checkbox is checked
-        isEnabled('bulkDeleteDelivery', checkedItemsCount > 0);
-        // Enable bulk edit btn only if more than one checked
-        isEnabled('bulkAddTask', checkedItemsCount > 1);
-        // Enable delete btn if at least 1 checkbox is checked
+
+        // Enable print labels btn if at least 1 checkbox is checked
+        isEnabled('printLabels', checkedItemsCount > 0);
+
+        // Enable bulk add task btn if at least 1 checkbox is checked
         isEnabled('bulkAddTask', checkedItemsCount > 0);
+
         // Enable selection mode if at least 1 checkbox checked
         selectionModeEnabled = checkedItemsCount > 0;
         // hide
@@ -150,6 +149,7 @@
         removeSelection();
         alert("Próximamente...")
     }
+
 
     function clearSearch() {
         $('#id_query_by').val('');
