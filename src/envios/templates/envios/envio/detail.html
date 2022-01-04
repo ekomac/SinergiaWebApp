@@ -93,7 +93,7 @@
             <div class="card-text">
                 <div class="d-flex justify-content-start align-items-center flex-row mb-3">
 
-                    <a href="{% url 'envios:single-envio-download-label' object.id %}"
+                    <a href="{% url 'envios:single-envio-download-label' pk=object.id %}"
                         class="btn btn-outline-primary btn-sm me-1"><i class="bi bi-printer me-1"></i>Imprimir
                         etiqueta</a>
                     {% if envio.status == 'N' %}
