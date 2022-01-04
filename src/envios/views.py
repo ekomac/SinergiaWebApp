@@ -36,7 +36,6 @@ from utils.views import DeleteObjectsUtil
 
 
 DEFAULT_ENVIOS_PER_PAGE = 30
-TIME_FORMAT = '%YYYY%MM%DD'
 
 
 @login_required(login_url='/login/')
