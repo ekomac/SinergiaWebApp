@@ -61,12 +61,9 @@ def envios_view(request):
 
         results_per_page = request.GET.get(
             'results_per_page', None)
-        if results_per_page is not None:
-            results_per_page = results_per_page
-            context['results_per_page'] = results_per_page
-        else:
+        if results_per_page is None:
             results_per_page = DEFAULT_ENVIOS_PER_PAGE
-            context['results_per_page'] = str(results_per_page)
+        context['results_per_page'] = str(results_per_page)
 
         filters = {}
         filter_by = request.GET.get('filter_by', "")

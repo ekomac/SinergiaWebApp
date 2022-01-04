@@ -1,0 +1,112 @@
+<script>
+    const filtersIdEncoders = {
+        'f': '#id_max_delivery_date_since_modal',
+        't': '#id_max_delivery_date_to_modal',
+        'p': '#id_priority_modal',
+        's': '#id_status_modal',
+    }
+
+    const DEFAULT_FILTERS = 'f_t_p_s';
+
+    $(document).ready(function () {
+
+        $('#id_order_by').change(function () {
+            $('#list_form').submit();
+        });
+
+        $('#id_results_per_page').change(function () {
+            $('#list_form').submit();
+        });
+
+        $('#id_query_by').on('change paste keyup', function () {
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+        });
+
+        decodeAndSetFilters();
+        controlDateFilterInputs();
+    });
+
+
+    function applyFilters() {
+        var filters = [
+            "f" + $(filtersIdEncoders.f).val(),
+            "t" + $(filtersIdEncoders.t).val(),
+            "p" + $(filtersIdEncoders.p).val(),
+            "s" + $(filtersIdEncoders.s).val(),
+        ].filter(function (value) {
+            return value != '' && value != null && value != undefined;
+        }).join("_");
+        $('#id_filter_by').val(filters);
+        $('#list_form').submit();
+    }
+
+    function clearFilters() {
+        $("#id_filter_by").val(DEFAULT_FILTERS);
+        for (let key in filtersIdEncoders) {
+            var id = filtersIdEncoders[key];
+            $(id).val(null);
+        }
+        $('#list_form').submit();
+    }
+
+    function decodeAndSetFilters() {
+        const filter_by = $('#id_filter_by').val();
+        if (filter_by == '' || filter_by == undefined || filter_by == null) {
+            return;
+        }
+        const filters = filter_by.split("_");
+
+        for (var i = 0; i < filters.length; i++) {
+            var filter = filters[i];
+            var key = filter.slice(0, 1);
+            var value = filter.slice(1);
+            if (value != '') {
+                var filterID = filtersIdEncoders[key];
+
+                // Parse the value to correct date.
+                if (key == 'f' || key == 't') {
+                    const date = new Date(value.split("-")[0], value.split("-")[1], value.split("-")[2]);
+                    const day = ("0" + date.getDate()).slice(-2);
+                    const month = ("0" + (date.getMonth())).slice(-2);
+                    console.log(date);
+                    value = date.getFullYear() + "-" + (month) + "-" + (day);
+                }
+                $(filterID).val(value);
+            }
+        }
+    }
+
+    /**
+     *   Asign listeners to date filters so, when they change,
+     *   we have to check if the other one is not null. And if,
+     *   it isn't, if toDate < fromDate alert the user of the
+     *   error and clear current date input (the one is changing).
+     */
+    function controlDateFilterInputs() {
+        var nulls = ['', null, undefined];
+        var fromDateEl = filtersIdEncoders.f;
+        var toDateEl = filtersIdEncoders.t;
+        $(filtersIdEncoders.f).change(function () {
+            var toDateStr = $(toDateEl).val();
+            if (!nulls.includes(toDateStr)) {
+                var toDate = new Date(toDateStr);
+                var fromDate = new Date($(fromDateEl).val());
+                if (fromDate > toDate) {
+                    alert("La fecha desde no puede ser inferior a la fecha hasta");
+                    $(fromDateEl).val(null);
+                }
+            }
+        });
+        $(filtersIdEncoders.t).change(function () {
+            var fromDateStr = $(fromDateEl).val();
+            if (!nulls.includes(fromDateStr)) {
+                var fromDate = new Date(fromDateStr);
+                var toDate = new Date($(toDateEl).val());
+                if (toDate < fromDate) {
+                    alert("La fecha hasta no puede ser inferior a la fecha desde");
+                    $(toDateEl).val(null);
+                }
+            }
+        });
+    }
+</script>

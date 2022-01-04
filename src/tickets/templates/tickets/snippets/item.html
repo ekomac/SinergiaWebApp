@@ -1,0 +1,24 @@
+<style>
+    td {
+        overflow: auto;
+        white-space: nowrap;
+    }
+</style>
+<tr id="tr-{{ obj.id }}" class="table-item highlight-row"
+    onclick="window.location.href='{% url 'tickets:detail' pk=obj.id %}'">
+    <td id="td-{{ obj.id }}" class="td-item-checker">{{ counter }}</td>
+    <td>{{ obj.date_created|date:"d/m/Y H:i" }}</td>
+    <td class="cell-centered">
+        {% if obj.priority == '1' %}
+        <span class="badge rounded-pill bg-danger">{{ obj.get_priority_display }}</span>
+        {% elif obj.priority == '2' %}
+        <span class="badge rounded-pill bg-primary">{{ obj.get_priority_display }}</span>
+        {% elif obj.priority == '3' %}
+        <span class="badge rounded-pill bg-secondary">{{ obj.get_priority_display }}</span>
+        {% endif %}
+    </td>
+    <td class="cell-centered"><span class="badge" style="background-color: #212529;">{{ obj.get_status_display }}</span>
+    </td>
+    <td>{{ obj.subject }}</td>
+    <td>{{ obj.msg | truncatechars:50 }}</td>
+</tr>

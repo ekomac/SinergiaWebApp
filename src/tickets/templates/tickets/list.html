@@ -3,7 +3,7 @@
 {% block modal_content %}
 
 <!-- start BASE MODAL DIALOG -->
-{% include 'envios/envio/snippets/filter_envios_modal.html' %}
+{% include 'tickets/snippets/filter_tickets_modal.html' %}
 <!-- end BASE MODAL DIALOG -->
 
 {% endblock modal_content %}
@@ -40,7 +40,7 @@
     }
 </style>
 
-<div class="col-md-12 col-xxl-12 d-flex">
+<div class="col-md-12 col-xl-10 col-xxl-9 d-flex-inline">
     <div class="card flex-fill">
         <div class="card-body d-flex flex-column">
             <h2 class="card-title text-center mt-2">LISTADO DE TICKETS</h2>
@@ -62,18 +62,25 @@
                     </div>
 
                     <div class="col-12 col-lg-7 d-flex justify-content-end align-items-center">
-                        <label for="id_results_per_page" id="labelResults_per_page" class="me-2">Mostrar de a: </label>
+                        <label for="id_results_per_page" id="labelResults_per_page" class="me-2">Mostrar de
+                            a: </label>
                         <div aria-label="Default select example" class="me-3">
                             <select id="id_results_per_page" name="results_per_page" class="form-select"
                                 aria-label="Results per page selection">
-                                <option value="10" {% if results_per_page == '10' %}selected{% endif %}>10</option>
-                                <option value="30" {% if results_per_page == '30' %}selected{% endif %}>30</option>
-                                <option value="50" {% if results_per_page == '50' %}selected{% endif %}>50</option>
-                                <option value="100" {% if results_per_page == '100' %}selected{% endif %}>100
+                                <option value="10" {% if results_per_page == '10' %}selected{% endif %}>10
                                 </option>
-                                <option value="200" {% if results_per_page == '200' %}selected{% endif %}>200
+                                <option value="30" {% if results_per_page == '30' %}selected{% endif %}>30
                                 </option>
-                                <option value="500" {% if results_per_page == '500' %}selected{% endif %}>500
+                                <option value="50" {% if results_per_page == '50' %}selected{% endif %}>50
+                                </option>
+                                <option value="100" {% if results_per_page == '100' %}selected{% endif %}>
+                                    100
+                                </option>
+                                <option value="200" {% if results_per_page == '200' %}selected{% endif %}>
+                                    200
+                                </option>
+                                <option value="500" {% if results_per_page == '500' %}selected{% endif %}>
+                                    500
                                 </option>
                             </select>
                         </div>
@@ -83,30 +90,19 @@
                                 aria-label="Order by selection">
                                 <option value="date_created_desc"
                                     {% if order_by == 'date_created_desc' %}selected{% endif %}>
-                                    Carga&nbsp;más&nbsp;recientes</option>
+                                    Más&nbsp;recientes&nbsp;primero</option>
                                 <option value="date_created" {% if order_by == 'date_created' %}selected{% endif %}>
-                                    Carga&nbsp;más&nbsp;antiguas</option>
-                                <option value="is_flex_desc" {% if order_by == 'is_flex_desc' %}selected{% endif %}>
-                                    Flex&nbsp;primero</option>
-                                <option value="is_flex" {% if order_by == 'is_flex' %}selected{% endif %}>
-                                    Mensajería&nbsp;primero
+                                    Más&nbsp;antiguas&nbsp;primero</option>
+                                <option value="subject" {% if order_by == 'subject' %}selected{% endif %}>
+                                    Asunto&nbsp;A-Z
                                 </option>
-                                <option value="town__name" {% if order_by == 'town__name' %}selected{% endif %}>
-                                    Localidad&nbsp;A-Z
+                                <option value="subject_desc" {% if order_by == 'subject_desc' %}selected{% endif %}>
+                                    Asunto&nbsp;Z-A
                                 </option>
-                                <option value="town__name_desc"
-                                    {% if order_by == 'town__name_desc' %}selected{% endif %}>
-                                    Localidad&nbsp;Z-A
-                                </option>
-                                <option value="client__name" {% if order_by == 'client__name' %}selected{% endif %}>
-                                    Cliente&nbsp;A-Z</option>
-                                <option value="client__name_desc"
-                                    {% if order_by == 'client__name_desc' %}selected{% endif %}>
-                                    Cliente&nbsp;Z-A</option>
-                                <option value="status" {% if order_by == 'status' %}selected{% endif %}>Estado&nbsp;A-Z
-                                </option>
-                                <option value="status_desc" {% if order_by == 'status_desc' %}selected{% endif %}>
-                                    Estado&nbsp;Z-A</option>
+                                <option value="priority" {% if order_by == 'priority' %}selected{% endif %}>
+                                    Prioridad&nbsp;alta&nbsp;primero</option>
+                                <option value="priority__desc" {% if order_by == 'priority__desc' %}selected{% endif %}>
+                                    Prioridad&nbsp;baja&nbsp;primero</option>
                             </select>
                         </div>
                         <button type="button" class="btn btn-sm btn-primary mx-2" data-bs-toggle="modal"
@@ -130,35 +126,9 @@
 
             <!-- start ACTIONS -->
             <div class="d-flex flex-wrap align-items-center">
-
-                <div class="d-none">
-                    <form method="POST" id="example_form">{% csrf_token %}
-                        <textarea type="text" id="id_ids" name="ids"></textarea>
-                    </form>
-                </div>
-                <button type="button" id="printLabels" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2"
-                    onclick="printSelectedItems()" disabled>
-                    Imprimir etiquetas
-                </button>
-                <button type="button" id="bulkAddTask" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2"
-                    onclick="createTask()" disabled>
-                    Asociar tarea
-                </button>
-                <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{totalEnvios}} elementos seleccionados</div>
-                <div class="my-1 mx-xl-3">
-                    <div id="clearSelectionDiv" class="hide-on-load">
-                        <a id="clearSelection" type="button" class="ms-2 text-decoration-none"
-                            onclick="removeSelection()" style="cursor: pointer;">Quitar selección
-                            <i class="bi bi-x"></i></a>
-                    </div>
-                </div>
                 <div class="d-flex d-lg-inline ms-auto p-2">
                     <a href="{% url 'envios:envio-add' %}" type="button" class="flex-fill btn btn-success btn-sm me-1">
                         <i class="bi bi-plus"></i>Crear nuevo
-                    </a>
-                    <a href="{% url 'envios:envio-bulk-add' %}" type="button"
-                        class="flex-fill btn btn-success btn-sm ms-1">
-                        <i class="bi bi-plus"></i>Carga masiva
                     </a>
                 </div>
             </div>
@@ -169,42 +139,37 @@
 
 
             <!-- start MAIN CONTENT -->
-            {% if envios %}
+            {% if tickets %}
 
             <div class="table-responsive">
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th>
-                                <div class="form-check">
-                                    <input class="form-check-input checkbox-select" type="checkbox" id="checkAll">
-                                </div>
-                            </th>
-                            <th>Fecha de carga</th>
+                            <th>#</th>
+                            <th>Fecha</th>
+                            <th class="cell-centered">Prioridad</th>
                             <th class="cell-centered">Estado</th>
-                            <th class="cell-centered">Tipo</th>
-                            <th>Cliente</th>
-                            <th>Destino</th>
-                            <th>Fecha límite</th>
-                            <th>Horario de entrega</th>
-                            <th class="cell-centered"></th>
+                            <th>Asunto</th>
+                            <th>Mensaje</th>
                         </tr>
                     </thead>
                     <tbody id="overrided-1" class="overrided-tbody">
-                        {% for envio in envios %}
-                        {% include 'envios/envio/snippets/item.html' with obj=envio counter=forloop.counter%}
+                        {% for ticket in tickets %}
+                        {% include 'tickets/snippets/item.html' with obj=ticket counter=forloop.counter%}
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
 
             <!-- Pagination -->
-            {% include 'envios/envio/snippets/pagination.html' with envios=envios %}
+            {% include 'tickets/snippets/pagination.html' with envios=envios %}
+
 
             {% else %}
 
             <div>
-                <p class="card-text">No se encontraron resultados que coincidan con la búsqueda: "{{query_by}}"</p>
+                <p class="card-text">No se encontraron resultados que coincidan con la búsqueda:
+                    "{{query_by}}"</p>
             </div>
 
             {% endif %}
@@ -214,6 +179,6 @@
     </div>
 </div>
 
-{% include 'envios/envio/snippets/list_js.html' %}
+{% include 'tickets/snippets/list_js.html' %}
 
 {% endblock content %}

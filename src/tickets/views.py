@@ -1,30 +1,163 @@
+# Basic Python
+from typing import List, Tuple
+from datetime import datetime, timedelta
+import unidecode
+
 # Django
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models import Q
 from django.shortcuts import redirect, render
 
 # Project
 from account.decorators import allowed_users
+from tickets.models import Ticket
 
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "EmployeeTier1"])
 def list_tickets_view(request):
-    ctx = {
-        "tickets": request.user.ticket_set.all(),
-    }
-    return render(request, "tickets/list.html", ctx)
+
+    context = {}
+
+    # Search
+    query = ""
+    if request.method == "GET":
+        query = request.GET.get("query_by", None)
+        if query:
+            context["query"] = str(query)
+
+        order_by = request.GET.get("order_by", '-date_created')
+        if order_by:
+            order_by = str(order_by)
+            context["order_by"] = order_by
+            if '_desc' in order_by:
+                order_by = "-" + order_by[:-5]
+
+        results_per_page = request.GET.get("results_per_page", None)
+        if results_per_page is None:
+            results_per_page = 30
+        context['results_per_page'] = str(results_per_page)
+
+        filters = {}
+        filter_by = request.GET.get('filter_by', "")
+        context['filters_count'] = 0
+        if filter_by:
+            filters, filter_count = decode_filters(filter_by)
+            context['filter_by'] = filter_by
+            context['filters_count'] = filter_count
+
+        # Filter tickets
+        tickets = get_tickets_queryset(query, order_by, **filters)
+
+        # Pagination
+        page = request.GET.get('page', 1)
+        tickets_paginator = Paginator(tickets, results_per_page)
+        try:
+            tickets = tickets_paginator.page(page)
+        except PageNotAnInteger:
+            tickets = tickets_paginator.page(results_per_page)
+        except EmptyPage:
+            tickets = tickets_paginator.page(tickets_paginator.num_pages)
+
+        context['tickets'] = tickets
+        context['totalTickets'] = len(tickets)
+        context['selected_tab'] = 'tickets-tab'
+    return render(request, "tickets/list.html", context)
+
+
+def get_tickets_queryset(
+        query: str = None, order_by_key: str = '-date_created',
+        **filters) -> List[Ticket]:
+    """Get all tickets that match provided query, if any. If none is given,
+    returns all tickets. Also, performs the query in the specified
+    order_by_key.
+    Finally, it also filters the query by user driven params, such as, for
+    example, 'date_created__gt'.
+
+    Args:
+        query (str, optional): words to match the query. Defaults to empyt str.
+        order_by_key (str, optional): to perform ordery by.
+        Defaults to 'date_created'.
+        **filters (Any): filter params to be passed to filter method.
+
+    Returns:
+        List[Ticket]: a list containing the envios which match at least
+        one query.
+    """
+    query = unidecode.unidecode(query) if query else ""
+    return list(Ticket.objects
+                # User driven filters
+                .filter(**filters)
+                # Query filters
+                .filter(
+                    Q(created_by__first_name__contains=query) |
+                    Q(created_by__last_name__contains=query) |
+                    Q(subject__contains=query) |
+                    Q(msg__contains=query) |
+                    Q(closed_msg__contains=query),
+                )
+                .order_by(order_by_key)
+                .distinct()
+                )
+
+
+def decode_filters(s: str = '') -> Tuple[dict, int]:
+    str_filters = s.split('_')
+    filters = {}
+    for filter in str_filters:
+        key = filter[0]
+        value = filter[1:]
+        if value:
+            if key == 'f':  # The filter is about date created since
+                filters['date_created__gte'] = sanitize_date(value)
+
+            if key == 't':  # The filter is about date created until
+                filters['date_created__lte'] = sanitize_date(
+                    value) + timedelta(days=1)
+
+            if key == 'p':  # The filter is about the priority
+                filters['priority'] = value
+
+            if key == 's':  # The filter is about the status
+                filters['status'] = value
+
+    return filters, len(filters)
+
+
+def sanitize_date(s: str) -> datetime:
+    """Parses the date given as a string
+    "yyyy-mm-dd" to the corresponding date object.
+
+    Args:
+        s (str): the date as a string.
+
+    Returns:
+        datetime: representing the date.
+    """
+    parts = s.split('-')
+    y = parts[0]
+    m = parts[1]
+    d = parts[2]
+    return datetime(int(y), int(m), int(d))
 
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "EmployeeTier1"])
 def ticket_detail_view(request, pk):
-    if not request.user.ticket_set.filter(pk).exists():
+    if not request.user.ticket_set.filter(pk=pk).exists():
         return redirect('tickets:list')
     ticket = request.user.ticket_set.get(pk=pk)
-    return render(request, 'tickets/detail.html', {'ticket': ticket})
+    context = {
+        'ticket': ticket,
+        'selected_tab': 'tickets-tab',
+    }
+    return render(request, 'tickets/detail.html', context)
 
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "EmployeeTier1"])
 def ticket_delete_view(request, pk):
-    return render(request, 'tickets/detail.html', {})
+    context = {}
+    context['selected_tab'] = 'tickets-tab'
+    return render(request, 'tickets/detail.html', context)

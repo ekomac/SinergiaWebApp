@@ -1,0 +1,74 @@
+<div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="baseModal" tabindex="-1"
+    aria-labelledby="baseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filtersModalLabel">Elegí cómo querés filtrar los tickets.
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- start DATES FROM AND TO FILTER -->
+                <div class="row g-2 mt-2">
+                    <div class="col form-floating">
+                        <div class="input-group mb-3">
+
+                            <!-- start DATE FROM -->
+                            <input type="date" class="form-control datepicker" name="max_delivery_date_since_modal"
+                                id="id_max_delivery_date_since_modal" value="" placeholder="Desde">
+                            <!-- end DATE FROM -->
+
+                            <span class="input-group-text">&nbsp;a&nbsp;</span>
+
+                            <!-- start DATE TO -->
+                            <input type="date" class="form-control datepicker" name="max_delivery_date_to_modal"
+                                id="id_max_delivery_date_to_modal" value="" placeholder="Desde">
+                            <!-- end DATE TO -->
+
+                        </div>
+                    </div>
+                </div>
+                <!-- end DATES FROM AND TO FILTER -->
+
+                <!-- start PRIORITY SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_priority_modal" class="form-label">Priority</label>
+                        <select id="id_priority_modal" name="priority_modal" class="form-select"
+                            aria-label="priority selection">
+                            <option value="">-----</option>
+                            <option value="1">Alta</option>
+                            <option value="2">Media</option>
+                            <option value="3">Baja</option>
+                        </select>
+                    </div>
+                    <!-- end PRIORITY SELECTION -->
+
+                    <!-- start STATUS SELECTION -->
+                    <div class="col">
+                        <label for="id_status_modal" class="form-label">Estado</label>
+                        <select id="id_status_modal" name="status_modal" class="form-select"
+                            aria-label="status selection">
+                            <option value="">-----</option>
+                            <option value="1">Enviado</option>
+                            <option value="2">Abierto</option>
+                            <option value="3">Cerrado</option>
+                        </select>
+                    </div>
+                    <!-- end STATUS SELECTION -->
+                </div>
+
+            </div>
+            <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    onclick="clearFilters()">Limpiar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                    onclick="applyFilters()">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
