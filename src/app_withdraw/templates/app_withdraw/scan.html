@@ -1,0 +1,109 @@
+{% extends 'base_app.html' %}
+
+{% load static %}
+
+{% block thumbnail_menu_item %}
+
+<img class="me-3" src="{% static 'res/images/withdraw-at-origin.png' %}" width="20" height="20" alt="">
+
+{% endblock thumbnail_menu_item %}
+
+{% block nav_items %}
+<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'app_withdraw:index' %}">Retirar</a></li>
+<li class="breadcrumb-item"><a href="{% url 'app_withdraw:deposit' deposit.pk carrier.pk %}">{{deposit.name}}</a></li>
+<li class="breadcrumb-item active" aria-current="page">Escáner</li>
+{% endblock nav_items %}
+
+{% block optional_subheader %}
+<div class="p-3 mb-0 pb-1">
+    <div class="d-inline-flex mb-2">
+        <div class="d-inline bg-warning px-1 rounded fw-bold" style="color: white;">
+            {{ carrier.first_name }} {{ carrier.last_name }} ({{ carrier.username }})
+        </div>
+        <div class="fw-bold mx-1">Retira 1 envío de</div>
+    </div>
+    <div class="d-inline-flex bg-dark px-1 m-0 rounded fw-bold" style="color: white;">
+        {{ deposit.name }} ({{ envios_count }} envíos)
+    </div>
+    <hr>
+    <h6>
+        Escanéa el envío que se va a retirar.
+    </h6>
+</div>
+{% endblock optional_subheader %}
+
+{% block content %}
+
+<div class=" d-flex justify-content-center aling-items-center">
+    <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+    <style>
+        #webCamera {
+            //width: calc(100vw - 20px);
+            height: 50vh;
+            margin: 0px auto;
+        }
+    </style>
+    <video id="webCamera" autoplay="true"></video>
+    <!--<button type="button" class="mt-2" id="btnChangeCamera" onclick="onBtnPressed();">Cambiar cámara</button>-->
+
+    <script type="text/javascript">
+        var ids = '{{ids}}'.split("-");
+        var currentCamera = 0;
+        var max_camaras = 0;
+        var _cameras;
+        var scanner = new Instascan.Scanner({
+            video: document.getElementById('webCamera'),
+            scanPeriod: 5,
+            mirror: false
+        });
+        scanner.addListener('scan', function (content) {
+            try {
+                var data = JSON.parse(content);
+                if ('envio_id' in data) {
+                    if (ids.includes(data.envio_id)) {
+                        location.href =
+                            "{% url 'app_withdraw:confirm-scanned' deposit.pk carrier.pk %}?envio_id=" +
+                            data.envio_id;
+                    } else {
+                        alert("El envío escaneado no está en depósito.");
+                    }
+                } else {
+                    alert("El QR escaneado es inválido.");
+                }
+            } catch (e) {
+                alert("El QR escaneado es inválido.");
+
+            }
+        });
+        Instascan.Camera.getCameras().then(function (cameras) {
+            _cameras = cameras;
+            if (cameras.length > 0) {
+                max_camaras = cameras.length - 1;
+                currentCamera = max_camaras;
+                scanner.start(cameras[currentCamera]);
+
+                $('#btnChangeCamera').click(function () {
+                    if (currentCamera == 0) {
+                        currentCamera = max_camaras;
+                    } else {
+                        currentCamera = currentCamera - 1;
+                    }
+                    scanner.start(_cameras[currentCamera]);
+                });
+
+            } else {
+                alert('No cameras found.');
+            }
+        }).catch(function (e) {
+            alert(e);
+        });
+    </script>
+</div>
+{% endblock content %}
+
+{% block optional_footer %}
+<div class="d-flex justify-content-center m-3">
+    <button id="btnChangeCamera" type="button" class="btn btn-secondary btn-sm mx-1">Cambiar cámara</button>
+</div>
+{% endblock optional_footer %}

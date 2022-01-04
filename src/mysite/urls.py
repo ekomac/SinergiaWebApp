@@ -19,9 +19,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from home.views import (
-    home_screen_view,
+    app_view,
+    admin_home_screen_view,
     prueba_view,
     delete_alert_from_session,
+    redirect_no_url,
 )
 from account.views import (
     login_view,
@@ -29,15 +31,23 @@ from account.views import (
 )
 
 urlpatterns = [
-    path('', home_screen_view, name='home'),
-    path('account/', include('account.urls')),
-    path('admin/', admin.site.urls),
+    path('admin/home', admin_home_screen_view, name='admin-home'),
+    path('admin/account/', include('account.urls')),
+    path('superadmin/', admin.site.urls),
     path('login/', login_view, name="login"),
-    path('logout/', logout_view, name="logout"),
-    path('envios/', include('envios.urls')),
-    path('prueba/', prueba_view, name='prueba'),
-    path('prices/', include('prices.urls')),
-    path('places/', include('places.urls')),
+    path('admin/logout/', logout_view, name="logout"),
+    path('admin/envios/', include('envios.urls')),
+    path('admin/prueba/', prueba_view, name='prueba'),
+    path('admin/prices/', include('prices.urls')),
+    path('admin/places/', include('places.urls')),
+    # path('admin/tickets/', include('tickets.urls')),
+    path('app/', app_view, name="index"),
+    path('app/deliver/', include('app_deliver.urls')),
+    path('app/deposit/', include('app_deposit.urls')),
+    # path('app/tickets/', include('app_tickets.urls')),
+    path('app/transfer/', include('app_transfer.urls')),
+    path('app/withdraw/', include('app_withdraw.urls')),
+    path('', redirect_no_url),
     path('delete-alert-from-session/<str:id>',
          delete_alert_from_session, name='delet-alert'),
 ]

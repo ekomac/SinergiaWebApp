@@ -36,12 +36,14 @@ main {
     body {
         overflow: auto;
     }
+
     #sidebarMenu {
         box-sizing: border-box;
         width: 100%;
         overflow-x: hidden;
         z-index: 800;
     }
+
     #not-header {
         position: relative;
         top: 0;
@@ -49,6 +51,7 @@ main {
         overflow-y: auto;
         z-index: 800;
     }
+
     main {
         position: relative;
         top: 0;
@@ -56,6 +59,7 @@ main {
         z-index: 800;
         overflow-y: auto;
     }
+
     footer {
         margin: 0;
         position: fixed;
@@ -69,6 +73,7 @@ main {
     body {
         overflow: hidden;
     }
+
     #sidebarMenu {
         position: fixed;
         top: 0;
@@ -79,11 +84,13 @@ main {
         min-height: 100vh;
         height: 100%;
     }
+
     #not-header {
         padding-left: 280px;
         padding-right: 0;
         overflow-y: auto;
     }
+
     footer {
         position: fixed;
         bottom: 0;
@@ -201,16 +208,8 @@ main {
 
 
 /************ TABLES *************/
-
-.table-striped>tbody>tr:nth-child(odd):hover,
-.table-striped>tbody>tr:nth-child(odd):hover {
-    background-color: #0D6EFD;
-    color: white;
-    cursor: pointer;
-}
-
-.table-striped>tbody>tr:nth-child(even):hover,
-.table-striped>tbody>tr:nth-child(even):hover {
+.table-hover tbody tr:hover td,
+.table-hover tbody tr:hover th {
     background-color: #0D6EFD;
     color: white;
     cursor: pointer;
@@ -302,4 +301,73 @@ main {
 
 .helper-4 {
     border: 2px solid yello;
+}
+
+.blinking {
+    -webkit-animation: 1s blink ease infinite;
+    -moz-animation: 1s blink ease infinite;
+    -ms-animation: 1s blink ease infinite;
+    -o-animation: 1s blink ease infinite;
+    animation: 1s blink ease infinite;
+
+}
+
+@keyframes blink {
+
+    from,
+    to {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@-moz-keyframes blink {
+
+    from,
+    to {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@-webkit-keyframes blink {
+
+    from,
+    to {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@-ms-keyframes blink {
+
+    from,
+    to {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+@-o-keyframes blink {
+
+    from,
+    to {
+        opacity: 0;
+    }
+
+    50% {
+        opacity: 1;
+    }
 }

@@ -25,7 +25,7 @@ SECRET_KEY = '(a_eb$o1c3tu%f!7grj-9zhv@xo1ck2=y^0dc75$w_5^2bt4hb'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -33,14 +33,22 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
 
     # OWN APPS
+    # 'baseapp',
+    'app_deliver',
+    'app_deposit',
+    'app_tickets',
+    'app_transfer',
+    'app_withdraw',
     'account',
     'clients',
+    'deposit',
     'envios',
     'home',
     'places',
     'prices',
-    'scanner',
     'staff',
+    'task',
+    'tickets',
     'tracking',
 
     # DJANGO
@@ -54,6 +62,7 @@ INSTALLED_APPS = [
 
     # THIRD PARTY
     'rest_framework_swagger',
+    'django_extensions',
     'simple_history',
 ]
 
@@ -66,6 +75,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = 'mysite.urls'
@@ -152,3 +162,23 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_cdn')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media_cdn')
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {"rich": {"datefmt": "[%X]"}},
+    "handlers": {
+        "console": {
+            "class": "rich.logging.RichHandler",
+            "formatter": "rich",
+            "level": "DEBUG",
+        }
+    },
+    "loggers": {"django": {"handlers": ["console"]}},
+}
+
+
+# PERMISSIONS LISTS
+TRANSFER_IN_NAME_OF_OTHERS = ["Admins", "EmployeeTier1"]
+DELIVER_IN_NAME_OF_OTHERS = ["Admins", "EmployeeTier1"]
+ACCESS_EMPLOYEE_APP = ["Admins", "EmployeeTier1", "EmployeeTier2"]

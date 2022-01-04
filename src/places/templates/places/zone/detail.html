@@ -29,8 +29,14 @@
             </div>
 
             <div class="card-text">
-                <div class="mt-3">Ultima vez actualizado por {{ object.updated_by.first_name }}
-                    {{ object.updated_by.last_name }} en {{ object.last_update }}</div>
+                <!--<div class="mt-3">Ultima vez actualizado por {{ object.updated_by.first_name }}
+                    {{ object.updated_by.last_name }} en {{ object.last_update }}</div>-->
+                <div class="mt-3">
+                    <i class="bi bi-clock-history"></i> Ultima vez actualizado {% if object.updated_by != None %}por <a
+                        href="#" data-bs-toggle="tooltip" data-bs-html="true"
+                        title="{{ object.updated_by.first_name }}&nbsp;{{ object.updated_by.last_name }}<em><br>{% if object.updated_by.client != None %}&nbsp;({{ object.updated_by.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ object.updated_by.username }}</a>{% else %}con
+                    un evento adminsitrativo{% endif %} el {{ object.last_update|date:"d/m/Y H:i" }}
+                </div>
 
                 <div class="mt-3">
                     {% if total_partidos > 0 %}
@@ -62,5 +68,14 @@
     </div>
 
 </div>
+
+<script>
+    $(document).ready(function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>
 
 {% endblock content %}

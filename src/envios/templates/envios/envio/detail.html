@@ -1,0 +1,270 @@
+{% extends 'base_system.html' %}
+
+{% block content %}
+<style>
+    .table thead th {
+        border-bottom: 2px solid #C556FF;
+    }
+
+    .spaced-tr {
+        height: 9vh;
+        //line-height: 45px;
+        //padding-left: 200px;
+    }
+
+    .date {
+        color: #C556FF;
+        color: red;
+    }
+</style>
+<div class="col-md-12 col-xl-7 col-xxl-6 d-flex-block">
+    <div class="card flex-fill shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Detalle de envío
+            </div>
+            <div class="">
+                <a href="{% url 'envios:envio-list' %}">
+                    <i class="bi bi-list"></i>Ver lista completa</a>
+            </div>
+        </div>
+        <div class="card-body">
+
+            <div class="card-title d-flex justify-content-between flex-wrap align-content-center">
+
+                <div class="d-flex justify-content-between align-items-center w-100">
+
+                    {% if object.status == "N" %}
+                    <h4>
+                        <div class="badge rounded-pill bg-danger">
+                            <i class="bi bi-plus-circle-dotted"></i> Nuevo
+                        </div>
+                    </h4>
+
+
+                    {% elif object.status == "S" %}
+                    <h4>
+                        <div class="badge rounded-pill bg-warning">
+                            <i class="bi bi-geo-alt"></i> En depósito
+                        </div>
+                    </h4>
+
+                    {% elif object.status == "M" %}
+                    <div class="d-flex justify-content-between">
+                        <div class="d-flex">
+                            <h4>
+                                <div class="badge rounded-pill bg-primary">
+                                    <i class="bi bi-truck"></i> Viajando
+                                </div>
+                            </h4>
+                        </div>
+                        <div class="d-flex justify-content-end" style="min-width: 10px;">
+                            <span
+                                class="blinking position-absolute top-1 start-1 translate-bottom mt-1 ms-2 p-1 rounded-circle"
+                                style="background-color: lime;">
+                                <span class="visually-hidden">New alerts</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    {% elif object.status == "D" %}
+                    <h4>
+                        <div class="badge rounded-pill bg-success"><i class="bi bi-check2"></i> Entregado</div>
+                    </h4>
+                    {% endif %}
+
+                </div>
+
+                <div class="me-2 w-100 align-content-center">
+                    <h2>#{{ object.id }} | {{ object.full_address }}</h2>
+                </div>
+                <div class="mt-1 d-flex aling-items-center">
+                    <i class="bi bi-clock-history"></i>&nbsp;Ultima vez
+                    actualizado{% if object.updated_by != None %}&nbsp;por&nbsp;<a href="#" data-bs-toggle="tooltip"
+                        data-bs-html="true"
+                        title="{{ object.updated_by.first_name }}&nbsp;{{ object.updated_by.last_name }}<em><br>{% if object.updated_by.client != None %}&nbsp;({{ object.updated_by.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ object.updated_by.username }}</a>{% else %}&nbsp;con&nbsp;un
+                    evento adminsitrativo{% endif %}&nbsp;el&nbsp;{{ object.date_updated|date:"d/m/Y H:i" }}
+                </div>
+
+            </div>
+
+            <hr>
+
+            <div class="card-text">
+                <div class="d-flex justify-content-start align-items-center flex-row mb-3">
+
+                    <a href="{% url 'envios:envio-download-labels' object.id %}"
+                        class="btn btn-outline-primary btn-sm me-1"><i class="bi bi-printer me-1"></i>Imprimir
+                        etiqueta</a>
+                    {% if envio.status == 'N' %}
+                    <a href="{% url 'envios:envio-edit' pk=object.id %}" class="btn btn-secondary btn-sm me-1"><i
+                            class="bi bi-pencil-square me-1"></i>Editar</a>
+                    {% endif %}
+                    <a href="{% url 'envios:envio-delete' object.id %}" class="btn btn-danger btn-sm me-1"><i
+                            class="bi bi-pencil-square me-1"></i>Eliminar</a>
+                </div>
+
+                <table class="table table-bordered">
+                    <tbody id="overrided-1" class="overrided-tbody">
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-shop-window"></i>
+                                Cliente</td>
+                            <td><a href="#">{{ object.client.name }}</a></td>
+                        </tr>
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-compass"></i>
+                                Localización</td>
+                            <td>
+                                <!-- NEW OR STILL -->
+                                {% if object.status == 'N' or object.status == 'S' %}
+                                En depósito {{ object.deposit.name }} ({{ object.deposit.client.name }})
+
+                                <!-- MOVING -->
+                                {% elif object.status == 'M' %}
+                                En manos de <a href="#" data-bs-toggle="tooltip" data-bs-html="true"
+                                    title="{{ object.carrier.full_name }}<em><br>{% if object.carrier.client != None %}&nbsp;({{ object.carrier.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ object.carrier.username }}</a>
+
+                                <!-- DELIVERED -->
+                                {% elif object.status == 'D' %}
+                                Entregado por <a href="#" data-bs-toggle="tooltip" data-bs-html="true"
+                                    title="{{ deliverer.full_name }}<em><br>{% if deliverer.client != None %}&nbsp;({{ deliverer.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ deliverer.username }}</a>
+                                el {{delivered_date}}
+
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-hash"></i> Tipo de
+                                envío
+                            </td>
+                            <td>
+                                {% if object.is_flex %}
+                                <span class="badge" style="background-color: #212529;">FLEX</span>
+                                {% else %}
+                                <span class="badge" style="background-color: #808080;">MENSAJERIA</span>
+                                {% endif %}</td>
+                        </tr>
+                        {% if object.is_flex %}
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-hash"></i> Id. Flex
+                            </td>
+                            <td>{{ object.flex_id }}</td>
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-card-list"></i> Detalle
+                            </td>
+                            <td>{{ object.get_detail_readable }}</td>
+                        </tr>
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-geo"></i> Destino
+                            </td>
+                            <td>
+                                <a data-bs-toggle="tooltip" data-bs-html="true" title='
+                                <div style="display: flex; justify-content: center;">
+                                    Dirección: {{ object.street }}<br>
+                                    Código Postal: {{ object.zipcode }}<br>
+                                    Town: {{ object.town.name }}<br>
+                                    Partido:
+                                    {{ object.town.partido.name }}{% if object.remarks != None and object.remarks != '' %}<br>Observaciones:
+                                    {{ object.remarks }}{% endif %}
+                                </div>'>
+                                    {{ object.full_address }}</a>
+                            </td>
+
+                        </tr>
+                        {% if object.receiver.name != None and object.receiver.name != '' %}
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-person"></i>
+                                Destinatario
+                            </td>
+                            <td>{{ object.receiver.name }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if object.receiver.doc != None and object.receiver.doc != '' %}
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-person-badge"></i> Nro.
+                                Doc. Destinatario</td>
+                            <td>{{ object.receiver.doc }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if object.phone != None and object.phone != '' %}
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-telephone"></i> Teléfono
+                            </td>
+                            <td>{{ object.receiver.phone }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if object.max_delivery_date != None and object.max_delivery_date != '' %}
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-calendar-date"></i>
+                                Fecha
+                                máxima de entrega
+                            </td>
+                            <td>{{ object.max_delivery_date }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if object.delivery_schedule != None and object.delivery_schedule != '' %}
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-clock"></i> Horarios
+                                de entrega
+                            </td>
+                            <td>{{ object.delivery_schedule }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if object.charge != None and object.charge != '' and object.charge > 0 %}
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-clock"></i> Cobrarle al
+                                destinatario
+                            </td>
+                            <td>{{ object.charge }}</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card flex-fill shadow-lg mt-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Movimientos del envío
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="table align-middle">
+                <thead>
+                    <tr class="bg-dark text-white fw-bold">
+                        <th>Fecha</th>
+                        <th>Movimiento</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movement in movements %}
+                    <tr class="spaced-tr p-2">
+                        <td class="text-nowrap" style=" color: #C556FF;">
+                            {{movement.date_created | date:"d/m/Y H:i"}}</td>
+                        <td>{{ movement.admin_display | safe}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+</script>
+
+{% endblock content %}

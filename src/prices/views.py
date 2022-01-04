@@ -1,14 +1,27 @@
+# Python
 import re
 from decimal import Decimal
+
+# Django
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from utils.forms import CheckPasswordForm
 
+# Project
+from account.decorators import allowed_users, allowed_users_in_class_view
+from account.models import Account
+
+
+from utils.forms import CheckPasswordForm
 from utils.views import DeleteObjectsUtil
+from utils.alerts.views import (
+    SuccessfulCreationAlertMixin,
+    SuccessfulUpdateAlertMixin,
+    update_alert_and_redirect
+)
 from .forms import (
     BulkEditAmountForm,
     CreateDeliveryCodeForm,
@@ -18,18 +31,13 @@ from .forms import (
     BulkEditPercentageForm,
 )
 
-from account.models import Account
 from .models import DeliveryCode, FlexCode
 from places.models import Town
-from utils.alerts.views import (
-    SuccessfulCreationAlertMixin,
-    SuccessfulUpdateAlertMixin,
-    update_alert_and_redirect
-)
 
 
 # ****************** MENSAJERIA ******************
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def delivery_codes_view(request, *args, **kwargs):
 
     context = {}
@@ -87,6 +95,10 @@ class DeliveryCodeAddView(
             ctx['name_suggestion'] = 'M01'
         return ctx
 
+    @allowed_users_in_class_view(roles="Admins")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
 
 class DeliveryCodeDetailView(LoginRequiredMixin, DetailView):
     login_url = '/login/'
@@ -102,6 +114,10 @@ class DeliveryCodeDetailView(LoginRequiredMixin, DetailView):
         context['total_towns'] = len(towns)
         context['code_type'] = 'd'
         return context
+
+    @allowed_users_in_class_view(roles="Admins")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class DeliveryCodeUpdateView(
@@ -130,8 +146,13 @@ class DeliveryCodeUpdateView(
     def get_success_url(self):
         return reverse('prices:dcode-detail', kwargs={'pk': self.object.pk})
 
+    @allowed_users_in_class_view(roles="Admins")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def delivery_code_bulk_fixed_update(request, dcodeids):
 
     ids = dcodeids.split("-")
@@ -172,6 +193,7 @@ def delivery_code_bulk_fixed_update(request, dcodeids):
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def delivery_code_bulk_percentage_update(request, dcodeids):
 
     ids = dcodeids.split("-")
@@ -214,6 +236,7 @@ def delivery_code_bulk_percentage_update(request, dcodeids):
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def delivery_code_delete(request, *args, **kwargs):
 
     dcodesids = kwargs['dcodeids'].split("-")
@@ -239,6 +262,7 @@ def delivery_code_delete(request, *args, **kwargs):
 
 # ****************** FLEX ******************
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def flex_codes_view(request, *args, **kwargs):
 
     context = {}
@@ -298,6 +322,10 @@ class FlexCodeAddView(
             ctx['name_suggestion'] = 'F01'
         return ctx
 
+    @allowed_users_in_class_view(roles="Admins")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
 
 class FlexCodeDetailView(LoginRequiredMixin, DetailView):
     login_url = '/login/'
@@ -313,6 +341,10 @@ class FlexCodeDetailView(LoginRequiredMixin, DetailView):
         context['total_towns'] = len(towns)
         context['code_type'] = 'f'
         return context
+
+    @allowed_users_in_class_view(roles="Admins")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class FlexCodeUpdateView(
@@ -341,8 +373,13 @@ class FlexCodeUpdateView(
     def get_success_url(self):
         return reverse('prices:fcode-detail', kwargs={'pk': self.object.pk})
 
+    @allowed_users_in_class_view(roles="Admins")
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def flex_code_bulk_fixed_update(request, fcodeids):
 
     ids = fcodeids.split("-")
@@ -382,6 +419,7 @@ def flex_code_bulk_fixed_update(request, fcodeids):
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def flex_code_bulk_percentage_update(request, fcodeids):
 
     ids = fcodeids.split("-")
@@ -423,6 +461,7 @@ def flex_code_bulk_percentage_update(request, fcodeids):
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def flex_code_delete(request, *args, **kwargs):
 
     fcodesids = kwargs['fcodeids'].split("-")

@@ -5,7 +5,7 @@ from account.forms import AccountAuthenticationForm
 
 def logout_view(request):
     logout(request)
-    return redirect('home')
+    return redirect('login')
 
 
 def login_view(request):
@@ -24,9 +24,15 @@ def login_view(request):
 
             if user:
                 login(request, user)
-                next_url = 'home'
-                spec_url = request.GET.get('next', '')
-                if spec_url and spec_url != '':
+                next_url = 'admin-home'
+                if user.groups.exists():
+                    if user.groups.filter(
+                            name__in=['Admins', 'Clients']).exists():
+                        next_url = 'admin-home'
+                    else:
+                        next_url = 'index'
+                spec_url = request.GET.get('next', None)
+                if spec_url:
                     return redirect(spec_url)
                 return redirect(next_url)
 

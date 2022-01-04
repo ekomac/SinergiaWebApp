@@ -1,6 +1,9 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import (
+    AbstractBaseUser, BaseUserManager, PermissionsMixin
+)
 from simple_history.models import HistoricalRecords
+from clients.models import Client
 
 
 class MyAccountManager(BaseUserManager):
@@ -56,7 +59,7 @@ def profile_pic_upload_location(instance, filename, *args, **kwargs):
     return f'account/{account_id}/profile-{account_id}'
 
 
-class Account(AbstractBaseUser):
+class Account(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(verbose_name="email",
                               max_length=100, unique=True)
@@ -67,10 +70,13 @@ class Account(AbstractBaseUser):
     is_admin = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    can_distribute = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     profile_picture = models.ImageField(verbose_name="profile picture",
                                         upload_to=profile_pic_upload_location,
                                         blank=True, null=True)
+    client = models.ForeignKey(
+        Client, on_delete=models.CASCADE, null=True, blank=True)
     history = HistoricalRecords()
 
     # USER INFO
@@ -85,7 +91,6 @@ class Account(AbstractBaseUser):
     dni_img = models.ImageField(verbose_name='doc picture',
                                 upload_to=doc_upload_location,
                                 blank=True, null=True)
-
     # USER DOCUMENTATION
     # role (client
     # admin
@@ -108,6 +113,9 @@ class Account(AbstractBaseUser):
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     objects = MyAccountManager()
+
+    def full_name(self):
+        return self.first_name + ' ' + self.last_name
 
     def __str__(self):
         return self.email

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from places.models import Partido, Town, Zone
+from places.models import Partido, ZipCode, Town, Zone
 
 
 class ZoneAdmin(admin.ModelAdmin):
@@ -29,6 +29,15 @@ class TownAdmin(admin.ModelAdmin):
     fieldsets = ()
 
 
+class ZipCodeAdmin(admin.ModelAdmin):
+    list_display = ('code', 'created_by', 'date_created', 'get_display_towns')
+    search_fields = ('code',)
+    filter_horizontal = ()
+    list_filter = ()
+    fieldsets = ()
+
+
 admin.site.register(Zone, ZoneAdmin)
 admin.site.register(Partido, PartidoAdmin)
 admin.site.register(Town, TownAdmin)
+admin.site.register(ZipCode, ZipCodeAdmin)

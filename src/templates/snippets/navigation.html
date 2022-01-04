@@ -1,29 +1,29 @@
+{% load static %}
 <nav id="sidebarMenu" class="col-12 col-md-auto d-md-flex flex-column bg-dark sidebar collapse">
-
     <div class="vertical-scroll d-flex flex-column flex-grow-1 position-relative nav nav-pills p-3 overflow-auto">
         <!-- Menu items container -->
         <ul class="d-flex flex-column nav nav-pills">
 
             <!-- START Dashboard -->
             <li class="nav-item {% if selected_tab == 'home-tab' %}activetab{% endif %} li-navigation">
-                <a id="home-tab" href="{% url 'home' %}" class="nav-link tab" aria-current="page">
+                <a id="home-tab" href="{% url 'admin-home' %}" class="nav-link tab" aria-current="page">
                     <i class="bi bi-house-door"></i> Inicio
                 </a>
             </li>
             <!-- END Dashboard -->
 
-            <!-- START Escáner -->
+            <!-- START Mobile App -->
             <li class="nav-item {% if selected_tab == 'scanner-tab' %}activetab{% endif %} li-navigation">
-                <a id="scanner-tab" href="#" class="nav-link tab" aria-current="page">
-                    <i class="bi bi-upc-scan"></i> Escáner
+                <a id="scanner-tab" href="{% url 'index' %}" class="nav-link tab" aria-current="page">
+                    <i class="bi bi-app-indicator"></i> App
                 </a>
             </li>
-            <!-- END Escáner -->
+            <!-- END Mobile App -->
 
 
             <!-- START Envíos -->
             <li class="nav-item {% if selected_tab == 'shipments-tab' %}activetab{% endif %} li-navigation">
-                <a id="shipments-tab" href="{% url 'envios:list' %}" class="nav-link tab">
+                <a id="shipments-tab" href="{% url 'envios:envio-list' %}" class="nav-link tab">
                     <i class="bi bi-truck"></i> Envíos
                 </a>
             </li>
@@ -199,6 +199,14 @@
             </li>
             <!-- END Contable -->
 
+            <!-- START Tickets -->
+            <li class="nav-item {% if selected_tab == 'tickets-tab' %}activetab{% endif %} li-navigation">
+                <a id="tickets-tab" href="#" class="nav-link tab">
+                    <i class="bi bi-magic"></i> Tickets
+                </a>
+            </li>
+            <!-- END Tickets -->
+
         </ul>
         <!-- END Menu items container -->
     </div>
@@ -215,10 +223,19 @@
             <a href="#" class="d-flex align-items-center text-white text-decoration-none dropdown-toggle"
                 id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
 
+                {% if request.user.profile_picture %}
+
                 <!-- PROFILE PIC -->
                 <img src="{{request.user.profile_picture.url}}" alt="Avatar" width="32" height="32"
                     class="rounded-circle me-2">
 
+                {% else %}
+
+                <!-- PROFILE PIC -->
+                <img src="{% static 'default_account.png' %}" style="background-color: white;" alt="Avatar" width="32"
+                    height="32" class="rounded-circle me-2">
+
+                {% endif %}
                 <!-- USERNAME -->
                 <strong class="ps-2">{{request.user.username}}</strong>
 

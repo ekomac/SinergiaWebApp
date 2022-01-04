@@ -5,6 +5,8 @@
 .session.sql
 *.session.sql
 
+/src/scripts/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

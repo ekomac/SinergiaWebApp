@@ -1,0 +1,143 @@
+{% extends 'base_app.html' %}
+
+{% load static %}
+
+{% block thumbnail_menu_item %}
+
+<img class="me-3" src="{% static 'res/images/withdraw-at-origin.png' %}" width="20" height="20" alt="">
+
+{% endblock thumbnail_menu_item %}
+
+{% block nav_items %}
+<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+<li class="breadcrumb-item">Entregar</li>
+<li class="breadcrumb-item">{{ request.user.username }}</li>
+<li class="breadcrumb-item">Escáner</li>
+<li class="breadcrumb-item active" aria-current="page">{{ envio.full_address }}</li>
+{% endblock nav_items %}
+
+{% block optional_subheader %}
+<div class="p-3 mb-0 pb-1">
+    <div class="d-inline-flex mb-2">
+        <div class="d-inline bg-warning px-1 rounded fw-bold" style="color: white;">
+            {{ request.user.first_name }} {{ request.user.last_name }} ({{ c_envios_count }})
+        </div>
+        <div class="fw-bold mx-1">Intento de entrega de</div>
+    </div>
+    <div class="d-inline-flex bg-primary px-1 m-0 rounded fw-bold" style="color: white;">
+        {{ envio.full_address }} ({{ envio.client.name }})
+    </div>
+    <hr>
+    <h6>
+        Seleccioná el resulto del intento de entrega.
+    </h6>
+</div>
+{% endblock optional_subheader %}
+
+{% block content %}
+<form method='POST' id="deliver_form" name="deliver_form" target="_top" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div style="display: none;">
+        <input type="text" id="id_eid" name="eid" value="{{ envio.pk }}">
+        <input type="text" id="id_result" name="result">
+    </div>
+
+    <div class="row mt-1 mb-1">
+        <div class="col-12 mt-2">
+            <label for="id_file" class="form-label">Si querés escanear alguna foto o archivo:</label>
+            <input class="form-control {% if form.proof.errors %}is-invalid{% endif %}" type="file" id="id_proof"
+                name="proof">
+            <div class="invalid-feedback">
+                {% for error in form.proof.errors %}
+                {% if "Allowed extensions are" in error %}
+                La extensión del archivo proporcionada no está permitida. Las extensiones permitidas son:
+                'pdf', 'xlsx', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'csv',
+                'bmp', 'tiff', 'tif.
+                {% else %}
+                {{error}}<br>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+
+    <ul class="list-group list-group-flush bg-white mt-3">
+        <li class="list-group-item list-menu-item p-3" onclick="onItemClick('success')" style="cursor: pointer;">
+            <div class="d-flex flex-row justify-content-between align-items-center my-2">
+                <div class="d-flex flex-column justify-content-center align-items-bottom">
+                    Entrega exitosa
+                </div>
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </li>
+        <li class="list-group-item list-menu-item p-3" onclick="onItemClick('rejected')" style="cursor: pointer;">
+            <div class="d-flex flex-row justify-content-between align-items-center my-2">
+                <div class="d-flex flex-column justify-content-center align-items-bottom">
+                    Rechazado en lugar de destino
+                </div>
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </li>
+        <li class="list-group-item list-menu-item p-3" onclick="onItemClick('reprogram')" style="cursor:
+        pointer;">
+            <div class="d-flex flex-row justify-content-between align-items-center my-2">
+                <div class="d-flex flex-column justify-content-center align-items-bottom">
+                    Reprogramado
+                </div>
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </li>
+        <li class="list-group-item list-menu-item p-3" onclick="onItemClick('not-respond')" style="cursor: pointer;">
+            <div class="d-flex flex-row justify-content-between align-items-center my-2">
+                <div class="d-flex flex-column justify-content-center align-items-bottom">
+                    Reprogramado
+                </div>
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </li>
+        <li class="list-group-item list-menu-item p-3" onclick="onItemClick('custom')" style="cursor: pointer;">
+            <div class="d-flex flex-row justify-content-between align-items-center my-2">
+                <div class="d-flex flex-column justify-content-center align-items-bottom">
+                    Otro
+                </div>
+                <i class="bi bi-chevron-right"></i>
+            </div>
+        </li>
+    </ul>
+
+    <div class="row m-1">
+        <div class="mt-2">
+            <label for="id_comment" class="form-label">Comentarios</label>
+            <textarea class="form-control" id="id_comment" name="comment" rows="3"></textarea>
+            <div class="invalid-feedback">
+                El mensaje es obligatorio si el motivo de no-entrega es "Otro".
+            </div>
+        </div>
+    </div>
+
+    {% block optional_footer %}
+</form>
+<script>
+    function onItemClick(result) {
+        $('#id_result').val(result);
+        if (result == "custom") {
+            var ta_comments = document.querySelector('#id_comment');
+            ta_comments.classList.remove("is-invalid");
+            ta_comments.classList.remove("is-valid");
+            if (ta_comments.value == "") {
+                ta_comments.classList.add("is-invalid");
+                return;
+            } else {
+                ta_comments.classList.add("is-valid");
+                $('#deliver_form').submit();
+            }
+        } else {
+            $('#deliver_form').submit();
+        }
+    }
+</script>
+{% endblock optional_footer %}
+
+{% endblock content %}
