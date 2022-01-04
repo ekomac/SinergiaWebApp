@@ -35,7 +35,7 @@ from utils.forms import CheckPasswordForm
 from utils.views import DeleteObjectsUtil
 
 
-ENVIOS_PER_PAGE = 30
+DEFAULT_ENVIOS_PER_PAGE = 30
 TIME_FORMAT = '%YYYY%MM%DD'
 
 
@@ -58,6 +58,15 @@ def envios_view(request):
             if '_desc' in order_by:
                 order_by = "-" + order_by[:-5]
 
+        results_per_page = request.GET.get(
+            'results_per_page', None)
+        if results_per_page is not None:
+            results_per_page = results_per_page
+            context['results_per_page'] = results_per_page
+        else:
+            results_per_page = DEFAULT_ENVIOS_PER_PAGE
+            context['results_per_page'] = str(results_per_page)
+
         filters = {}
         filter_by = request.GET.get('filter_by', "")
         context['filters_count'] = 0
@@ -71,11 +80,11 @@ def envios_view(request):
 
         # Pagination
         page = request.GET.get('page', 1)
-        envios_paginator = Paginator(envios, ENVIOS_PER_PAGE)
+        envios_paginator = Paginator(envios, results_per_page)
         try:
             envios = envios_paginator.page(page)
         except PageNotAnInteger:
-            envios = envios_paginator.page(ENVIOS_PER_PAGE)
+            envios = envios_paginator.page(results_per_page)
         except EmptyPage:
             envios = envios_paginator.page(envios_paginator.num_pages)
 

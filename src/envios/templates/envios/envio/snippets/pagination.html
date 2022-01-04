@@ -5,7 +5,7 @@
             {% if envios.has_previous %}
             <li class="page-item">
                 <a class="page-link"
-                    href="?{% if query_by %}q={{query_by}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}{% if filter_by %}filter_by={{ filter_by }}&{% endif %}page={{ envios.previous_page_number }}">&laquo;Anterior
+                    href="?{% if query_by %}q={{query_by}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}{% if results_per_page %}results_per_page={{ results_per_page }}&{% endif %}{% if filter_by %}filter_by={{ filter_by }}&{% endif %}page={{ envios.previous_page_number }}">&laquo;Anterior
                 </a>
             </li>
             {% endif %}
@@ -15,7 +15,7 @@
             <li class="page-item active"><a class="page-link">{{ i }}</a></li>
             {% else %}
             <li class="page-item"><a class="page-link"
-                    href="?{% if query_by %}q={{query_by}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}{% if filter_by %}filter_by={{ filter_by }}&{% endif %}page={{ i }}">{{ i }}</a>
+                    href="?{% if query_by %}q={{query_by}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}{% if results_per_page %}results_per_page={{ results_per_page }}&{% endif %}{% if filter_by %}filter_by={{ filter_by }}&{% endif %}page={{ i }}">{{ i }}</a>
             </li>
             {% endif %}
             {% endfor %}
@@ -23,11 +23,11 @@
             {% if envios.has_next %}
             <li class="page-item">
                 <a class="page-link"
-                    href="?{% if query_by %}q={{query_by}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}{% if filter_by %}filter_by={{ filter_by }}&{% endif %}page={{ envios.next_page_number }}">Siguiente</a>
+                    href="?{% if query_by %}q={{query_by}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}{% if results_per_page %}results_per_page={{ results_per_page }}&{% endif %}{% if filter_by %}filter_by={{ filter_by }}&{% endif %}page={{ envios.next_page_number }}">Siguiente</a>
             </li>
             <li class="page-item">
                 <a class="page-link"
-                    href="?{% if query_by %}q={{query_by}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}{% if filter_by %}filter_by={{ filter_by }}&{% endif %}page={{ envios.paginator.num_pages }}">Último&raquo;</a>
+                    href="?{% if query_by %}q={{query_by}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}{% if results_per_page %}results_per_page={{ results_per_page }}&{% endif %}{% if filter_by %}filter_by={{ filter_by }}&{% endif %}page={{ envios.paginator.num_pages }}">Último&raquo;</a>
             </li>
             {% endif %}
         </ul>

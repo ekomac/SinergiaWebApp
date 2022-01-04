@@ -17,6 +17,10 @@
             $('#list_form').submit();
         });
 
+        $('#id_results_per_page').change(function () {
+            $('#list_form').submit();
+        });
+
         $('#id_query_by').on('change paste keyup', function () {
             show('clearSearchDiv', $('#id_query_by').val() != '');
         });
@@ -131,11 +135,14 @@
     }
 
     function printSelectedItems() {
-        var url_mask = "{% url 'envios:envio-download-labels' 12345 %}".replace(/12345/, getSelectedIds());
+        var ids = getSelectedIds();
+        var url_mask = "{% url 'envios:envio-download-labels' 12345 %}".replace(/12345/, ids);
+        removeSelection();
         window.location.href = url_mask;
     }
 
     function createTask() {
+        removeSelection();
         alert("Próximamente...")
     }
 
