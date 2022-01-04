@@ -2,9 +2,10 @@
 import json
 import hashlib
 import unidecode
-from openpyxl.writer.excel import save_virtual_workbook
-from django.http.response import HttpResponse
 from datetime import datetime, timedelta
+from django.http.response import HttpResponse
+from django.http import JsonResponse
+from openpyxl.writer.excel import save_virtual_workbook
 from typing import List, Tuple
 
 # Django
@@ -24,7 +25,8 @@ from account.decorators import allowed_users, allowed_users_in_class_view
 from envios.decorators import allow_only_client_in_class_view
 from account.models import Account
 from deposit.models import Deposit
-from envios.forms import BulkLoadEnviosForm, CreateEnvioForm, UpdateEnvioForm
+from envios.forms import (
+    BulkLoadEnviosForm, CreateEnvioForm, EnviosIdsSelection, UpdateEnvioForm)
 from envios.models import BulkLoadEnvios, Envio
 from envios.utils import bulk_create_envios, create_xlsx_workbook
 from places.models import Partido, Town
@@ -306,8 +308,35 @@ def success_bulk_create_envios_view(request, pk):
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
-def download_shipment_labels_file_response(_, ids):
+@allowed_users(roles=["Admins", "Clients"])
+def post_selected_ids(request):
+    if request.is_ajax and request.method == "POST":
+        # get the form data
+        form = EnviosIdsSelection(request.POST)
+        # save the data and after fetch the object in instance
+        if form.is_valid():
+            print("is valid")
+            ids = form.cleaned_data['ids']
+            print(f'{ids=}')
+            # serialize in new friend object in json
+            # ser_instance = serializers.serialize('json', [ids, ])
+            # send to client side.
+            request.session['selected-ids-for-download'] = ids
+            return JsonResponse({"ids": ids}, status=200)
+        else:
+            # some form errors occured.
+            return JsonResponse({"error": form.errors}, status=400)
+
+    # some error occured
+    return JsonResponse({"error": ""}, status=400)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins", "Clients"])
+def download_shipment_labels_file_response(request):
+    ids = request.session.get('selected-ids-for-download', None)
+    if ids is None:
+        return HttpResponse("No ids selected", status=400)
     ids = ids.split('-')
     envios = Envio.objects.filter(id__in=ids)
     response = HttpResponse(content_type='application/pdf')

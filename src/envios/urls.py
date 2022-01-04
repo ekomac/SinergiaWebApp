@@ -6,6 +6,7 @@ from .views import (
     EnvioCreate,
     bulk_create_envios_view,
     handle_bulk_create_envios_view,
+    post_selected_ids,
     download_shipment_labels_file_response,
     success_bulk_create_envios_view,
     print_excel_file,
@@ -28,11 +29,10 @@ urlpatterns = [
 
 
     # ******************************* DOWNLAOD *******************************
-    path('download/<ids>/', download_shipment_labels_file_response,
+    path('post_ids/', post_selected_ids, name="post-selected-ids"),
+    path('download/', download_shipment_labels_file_response,
          name="envio-download-labels"),
     # ******************************* DOWNLAOD *******************************
-
-
 
     # ******************************* BULK *******************************
     path('bulk-add/', bulk_create_envios_view, name="envio-bulk-add"),

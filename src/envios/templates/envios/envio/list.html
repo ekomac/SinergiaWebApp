@@ -122,45 +122,47 @@
                 </div>
 
 
-                <!--</form>-->
-                <!-- end SEARCH AND ORDERING FUNCTIONALITIES -->
-
-                <hr class="bg-dark mt-4">
-
-
-                <!-- start ACTIONS -->
-                <div class="d-flex flex-wrap align-items-center">
-                    <button type="button" id="bulkDeleteDelivery" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2"
-                        onclick="printSelectedItems()" disabled>
-                        Imprimir etiquetas
-                    </button>
-                    <button type="button" id="bulkAddTask" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2"
-                        onclick="createTask()" disabled>
-                        Asociar tarea
-                    </button>
-                    <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{totalEnvios}} elementos seleccionados</div>
-                    <div class="my-1 mx-xl-3">
-                        <div id="clearSelectionDiv" class="hide-on-load">
-                            <a id="clearSelection" type="button" class="ms-2 text-decoration-none"
-                                onclick="removeSelection()" style="cursor: pointer;">Quitar selección
-                                <i class="bi bi-x"></i></a>
-                        </div>
-                    </div>
-                    <div class="d-flex d-lg-inline ms-auto p-2">
-                        <a href="{% url 'envios:envio-add' %}" type="button"
-                            class="flex-fill btn btn-success btn-sm me-1">
-                            <i class="bi bi-plus"></i>Crear nuevo
-                        </a>
-                        <a href="{% url 'envios:envio-bulk-add' %}" type="button"
-                            class="flex-fill btn btn-success btn-sm ms-1">
-                            <i class="bi bi-plus"></i>Carga masiva
-                        </a>
-                    </div>
-                </div>
-                <!-- end ACTIONS -->
-
             </form>
             <!-- end SEARCH AND ORDERING FUNCTIONALITIES -->
+
+            <hr class="bg-dark mt-4">
+
+
+            <!-- start ACTIONS -->
+            <div class="d-flex flex-wrap align-items-center">
+
+                <div class="d-none">
+                    <form method="POST" id="example_form">{% csrf_token %}
+                        <textarea type="text" id="id_ids" name="ids"></textarea>
+                    </form>
+                </div>
+                <button type="button" id="bulkDeleteDelivery" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2"
+                    onclick="printSelectedItems()" disabled>
+                    Imprimir etiquetas
+                </button>
+                <button type="button" id="bulkAddTask" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2"
+                    onclick="createTask()" disabled>
+                    Asociar tarea
+                </button>
+                <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{totalEnvios}} elementos seleccionados</div>
+                <div class="my-1 mx-xl-3">
+                    <div id="clearSelectionDiv" class="hide-on-load">
+                        <a id="clearSelection" type="button" class="ms-2 text-decoration-none"
+                            onclick="removeSelection()" style="cursor: pointer;">Quitar selección
+                            <i class="bi bi-x"></i></a>
+                    </div>
+                </div>
+                <div class="d-flex d-lg-inline ms-auto p-2">
+                    <a href="{% url 'envios:envio-add' %}" type="button" class="flex-fill btn btn-success btn-sm me-1">
+                        <i class="bi bi-plus"></i>Crear nuevo
+                    </a>
+                    <a href="{% url 'envios:envio-bulk-add' %}" type="button"
+                        class="flex-fill btn btn-success btn-sm ms-1">
+                        <i class="bi bi-plus"></i>Carga masiva
+                    </a>
+                </div>
+            </div>
+            <!-- end ACTIONS -->
 
 
             <hr class="bg-dark">

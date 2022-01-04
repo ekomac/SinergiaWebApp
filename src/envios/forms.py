@@ -421,3 +421,15 @@ class UpdateEnvioForm(forms.ModelForm):
                 'class': 'form-select',
             })
         }
+
+
+class EnviosIdsSelection(forms.Form):
+    ids = forms.CharField(
+        label='Ids de envíos', required=True,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': '1,2,3,4,5',
+            })
+    )
