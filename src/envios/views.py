@@ -348,6 +348,18 @@ def download_shipment_labels_file_response(request):
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles=["Admins", "Clients"])
+def download_single_shipment_label_file_response(_, pk):
+    envios = Envio.objects.filter(id__in=[pk])
+    response = HttpResponse(content_type='application/pdf')
+    hashed_ids = hashlib.md5(str(pk).encode('utf-8')).hexdigest()
+    file_name = 'etiquetas_' + hashed_ids
+    response['Content-Disposition'] = f'attachment; filename={file_name}.pdf'
+    PDFReport(response).create(envios)
+    return response
+
+
+@login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
 def handle_bulk_create_envios_view(request, pk):
     obj = BulkLoadEnvios.objects.get(id=pk)
