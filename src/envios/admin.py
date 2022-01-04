@@ -42,16 +42,6 @@ class BolsonAdmin(admin.ModelAdmin):
     fieldsets = ()
 
 
-class DepositOldAdmin(admin.ModelAdmin):
-    list_display = ('name', 'town', 'central', 'client',)
-    search_fields = ('name', 'town', 'central', 'client',)
-
-    filter_horizontal = ()
-    list_filter = ()
-    fieldsets = ()
-
-
 admin.site.register(Envio, EnvioAdmin)
 admin.site.register(BulkLoadEnvios, BulkLoadEnviosAdmin)
 admin.site.register(Bolson, BolsonAdmin)
-# admin.site.register(TrackingMovement, TrackingMovementAdmin)

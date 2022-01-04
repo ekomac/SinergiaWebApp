@@ -40,6 +40,7 @@ urlpatterns = [
     path('admin/prueba/', prueba_view, name='prueba'),
     path('admin/prices/', include('prices.urls')),
     path('admin/places/', include('places.urls')),
+    path('admin/tickets/', include('tickets.urls')),
     # path('admin/tickets/', include('tickets.urls')),
     path('app/', app_view, name="index"),
     path('app/deliver/', include('app_deliver.urls')),
