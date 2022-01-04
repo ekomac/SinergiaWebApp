@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'places',
     'prices',
     'staff',
+    'task',
     'tickets',
     'tracking',
 

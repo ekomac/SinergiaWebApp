@@ -121,17 +121,22 @@
         countCheckedItems();
     }
 
-    function printSelectedItems() {
+    function getSelectedIds() {
         // Get all checked checkboxes
-        var checkBoxesIds = Array.from(document.getElementsByClassName("item-checker"))
+        return Array.from(document.getElementsByClassName("item-checker"))
             .filter(checkBox => checkBox.checked == true).map(function (checkbox) {
                 var id = checkbox.id;
                 return id.split("-checker-")[1];
             }).join("-");
-        console.log(checkBoxesIds);
-        var url_mask = "{% url 'envios:envio-download-labels' 12345 %}".replace(/12345/, checkBoxesIds);
-        console.log("url -> " + url_mask);
+    }
+
+    function printSelectedItems() {
+        var url_mask = "{% url 'envios:envio-download-labels' 12345 %}".replace(/12345/, getSelectedIds());
         window.location.href = url_mask;
+    }
+
+    function createTask() {
+        alert("Próximamente...")
     }
 
     function clearSearch() {
