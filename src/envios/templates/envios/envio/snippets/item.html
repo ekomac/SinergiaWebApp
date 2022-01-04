@@ -4,7 +4,7 @@
         white-space: nowrap;
     }
 </style>
-<tr id="tr-{{obj.id}}" class="table-item"
+<tr id="tr-{{obj.id}}" class="table-item highlight-row"
     onclick="onItemClicked({{ obj.id }},'{% url 'envios:envio-detail' pk=obj.id %}');">
     <td id="td-{{obj.id}}" class="td-item-checker">
         <div class="form-check">

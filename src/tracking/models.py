@@ -97,29 +97,44 @@ class TrackingMovement(models.Model):
             and self.deposit.client is None
         withdraw_from_central = self.action == self.ACTION_RECOLECTION \
             and self.result == self.RESULT_TRANSFERED \
-            and self.deposit.client is None
+            and self.deposit.client is None and self.deposit.is_central
         withdraw_from_deposit = self.action == self.ACTION_RECOLECTION \
             and self.result == self.RESULT_TRANSFERED \
-            and self.deposit.client is None
+            and self.deposit.client is None and self.deposit.is_sinergia
         delivered = self.action == self.ACTION_DELIVERY_ATTEMPT \
             and self.result == self.RESULT_DELIVERED
+        rejected = self.action == self.ACTION_DELIVERY_ATTEMPT \
+            and self.result == self.RESULT_REJECTED_AT_DESTINATION
+        reprogramed = self.action == self.ACTION_DELIVERY_ATTEMPT \
+            and self.result == self.RESULT_REPROGRAMED
+        no_answer = self.action == self.ACTION_DELIVERY_ATTEMPT \
+            and self.result == self.RESULT_NO_ANSWER
 
         if added:
-            return '<b>Nuevo</b>: Agregado al sistema.'
+            return '<b>Nuevo</b>: agregado al sistema.'
         elif withdraw_from_origin:
-            return '<b>Ingreso</b>: Retirado del depósito de origen.'
+            return '<b>En nuestras manos</b>: retirado del depósito' +\
+                ' de origen e ingresó al circuito de distribución.'
         elif deposit:
-            return '<b>En depósito</b>: El envío ingreso en nuestro ' +\
-                f'depósito {self.deposi} y está listo para su distribución.'
+            return '<b>En depósito</b>: ingresó en nuestro ' +\
+                f'depósito "{self.deposit.name}" y está listo para su' +\
+                ' distribución.'
         elif withdraw_from_central:
-            return '<b>Salida de depósito</b>: El envío entró en el ' +\
-                'circuito de distribución.'
+            return '<b>Salida de depósito</b>: ' +\
+                'en camino al domicilio del destinatario.'
         elif withdraw_from_deposit:
-            return '<b>En depósito</b>: El envío está camino al' +\
+            return '<b>En depósito</b>: en camino al' +\
                 'domicilio del desinatario.'
         elif delivered:
-            return '<b>Entregado</b>: El envío se entregó con éxito.'
-
+            return '<b>Entregado</b>: se entregó con éxito.'
+        elif rejected:
+            return '<b>Intento de entrega</b>: el envío fue ' +\
+                'rechazado en destino.'
+        elif reprogramed:
+            return '<b>Intento de entrega</b>: se reprogramó la entrega.'
+        elif no_answer:
+            return '<b>Intento de entrega</b>: no pudimos entregar el envío' +\
+                ' porque nadie respondió en el domicilio de destino.'
         return self.__str__()
 
     def end_user_display(self):

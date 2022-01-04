@@ -111,7 +111,7 @@ def decode_filters(s: str = '') -> Tuple[dict, int]:
                 filters['is_flex'] = value == 'flex'
 
             if key == 'u':
-                filters['shipment_status'] = value
+                filters['status'] = value
 
     return filters, len(filters)
 
@@ -194,7 +194,8 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         ctx = super(EnvioDetailView, self).get_context_data(**kwargs)
         envio = ctx['object']
-        ctx['movements'] = envio.trackingmovement_set.all()
+        ctx['movements'] = envio.trackingmovement_set.all().order_by(
+            '-date_created')
         if envio.status == Envio.STATUS_DELIVERED:
             delivered_tracking_movement = envio.trackingmovement_set.filter(
                 result='success').first()

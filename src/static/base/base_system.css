@@ -208,16 +208,8 @@ main {
 
 
 /************ TABLES *************/
-
-.table-striped>tbody>tr:nth-child(odd):hover,
-.table-striped>tbody>tr:nth-child(odd):hover {
-    background-color: #0D6EFD;
-    color: white;
-    cursor: pointer;
-}
-
-.table-striped>tbody>tr:nth-child(even):hover,
-.table-striped>tbody>tr:nth-child(even):hover {
+.table-hover tbody tr:hover td,
+.table-hover tbody tr:hover th {
     background-color: #0D6EFD;
     color: white;
     cursor: pointer;

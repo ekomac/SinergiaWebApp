@@ -120,7 +120,8 @@ class PDFReport(object):
         frame.addFromList(story, self.canvas)
 
     def get_story_from_data(self, envio: Envio) -> List[Any]:
-        header = self.get_table_header(envio.client.name, envio.client.id)
+        envio_type = "Mercado Envíos Flex" if envio.is_flex else "Mensajería"
+        header = self.get_table_header(envio.client.name, envio_type)
         qr_code = self.get_qr_code(
             envio.id, envio.client.id, envio.town.id)
         table_below_qr_code = self.get_table_below_qr_code(
@@ -139,13 +140,13 @@ class PDFReport(object):
     def get_table_header(
         self,
         client_name: str = "",
-        client_id: str = ""
+        envio_type: str = ""
     ) -> Table:
         client_paragraph_style = self.stylesheet["Normal"]
         client_paragraph_style.alignment = 1
         client_paragraph_style.fontName = "Helvetica"
         client_paragraph = Paragraph(
-            f"<strong>{client_name}<br/>{client_id}</strong>",
+            f"<strong>{client_name}<br/>{envio_type}</strong>",
             client_paragraph_style)
         header_data = [[self.logo, client_paragraph]]
         table_header_style = TableStyle([

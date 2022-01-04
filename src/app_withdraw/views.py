@@ -116,9 +116,11 @@ def scan_view(request, deposit_pk, carrier_pk) -> HttpResponse:
 def confirm_scanned_view(request, deposit_pk, carrier_pk) -> HttpResponse:
     context = {}
     deposit = get_object_or_404(Deposit, pk=deposit_pk)
-    carrier = get_object_or_404(Account, pk=carrier_pk)
     context['deposit'] = deposit
+    carrier = get_object_or_404(Account, pk=carrier_pk)
     context['carrier'] = carrier
+    envios_count = deposit.envio_set.count()
+    context['envios_count'] = envios_count
     if request.method == 'GET':
         envio_id = request.GET.get('envio_id')
         context['envio'] = get_object_or_404(Envio, pk=envio_id)
