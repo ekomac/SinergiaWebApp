@@ -15,7 +15,7 @@ from django.views.generic.edit import CreateView
 # Project
 from account.decorators import allowed_users, allowed_users_in_class_view
 from tickets.forms import CreateTicketForm
-from tickets.models import Ticket
+from tickets.models import Attachment, Ticket
 
 
 @login_required(login_url='/login/')
@@ -175,11 +175,33 @@ def ticket_detail_view(request, pk):
     if not request.user.ticket_set.filter(pk=pk).exists():
         return redirect('tickets:list')
     ticket = get_object_or_404(Ticket, pk=pk)
+    attachments = Attachment.objects.filter(ticket__id=ticket.id)
+    attachments_count = attachments.count()
     context = {
         'ticket': ticket,
         'selected_tab': 'tickets-tab',
+        'attachments_count': attachments_count,
+        'attachments': [(
+            attachment.file.url, truncate_start(attachment.file.url)
+        ) for attachment in attachments],
     }
     return render(request, 'tickets/detail.html', context)
+
+
+def truncate_start(s: str) -> str:
+    """Truncates the given string to the last 30 characters.
+
+    Args:
+        s (str): the string to be truncated.
+
+    Returns:
+        str: the truncated string.
+    """
+    if '/' in s:
+        return ".../" + s[s.rfind('/') + 1:]
+    elif len(s) > 30:
+        return "..." + s[-30:]
+    return s
 
 
 @login_required(login_url='/login/')

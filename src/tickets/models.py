@@ -12,7 +12,7 @@ def upload_location(instance, filename):
     return file_path
 
 
-class File(models.Model):
+class Attachment(models.Model):
     """
     Model to store the images/files of a ticket.
     """

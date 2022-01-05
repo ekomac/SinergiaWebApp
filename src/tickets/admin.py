@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from tickets.models import File, Ticket
+from tickets.models import Attachment, Ticket
 
 
 class FileInline(admin.TabularInline):
-    model = File
+    model = Attachment
 
 
 class TicketAdmin(admin.ModelAdmin):

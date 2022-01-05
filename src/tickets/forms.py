@@ -1,10 +1,10 @@
 from django import forms
-from .models import File, Ticket
+from .models import Attachment, Ticket
 
 
 class FileModelForm(forms.ModelForm):
     class Meta:
-        model = File
+        model = Attachment
         fields = ['file']
 
 
@@ -35,6 +35,6 @@ class CreateTicketForm(forms.ModelForm):
             ticket.save()
             # For each file, create a File obj and save it
             for file in self.files.getlist('files'):
-                File(file=file, ticket=ticket).save()
+                Attachment(file=file, ticket=ticket).save()
         # Return the ticket instance (just saved or previously saved)
         return ticket

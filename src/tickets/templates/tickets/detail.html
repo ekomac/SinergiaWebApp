@@ -112,6 +112,22 @@
                         </tr>
                         {% endif %}
 
+
+
+                        {% if attachments_count > 0 %}
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i
+                                    class="bi bi-paperclip me-1"></i>Adjuntos
+                            </td>
+                            <td>
+                                {% for url, name in attachments %}
+                                <a href="{{ url }}">{{ name }}</a><br>
+                                {% endfor %}
+                            </td>
+                        </tr>
+
+                        {% endif %}
+
                     </tbody>
                 </table>
 
