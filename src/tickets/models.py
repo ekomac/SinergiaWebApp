@@ -3,6 +3,36 @@ from django.db import models
 from simple_history.models import HistoricalRecords
 
 
+def upload_location(instance, filename):
+    date = instance.date_created.strftime('%Y-%m-%d')
+    file_path = 'ticket_images/{ticket_id}-{date}-{filename}'.format(
+        ticket_id=instance.pk, date=date, filename=filename)
+    return file_path
+
+
+class File(models.Model):
+    """
+    Model to store the images/files of a ticket.
+    """
+    file = models.FileField(
+        upload_to=upload_location,
+        blank=False,
+        null=False,
+        verbose_name="Attachment"
+    )
+
+    ticket = models.ForeignKey(
+        'tickets.Ticket',
+        blank=False,
+        null=False,
+        verbose_name="Ticket",
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return 'Archivo: {} de {}'.format(self.file, self.ticket)
+
+
 class Ticket(models.Model):
 
     PRIORITY_CHOICES = (

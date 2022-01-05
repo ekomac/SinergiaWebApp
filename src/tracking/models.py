@@ -145,6 +145,6 @@ class TrackingMovement(models.Model):
         verbose_name_plural = 'Movimientos'
 
 
-@ receiver(post_delete, sender=TrackingMovement)
+@receiver(post_delete, sender=TrackingMovement)
 def submission_delete(sender, instance, **kwargs):
     instance.proof.delete(False)

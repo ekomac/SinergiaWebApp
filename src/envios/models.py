@@ -19,13 +19,6 @@ DETAIL_CODES = {
 }
 
 
-def upload_location(instance, filename, *args, **kwargs):
-    client_id = str(instance.client.id)
-    client_name = str(instance.client.name)
-    envio_id = str(instance.id)
-    return f'envios/{client_id}-{client_name}/{envio_id}-{filename}'
-
-
 class Destination(models.Model):
     street = models.CharField(
         verbose_name="Domicilio de entrega", max_length=100,
