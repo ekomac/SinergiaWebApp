@@ -3,14 +3,14 @@ from django.contrib import admin
 from tickets.models import Attachment, Ticket
 
 
-class FileInline(admin.TabularInline):
+class AttachmentInline(admin.TabularInline):
     model = Attachment
 
 
 class TicketAdmin(admin.ModelAdmin):
     list_display = ('priority', 'subject', 'msg', 'status', 'closed_reason',)
     search_fields = ('priority', 'subject', 'msg', 'status', 'closed_reason',)
-    inlines = [FileInline, ]
+    inlines = [AttachmentInline, ]
     filter_horizontal = ()
     list_filter = ()
     fieldsets = ()
