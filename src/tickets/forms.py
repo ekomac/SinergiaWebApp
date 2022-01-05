@@ -2,12 +2,6 @@ from django import forms
 from .models import Attachment, Ticket
 
 
-class FileModelForm(forms.ModelForm):
-    class Meta:
-        model = Attachment
-        fields = ['file']
-
-
 class CreateTicketForm(forms.ModelForm):
 
     files = forms.FileField(
