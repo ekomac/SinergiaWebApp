@@ -107,14 +107,16 @@
                 <table class="table table-bordered">
                     <tbody id="overrided-1" class="overrided-tbody">
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-shop-window"></i>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-shop-window"></i>
                                 Cliente</td>
-                            <td><a href="#">{{ object.client.name }}</a></td>
+                            <td class="w-100"><a href="#">{{ object.client.name }}</a></td>
                         </tr>
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-compass"></i>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-compass"></i>
                                 Localización</td>
-                            <td>
+                            <td class="w-100">
                                 <!-- NEW OR STILL -->
                                 {% if object.status == 'N' or object.status == 'S' %}
                                 En depósito {{ object.deposit.name }} ({{ object.deposit.client.name }})
@@ -134,10 +136,11 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-hash"></i> Tipo de
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-hash"></i>
+                                Tipo de
                                 envío
                             </td>
-                            <td>
+                            <td class="w-100">
                                 {% if object.is_flex %}
                                 <span class="badge" style="background-color: #212529;">FLEX</span>
                                 {% else %}
@@ -146,20 +149,23 @@
                         </tr>
                         {% if object.is_flex %}
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-hash"></i> Id. Flex
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-hash"></i>
+                                Id. Flex
                             </td>
-                            <td>{{ object.flex_id }}</td>
+                            <td class="w-100">{{ object.flex_id }}</td>
                         </tr>
                         {% endif %}
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-card-list"></i> Detalle
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-card-list"></i> Detalle
                             </td>
-                            <td>{{ object.get_detail_readable }}</td>
+                            <td class="w-100">{{ object.get_detail_readable }}</td>
                         </tr>
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-geo"></i> Destino
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-geo"></i>
+                                Destino
                             </td>
-                            <td>
+                            <td class="w-100">
                                 <a data-bs-toggle="tooltip" data-bs-html="true" title='
                                 <div style="display: flex; justify-content: center;">
                                     Dirección: {{ object.street }}<br>
@@ -175,49 +181,54 @@
                         </tr>
                         {% if object.receiver.name != None and object.receiver.name != '' %}
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-person"></i>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-person"></i>
                                 Destinatario
                             </td>
-                            <td>{{ object.receiver.name }}</td>
+                            <td class="w-100">{{ object.receiver.name }}</td>
                         </tr>
                         {% endif %}
                         {% if object.receiver.doc != None and object.receiver.doc != '' %}
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-person-badge"></i> Nro.
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-person-badge"></i> Nro.
                                 Doc. Destinatario</td>
-                            <td>{{ object.receiver.doc }}</td>
+                            <td class="w-100">{{ object.receiver.doc }}</td>
                         </tr>
                         {% endif %}
                         {% if object.phone != None and object.phone != '' %}
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-telephone"></i> Teléfono
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-telephone"></i> Teléfono
                             </td>
-                            <td>{{ object.receiver.phone }}</td>
+                            <td class="w-100">{{ object.receiver.phone }}</td>
                         </tr>
                         {% endif %}
                         {% if object.max_delivery_date != None and object.max_delivery_date != '' %}
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-calendar-date"></i>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-calendar-date"></i>
                                 Fecha
                                 máxima de entrega
                             </td>
-                            <td>{{ object.max_delivery_date }}</td>
+                            <td class="w-100">{{ object.max_delivery_date }}</td>
                         </tr>
                         {% endif %}
                         {% if object.delivery_schedule != None and object.delivery_schedule != '' %}
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-clock"></i> Horarios
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-clock"></i>
+                                Horarios
                                 de entrega
                             </td>
-                            <td>{{ object.delivery_schedule }}</td>
+                            <td class="w-100">{{ object.delivery_schedule }}</td>
                         </tr>
                         {% endif %}
                         {% if object.charge != None and object.charge != '' and object.charge > 0 %}
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-clock"></i> Cobrarle al
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-clock"></i>
+                                Cobrarle al
                                 destinatario
                             </td>
-                            <td>{{ object.charge }}</td>
+                            <td class="w-100">{{ object.charge }}</td>
                         </tr>
                         {% endif %}
                     </tbody>

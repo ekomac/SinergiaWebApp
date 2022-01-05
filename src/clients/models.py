@@ -1,9 +1,26 @@
+from django.conf import settings
+from django.core.validators import FileExtensionValidator
 from django.db import models
 from simple_history.models import HistoricalRecords
 
 
+def upload_location(instance, filename):
+    date = instance.date_created.strftime('%Y-%m-%d_%H-%M-%S')
+    file_path = 'contracts/{client_id}/{date}-{filename}'.format(
+        client_id=str(instance.id), date=date, filename=filename)
+    return file_path
+
+
 class Client(models.Model):
 
+    date_created = models.DateTimeField(
+        auto_now_add=True, verbose_name="Creación")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name="Autor",
+        blank=True, null=True, default=None,
+        related_name="client_created_by")
     name = models.CharField(verbose_name="client name",
                             max_length=50)
     contact_name = models.CharField(
@@ -14,7 +31,12 @@ class Client(models.Model):
         max_length=50, blank=True, null=True)
     contact_email = models.CharField(
         verbose_name="Email", max_length=50, blank=True, null=True)
-    discount = models.IntegerField(default=0, blank=False, null=False)
+    contract = models.FileField(
+        upload_to=upload_location, blank=True, null=True,
+        verbose_name="Contrato",
+        validators=[FileExtensionValidator(
+            allowed_extensions=['pdf', 'jpg', 'png', 'jpeg', 'doc', 'docx'])]
+    )
     history = HistoricalRecords()
 
     def __str__(self):
@@ -23,3 +45,30 @@ class Client(models.Model):
     class Meta:
         verbose_name = 'Cliente'
         verbose_name_plural = 'Clientes'
+
+
+class Discount(models.Model):
+
+    date_created = models.DateTimeField(
+        auto_now_add=True, verbose_name="Creación")
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        verbose_name="Autor",
+        blank=True, null=True, default=None,
+        related_name="discount_created_by")
+    amount = models.IntegerField(
+        default=0, blank=False, null=False, verbose_name="Porcentaje")
+    client = models.ForeignKey(
+        Client, on_delete=models.CASCADE, verbose_name="Es Flex")
+    partidos = models.ManyToManyField(
+        'places.Partido', blank=True, verbose_name="Partidos")
+    is_for_flex = models.BooleanField(default=False, verbose_name="Es Flex")
+    history = HistoricalRecords()
+
+    def __str__(self) -> str:
+        return "{a}% de descuento para {b} por {c} partidos".format(
+            a=self.amount,
+            b=self.client.name,
+            c=self.partidos.count()
+        )

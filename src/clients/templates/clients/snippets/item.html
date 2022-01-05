@@ -1,0 +1,19 @@
+<style>
+    td {
+        overflow: auto;
+        white-space: nowrap;
+    }
+</style>
+
+
+<tr scope="row" id="tr-{{ obj.id }}" class="table-item highlight-row"
+    onclick="window.location.href='{% url 'clients:detail' pk=obj.id %}'">
+    <th id="td-{{ obj.id }}" class="td-item-checker">{{ counter }}</th>
+    <td>{{ obj.name }}</td>
+    <td>{{ obj.contact_name }}</td>
+    <td>{{ obj.contact_phone }}</td>
+    <td>{{ obj.contact_email }}</td>
+    <td>{{ deposits }}</td>
+    <td class="cell-centered">{{ discounts_count }}</td>
+
+</tr>

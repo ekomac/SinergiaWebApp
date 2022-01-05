@@ -161,7 +161,7 @@
 
             <!-- START Clientes -->
             <li class="nav-item {% if selected_tab == 'clients-tab' %}activetab{% endif %} li-navigation">
-                <a id="clients-tab" href="#" class="nav-link tab">
+                <a id="clients-tab" href="{% url 'clients:list' %}" class="nav-link tab">
                     <i class="bi bi-people"></i> Clientes
                 </a>
             </li>
@@ -206,6 +206,16 @@
                 </a>
             </li>
             <!-- END Tickets -->
+
+            <!-- START SUPERADMIN -->
+            {% if request.user.is_superuser %}
+            <li class="nav-item li-navigation">
+                <a id="tickets-tab" href="{% url 'admin:index' %}" class="nav-link tab">
+                    <i class="bi bi-person-check"></i> Superadmin
+                </a>
+            </li>
+            {% endif %}
+            <!-- END SUPERADMIN -->
 
         </ul>
         <!-- END Menu items container -->

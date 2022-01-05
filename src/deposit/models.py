@@ -54,6 +54,9 @@ class Deposit(models.Model):
     def full_name(self):
         return self.__str__()
 
+    def full_address(self):
+        return f'{self.address.title()}, {self.zip_code} {self.town}'
+
     class Meta:
         verbose_name = 'Depósito'
         verbose_name_plural = 'Depósitos'

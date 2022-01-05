@@ -8,7 +8,7 @@
                 Crear objeto
             </div>
             <div>
-                <a href="{% url 'places:zone-list' %}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+                <a href="{% url 'tickets:list' %}"><i class="bi bi-arrow-left-short"></i>Volver</a>
             </div>
         </div>
         <div class="card-body">
@@ -55,18 +55,18 @@
                         {% endfor %}
                     </select>
                     <div class="invalid-feedback">
-                        Please select a valid state.
+                        Por favor, selección una opción
                     </div>
                 </div>
                 <!-- END PRIORITY SELECT -->
 
 
-                <!-- END FILES SELECT -->
+                <!-- start FILES SELECT -->
                 <div class="mb-3">
                     <label for="id_files" class="form-label">Archivos adjuntos</label>
                     <input class="form-control" type="file" id="id_files" name="files" multiple>
                 </div>
-                <!-- END FILES SELECT -->
+                <!-- end FILES SELECT -->
 
                 <div class="d-grid gap-2 d-md-flex mb-3 alert alert-warning" role="alert">
                     Por favor, antes de enviar este ticket, corroborá que toda la información sea correcta ya que, una

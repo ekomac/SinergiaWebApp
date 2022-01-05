@@ -1,0 +1,211 @@
+{% extends 'base_system.html' %}
+
+{% block content %}
+<style>
+    .table thead th {
+        border-bottom: 2px solid #C556FF;
+    }
+
+    td {
+        overflow: auto;
+
+    }
+</style>
+<div class="col-md-12 col-xl-9 col-xxl-8 d-flex-block">
+
+
+    <!-- start CARD DETAIL -->
+    <div class="card flex-fill shadow-lg">
+
+        <!-- start CARD HEADER -->
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Detalle de cliente
+            </div>
+            <div class="">
+                <a href="{% url 'clients:list' %}">
+                    <i class="bi bi-list"></i>Ver lista completa</a>
+            </div>
+        </div>
+        <!-- end CARD HEADER -->
+
+        <!-- start CARD BODY -->
+        <div class="card-body">
+
+            <!-- start DETAILS HEADER -->
+            <div class="card-title d-flex justify-content-between flex-wrap align-content-center">
+
+                <!-- start DETAIL TITLE -->
+                <div class="me-2 w-100 align-content-center">
+                    <h2>Cliente #{{ client.id }} | {{ client.name }}</h2>
+                </div>
+                <!-- end DETAIL TITLE -->
+
+                <!-- start DETAIL INFO -->
+                <div class="mt-1 d-flex aling-items-center">
+                    <i class="bi bi-clock-history"></i>&nbsp;Creado el {{ client.date_created|date:"d/m/Y" }} a las
+                    {{ client.date_created|date:"H:i" }}
+                </div>
+                <!-- end DETAIL INFO -->
+
+                <!-- start DETAIL BUTTONS -->
+                <div>
+                    <a href="{% url 'clients:edit' client.id %}" class="btn btn-secondary btn-sm me-1"><i
+                            class="bi bi-pencil me-1"></i>Editar</a>
+                    <a href="{% url 'clients:delete' client.id %}" class="btn btn-danger btn-sm me-1"><i
+                            class="bi bi-trash me-1"></i>Eliminar</a>
+                </div>
+                <!-- end DETAIL BUTTONS -->
+
+            </div>
+            <!-- end DETAILS HEADER -->
+
+            <hr>
+
+            <!-- start DETAILS -->
+            <div class="card-text">
+
+                <table class="table table-bordered">
+                    <tbody id="overrided-1" class="overrided-tbody">
+
+                        <!-- row CONTACT -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-person me-1"></i>Contacto</td>
+                            <td class="w-100">{{ client.contact_name }}</td>
+                        </tr>
+
+                        <!-- row PHONE -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-telephone me-1"></i>Teléfono</td>
+                            <td class="w-100">{{ client.contact_phone }}</td>
+                        </tr>
+
+                        <!-- row EMAIL -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-at me-1"></i>Correo electrónico</td>
+                            <td class="w-100">{{ client.contact_email }}</td>
+                        </tr>
+
+                        <!-- row CONTRACT -->
+                        {% if contract %}
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-file-text me-1"></i>Contrato</td>
+                            <td class="w-100"><a href="{{ client.contract.url }}">{{ contract }}</a></td>
+                        </tr>
+                        {% endif %}
+
+
+                    </tbody>
+                </table>
+
+            </div>
+            <!-- end DETAILS -->
+
+        </div>
+    </div>
+    <!-- end CARD DETAIL -->
+
+
+    <!-- start CARD DISCOUNTS -->
+    {% if discounts_count > 0 %}
+    <div class="card flex-fill shadow-lg mt-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div><i class="bi bi-percent me-1"></i>Descuentos</div>
+        </div>
+        <div class="card-body">
+            <table class="table align-middle">
+                <thead>
+                    <tr class="bg-dark text-white fw-bold">
+                        <th class="text-center">#</th>
+                        <th class="text-center">Tipo</th>
+                        <th class="text-center">Porcentaje</th>
+                        <th>Partidos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in discounts %}
+                    <tr>
+                        <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                        <td class="text-center">
+                            {% if obj.is_for_flex %}
+                            <span class="badge" style="background-color: #212529;">{{ obj.type | upper }}</span>
+                            {% else %}
+                            <span class="badge" style="background-color: #808080;">{{ obj.type | upper }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">{{ obj.amount }}%</td>
+                        <td>{{ obj.partidos }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+    {% endif %}
+    <!-- end CARD DISCOUNTS -->
+
+
+
+    <!-- start CARD DEPOSITS -->
+    {% if deposits_count > 0 %}
+    <div class="card flex-fill shadow-lg mt-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div><i class="bi bi-shop me-1"></i>Depósitos</div>
+        </div>
+        <div class="card-body">
+            <table class="table align-middle">
+                <thead>
+                    <tr class="bg-dark text-white fw-bold">
+                        <th class="text-center">#</th>
+                        <th class="text-center">Nombre</th>
+                        <th class="text-center">Domicilio</th>
+                        <th class="text-center">Teléfono</th>
+                        <th class="text-center">Email</th>
+                        <th class="text-center">Activo</th>
+                        <th class="text-center">Envíos</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for obj in deposits %}
+                    <tr onclick="depositClicked();" style="cursor: pointer;">
+                        <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                        <td class="text-center">{{ obj.name }}</td>
+                        <td class="text-center">{{ obj.full_address }}</td>
+                        <td class="text-center">{{ obj.phone }}</td>
+                        <td class="text-center">{{ obj.email }}</td>
+                        <td class="text-center">
+                            {% if obj.is_active %}
+                            <span class="badge bg-success">Si</span>
+                            {% else %}
+                            <span class="badge bg-danger">No</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">{{ obj.envio_set.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+    {% endif %}
+    <!-- end CARD DEPOSITS -->
+
+
+
+</div>
+<!-- end CARD BODY -->
+
+
+<script>
+    function depositClicked() {
+        window.location.href = "{% url 'admin-home' %}";
+    }
+</script>
+
+{% endblock content %}
