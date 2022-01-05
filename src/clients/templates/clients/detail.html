@@ -37,7 +37,7 @@
 
                 <!-- start DETAIL TITLE -->
                 <div class="me-2 w-100 align-content-center">
-                    <h2>Cliente #{{ client.id }} | {{ client.name }}</h2>
+                    <h2>#{{ client.id }} | {{ client.name }}</h2>
                 </div>
                 <!-- end DETAIL TITLE -->
 
@@ -76,27 +76,33 @@
                         </tr>
 
                         <!-- row PHONE -->
+
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-telephone me-1"></i>Teléfono</td>
-                            <td class="w-100">{{ client.contact_phone }}</td>
+                            <td class="w-100">{% if client.contact_phone %}{{ client.contact_phone }}{% else %}Sin
+                                especificar{% endif %}</td>
                         </tr>
+
 
                         <!-- row EMAIL -->
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-at me-1"></i>Correo electrónico</td>
-                            <td class="w-100">{{ client.contact_email }}</td>
+                            <td class="w-100">{% if client.email %}{{ client.contact_email }}{% else %}Sin
+                                especificar{% endif %}</td>
                         </tr>
 
                         <!-- row CONTRACT -->
-                        {% if contract %}
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-file-text me-1"></i>Contrato</td>
-                            <td class="w-100"><a href="{{ client.contract.url }}">{{ contract }}</a></td>
+                            <td class="w-100"><a
+                                    href="{{ client.contract.url }}">{% if contract %}{{ contract }}{% else %}No se
+                                    cargó{% endif %}</a>
+                            </td>
                         </tr>
-                        {% endif %}
+
 
 
                     </tbody>

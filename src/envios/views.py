@@ -29,10 +29,13 @@ from envios.forms import (
     BulkLoadEnviosForm, CreateEnvioForm, EnviosIdsSelection, UpdateEnvioForm)
 from envios.models import BulkLoadEnvios, Envio
 from envios.utils import bulk_create_envios, create_xlsx_workbook
-from places.models import Partido, Town
+from places.models import Partido
 from clients.models import Client
 from envios.reports import PDFReport
-from utils.alerts.views import update_alert_and_redirect
+from places.utils import get_localidades_as_JSON
+from tracking.models import TrackingMovement
+from utils.alerts.views import (
+    create_alert_and_redirect, update_alert_and_redirect)
 from utils.forms import CheckPasswordForm
 from utils.views import DeleteObjectsUtil
 
@@ -219,12 +222,24 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
     template_name = "envios/envio/add.html"
     form_class = CreateEnvioForm
 
-    # def form_valid(self, form):
-    #     form.instance.created_by = self.request.user
-    #     if deposit := Deposit.objects.filter(
-    #             client=form.instance.client).first():
-    #         form.instance.deposit = deposit
-    #     return super().form_valid(form)
+    def form_valid(self, form):
+        super(EnvioCreate, self).form_valid(form)
+        envio = self.object
+        envio.created_by = self.request.user
+        envio.save()
+
+        tm = TrackingMovement(
+            created_by=self.request.user,
+            action=TrackingMovement.ACTION_ADDED_TO_SYSTEM,
+            result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
+            deposit=envio.deposit
+        )
+        tm.save()
+        tm.envios.add(*[envio])
+
+        msg = f'El envío "{envio}" se creó correctamente.'
+        return create_alert_and_redirect(
+            self.request, msg, 'envios:envio-detail', envio.pk)
 
     def get_context_data(self, **kwargs):
         """
@@ -376,20 +391,6 @@ def print_excel_file(request, pk):
         save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename=result.xlsx'
     return response
-
-
-def get_localidades_as_JSON():
-    query = Town.objects.all().order_by('name')
-    mapped = list(map(map_town_to_dict, query))
-    return json.dumps(mapped)
-
-
-def map_town_to_dict(town):
-    return {
-        'id': town.id,
-        'name': town.name.title(),
-        'partido_id': town.partido.id,
-    }
 
 
 def get_deposits_as_JSON(client_id: int = None):

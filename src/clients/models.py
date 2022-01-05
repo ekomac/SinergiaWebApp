@@ -1,5 +1,6 @@
 from django.conf import settings
-from django.core.validators import FileExtensionValidator
+from django.core.validators import (
+    FileExtensionValidator, MaxValueValidator, MinValueValidator)
 from django.db import models
 from simple_history.models import HistoricalRecords
 
@@ -21,8 +22,9 @@ class Client(models.Model):
         verbose_name="Autor",
         blank=True, null=True, default=None,
         related_name="client_created_by")
-    name = models.CharField(verbose_name="client name",
-                            max_length=50)
+    name = models.CharField(
+        verbose_name="Razón social / Nombre fantasía", max_length=100,
+        blank=False, null=False)
     contact_name = models.CharField(
         verbose_name="Persona de contacto",
         max_length=50, blank=True, null=True)
@@ -38,6 +40,13 @@ class Client(models.Model):
             allowed_extensions=['pdf', 'jpg', 'png', 'jpeg', 'doc', 'docx'])]
     )
     history = HistoricalRecords()
+
+    @property
+    def contract_url(self):
+        if self.contract and self.contract is not None \
+                and hasattr(self.contract, 'url'):
+            return self.contract.url
+        return None
 
     def __str__(self):
         return self.name
@@ -57,8 +66,9 @@ class Discount(models.Model):
         verbose_name="Autor",
         blank=True, null=True, default=None,
         related_name="discount_created_by")
-    amount = models.IntegerField(
-        default=0, blank=False, null=False, verbose_name="Porcentaje")
+    amount = models.PositiveIntegerField(
+        default=0, blank=False, null=False, verbose_name="Porcentaje",
+        validators=[MinValueValidator(1), MaxValueValidator(100)])
     client = models.ForeignKey(
         Client, on_delete=models.CASCADE, verbose_name="Es Flex")
     partidos = models.ManyToManyField(

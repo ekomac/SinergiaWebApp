@@ -21,7 +21,7 @@ class CreateTicketForm(forms.ModelForm):
         }
 
     def save(self, commit=True):
-        """Before saving the ticket, save the files"""
+        """After saving the ticket, save the files"""
         # get current ticket instance
         ticket = self.instance
         if commit:

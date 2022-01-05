@@ -33,16 +33,16 @@ class Deposit(models.Model):
         on_delete=models.CASCADE, blank=False, null=False)
     phone = models.CharField(
         verbose_name="Teléfono", max_length=20,
-        default=None, blank=False, null=False)
+        default=None, blank=True, null=True)
     email = models.EmailField(
         verbose_name="Email", max_length=50,
-        default=None, blank=False, null=False)
+        default=None, blank=True, null=True)
     is_active = models.BooleanField(
         verbose_name="Activo?", default=True, blank=False, null=False)
     is_sinergia = models.BooleanField(
-        verbose_name="Es de sinergia?", default=True, blank=False, null=False)
+        verbose_name="Es de sinergia?", default=False, blank=False, null=False)
     is_central = models.BooleanField(
-        verbose_name="Es central?", default=True, blank=False, null=False)
+        verbose_name="Es central?", default=False, blank=False, null=False)
     history = HistoricalRecords()
 
     def __str__(self):

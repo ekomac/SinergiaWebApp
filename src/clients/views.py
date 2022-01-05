@@ -4,21 +4,22 @@ import unidecode
 
 # Django
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
-from django.views.generic.edit import CreateView
 
 
 # Project
-from account.decorators import allowed_users, allowed_users_in_class_view
-from clients.forms import CreateClientForm
+from account.decorators import allowed_users
+from clients.forms import CreateClientForm, EditClientForm
 from clients.models import Client, Discount
 from deposit.models import Deposit
 from places.models import Partido
-from tickets.models import Ticket
+from places.utils import get_localidades_as_JSON
+from utils.alerts.views import (
+    create_alert_and_redirect, update_alert_and_redirect)
+from utils.forms import CheckPasswordForm
+from utils.views import DeleteObjectsUtil
 
 
 @login_required(login_url='/login/')
@@ -48,7 +49,6 @@ def client_list_view(request):
 
         # Filter clients
         clients = get_tickets_queryset(query, order_by)
-        print(clients)
 
         # Pagination
         page = request.GET.get('page', 1)
@@ -112,50 +112,48 @@ def map_client_to_tuple(client: Client) -> Tuple[Client, str, int]:
     return (client, deposits, places_with_discounts)
 
 
-class CreateClientView(LoginRequiredMixin, CreateView):
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def create_client_view(request):
 
-    login_url = '/login/'
-    template_name = "clients/add.html"
-    form_class = CreateClientForm
-
-    def form_valid(self, form):
-        form.instance.created_by = self.request.user
-        return super(CreateClientView, self).form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        ctx = super(CreateClientView, self).get_context_data(**kwargs)
-        ctx['selected_tab'] = 'clients-tab'
-        return ctx
-
-    def get_success_url(self):
-        return reverse('clients:detail', kwargs={'pk': self.object.pk})
-
-    @allowed_users_in_class_view(roles=["Admins"])
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+    form = CreateClientForm()
+    if request.method == 'POST':
+        form = CreateClientForm(request.POST, request.FILES, user=request.user)
+        if form.is_valid():
+            client = form.save()
+            msg = f'El cliente "{client}" se creó correctamente.'
+            return create_alert_and_redirect(
+                request, msg, 'clients:detail', client.pk)
+    context = {
+        'form': form,
+        'selected_tab': 'clients-tab',
+        'partidos': Partido.objects.all().order_by("name"),
+        'places': get_localidades_as_JSON(),
+    }
+    return render(request, 'clients/add.html', context)
 
 
-class EditClientView(LoginRequiredMixin, CreateView):
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def edit_client_view(request, pk):
 
-    login_url = '/login/'
-    template_name = "tickets/add.html"
-    form_class = CreateClientForm
-
-    def form_valid(self, form):
-        form.instance.created_by = self.request.user
-        return super(EditClientView, self).form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        ctx = super(EditClientView, self).get_context_data(**kwargs)
-        ctx['selected_tab'] = 'tickets-tab'
-        return ctx
-
-    def get_success_url(self):
-        return reverse('tickets:detail', kwargs={'pk': self.object.pk})
-
-    @allowed_users_in_class_view(roles=["Admins", "Clients", "EmployeeTier1"])
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+    if request.method == 'POST':
+        form = EditClientForm(request.POST, request.FILES,
+                              instance=Client.objects.get(pk=pk))
+        if form.is_valid():
+            client = form.save(commit=False)
+            client.save()
+            msg = f'El cliente "{client}" se actualizó correctamente.'
+            return update_alert_and_redirect(
+                request, msg, 'clients:detail', pk)
+    else:
+        form = EditClientForm(instance=Client.objects.get(pk=pk))
+    context = {
+        'form': form,
+        'selected_tab': 'clients-tab',
+        'client': Client.objects.get(pk=pk),
+    }
+    return render(request, 'clients/edit.html', context)
 
 
 @login_required(login_url='/login/')
@@ -176,8 +174,8 @@ def client_detail_view(request, pk):
         'deposits': deposits,
         'contract': None,
     }
-    if client.contract is not None:
-        context['contract'] = truncate_start(client.contract.url)
+    if client.contract_url is not None:
+        context['contract'] = truncate_start(client.contract_url)
     return render(request, 'clients/detail.html', context)
 
 
@@ -186,6 +184,9 @@ def truncate_start(s: str, max_chars: int = 30) -> str:
 
     Args:
         s (str): the string to be truncated.
+        max_chars (int, optional): the maximum number of characters to be used,
+        if the string is longer than this, or if s doesn't contains a '/'.
+        Defaults to 30.
 
     Returns:
         str: the truncated string.
@@ -218,31 +219,32 @@ def map_discount_to_dict(discount: Discount) -> Dict[str, str]:
     }
 
 
-def truncate_start(s: str) -> str:
-    """Truncates the given string to the last 30 characters.
-
-    Args:
-        s(str): the string to be truncated.
-
-    Returns:
-        str: the truncated string.
-    """
-    if '/' in s:
-        return ".../" + s[s.rfind('/') + 1:]
-    elif len(s) > 30:
-        return "..." + s[-30:]
-    return s
-
-
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1"])
-def client_delete_view(request, pk):
+@allowed_users(roles="Admins")
+def client_delete_view(request, pk, **kwargs):
+
+    delete_utility = DeleteObjectsUtil(
+        model=Client,
+        model_ids=pk,
+        order_by='date_created',
+        request=request,
+        selected_tab='clients-tab'
+    )
+
+    context = {}
     if request.method == 'POST':
-        ticket = get_object_or_404(Ticket, pk=pk)
-        ticket.delete()
-        return redirect('tickets:list')
-    context = {
-        'ticket': get_object_or_404(Ticket, pk=pk),
-        'selected_tab': 'tickets-tab'
-    }
-    return render(request, 'tickets/delete.html', context)
+        form = CheckPasswordForm(request.POST or None,
+                                 current_password=request.user.password)
+        if form.is_valid():
+            delete_utility.delete_objects()
+            delete_utility.create_alert()
+            return redirect('clients:list')
+    else:  # Meaning is a GET request
+        form = CheckPasswordForm()
+    context = delete_utility.get_context_data()
+    context['form'] = form
+    client = get_object_or_404(Client, pk=pk)
+    context['client'] = client
+    context['deposits'] = client.deposit_set.all()
+    context['discounts'] = client.discount_set.all()
+    return render(request, "clients/delete.html", context)

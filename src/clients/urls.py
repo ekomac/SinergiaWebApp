@@ -2,8 +2,8 @@ from django.urls import path
 
 from .views import (
     client_list_view,
-    CreateClientView,
-    EditClientView,
+    create_client_view,
+    edit_client_view,
     client_detail_view,
     client_delete_view
 )
@@ -13,8 +13,8 @@ urlpatterns = [
 
     # ******************************* ENVIOS *******************************
     path('', client_list_view, name="list"),
-    path('add/', CreateClientView.as_view(), name="add"),
+    path('add/', create_client_view, name="add"),
     path('<int:pk>/', client_detail_view, name="detail"),
-    path('<int:pk>/edit/', EditClientView.as_view(), name="edit"),
+    path('<int:pk>/edit/', edit_client_view, name="edit"),
     path('<int:pk>/delete/', client_delete_view, name="delete"),
 ]
