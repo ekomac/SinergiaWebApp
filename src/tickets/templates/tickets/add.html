@@ -1,0 +1,84 @@
+{% extends 'base_system.html' %} {% block content %}
+
+<div class="col-md-12 col-lg-8 col-xl-6 col-xxl-5 d-flex-block">
+    <form method='POST' id="id_form" class="card flex-fill shadow-lg bg-white" name="form" target="_top"
+        enctype="multipart/form-data">{% csrf_token %}
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Crear objeto
+            </div>
+            <div>
+                <a href="{% url 'places:zone-list' %}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <h3 class="card-title text-center mt-3">CREAR TICKET</h3>
+
+            <div class="row g-3">
+
+                <!-- START SUBJECT INPUT -->
+                <div class="col-12">
+                    <label for="id_subject" class="form-label">Asunto</label>
+                    <input id="id_subject" name="subject" type="text"
+                        {% if form.subject.value %}value="{{form.subject.value}}" {% endif %}
+                        class="form-control {% if form.subject.errors %}is-invalid{% endif %}" required>
+                    <div class="invalid-feedback">
+                        {% for error in form.subject.errors %}{{error}}<br>{% endfor %}
+                    </div>
+
+                </div>
+                <!-- END SUBJECT INPUT -->
+
+
+                <!-- START MESSAGE INPUT -->
+                <div class="col-12">
+                    <label for="id_msg" class="form-label">Mensaje</label>
+                    <textarea id="id_msg" name="msg" type="text" {% if form.msg.value %}value="{{form.msg.value}}"
+                        {% endif %} rows="3" class="form-control {% if form.msg.errors %}is-invalid{% endif %}"
+                        required></textarea>
+                    <div class="invalid-feedback">
+                        {% for error in form.msg.errors %}{{error}}<br>{% endfor %}
+                    </div>
+
+                </div>
+                <!-- END MESSAGE INPUT -->
+
+
+                <!-- START PRIORITY SELECT -->
+                <div class="col-12">
+                    <label for="selectPartido" class="form-label">Prioridad</label>
+                    <select class="form-select {% if form.priority.errors %}is-invalid{% endif %}" id="id_priority"
+                        name="priority" required>
+                        <option selected disabled value="">Elegir...</option>
+                        {% for id, name in form.priority.field.choices %}
+                        <option value="{{ id }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="invalid-feedback">
+                        Please select a valid state.
+                    </div>
+                </div>
+                <!-- END PRIORITY SELECT -->
+
+
+                <!-- END FILES SELECT -->
+                <div class="mb-3">
+                    <label for="id_files" class="form-label">Archivos adjuntos</label>
+                    <input class="form-control" type="file" id="id_files" name="files" multiple>
+                </div>
+                <!-- END FILES SELECT -->
+
+
+                <!-- START SUMBIT BUTTON -->
+                <div class="d-grid gap-2 d-md-flex">
+                    <input type="submit" value="Enviar ticket" class="btn btn-primary">
+                </div>
+                <!-- END SUMBIT BUTTON -->
+
+            </div>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

@@ -5,12 +5,16 @@ import unidecode
 
 # Django
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.generic.edit import CreateView
 
 # Project
-from account.decorators import allowed_users
+from account.decorators import allowed_users, allowed_users_in_class_view
+from tickets.forms import CreateTicketForm
 from tickets.models import Ticket
 
 
@@ -142,12 +146,35 @@ def sanitize_date(s: str) -> datetime:
     return datetime(int(y), int(m), int(d))
 
 
+class CreateTicketView(LoginRequiredMixin, CreateView):
+
+    login_url = '/login/'
+    template_name = "tickets/add.html"
+    form_class = CreateTicketForm
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super(CreateTicketView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        ctx = super(CreateTicketView, self).get_context_data(**kwargs)
+        ctx['selected_tab'] = 'tickets-tab'
+        return ctx
+
+    def get_success_url(self):
+        return reverse('tickets:detail', kwargs={'pk': self.object.pk})
+
+    @allowed_users_in_class_view(roles=["Admins", "Clients", "EmployeeTier1"])
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "EmployeeTier1"])
 def ticket_detail_view(request, pk):
     if not request.user.ticket_set.filter(pk=pk).exists():
         return redirect('tickets:list')
-    ticket = request.user.ticket_set.get(pk=pk)
+    ticket = get_object_or_404(Ticket, pk=pk)
     context = {
         'ticket': ticket,
         'selected_tab': 'tickets-tab',
@@ -158,6 +185,12 @@ def ticket_detail_view(request, pk):
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "EmployeeTier1"])
 def ticket_delete_view(request, pk):
-    context = {}
-    context['selected_tab'] = 'tickets-tab'
-    return render(request, 'tickets/detail.html', context)
+    if request.method == 'POST':
+        ticket = get_object_or_404(Ticket, pk=pk)
+        ticket.delete()
+        return redirect('tickets:list')
+    context = {
+        'ticket': get_object_or_404(Ticket, pk=pk),
+        'selected_tab': 'tickets-tab'
+    }
+    return render(request, 'tickets/delete.html', context)

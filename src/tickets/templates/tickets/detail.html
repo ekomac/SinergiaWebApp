@@ -1,0 +1,125 @@
+{% extends 'base_system.html' %}
+
+{% block content %}
+<style>
+    .table thead th {
+        border-bottom: 2px solid #C556FF;
+    }
+
+    .spaced-tr {
+        height: 9vh;
+        //line-height: 45px;
+        //padding-left: 200px;
+    }
+
+    .date {
+        color: #C556FF;
+        color: red;
+    }
+</style>
+<div class="col-md-12 col-xl-7 col-xxl-6 d-flex-block">
+    <div class="card flex-fill shadow-lg">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Detalle de envío
+            </div>
+            <div class="">
+                <a href="{% url 'envios:envio-list' %}">
+                    <i class="bi bi-list"></i>Ver lista completa</a>
+            </div>
+        </div>
+        <div class="card-body">
+
+            <div class="card-title d-flex justify-content-between flex-wrap align-content-center">
+
+                <div class="me-2 w-100 align-content-center">
+                    <h2>Ticket #{{ ticket.id }}</h2>
+                </div>
+                <div class="mt-1 d-flex aling-items-center">
+                    <i class="bi bi-clock-history"></i>&nbsp;Creado el {{ ticket.date_created|date:"d/m/Y" }} a las
+                    {{ ticket.date_created|date:"H:i" }}
+                </div>
+                {% if ticket.status != '3' %}
+                <a href="{% url 'tickets:delete' ticket.id %}" class="btn btn-danger btn-sm me-1"><i
+                        class="bi bi-trash me-1"></i>Eliminar</a>
+                {% endif %}
+
+            </div>
+
+            <hr>
+
+            <div class="card-text">
+
+                <table class="table table-bordered">
+                    <tbody id="overrided-1" class="overrided-tbody">
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-tag me-1"></i>
+                                Asunto</td>
+                            <td>{{ ticket.subject }}</td>
+                        </tr>
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i
+                                    class="bi bi-chat-left-text me-1"></i>
+                                Mensaje</td>
+                            <td>
+                                {{ ticket.msg }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-bell me-1"></i>Prioridad
+                            </td>
+                            <td>
+                                {% if ticket.priority == '1' %}
+                                <span class="badge rounded-pill bg-danger fw-5">{{ ticket.get_priority_display }}</span>
+                                {% elif ticket.priority == '2' %}
+                                <span
+                                    class="badge rounded-pill bg-primary fw-5">{{ ticket.get_priority_display }}</span>
+                                {% elif ticket.priority == '3' %}
+                                <span
+                                    class="badge rounded-pill bg-secondary fw-5">{{ ticket.get_priority_display }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i
+                                    class="bi bi-broadcast me-1"></i>Estado
+                            </td>
+                            <td>
+                                <span class="badge" style="background-color:
+            {% if ticket.status == '1' %}#C0BCAE{% elif ticket.status == '2' %}#817D6F{% else %}#212529;{% endif %};">
+                                    {{ ticket.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+
+                        {% if ticket.status == '3' %}
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-x-lg me-1"></i>Motivo
+                                de cierre
+                            </td>
+                            <td>
+                                {{ ticket.get_closed_reason_display }}
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="bg-dark fw-bolder" style="color: white;"><i
+                                    class="bi bi-chat-left-text me-1"></i>Mensaje de cierre
+                            </td>
+                            <td>
+                                {{ ticket.closed_msg }}
+                            </td>
+                        </tr>
+                        {% endif %}
+
+                    </tbody>
+                </table>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}

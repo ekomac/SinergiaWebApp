@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'django_extensions',
     'simple_history',
+    'django_cleanup.apps.CleanupConfig',
 ]
 
 MIDDLEWARE = [

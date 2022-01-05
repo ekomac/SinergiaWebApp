@@ -101,7 +101,7 @@
                                 </option>
                                 <option value="priority" {% if order_by == 'priority' %}selected{% endif %}>
                                     Prioridad&nbsp;alta&nbsp;primero</option>
-                                <option value="priority__desc" {% if order_by == 'priority__desc' %}selected{% endif %}>
+                                <option value="priority_desc" {% if order_by == 'priority_desc' %}selected{% endif %}>
                                     Prioridad&nbsp;baja&nbsp;primero</option>
                             </select>
                         </div>
@@ -127,8 +127,8 @@
             <!-- start ACTIONS -->
             <div class="d-flex flex-wrap align-items-center">
                 <div class="d-flex d-lg-inline ms-auto p-2">
-                    <a href="{% url 'envios:envio-add' %}" type="button" class="flex-fill btn btn-success btn-sm me-1">
-                        <i class="bi bi-plus"></i>Crear nuevo
+                    <a href="{% url 'tickets:add' %}" type="button" class="flex-fill btn btn-success btn-sm me-1">
+                        <i class="bi bi-plus"></i>Crear ticket
                     </a>
                 </div>
             </div>

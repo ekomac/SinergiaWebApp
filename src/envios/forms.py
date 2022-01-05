@@ -41,7 +41,7 @@ class BulkLoadEnviosForm(forms.ModelForm):
     def __init__(self, user=None, *args, **kwargs):
         super(BulkLoadEnviosForm, self).__init__(*args, **kwargs)
         self.author = user
-        self.file_contet = None
+        self.file_content = None
         self.result = None
         self.found_errors = None
         self.requires_manual_fix = False
