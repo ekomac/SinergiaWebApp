@@ -1,5 +1,5 @@
 from django import forms
-from .models import Client
+from .models import Client, Discount
 from deposit.models import Deposit
 from places.models import Town
 
@@ -109,3 +109,10 @@ class EditClientForm(forms.ModelForm):
         if commit:
             client.save()
         return client
+
+
+class CreateDiscountForm(forms.ModelForm):
+
+    class Meta:
+        model = Discount
+        fields = ['amount', 'partidos', 'is_for_flex']

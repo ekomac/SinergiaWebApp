@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 # Project
 from account.decorators import allowed_users
-from clients.forms import CreateClientForm, EditClientForm
+from clients.forms import CreateClientForm, CreateDiscountForm, EditClientForm
 from clients.models import Client, Discount
 from deposit.models import Deposit
 from places.models import Partido
@@ -217,7 +217,8 @@ def map_discount_to_dict(discount: Discount) -> Dict[str, str]:
         'is_for_flex': discount.is_for_flex,
         'amount': discount.amount,
         'partidos': ", ".join(
-            [partido.name.title() for partido in discount.partidos.all()]),
+            [partido.name.title(
+            ) for partido in discount.partidos.all().order_by("name")]),
     }
 
 
@@ -250,3 +251,40 @@ def client_delete_view(request, pk, **kwargs):
     context['deposits'] = client.deposit_set.all()
     context['discounts'] = client.discount_set.all()
     return render(request, "clients/delete.html", context)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def add_discount_view(request, pk):
+    client = get_object_or_404(Client, pk=pk)
+    form = CreateDiscountForm()
+    if request.method == 'POST':
+        form = CreateDiscountForm(request.POST)
+        if form.is_valid():
+            discount = form.save(commit=False)
+            discount.created_by = request.user
+            discount.client = client
+            discount.save()
+            partidos = form.cleaned_data['partidos']
+            discount.partidos.add(*partidos)
+            # partidos_ids = [partido.pk for partido in partidos]
+            for disc in Discount.objects.exclude(pk=discount.pk).filter(
+                client__id=client.id,
+                partidos__in=partidos,
+                    is_for_flex=discount.is_for_flex):
+                disc.partidos.remove(
+                    *disc.partidos.filter(pk__in=[
+                        partido.pk for partido in partidos]))
+            msg = f'El descuento de {discount.amount}% ' +\
+                f'para el cliente {client} se creó correctamente.'
+            return create_alert_and_redirect(
+                request, msg, 'clients:detail', client.pk)
+        else:
+            print("INVALIDOOOOOOOOOO")
+    context = {
+        'form': form,
+        'client': client,
+        'selected_tab': 'clients-tab',
+        'partidos': Partido.objects.all().order_by("name"),
+    }
+    return render(request, 'clients/add_discount.html', context)

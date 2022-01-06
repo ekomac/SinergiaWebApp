@@ -7,10 +7,9 @@
     }
 
 
-    td {
+    .no-wrap-td {
         overflow: auto;
         white-space: nowrap;
-        max-height: 300px;
     }
 </style>
 <div class="col-md-12 col-xl-9 col-xxl-8 d-flex-block">
@@ -56,6 +55,7 @@
                             class="bi bi-pencil me-1"></i>Editar</a>
                     <a href="{% url 'clients:delete' client.id %}" class="btn btn-danger btn-sm me-1"><i
                             class="bi bi-trash me-1"></i>Eliminar</a>
+
                 </div>
                 <!-- end DETAIL BUTTONS -->
 
@@ -117,56 +117,19 @@
     <!-- end CARD DETAIL -->
 
 
-    <!-- start CARD DISCOUNTS -->
-    {% if discounts_count > 0 %}
-    <div class="card flex-fill shadow-lg mt-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <div><i class="bi bi-percent me-1"></i>Descuentos</div>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-stiped table-hover align-middle">
-                    <thead>
-                        <tr class="bg-dark text-white fw-bold">
-                            <th class="text-center">#</th>
-                            <th class="text-center">Tipo</th>
-                            <th class="text-center">Porcentaje</th>
-                            <th>Partidos</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for obj in discounts %}
-                        <tr>
-                            <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                            <td class="text-center">
-                                {% if obj.is_for_flex %}
-                                <span class="badge" style="background-color: #212529;">{{ obj.type | upper }}</span>
-                                {% else %}
-                                <span class="badge" style="background-color: #808080;">{{ obj.type | upper }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-center">{{ obj.amount }}%</td>
-                            <td>{{ obj.partidos }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-        </div>
-    </div>
-    {% endif %}
-    <!-- end CARD DISCOUNTS -->
-
-
-
     <!-- start CARD DEPOSITS -->
-    {% if deposits_count > 0 %}
     <div class="card flex-fill shadow-lg mt-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <div><i class="bi bi-shop me-1"></i>Depósitos</div>
+            <div><i class="bi bi-shop me-1"></i>Depósitos a nombre del cliente</div>
+            <div>
+                {% if deposits_count > 0 %}
+                <a href="{% url 'deposits:add' %}" class="btn btn-success btn-sm me-1"><i
+                        class="bi bi-plus me-1"></i>Nuevo depósito</a>
+                {% endif %}
+            </div>
         </div>
         <div class="card-body">
+            {% if deposits_count > 0 %}
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead>
@@ -202,12 +165,62 @@
                     </tbody>
                 </table>
             </div>
+            {% else %}
+            El cliente no posee depósitos. Hacé click acá para <a href="{% url 'deposits:add' %}">agregar uno</a>.
+            {% endif %}
+        </div>
+    </div>
+    <!-- end CARD DEPOSITS -->
+
+
+    <!-- start CARD DISCOUNTS -->
+    <div class="card flex-fill shadow-lg mt-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div><i class="bi bi-percent me-1"></i>Descuentos que tiene el cliente</div>
+            {% if discounts_count > 0 %}
+            <a href="{% url 'clients:add-discount' client.pk %}" class="btn btn-success btn-sm me-1"><i
+                    class="bi bi-plus me-1"></i>Nuevo descuento</a>
+            {% endif %}
+
+        </div>
+        <div class="card-body">
+            {% if discounts_count > 0 %}
+            <div>
+                <table class="table">
+                    <thead>
+                        <tr class="bg-dark text-white fw-bold">
+                            <th class="text-center">#</th>
+                            <th class="text-center">Tipo</th>
+                            <th class="text-center">Porcentaje</th>
+                            <th>Partidos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obj in discounts %}
+                        <tr>
+                            <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                            <td class="text-center">
+                                {% if obj.is_for_flex %}
+                                <span class="badge" style="background-color: #212529;">{{ obj.type | upper }}</span>
+                                {% else %}
+                                <span class="badge" style="background-color: #808080;">{{ obj.type | upper }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">{{ obj.amount }}%</td>
+                            <td>{{ obj.partidos }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            El cliente no posee descuentos. Hacé click acá para <a
+                href="{% url 'clients:add-discount' client.pk %}">agregar uno</a>.
+            {% endif %}
 
         </div>
     </div>
-    {% endif %}
-    <!-- end CARD DEPOSITS -->
-
+    <!-- end CARD DISCOUNTS -->
 
 
 </div>

@@ -99,7 +99,8 @@ def map_deposit_to_tuple(deposit: Deposit) -> Tuple[Deposit, int]:
         envios holding.
     """
     envios_in_deposit = Envio.objects.filter(
-        deposit=deposit, status=Envio.STATUS_STILL).count()
+        deposit=deposit,
+        status__in=[Envio.STATUS_STILL, Envio.STATUS_NEW, ]).count()
     return (deposit, envios_in_deposit)
 
 

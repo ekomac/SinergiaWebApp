@@ -243,7 +243,7 @@
     <div class="card flex-fill shadow-lg mt-3">
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
-                Movimientos del envío
+                <i class="bi bi-activity me-2"></i>Movimientos del envío
             </div>
         </div>
         <div class="card-body">
@@ -257,7 +257,7 @@
                 <tbody>
                     {% for movement in movements %}
                     <tr class="spaced-tr p-2">
-                        <td class="text-nowrap" style=" color: #C556FF;">
+                        <td class="text-nowrap fw-bold fst-italic" style=" color: #C556FF;">
                             {{movement.date_created | date:"d/m/Y H:i"}}</td>
                         <td>{{ movement.admin_display | safe}}</td>
                     </tr>
