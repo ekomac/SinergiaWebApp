@@ -1,6 +1,5 @@
 from utils.forms import CheckPasswordForm
 from utils.views import DeleteObjectsUtil
-from clients.models import Client
 from places.utils import get_localidades_as_JSON
 from places.models import Partido
 from utils.alerts.views import (
@@ -136,17 +135,19 @@ def deposit_edit_view(request, pk):
         form = CreateDepositForm(request.POST, request.FILES,
                                  instance=Deposit.objects.get(pk=pk))
         if form.is_valid():
-            client = form.save(commit=False)
-            client.save()
-            msg = f'El cliente "{client}" se actualizó correctamente.'
+            deposit = form.save(commit=False)
+            deposit.save()
+            msg = f'El depósito "{deposit}" se actualizó correctamente.'
             return update_alert_and_redirect(
-                request, msg, 'clients:detail', pk)
+                request, msg, 'deposits:detail', pk)
     else:
         form = CreateDepositForm(instance=Deposit.objects.get(pk=pk))
     context = {
         'form': form,
-        'selected_tab': 'clients-tab',
-        'client': Client.objects.get(pk=pk),
+        'selected_tab': 'deposits-tab',
+        'partidos': Partido.objects.all().order_by("name"),
+        'deposit': Deposit.objects.get(pk=pk),
+        'places': get_localidades_as_JSON(),
     }
     return render(request, 'deposit/edit.html', context)
 
@@ -158,6 +159,8 @@ def deposit_detail_view(request, pk):
     deposit = get_object_or_404(Deposit, pk=pk)
     ctx['deposit'] = deposit
     ctx['selected_tab'] = 'deposits-tab'
+    ctx['envios'] = Envio.objects.filter(
+        deposit=deposit, status=Envio.STATUS_STILL)
     return render(request, 'deposit/detail.html', ctx)
 
 

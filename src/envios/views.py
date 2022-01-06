@@ -433,15 +433,13 @@ def edit_envio_view(request, pk):
     context = {
         'form': form,
         'envio': envio,
+        'deposits': get_deposits_as_JSON(),
+        'selected_tab': 'shipments-tab',
+        'partidos': Partido.objects.all().order_by("name"),
+        'towns': get_localidades_as_JSON(),
+        'previuoslySelectedPartidoId': envio.town.partido.id,
+        'previuoslySelectedTownId': envio.town.id
     }
-
-    context['deposits'] = get_deposits_as_JSON()
-
-    context['selected_tab'] = 'shipments-tab'
-    context['partidos'] = Partido.objects.all().order_by("name")
-    context['towns'] = get_localidades_as_JSON()
-    context['previuoslySelectedPartidoId'] = envio.town.partido.id
-    context['previuoslySelectedTownId'] = envio.town.id
 
     return render(request, "envios/envio/edit.html", context)
 

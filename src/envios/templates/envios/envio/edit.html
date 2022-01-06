@@ -396,8 +396,6 @@
             $(this).unbind('submit').submit(); // continue the submit unbind preventDefault
         });
 
-
-
         $('#simpleEditorCheckDiv').hide(200);
         $("#defaultDetailCheckbox").click(function () {
             var isDefaultSelected = $(this).is(":checked");
@@ -411,7 +409,7 @@
 
         setPartidoListener();
         setDetailsListeners();
-        showTownsForPartido('{{ previuoslySelectedTownId}}');
+        showTownsForPartido('{{ envio.town.partido.pk}}', '{{ envio.town.id}}');
         updateShowDetails(document.getElementById("defaultDetailCheckbox").checked);
         setPreviouslyAddedDetails();
         toggleBlockFlexId();
@@ -429,29 +427,19 @@
     function setPartidoListener() {
         $('#inputPartido').on('inputchange', function () {
             var selectedPartidoId = this.value.toString();
-            var townsFromPartido = towns.filter(function (place) {
-                return place.partido_id == selectedPartidoId;
-            });
-            $('#id_town').find('option:not(:first)').remove();
-            for (var element of townsFromPartido) {
-                $('#id_town').append('<option value="' + element.id + '">' + element.name +
-                    '</option>');
-            }
+            showTownsForPartido(selectedPartidoId);
         });
     }
 
-    function showTownsForPartido(selectedTownId = null) {
-        var selectedPartidoId = $('#inputPartido').val();
-        var townsFromPartido = towns.filter(function (town) {
-            return town.partido_id == selectedPartidoId;
-        });
+    function showTownsForPartido(selectedPartidoId, town_id = null) {
+        var townsFromPartido = towns.filter(town => town.partido_id == selectedPartidoId);
         $('#id_town').find('option:not(:first)').remove();
         for (var element of townsFromPartido) {
-            var selected = "";
-            if (selectedTownId != null && selectedTownId == element.id) {
-                selected = " selected";
+            if (town_id != null && element.id == town_id) {
+                $('#id_town').append('<option value="' + element.id + '" selected>' + element.name + '</option>');
+            } else {
+                $('#id_town').append('<option value="' + element.id + '">' + element.name + '</option>');
             }
-            $('#id_town').append('<option value="' + element.id + '"' + selected + '>' + element.name + '</option>');
         }
     }
 
