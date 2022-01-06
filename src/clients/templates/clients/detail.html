@@ -6,9 +6,11 @@
         border-bottom: 2px solid #C556FF;
     }
 
+
     td {
         overflow: auto;
-
+        white-space: nowrap;
+        max-height: 300px;
     }
 </style>
 <div class="col-md-12 col-xl-9 col-xxl-8 d-flex-block">
@@ -122,32 +124,34 @@
             <div><i class="bi bi-percent me-1"></i>Descuentos</div>
         </div>
         <div class="card-body">
-            <table class="table align-middle">
-                <thead>
-                    <tr class="bg-dark text-white fw-bold">
-                        <th class="text-center">#</th>
-                        <th class="text-center">Tipo</th>
-                        <th class="text-center">Porcentaje</th>
-                        <th>Partidos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for obj in discounts %}
-                    <tr>
-                        <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                        <td class="text-center">
-                            {% if obj.is_for_flex %}
-                            <span class="badge" style="background-color: #212529;">{{ obj.type | upper }}</span>
-                            {% else %}
-                            <span class="badge" style="background-color: #808080;">{{ obj.type | upper }}</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-center">{{ obj.amount }}%</td>
-                        <td>{{ obj.partidos }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-stiped table-hover align-middle">
+                    <thead>
+                        <tr class="bg-dark text-white fw-bold">
+                            <th class="text-center">#</th>
+                            <th class="text-center">Tipo</th>
+                            <th class="text-center">Porcentaje</th>
+                            <th>Partidos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obj in discounts %}
+                        <tr>
+                            <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                            <td class="text-center">
+                                {% if obj.is_for_flex %}
+                                <span class="badge" style="background-color: #212529;">{{ obj.type | upper }}</span>
+                                {% else %}
+                                <span class="badge" style="background-color: #808080;">{{ obj.type | upper }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">{{ obj.amount }}%</td>
+                            <td>{{ obj.partidos }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
         </div>
     </div>
@@ -163,38 +167,41 @@
             <div><i class="bi bi-shop me-1"></i>Depósitos</div>
         </div>
         <div class="card-body">
-            <table class="table align-middle">
-                <thead>
-                    <tr class="bg-dark text-white fw-bold">
-                        <th class="text-center">#</th>
-                        <th class="text-center">Nombre</th>
-                        <th class="text-center">Domicilio</th>
-                        <th class="text-center">Teléfono</th>
-                        <th class="text-center">Email</th>
-                        <th class="text-center">Activo</th>
-                        <th class="text-center">Envíos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for obj in deposits %}
-                    <tr onclick="depositClicked();" style="cursor: pointer;">
-                        <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                        <td class="text-center">{{ obj.name }}</td>
-                        <td class="text-center">{{ obj.full_address }}</td>
-                        <td class="text-center">{{ obj.phone }}</td>
-                        <td class="text-center">{{ obj.email }}</td>
-                        <td class="text-center">
-                            {% if obj.is_active %}
-                            <span class="badge bg-success">Si</span>
-                            {% else %}
-                            <span class="badge bg-danger">No</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-center">{{ obj.envio_set.count }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr class="bg-dark text-white fw-bold">
+                            <th class="text-center">#</th>
+                            <th class="text-center">Nombre</th>
+                            <th class="text-center">Domicilio</th>
+                            <th class="text-center">Teléfono</th>
+                            <th class="text-center">Email</th>
+                            <th class="text-center">Activo</th>
+                            <th class="text-center">Envíos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obj in deposits %}
+                        <tr onclick="window.location.href='{% url 'deposits:detail' obj.pk %}';"
+                            style="cursor: pointer;">
+                            <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                            <td class="text-center">{{ obj.name }}</td>
+                            <td class="text-center">{{ obj.full_address }}</td>
+                            <td class="text-center">{{ obj.phone }}</td>
+                            <td class="text-center">{{ obj.email }}</td>
+                            <td class="text-center">
+                                {% if obj.is_active %}
+                                <span class="badge bg-success">Si</span>
+                                {% else %}
+                                <span class="badge bg-danger">No</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">{{ obj.envio_set.count }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 
         </div>
     </div>
@@ -206,11 +213,5 @@
 </div>
 <!-- end CARD BODY -->
 
-
-<script>
-    function depositClicked() {
-        window.location.href = "{% url 'admin-home' %}";
-    }
-</script>
 
 {% endblock content %}

@@ -22,7 +22,29 @@
     <!-- ADD BASE CSS -->
     <link rel="stylesheet" href="{% static 'base/base_system.css' %}">
 
-    <title>Sinergia Software - Administración </title>
+    <title>Sinergia Software -
+        {% if selected_tab == 'shipments-tab' %}
+        Envíos
+        {% elif selected_tab == 'town-tab' or selected_tab == 'zone-tab' or selected_tab == 'partido-tab' %}
+        Lugares
+        {% elif selected_tab == 'dprices-tab' or selected_tab == 'fprices-tab' or selected_tab == 'prices-tab' %}
+        Tarifas
+        {% elif selected_tab == 'clients-tab' %}
+        Clientes
+        {% elif selected_tab == 'deposits-tab' %}
+        Depósitos
+        {% elif selected_tab == 'files-tab' %}
+        Legajos
+        {% elif selected_tab == 'settle' %}
+        Liquidación
+        {% elif selected_tab == 'accounting-tab' %}
+        Contable
+        {% elif selected_tab == 'tickets-tab' %}
+        Tickets
+        {% else %}
+        Administración
+        {% endif %}
+    </title>
 
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}" />
 
@@ -62,14 +84,16 @@
 
                             <div id="{{ alert.id }}"
                                 class="toast align-items-center text-white bg-{{ alert.status }} border-0 fade show"
-                                role="alert" aria-live="assertive" aria-atomic="true">
+                                role="alert" aria-live="assertive" aria-atomic="true"
+                                onclick="dismissAlert('{% url 'delete-alert' id=alert.id %}');" data-bs-dismiss="toast"
+                                aria-label="Close" style="cursor: pointer;">
                                 <div class="d-flex">
                                     <div class="toast-body">
                                         {{ alert.message }}.
                                     </div>
                                     <button type="button" class="btn-close btn-close-white me-2 m-auto"
                                         data-bs-dismiss="toast" aria-label="Close"
-                                        onclick="dismissAlert('{% url 'delet-alert' id=alert.id %}');"></button>
+                                        onclick="dismissAlert('{% url 'delete-alert' id=alert.id %}');"></button>
                                 </div>
                             </div>
                             {% endfor %}

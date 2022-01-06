@@ -90,7 +90,7 @@
         $('#' + id).prop('checked', !$('#' + id).is(":checked"));
     }
 
-    function show(id, makeVisible = true) {
+    /*function show(id, makeVisible = true) {
         if (makeVisible && $('#' + id).is(":hidden")) {
             $('#' + id).hide();
             $('#' + id).removeClass("hide-on-load");
@@ -99,7 +99,7 @@
         if (!makeVisible && $('#' + id).is(":visible")) {
             $('#' + id).hide(300);
         }
-    }
+    }*/
 
     function isEnabled(id, enable = true) {
         if (enable && $('#' + id).is(":disabled")) {

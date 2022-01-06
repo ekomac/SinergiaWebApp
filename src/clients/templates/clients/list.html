@@ -50,8 +50,7 @@
                 <div class="row g-2">
                     <div class="col-12 col-lg-5 d-inline-flex justify-content-start align-items-center">
                         <input type="text" class="form-control " name="query_by" id="id_query_by"
-                            value="{% if query_by != '' and query_by%}{{query_by}}{% endif %}"
-                            placeholder="Ingresá texto para buscar...">
+                            value="{% if query_by %}{{query_by}}{% endif %}" placeholder="Ingresá texto para buscar...">
                         <div class="mx-lg-1">
                             <div id="clearSearchDiv"
                                 class="{% if query_by == '' or not query_by %}hide-on-load{% endif %}">
@@ -185,6 +184,11 @@
         });
 
     });
+
+    function clearSearch() {
+        $('#id_query_by').val('');
+        $('#list_form').submit();
+    }
 </script>
 
 {% endblock content %}

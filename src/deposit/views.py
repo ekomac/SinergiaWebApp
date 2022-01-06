@@ -29,7 +29,7 @@ def deposit_list_view(request):
     if request.method == "GET":
         query = request.GET.get("query_by", None)
         if query:
-            ctx["query"] = str(query)
+            ctx["query_by"] = str(query)
 
         order_by = request.GET.get("order_by", 'name')
         if order_by:
@@ -43,7 +43,7 @@ def deposit_list_view(request):
             results_per_page = 30
         ctx['results_per_page'] = str(results_per_page)
 
-        # Filter clients
+        # Filter deposits
         deposits = get_deposits_queryset(query, order_by)
 
         # Pagination
@@ -79,10 +79,10 @@ def get_deposits_queryset(
     query = unidecode.unidecode(query) if query else ""
     return list(map(map_deposit_to_tuple, list(
         Deposit.objects.filter(
-            Q(name__contains=query) |
-            Q(client__name__contains=query) |
-            Q(address__contains=query) |
-            Q(town__name__contains=query)
+            Q(name__icontains=query) |
+            Q(client__name__icontains=query) |
+            Q(address__icontains=query) |
+            Q(town__name__icontains=query)
         ).order_by(order_by_key).distinct()
     )))
 
@@ -111,15 +111,17 @@ def deposit_create_view(request):
     form = CreateDepositForm()
     if request.method == 'POST':
         form = CreateDepositForm(
-            request.POST, request.FILES, user=request.user)
+            request.POST, request.FILES)
         if form.is_valid():
-            client = form.save()
-            msg = f'El cliente "{client}" se creó correctamente.'
+            deposit = form.save()
+            deposit.created_by = request.user
+            deposit.save()
+            msg = f'El depósito "{deposit}" se creó correctamente.'
             return create_alert_and_redirect(
-                request, msg, 'clients:detail', client.pk)
+                request, msg, 'deposits:detail', deposit.pk)
     context = {
         'form': form,
-        'selected_tab': 'clients-tab',
+        'selected_tab': 'deposits-tab',
         'partidos': Partido.objects.all().order_by("name"),
         'places': get_localidades_as_JSON(),
     }
@@ -166,7 +168,7 @@ def deposit_delete_view(request, pk):
     delete_utility = DeleteObjectsUtil(
         model=Deposit,
         model_ids=pk,
-        order_by='date_created',
+        order_by='name',
         request=request,
         selected_tab='deposits-tab'
     )

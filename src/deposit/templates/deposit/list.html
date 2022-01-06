@@ -40,18 +40,17 @@
     }
 </style>
 
-<div class="col-md-12 col-xl-10 col-xxl-9 d-flex-inline">
+<div class="col-md-12 d-flex-inline">
     <div class="card flex-fill">
         <div class="card-body d-flex flex-column">
-            <h2 class="card-title text-center mt-2">LISTADO DE CLIENTES</h2>
+            <h2 class="card-title text-center mt-2">LISTADO DE DEPÓSITOS</h2>
 
             <!-- start SEARCH AND ORDERING FUNCTIONALITIES -->
             <form method="GET" class="mt-4" id="list_form">
                 <div class="row g-2">
                     <div class="col-12 col-lg-5 d-inline-flex justify-content-start align-items-center">
                         <input type="text" class="form-control " name="query_by" id="id_query_by"
-                            value="{% if query_by != '' and query_by%}{{query_by}}{% endif %}"
-                            placeholder="Ingresá texto para buscar...">
+                            value="{% if query_by %}{{query_by}}{% endif %}" placeholder="Ingresá texto para buscar...">
                         <div class="mx-lg-1">
                             <div id="clearSearchDiv"
                                 class="{% if query_by == '' or not query_by %}hide-on-load{% endif %}">
@@ -67,42 +66,21 @@
                         <div aria-label="Default select example" class="me-3">
                             <select id="id_results_per_page" name="results_per_page" class="form-select"
                                 aria-label="Results per page selection">
-                                <option value="10" {% if results_per_page == '10' %}selected{% endif %}>10
-                                </option>
-                                <option value="30" {% if results_per_page == '30' %}selected{% endif %}>30
-                                </option>
-                                <option value="50" {% if results_per_page == '50' %}selected{% endif %}>50
-                                </option>
-                                <option value="100" {% if results_per_page == '100' %}selected{% endif %}>
-                                    100
-                                </option>
-                                <option value="200" {% if results_per_page == '200' %}selected{% endif %}>
-                                    200
-                                </option>
-                                <option value="500" {% if results_per_page == '500' %}selected{% endif %}>
-                                    500
-                                </option>
+                                <option value="10" {% if results_per_page == '10' %}selected{% endif %}>10</option>
+                                <option value="30" {% if results_per_page == '30' %}selected{% endif %}>30</option>
+                                <option value="50" {% if results_per_page == '50' %}selected{% endif %}>50</option>
+                                <option value="100" {% if results_per_page == '100' %}selected{% endif %}>100</option>
+                                <option value="200" {% if results_per_page == '200' %}selected{% endif %}>200</option>
+                                <option value="500" {% if results_per_page == '500' %}selected{% endif %}>500</option>
                             </select>
                         </div>
                         <label for="id_order_by" id="labelOrder_by" class="me-2">Ordenar por: </label>
                         <div aria-label="Default select example">
                             <select id="id_order_by" name="order_by" class="form-select"
                                 aria-label="Order by selection">
-                                <option value="date_created_desc"
-                                    {% if order_by == 'date_created_desc' %}selected{% endif %}>
-                                    Más&nbsp;recientes&nbsp;primero</option>
-                                <option value="date_created" {% if order_by == 'date_created' %}selected{% endif %}>
-                                    Más&nbsp;antiguas&nbsp;primero</option>
-                                <option value="subject" {% if order_by == 'subject' %}selected{% endif %}>
-                                    Asunto&nbsp;A-Z
-                                </option>
-                                <option value="subject_desc" {% if order_by == 'subject_desc' %}selected{% endif %}>
-                                    Asunto&nbsp;Z-A
-                                </option>
-                                <option value="priority" {% if order_by == 'priority' %}selected{% endif %}>
-                                    Prioridad&nbsp;alta&nbsp;primero</option>
-                                <option value="priority_desc" {% if order_by == 'priority_desc' %}selected{% endif %}>
-                                    Prioridad&nbsp;baja&nbsp;primero</option>
+                                <option value="name" {% if order_by == 'name' %}selected{% endif %}>Ascendente</option>
+                                <option value="name_desc" {% if order_by == 'name_desc' %}selected{% endif %}>
+                                    Descendente</option>
                             </select>
                         </div>
 
@@ -119,8 +97,8 @@
             <!-- start ACTIONS -->
             <div class="d-flex flex-wrap align-items-center">
                 <div class="d-flex d-lg-inline ms-auto p-2">
-                    <a href="{% url 'clients:add' %}" type="button" class="flex-fill btn btn-success btn-sm me-1">
-                        <i class="bi bi-plus"></i>Agregar cliente
+                    <a href="{% url 'deposits:add' %}" type="button" class="flex-fill btn btn-success btn-sm me-1">
+                        <i class="bi bi-plus"></i>Agregar depósito
                     </a>
                 </div>
             </div>
@@ -131,7 +109,7 @@
 
 
             <!-- start MAIN CONTENT -->
-            {% if clients %}
+            {% if deposits %}
 
             <div class="table-responsive">
                 <table class="table table-striped table-hover">
@@ -139,23 +117,24 @@
                         <tr>
                             <th>#</th>
                             <th>Nombre</th>
-                            <th>Contacto</th>
-                            <th>Teléfono</th>
-                            <th>Email</th>
-                            <th>Depósitos</th>
-                            <th class="cell-centered">Descuentos</th>
+                            <th>Cliente/Propio</th>
+                            <th>Domicilio</th>
+                            <th class="text-center">Activo</th>
+                            <th class="text-center">Envíos</th>
+                            <th class="text-center">Teléfono</th>
+                            <th class="text-center">Email</th>
                         </tr>
                     </thead>
                     <tbody id="overrided-1" class="overrided-tbody">
-                        {% for client, deposits, discounts_count in clients %}
-                        {% include 'clients/snippets/item.html' with obj=client counter=forloop.counter deposits=deposits discounts_count=discounts_count%}
+                        {% for deposit, envios in deposits %}
+                        {% include 'deposit/snippets/item.html' with obj=deposit counter=forloop.counter envios=envios %}
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
 
             <!-- Pagination -->
-            {% include 'clients/snippets/pagination.html' with clients=clients %}
+            {% include 'deposit/snippets/pagination.html' with deposits=deposits %}
 
 
             {% else %}
@@ -197,6 +176,11 @@
         });
 
     });
+
+    function clearSearch() {
+        $('#id_query_by').val('');
+        $('#list_form').submit();
+    }
 </script>
 
 {% endblock content %}

@@ -17,3 +17,22 @@ $.event.special.inputchange = {
         $.data(this, 'cache', this.value);
     }
 };
+
+
+function show(id, makeVisible = true) {
+    if (makeVisible && $('#' + id).is(":hidden")) {
+        $('#' + id).hide();
+        $('#' + id).removeClass("hide-on-load");
+        $('#' + id).show(300);
+    }
+    if (!makeVisible && $('#' + id).is(":visible")) {
+        $('#' + id).hide(300);
+    }
+}
+
+function enableTooltips() {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+}

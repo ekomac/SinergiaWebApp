@@ -51,7 +51,7 @@ urlpatterns = [
     path('app/transfer/', include('app_transfer.urls')),
     path('app/withdraw/', include('app_withdraw.urls')),
     path('delete-alert-from-session/<str:id>',
-         delete_alert_from_session, name='delet-alert'),
+         delete_alert_from_session, name='delete-alert'),
 ]
 
 

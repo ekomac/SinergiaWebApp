@@ -1,6 +1,13 @@
 {% extends 'base_system.html' %} {% block content %}
 
-<div class="col-12 col-md-10 col-lg-7 col-xl-6 col-xxl-5 d-flex-block">
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+        <path
+            d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+    </symbol>
+</svg>
+
+<div class="col-12 col-md-8 col-lg-7 col-xl-6 col-xxl-5 d-flex-block">
     <form method='POST' id="id_form" class="card flex-fill shadow-lg bg-white" name="form" target="_top"
         enctype="multipart/form-data">{% csrf_token %}
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -8,105 +15,50 @@
                 Crear objeto
             </div>
             <div>
-                <a href="{% url 'clients:list' %}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+                <a href="{% url 'deposits:list' %}"><i class="bi bi-arrow-left-short"></i>Volver</a>
             </div>
         </div>
         <div class="card-body">
-            <h3 class="card-title text-center mt-3">CREAR CLIENTE</h3>
+            <h3 class="card-title text-center mt-3 mb-3">CREAR DEPÓSITO</h3>
 
             <div class="row g-3">
-                <!-- start MAIN DATA -->
-                <h4 class="card-title mt-3">Datos principales</h4>
 
-                <!-- start NAME INPUT -->
-                <div class="col-12">
-                    <label for="id_name" class="form-label">Razón social / Nombre Fantasía</label>
-                    <input id="id_name" name="name" type="text" {% if form.name.value %}value="{{form.name.value}}"
-                        {% endif %} class="form-control {% if form.name.errors %}is-invalid{% endif %}" required>
-                    <div class="invalid-feedback">
-                        {% for error in form.name.errors %}{{error}}<br>{% endfor %}
-                    </div>
-
-                </div>
-                <!-- end NAME INPUT -->
-
-
-                <!-- start CONTACT NAME INPUT -->
-                <div class="col-12">
-                    <label for="id_contact_name" class="form-label">Nombre de contacto</label>
-                    <input id="id_contact_name" name="contact_name" type="text"
-                        {% if form.contact_name.value %}value="{{form.contact_name.value}}" {% endif %}
-                        class="form-control {% if form.contact_name.errors %}is-invalid{% endif %}">
-                    <div class="invalid-feedback">
-                        {% for error in form.contact_name.errors %}{{error}}<br>{% endfor %}
-                    </div>
-
-                </div>
-                <!-- end CONTACT NAME INPUT -->
-
-
-                <!-- start CONTACT PHONE INPUT -->
-                <div class="col-12">
-                    <label for="id_contact_phone" class="form-label">Teléfono</label>
-                    <input id="id_contact_phone" name="contact_phone" type="text"
-                        {% if form.contact_phone.value %}value="{{form.contact_phone.value}}" {% endif %}
-                        class="form-control {% if form.contact_phone.errors %}is-invalid{% endif %}">
-                    <div class="invalid-feedback">
-                        {% for error in form.contact_phone.errors %}{{error}}<br>{% endfor %}
-                    </div>
-
-                </div>
-                <!-- end CONTACT PHONE INPUT -->
-
-
-                <!-- start CONTACT EMAIL INPUT -->
-                <div class="col-12">
-                    <label for="id_contact_email" class="form-label">Correo electrónico</label>
-                    <input id="id_contact_email" name="contact_email" type="email"
-                        {% if form.contact_email.value %}value="{{form.contact_email.value}}" {% endif %}
-                        class="form-control {% if form.contact_email.errors %}is-invalid{% endif %}">
-                    <div class="invalid-feedback">
-                        {% for error in form.contact_email.errors %}{{error}}<br>{% endfor %}
-                    </div>
-
-                </div>
-                <!-- end CONTACT EMAIL INPUT -->
-
-
-                <!-- start CONTRACT SELECT -->
-                <div class="mb-3">
-                    <label for="id_contract" class="form-label">Contrato</label>
-                    <input class="form-control {% if form.contract.errors %}is-invalid{% endif %}" type="file"
-                        id="id_contract" name="contract">
-                    <div class="invalid-feedback">
-                        {% for error in form.contract.errors %}{{error}}<br>{% endfor %}
+                <div class="alert alert-danger d-flex align-items-center mb-0" role="alert">
+                    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
+                        <use xlink:href="#exclamation-triangle-fill" /></svg>
+                    <div>
+                        Si el depósito es de la empresa, no selecciones un cliente.
                     </div>
                 </div>
-                <!-- end CONTRACT SELECT -->
-                <!-- end MAIN DATA -->
 
-                <!-- start DEPOSIT DATA -->
-                <div class="alert alert-warning mb-0" role="alert">
-                    Es necesario asociar, por lo menos, un depósito con este cliente.
+                <!-- START CLIENT -->
+                <div class="col-12 col-lg-6">
+                    <label for="{{form.client.id_for_label}}" class="form-label">Cliente</label>
+                    {{ form.client }}
                 </div>
-                <h4 class="card-title mt-4 mb-0">Datos del depósito principal</h4>
+                <!-- END CLIENT -->
 
                 <!-- START DEPOSIT NAME -->
-                <div class="col-12 col-md-5">
-                    <label for="{{form.deposit_name.id_for_label}}" class="form-label">Nombre</label>
-                    {{ form.deposit_name }}
+                <div class="col-12 col-lg-6">
+                    <label for="{{form.name.id_for_label}}" class="form-label">Nombre</label>
+                    {{ form.name }}
                 </div>
                 <!-- END DEPOSIT_NAME -->
 
                 <!-- START DEPOSIT_ADDRESS -->
-                <div class="col-12 col-md-7">
-                    <label for="{{form.deposit_address.id_for_label}}" class="form-label">Domicilio</label>
-                    {{ form.deposit_address }}
+                <div class="col-12 col-lg-8">
+                    <label for="{{form.address.id_for_label}}" class="form-label">Domicilio</label>
+                    {{ form.address }}
+                </div>
+                <div class="col-12 col-lg-4">
+                    <label for="{{form.zip_code.id_for_label}}" class="form-label">Cód.
+                        postal</label>
+                    {{ form.zip_code}}
                 </div>
                 <!-- END DEPOSIT_ADDRESS -->
 
                 <!-- START EXTENDED DEPOSIT_ADDRESS INFO -->
-                <div class="col-lg-5 col-xl-5 col-xxl-4">
+                <div class="col-12 col-lg-5">
                     <label for="inputPartido" class="form-label">Partido</label>
                     <select id="inputPartido" class="form-select">
                         <option selected>---------</option>
@@ -116,23 +68,20 @@
                         {% endfor %}
                     </select>
                 </div>
-                <div class="col-lg-7 col-xl-7 col-xxl-6">
-                    <label for="{{ form.deposit_town.id_for_label }}" class="form-label">Localidad</label>
-                    {{ form.deposit_town }}
+
+                <div class="col-12 col-lg-7">
+                    <label for="{{ form.town.id_for_label }}" class="form-label">Localidad</label>
+                    {{ form.town }}
                 </div>
-                <div class="col-lg-3 col-xl col-xxl-2">
-                    <label for="{{form.deposit_zipcode.id_for_label}}" class="form-label">Cód.
-                        postal</label>
-                    {{ form.deposit_zipcode}}
-                </div>
+
                 <!-- END EXTENDED DEPOSIT_ADDRESS INFO -->
 
                 <!-- START DEPOSIT_PHONE -->
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-lg-6">
 
-                    <label for="{{form.deposit_phone.id_for_label}}" class="form-label">Teléfono</label>
-                    <input type="text" id="id_deposit_phone" name="deposit_phone" class="form-control"
-                        {% if form.deposit_phone.value %}value="{{ form.deposit_phone.value }}" {% endif %}>
+                    <label for="{{form.phone.id_for_label}}" class="form-label">Teléfono</label>
+                    <input type="text" id="id_phone" name="phone" class="form-control"
+                        {% if form.phone.value %}value="{{ form.phone.value }}" {% endif %}>
                     <div class="invalid-feedback">
                         Por favor, ingresá un teléfono válido.
                     </div>
@@ -141,10 +90,10 @@
 
 
                 <!-- START DEPOSIT_EMAIL -->
-                <div class="col-12 col-md-6">
-                    <label for="{{form.deposit_email.id_for_label}}" class="form-label">Correo electrónico</label>
-                    <input type="text" id="id_deposit_email" name="deposit_email" class="form-control"
-                        {% if form.deposit_email.value %}value="{{ form.deposit_email.value }}" {% endif %}>
+                <div class="col-12 col-lg-6">
+                    <label for="{{form.email.id_for_label}}" class="form-label">Correo electrónico</label>
+                    <input type="text" id="id_email" name="email" class="form-control"
+                        {% if form.email.value %}value="{{ form.email.value }}" {% endif %}>
                     <div class="invalid-feedback">
                         Por favor, ingresá un email válido.
                     </div>
@@ -170,15 +119,15 @@
 <script>
     var places = JSON.parse('{{ places | escapejs }}');
     $(document).ready(function () {
-        $('#id_deposit_town').find('option:not(:first)').remove();
+        $('#id_town').find('option:not(:first)').remove();
         $('#inputPartido').on('inputchange', function () {
             var selectedPartidoId = this.value.toString();
             var placesFromPartido = places.filter(function (place) {
                 return place.partido_id == selectedPartidoId;
             });
-            $('#id_deposit_town').find('option:not(:first)').remove();
+            $('#id_town').find('option:not(:first)').remove();
             for (var element of placesFromPartido) {
-                $('#id_deposit_town').append('<option value="' + element.id + '">' + element.name +
+                $('#id_town').append('<option value="' + element.id + '">' + element.name +
                     '</option>');
             }
         });

@@ -20,10 +20,10 @@
         <!-- start CARD HEADER -->
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
-                Detalle de cliente
+                Detalle de depósito
             </div>
             <div class="">
-                <a href="{% url 'clients:list' %}">
+                <a href="{% url 'deposits:list' %}">
                     <i class="bi bi-list"></i>Ver lista completa</a>
             </div>
         </div>
@@ -37,22 +37,25 @@
 
                 <!-- start DETAIL TITLE -->
                 <div class="me-2 w-100 align-content-center">
-                    <h2>#{{ client.id }} | {{ client.name }}</h2>
+                    <h2>#{{ deposit.id }} | {{ deposit.name | title }}</h2>
                 </div>
                 <!-- end DETAIL TITLE -->
 
                 <!-- start DETAIL INFO -->
                 <div class="mt-1 d-flex aling-items-center">
-                    <i class="bi bi-clock-history"></i>&nbsp;Creado el {{ client.date_created|date:"d/m/Y" }} a las
-                    {{ client.date_created|date:"H:i" }}
+                    <i class="bi bi-clock-history"></i>&nbsp;Creado el {{ deposit.date_created|date:"d/m/Y" }} a las
+                    {{ deposit.date_created|date:"H:i" }}{% if deposit.created_by != None %}&nbsp;por&nbsp;<a href="#"
+                        data-bs-toggle="tooltip" data-bs-html="true"
+                        title="{{ deposit.created_by.first_name }}&nbsp;{{ deposit.created_by.last_name }}<em><br>{% if deposit.created_by.client != None %}&nbsp;({{ deposit.created_by.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ deposit.created_by.username }}</a>{% else %}&nbsp;con&nbsp;un
+                    evento adminsitrativo{% endif %}
                 </div>
                 <!-- end DETAIL INFO -->
 
                 <!-- start DETAIL BUTTONS -->
                 <div>
-                    <a href="{% url 'clients:edit' client.id %}" class="btn btn-secondary btn-sm me-1"><i
+                    <a href="{% url 'deposits:edit' deposit.id %}" class="btn btn-secondary btn-sm me-1"><i
                             class="bi bi-pencil me-1"></i>Editar</a>
-                    <a href="{% url 'clients:delete' client.id %}" class="btn btn-danger btn-sm me-1"><i
+                    <a href="{% url 'deposits:delete' deposit.id %}" class="btn btn-danger btn-sm me-1"><i
                             class="bi bi-trash me-1"></i>Eliminar</a>
                 </div>
                 <!-- end DETAIL BUTTONS -->
@@ -68,19 +71,33 @@
                 <table class="table table-bordered">
                     <tbody id="overrided-1" class="overrided-tbody">
 
-                        <!-- row CONTACT -->
+                        <!-- row CLIENT -->
+                        {% if deposit.client %}
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
-                                    class="bi bi-person me-1"></i>Contacto</td>
-                            <td class="w-100">{{ client.contact_name }}</td>
+                                    class="bi bi-people me-1"></i>Cliente</td>
+                            <td class="w-100"><a
+                                    href="{% url 'clients:detail' deposit.client.pk %}">{{ deposit.client.name }}</a>
+                            </td>
+                        </tr>
+                        {% endif %}
+
+
+                        <!-- row ADDRESS -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-geo-alt me-1"></i>Domicilio</td>
+                            <td class="w-100">
+                                {{ deposit.full_address }}
+                            </td>
                         </tr>
 
-                        <!-- row PHONE -->
 
+                        <!-- row PHONE -->
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-telephone me-1"></i>Teléfono</td>
-                            <td class="w-100">{% if client.contact_phone %}{{ client.contact_phone }}{% else %}Sin
+                            <td class="w-100">{% if deposit.phone %}{{ deposit.phone }}{% else %}Sin
                                 especificar{% endif %}</td>
                         </tr>
 
@@ -89,16 +106,20 @@
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-at me-1"></i>Correo electrónico</td>
-                            <td class="w-100">{% if client.email %}{{ client.contact_email }}{% else %}Sin
+                            <td class="w-100">{% if deposit.email %}{{ client.contact_email }}{% else %}Sin
                                 especificar{% endif %}</td>
                         </tr>
 
-                        <!-- row CONTRACT -->
+                        <!-- row ACTIVE -->
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
-                                    class="bi bi-file-text me-1"></i>Contrato</td>
-                            <td class="w-100">{% if contract %}<a
-                                    href="{{ contract.url }}">{{ contract.text }}</a>{% else %}No se cargó{% endif %}
+                                    class="bi bi-toggles me-1"></i>Activo</td>
+                            <td class="w-100">
+                                {% if deposit.is_active %}
+                                <span class="badge bg-success">Sí</span>
+                                {% else %}
+                                <span class="badge bg-danger">No</span>
+                                {% endif %}
                             </td>
                         </tr>
 
@@ -115,94 +136,6 @@
     <!-- end CARD DETAIL -->
 
 
-    <!-- start CARD DISCOUNTS -->
-    {% if discounts_count > 0 %}
-    <div class="card flex-fill shadow-lg mt-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <div><i class="bi bi-percent me-1"></i>Descuentos</div>
-        </div>
-        <div class="card-body">
-            <table class="table align-middle">
-                <thead>
-                    <tr class="bg-dark text-white fw-bold">
-                        <th class="text-center">#</th>
-                        <th class="text-center">Tipo</th>
-                        <th class="text-center">Porcentaje</th>
-                        <th>Partidos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for obj in discounts %}
-                    <tr>
-                        <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                        <td class="text-center">
-                            {% if obj.is_for_flex %}
-                            <span class="badge" style="background-color: #212529;">{{ obj.type | upper }}</span>
-                            {% else %}
-                            <span class="badge" style="background-color: #808080;">{{ obj.type | upper }}</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-center">{{ obj.amount }}%</td>
-                        <td>{{ obj.partidos }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-
-        </div>
-    </div>
-    {% endif %}
-    <!-- end CARD DISCOUNTS -->
-
-
-
-    <!-- start CARD DEPOSITS -->
-    {% if deposits_count > 0 %}
-    <div class="card flex-fill shadow-lg mt-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <div><i class="bi bi-shop me-1"></i>Depósitos</div>
-        </div>
-        <div class="card-body">
-            <table class="table align-middle">
-                <thead>
-                    <tr class="bg-dark text-white fw-bold">
-                        <th class="text-center">#</th>
-                        <th class="text-center">Nombre</th>
-                        <th class="text-center">Domicilio</th>
-                        <th class="text-center">Teléfono</th>
-                        <th class="text-center">Email</th>
-                        <th class="text-center">Activo</th>
-                        <th class="text-center">Envíos</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for obj in deposits %}
-                    <tr onclick="depositClicked();" style="cursor: pointer;">
-                        <th scope="row" class="text-center">{{ forloop.counter }}</th>
-                        <td class="text-center">{{ obj.name }}</td>
-                        <td class="text-center">{{ obj.full_address }}</td>
-                        <td class="text-center">{{ obj.phone }}</td>
-                        <td class="text-center">{{ obj.email }}</td>
-                        <td class="text-center">
-                            {% if obj.is_active %}
-                            <span class="badge bg-success">Si</span>
-                            {% else %}
-                            <span class="badge bg-danger">No</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-center">{{ obj.envio_set.count }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-
-        </div>
-    </div>
-    {% endif %}
-    <!-- end CARD DEPOSITS -->
-
-
-
 </div>
 <!-- end CARD BODY -->
 
@@ -211,6 +144,9 @@
     function depositClicked() {
         window.location.href = "{% url 'admin-home' %}";
     }
+    $(document).ready(function () {
+        enableTooltips();
+    });
 </script>
 
 {% endblock content %}

@@ -33,7 +33,7 @@ def client_list_view(request):
     if request.method == "GET":
         query = request.GET.get("query_by", None)
         if query:
-            context["query"] = str(query)
+            context["query_by"] = str(query)
 
         order_by = request.GET.get("order_by", 'name')
         if order_by:
@@ -84,10 +84,10 @@ def get_clients_queryset(
     query = unidecode.unidecode(query) if query else ""
     return list(map(map_client_to_tuple, list(
         Client.objects.filter(
-            Q(name__contains=query) |
-            Q(contact_name__contains=query) |
-            Q(contact_phone__contains=query) |
-            Q(contact_email__contains=query)
+            Q(name__icontains=query) |
+            Q(contact_name__icontains=query) |
+            Q(contact_phone__icontains=query) |
+            Q(contact_email__icontains=query)
         ).order_by(order_by_key).distinct()
     )))
 
