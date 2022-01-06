@@ -88,21 +88,9 @@
                         <div aria-label="Default select example">
                             <select id="id_order_by" name="order_by" class="form-select"
                                 aria-label="Order by selection">
-                                <option value="date_created_desc"
-                                    {% if order_by == 'date_created_desc' %}selected{% endif %}>
-                                    Más&nbsp;recientes&nbsp;primero</option>
-                                <option value="date_created" {% if order_by == 'date_created' %}selected{% endif %}>
-                                    Más&nbsp;antiguas&nbsp;primero</option>
-                                <option value="subject" {% if order_by == 'subject' %}selected{% endif %}>
-                                    Asunto&nbsp;A-Z
-                                </option>
-                                <option value="subject_desc" {% if order_by == 'subject_desc' %}selected{% endif %}>
-                                    Asunto&nbsp;Z-A
-                                </option>
-                                <option value="priority" {% if order_by == 'priority' %}selected{% endif %}>
-                                    Prioridad&nbsp;alta&nbsp;primero</option>
-                                <option value="priority_desc" {% if order_by == 'priority_desc' %}selected{% endif %}>
-                                    Prioridad&nbsp;baja&nbsp;primero</option>
+                                <option value="name" {% if order_by == 'name' %}selected{% endif %}>Ascendente</option>
+                                <option value="name_desc" {% if order_by == 'name_desc' %}selected{% endif %}>
+                                    Descendente</option>
                             </select>
                         </div>
 
