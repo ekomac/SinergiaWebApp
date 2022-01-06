@@ -31,16 +31,18 @@ from account.views import (
 )
 
 urlpatterns = [
+    path('', redirect_no_url),
     path('admin/home', admin_home_screen_view, name='admin-home'),
     path('admin/account/', include('account.urls')),
     path('superadmin/', admin.site.urls),
     path('login/', login_view, name="login"),
     path('admin/logout/', logout_view, name="logout"),
     path('admin/clients/', include('clients.urls')),
+    path('admin/deposits/', include('deposit.urls')),
     path('admin/envios/', include('envios.urls')),
-    path('admin/prueba/', prueba_view, name='prueba'),
-    path('admin/prices/', include('prices.urls')),
     path('admin/places/', include('places.urls')),
+    path('admin/prices/', include('prices.urls')),
+    path('admin/prueba/', prueba_view, name='prueba'),
     path('admin/tickets/', include('tickets.urls')),
     path('app/', app_view, name="index"),
     path('app/deliver/', include('app_deliver.urls')),
@@ -48,7 +50,6 @@ urlpatterns = [
     # path('app/tickets/', include('app_tickets.urls')),
     path('app/transfer/', include('app_transfer.urls')),
     path('app/withdraw/', include('app_withdraw.urls')),
-    path('', redirect_no_url),
     path('delete-alert-from-session/<str:id>',
          delete_alert_from_session, name='delet-alert'),
 ]

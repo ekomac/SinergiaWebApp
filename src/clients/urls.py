@@ -10,8 +10,6 @@ from .views import (
 
 app_name = 'clients'
 urlpatterns = [
-
-    # ******************************* ENVIOS *******************************
     path('', client_list_view, name="list"),
     path('add/', create_client_view, name="add"),
     path('<int:pk>/', client_detail_view, name="detail"),

@@ -48,7 +48,7 @@ def client_list_view(request):
         context['results_per_page'] = str(results_per_page)
 
         # Filter clients
-        clients = get_tickets_queryset(query, order_by)
+        clients = get_clients_queryset(query, order_by)
 
         # Pagination
         page = request.GET.get('page', 1)
@@ -66,7 +66,7 @@ def client_list_view(request):
     return render(request, "clients/list.html", context)
 
 
-def get_tickets_queryset(
+def get_clients_queryset(
         query: str = None, order_by_key: str = 'name',
 ) -> List[Client]:
     """Get all clients that match provided query, if any. If none is given,
@@ -165,18 +165,20 @@ def client_detail_view(request, pk):
     discounts = Discount.objects.filter(client__id=client.id)
     discounts_count = discounts.count()
     discounts = list(map(map_discount_to_dict, discounts))
-    context = {
-        'client': client,
-        'selected_tab': 'clients-tab',
-        'discounts_count': discounts_count,
-        'discounts': discounts,
-        'deposits_count': deposits_count,
-        'deposits': deposits,
-        'contract': None,
-    }
-    if client.contract_url is not None:
-        context['contract'] = truncate_start(client.contract_url)
-    return render(request, 'clients/detail.html', context)
+    ctx = {}
+    ctx['client'] = client
+    ctx['selected_tab'] = 'clients-tab'
+    ctx['discounts_count'] = discounts_count
+    ctx['discounts'] = discounts
+    ctx['deposits_count'] = deposits_count
+    ctx['deposits'] = deposits
+    ctx['contract'] = None
+    if client.contract:
+        ctx['contract'] = {
+            'url': client.contract.url,
+            'text': truncate_start(client.contract.url),
+        }
+    return render(request, 'clients/detail.html', ctx)
 
 
 def truncate_start(s: str, max_chars: int = 30) -> str:

@@ -1,0 +1,31 @@
+{% extends 'safe_confirm_delete.html' %}
+
+{% load price_extras %}
+
+{% block deletion_specs %}
+<ul>
+    <li class="mt-1">{{ client.name }}</li>
+    {% if deposits %}
+    <li class="mt-1">Y los depósitos:
+        <ul>
+            {% for deposit in deposits %}
+            <li>
+                {{ deposit }}
+            </li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% endif %}
+    {% if discounts %}
+    <li class="mt-1">Y los descuentos:
+        <ul>
+            {% for discount in discounts %}
+            <li>
+                {{ discount }}
+            </li>
+            {% endfor %}
+        </ul>
+    </li>
+    {% endif %}
+</ul>
+{% endblock deletion_specs %}
