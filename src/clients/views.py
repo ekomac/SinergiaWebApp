@@ -298,7 +298,7 @@ def edit_discount_view(request, client_pk, discount_pk):
     discount = get_object_or_404(Discount, pk=discount_pk)
     form = CreateDiscountForm(instance=discount)
     if request.method == 'POST':
-        form = CreateDiscountForm(request.POST)
+        form = CreateDiscountForm(request.POST, instance=discount)
         if form.is_valid():
             discount = form.save(commit=False)
             discount.save()
