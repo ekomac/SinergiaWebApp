@@ -123,7 +123,7 @@
             <div><i class="bi bi-shop me-1"></i>Depósitos a nombre del cliente</div>
             <div>
                 {% if deposits_count > 0 %}
-                <a href="{% url 'deposits:add' %}" class="btn btn-success btn-sm me-1"><i
+                <a href="{% url 'deposits:add' %}" class="btn btn-secondary btn-sm me-1"><i
                         class="bi bi-plus me-1"></i>Nuevo depósito</a>
                 {% endif %}
             </div>
@@ -178,7 +178,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <div><i class="bi bi-percent me-1"></i>Descuentos que tiene el cliente</div>
             {% if discounts_count > 0 %}
-            <a href="{% url 'clients:add-discount' client.pk %}" class="btn btn-success btn-sm me-1"><i
+            <a href="{% url 'clients:add-discount' client.pk %}" class="btn btn-secondary btn-sm me-1"><i
                     class="bi bi-plus me-1"></i>Nuevo descuento</a>
             {% endif %}
 
@@ -186,13 +186,14 @@
         <div class="card-body">
             {% if discounts_count > 0 %}
             <div>
-                <table class="table">
+                <table class="table table-hover">
                     <thead>
                         <tr class="bg-dark text-white fw-bold">
                             <th class="text-center">#</th>
                             <th class="text-center">Tipo</th>
                             <th class="text-center">Porcentaje</th>
                             <th>Partidos</th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -208,6 +209,14 @@
                             </td>
                             <td class="text-center">{{ obj.amount }}%</td>
                             <td>{{ obj.partidos }}</td>
+                            <td style="text-align: end;">
+                                <div class="d-flex">
+                                    <a href="{% url 'clients:edit-discount' client_pk=client.id discount_pk=obj.id %}"
+                                        class="edit-button me-1" title="Editar"><i class="bi bi-pencil-square"></i></a>
+                                    <a href="{% url 'clients:delete-discount' client_pk=client.id discount_pk=obj.id %}"
+                                        class="edit-button ms-1" title="Eliminar"><i class="bi bi-trash"></i></a>
+                                </div>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>

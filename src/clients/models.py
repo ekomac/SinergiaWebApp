@@ -104,3 +104,7 @@ class Discount(models.Model):
         return "{a}% de descuento para {b} por {c} partidos".format(
             a=self.amount, b=self.client.name, c=self.partidos.count()
         )
+
+    class Meta:
+        verbose_name = "descuento"
+        verbose_name_plural = "descuentos"

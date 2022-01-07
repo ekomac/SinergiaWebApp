@@ -213,6 +213,7 @@ def map_discount_to_dict(discount: Discount) -> Dict[str, str]:
         Dict[str, str]: the mapped discount.
     """
     return {
+        'id': discount.id,
         'type': "Flex" if discount.is_for_flex else "Mensajería",
         'is_for_flex': discount.is_for_flex,
         'amount': discount.amount,
@@ -288,3 +289,70 @@ def add_discount_view(request, pk):
         'partidos': Partido.objects.all().order_by("name"),
     }
     return render(request, 'clients/add_discount.html', context)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def edit_discount_view(request, client_pk, discount_pk):
+    client = get_object_or_404(Client, pk=client_pk)
+    discount = get_object_or_404(Discount, pk=discount_pk)
+    form = CreateDiscountForm(instance=discount)
+    if request.method == 'POST':
+        form = CreateDiscountForm(request.POST)
+        if form.is_valid():
+            discount = form.save(commit=False)
+            discount.save()
+            partidos = form.cleaned_data['partidos']
+            discount.partidos.add(*partidos)
+            # partidos_ids = [partido.pk for partido in partidos]
+            for disc in Discount.objects.exclude(pk=discount.pk).filter(
+                client__id=client.id,
+                partidos__in=partidos,
+                    is_for_flex=discount.is_for_flex):
+                disc.partidos.remove(
+                    *disc.partidos.filter(pk__in=[
+                        partido.pk for partido in partidos]))
+            msg = f'El descuento de {discount.amount}% ' +\
+                f'para el cliente {client} se creó correctamente.'
+            return create_alert_and_redirect(
+                request, msg, 'clients:detail', client.pk)
+        else:
+            print("INVALIDOOOOOOOOOO")
+    context = {
+        'form': form,
+        'client': client,
+        'selected_tab': 'clients-tab',
+        'partidos': Partido.objects.all().order_by("name"),
+        'selected_partidos_ids': discount.partidos.all().values('pk'),
+    }
+    return render(request, 'clients/edit_discount.html', context)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def delete_discount_view(request, client_pk, discount_pk):
+    delete_utility = DeleteObjectsUtil(
+        model=Discount,
+        model_ids=discount_pk,
+        order_by='date_created',
+        request=request,
+        selected_tab='clients-tab'
+    )
+
+    context = {}
+    if request.method == 'POST':
+        form = CheckPasswordForm(request.POST or None,
+                                 current_password=request.user.password)
+        if form.is_valid():
+            delete_utility.delete_objects()
+            delete_utility.create_alert()
+            return redirect('clients:detail', client_pk)
+    else:  # Meaning is a GET request
+        form = CheckPasswordForm()
+    context = delete_utility.get_context_data()
+    context['form'] = form
+    context['client_id'] = client_pk
+    discount = get_object_or_404(Discount, pk=discount_pk)
+    context['discount'] = discount
+    context['partidos'] = discount.partidos.all()
+    return render(request, "clients/delete_discount.html", context)

@@ -1,0 +1,15 @@
+{% extends 'safe_confirm_delete.html' %}
+
+{% load price_extras %}
+
+{% block deletion_specs %}
+<ul>
+    <li class="mt-1">{{ discount.amount }}% de {{ discount.client }}</li>
+    <li class="mt-1">Aplica para los partidos:</li>
+    <ul>
+        {% for partido in partidos %}
+        <li>{{ partido }}</li>
+        {% endfor %}
+    </ul>
+</ul>
+{% endblock deletion_specs %}
