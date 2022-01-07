@@ -36,6 +36,15 @@
         {{ obj.full_address|title |truncatewords:8}}
     </td>
     <td class="cell-centered">
+        {% if obj.status == 'S' or obj.status == 'N' %}
+        <a href="{% url 'deposits:detail' obj.deposit.id %}" class="btn btn-secondary btn-sm">{{ obj.deposit.name }}</a>
+        {% elif obj.status == 'M' %}
+        <a href="#" class="btn btn-secondary btn-sm">@{{ obj.carrier.username }}</a>
+        {% else %}
+        En destino
+        {% endif %}
+    </td>
+    <td class="cell-centered">
         {% if obj.max_delivery_date %}{{ obj.max_delivery_date }}{% else %}No tiene{% endif %}
     </td>
     <td class="cell-centered">
