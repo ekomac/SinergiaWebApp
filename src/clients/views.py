@@ -296,7 +296,6 @@ def add_discount_view(request, pk):
 def edit_discount_view(request, client_pk, discount_pk):
     client = get_object_or_404(Client, pk=client_pk)
     discount = get_object_or_404(Discount, pk=discount_pk)
-    form = CreateDiscountForm(instance=discount)
     if request.method == 'POST':
         form = CreateDiscountForm(request.POST, instance=discount)
         if form.is_valid():
@@ -313,11 +312,11 @@ def edit_discount_view(request, client_pk, discount_pk):
                     *disc.partidos.filter(pk__in=[
                         partido.pk for partido in partidos]))
             msg = f'El descuento de {discount.amount}% ' +\
-                f'para el cliente {client} se creó correctamente.'
+                f'para el cliente {client} se actualizó correctamente.'
             return create_alert_and_redirect(
                 request, msg, 'clients:detail', client.pk)
-        else:
-            print("INVALIDOOOOOOOOOO")
+    else:
+        form = CreateDiscountForm(instance=discount)
     context = {
         'form': form,
         'client': client,
