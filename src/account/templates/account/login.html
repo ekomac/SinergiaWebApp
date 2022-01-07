@@ -51,34 +51,34 @@
             logística.</p>
         <p class="h6 mb-3 fw-normal"> Por favor, ingrese sus credenciales para continuar.</p>
         <div class="form-floating">
-            <input type="email" name="email" id="inputEmail" class="form-control" placeholder="Correo electrónico"
-                required autofocus>
-            <label for="inputEmail" style="color: #000">Correo electrónico</label>
-            <div class="invalid-feedback">
-
-            </div>
+            <input type="email" name="email" id="id_email"
+                class="form-control {% if login_form.email.errors %}is-invalid{% endif %}"
+                placeholder="Correo electrónico" required autofocus>
+            <label for="id_email" style="color: #000">Correo electrónico</label>
         </div>
         <div class="form-floating">
-            <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password"
-                required>
-            <label for="inputPassword">Contraseña</label>
-            <div class="invalid-feedback">
-
-            </div>
+            <input type="password" name="password" id="id_password" class="form-control
+                {% if login_form.password.errors %}is-invalid{% endif %}" placeholder="Constraseña" required>
+            <label for="id_password">Contraseña</label>
         </div>
-
-        {% for field in login_form %}
-        <p>
-            {% for error in field.errors %}
-            <p style="color: red">{{ error }}</p>
+        {% if login_form.email.errors or login_form.non_field_errors or login_form.password.errors %}
+        <div class="alert alert-danger" role="alert">
+            {% if login_form.email.errors  %}
+            {% for error in login_form.email.errors %}
+            {{error}}
             {% endfor %}
-        </p>
-        {% endfor %}
-        {% if login_form.non_field_errors %}
-        <div style="color: red">
-            <p>{{login_form.non_field_errors}}</p>
+            {% elif login_form.non_field_errors or login_form.password.errors %}
+            {% if login_form.non_field_errors %}
+            {% for error in login_form.non_field_errors %}
+            {{error}}
+            {% endfor %}
+            <br>
+            {% endif %}
+            {% for error in login_form.password.errors %}
+            {{error}}
+            {% endfor %}
+            {% endif %}
         </div>
-
         {% endif %}
 
         <button class="w-100 btn btn-lg btn-primary" type="submit">Iniciar sesión</button>

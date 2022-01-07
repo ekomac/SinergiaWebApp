@@ -50,6 +50,20 @@ def app_view(request) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+def app_account_view(request) -> HttpResponse:
+    return render(request, 'baseapp_account.html', {})
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+def app_account_change_password_view(request) -> HttpResponse:
+
+    return render(request, 'baseapp_account_change_password.html', {})
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
 def admin_home_screen_view(request):
     clients_with_envios = get_clients_with_envios_queryset()
     envios_at_deposit = get_envios_at_deposit()
@@ -224,11 +238,6 @@ def map_envio_to_carrier(envio):
         if tms.last().carrier:
             return tms.last().carrier
         return ""
-
-
-def prueba_view(request):
-
-    return render(request, 'prueba.html', {})
 
 
 def delete_alert_from_session(request, *args, **kwargs):

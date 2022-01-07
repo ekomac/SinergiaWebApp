@@ -11,9 +11,14 @@ def logout_view(request):
 def login_view(request):
 
     context = {}
-
+    form = AccountAuthenticationForm()
     if request.user.is_authenticated:
-        return redirect('home')
+        if request.user.groups.exists() \
+                and request.user.groups.filter(
+                name__in=["Admins", "Clients"]).exists():
+            return redirect('admin-home')
+        else:
+            return redirect('index')
 
     if request.POST:
         form = AccountAuthenticationForm(request.POST)
@@ -35,9 +40,6 @@ def login_view(request):
                 if spec_url:
                     return redirect(spec_url)
                 return redirect(next_url)
-
-    else:
-        form = AccountAuthenticationForm()
 
     context['login_form'] = form
 

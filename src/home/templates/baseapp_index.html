@@ -88,25 +88,16 @@
             </div>
         </div>
     </li>
-    <li class="list-group-item menu-item" onclick="logout();" style="cursor: pointer;">
+    <li class="list-group-item menu-item" onclick="location.href='{% url 'baseapp-account' %}'"
+        style="cursor: pointer;">
         <div class="d-inline-flex justify-content-start align-items-center">
-            <img src="{% static 'res/images/exit.png' %}" width="65" height="65" alt="">
+            <img src="{% static 'res/images/account.png' %}" width="65" height="65" alt="">
             <div class="d-flex flex-column align-items-top p-3">
-                <h3 style="color: rgb(90,90,90);">Cerrar sesión</h3>
-                <div>Salir de tu cuenta</div>
+                <h3 style="color: rgb(90,90,90);">Cuenta</h3>
+                <div>{{ request.user.email }}</div>
             </div>
         </div>
     </li>
 </ul>
-
-<script>
-    function logout() {
-        if (confirm("¿Está seguro de cerrar sesión?") == true) {
-            console.log("You pressed OK!");
-        } else {
-            console.log("You canceled!");
-        }
-    }
-</script>
 
 {% endblock content %}

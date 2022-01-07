@@ -17,11 +17,13 @@ from django.contrib import admin
 from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
+
 
 from home.views import (
+    app_account_view,
     app_view,
     admin_home_screen_view,
-    prueba_view,
     delete_alert_from_session,
     redirect_no_url,
 )
@@ -31,27 +33,41 @@ from account.views import (
 )
 
 urlpatterns = [
+    # BASE
     path('', redirect_no_url),
+    path('login/', login_view, name="login"),
+    path('delete-alert-from-session/<str:id>',
+         delete_alert_from_session, name='delete-alert'),
+    path('password-change-done/', login_view, name='password_change_done'),
+    path('superadmin/', admin.site.urls),
+
+    # ADMIN SITE
     path('admin/home', admin_home_screen_view, name='admin-home'),
     path('admin/account/', include('account.urls')),
-    path('superadmin/', admin.site.urls),
-    path('login/', login_view, name="login"),
-    path('admin/logout/', logout_view, name="logout"),
     path('admin/clients/', include('clients.urls')),
     path('admin/deposits/', include('deposit.urls')),
     path('admin/envios/', include('envios.urls')),
     path('admin/places/', include('places.urls')),
     path('admin/prices/', include('prices.urls')),
-    path('admin/prueba/', prueba_view, name='prueba'),
     path('admin/tickets/', include('tickets.urls')),
+    path('admin/change-password/',
+         auth_views.PasswordChangeView.as_view(
+             template_name='registration/password_change.html'),
+         name='password_change'),
+    path('admin/logout/', logout_view, name="logout"),
+
+    # APP
     path('app/', app_view, name="index"),
+    path('app/account/', app_account_view, name="baseapp-account"),
+    path('app/account/change-password',
+         auth_views.PasswordChangeView.as_view(
+             template_name='baseapp_account_change_password.html'),
+         name="baseapp-account-change-password"),
     path('app/deliver/', include('app_deliver.urls')),
     path('app/deposit/', include('app_deposit.urls')),
     # path('app/tickets/', include('app_tickets.urls')),
     path('app/transfer/', include('app_transfer.urls')),
     path('app/withdraw/', include('app_withdraw.urls')),
-    path('delete-alert-from-session/<str:id>',
-         delete_alert_from_session, name='delete-alert'),
 ]
 
 

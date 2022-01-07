@@ -51,7 +51,27 @@ class MyAccountManager(BaseUserManager):
 
 def doc_upload_location(instance, filename, *args, **kwargs):
     account_id = str(instance.id)
-    return f'account/{account_id}/dni-{account_id}'
+    return f'account/{account_id}/dni/{instance.dni}'
+
+
+def driver_licence_upload_location(instance, filename):
+    account_id = str(instance.id)
+    return f'account/{account_id}/driver-licence/{filename}'
+
+
+def criminal_record_upload_location(instance, filename):
+    account_id = str(instance.id)
+    return f'account/{account_id}/criminal-record/{filename}'
+
+
+def vtv_upload_location(instance, filename):
+    account_id = str(instance.id)
+    return f'account/{account_id}/vtv/{filename}'
+
+
+def insurance_upload_location(instance, filename):
+    account_id = str(instance.id)
+    return f'account/{account_id}/insurance/{filename}'
 
 
 def profile_pic_upload_location(instance, filename, *args, **kwargs):
@@ -60,6 +80,21 @@ def profile_pic_upload_location(instance, filename, *args, **kwargs):
 
 
 class Account(AbstractBaseUser, PermissionsMixin):
+
+    ROLES = (
+        ('admin', 'Administrador'),
+        ('client', 'Cliente'),
+        ('employee1', 'Empleado 1'),
+        ('employee2', 'Empleado 2'),
+    )
+
+    VEHICLES = (
+        ('car', 'Automóvil'),
+        ('motorcycle', 'Motocicleta'),
+        ('truck', 'Camión'),
+        ('van', 'Camioneta'),
+        ('other', 'Otro'),
+    )
 
     email = models.EmailField(verbose_name="email",
                               max_length=100, unique=True)
@@ -92,22 +127,28 @@ class Account(AbstractBaseUser, PermissionsMixin):
                                 upload_to=doc_upload_location,
                                 blank=True, null=True)
     # USER DOCUMENTATION
-    # role (client
-    # admin
-    # employee)
-    # drivers_license
-    # criminal_record
-    # vtv
-    # insurance
-    # vehicle_id
-    # tax_doc
-    # grose_income
-    # is_collector
-    # is_distributor
-    # is_dealer
-    # extra_doc_1
-    # extra_doc_2
-    # extra_doc_3
+    role = models.CharField(verbose_name="Rol", max_length=9,
+                            choices=ROLES, default='employee2')
+    driver_license = models.FileField(
+        verbose_name="Licencia de conducir",
+        upload_to=driver_licence_upload_location, blank=True, null=True)
+    criminal_record = models.FileField(
+        verbose_name="Antecedentes penales",
+        upload_to=criminal_record_upload_location, blank=True, null=True)
+    vtv = models.FileField(
+        verbose_name="VTV",
+        upload_to=vtv_upload_location, blank=True, null=True)
+    insurance = models.FileField(
+        verbose_name="Seguro",
+        upload_to=insurance_upload_location, blank=True, null=True)
+    vehicle_type = models.CharField(
+        verbose_name="Tipo de vehículo",
+        max_length=10, blank=True, null=True,
+        default='car', choices=VEHICLES)
+    vehicle_id = models.CharField(
+        verbose_name="Patente", max_length=10, blank=True, null=True)
+
+    has_to_reset_password = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
@@ -125,3 +166,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
 
     def has_module_perms(self, app_label):
         return True
+
+    def reset_password(self, password: str = None):
+        self.has_to_reset_password = True
+        self.save()
