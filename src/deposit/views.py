@@ -161,7 +161,8 @@ def deposit_detail_view(request, pk):
     ctx['deposit'] = deposit
     ctx['selected_tab'] = 'deposits-tab'
     ctx['envios'] = Envio.objects.filter(
-        deposit=deposit, status=Envio.STATUS_STILL)
+        deposit__id=deposit.pk, status__in=[
+            Envio.STATUS_STILL, Envio.STATUS_NEW]).order_by('-date_created')
     return render(request, 'deposit/detail.html', ctx)
 
 

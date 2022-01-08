@@ -78,7 +78,7 @@ def get_clients_queryset(
         order_by_key (str, optional): to perform ordery by. Defaults to 'name'.
 
     Returns:
-        List[Ticket]: a list containing the envios which match at least
+        List[Client]: a list containing the clients which match at least
         one query.
     """
     query = unidecode.unidecode(query) if query else ""

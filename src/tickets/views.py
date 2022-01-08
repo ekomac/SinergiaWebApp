@@ -73,7 +73,8 @@ def list_tickets_view(request):
 def get_tickets_queryset(
         query: str = None, order_by_key: str = '-date_created',
         **filters) -> List[Ticket]:
-    """Get all tickets that match provided query, if any. If none is given,
+    """
+    Get all tickets that match provided query, if any. If none is given,
     returns all tickets. Also, performs the query in the specified
     order_by_key.
     Finally, it also filters the query by user driven params, such as, for
@@ -86,7 +87,7 @@ def get_tickets_queryset(
         **filters (Any): filter params to be passed to filter method.
 
     Returns:
-        List[Ticket]: a list containing the envios which match at least
+        List[Ticket]: a list containing the tickets which match at least
         one query.
     """
     query = unidecode.unidecode(query) if query else ""

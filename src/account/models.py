@@ -117,6 +117,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     # USER INFO
     first_name = models.CharField(verbose_name="first name", max_length=30)
     last_name = models.CharField(verbose_name="last name", max_length=30)
+    date_of_birth = models.DateField(
+        verbose_name="Fecha de nacimiento", null=True, blank=True)
     phone = models.CharField(verbose_name="phone",
                              max_length=20, blank=True, null=True)
     dni = models.CharField(verbose_name="dni", max_length=8,
@@ -144,19 +146,25 @@ class Account(AbstractBaseUser, PermissionsMixin):
     vehicle_type = models.CharField(
         verbose_name="Tipo de vehículo",
         max_length=10, blank=True, null=True,
-        default='car', choices=VEHICLES)
+        choices=VEHICLES)
     vehicle_id = models.CharField(
         verbose_name="Patente", max_length=10, blank=True, null=True)
 
-    has_to_reset_password = models.BooleanField(default=False)
+    has_to_reset_password = models.BooleanField(
+        default=False, verbose_name="¿Tiene que resetear la contraseña?")
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     objects = MyAccountManager()
 
+    @property
     def full_name(self):
         return self.first_name + ' ' + self.last_name
+
+    @property
+    def full_name_formal(self):
+        return self.last_name + ', ' + self.first_name
 
     def __str__(self):
         return self.email
@@ -170,3 +178,18 @@ class Account(AbstractBaseUser, PermissionsMixin):
     def reset_password(self, password: str = None):
         self.has_to_reset_password = True
         self.save()
+
+    @property
+    def docs(self):
+        docs = []
+        if self.dni_img:
+            docs.append("dni")
+        if self.driver_license:
+            docs.append("licencia de conducir")
+        if self.criminal_record:
+            docs.append("antecedentes penales")
+        if self.vtv:
+            docs.append("vtv")
+        if self.insurance:
+            docs.append("seguro")
+        return ", ".join(docs)

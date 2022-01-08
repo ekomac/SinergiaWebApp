@@ -177,7 +177,7 @@
 
             <!-- START Legajos -->
             <li class="nav-item {% if selected_tab == 'files-tab' %}activetab{% endif %} li-navigation">
-                <a id="staff-tab" href="#" class="nav-link tab">
+                <a id="staff-tab" href="{% url 'account:employees-list' %}" class="nav-link tab">
                     <i class="bi bi-file-earmark-text"></i> Legajos
                 </a>
             </li>

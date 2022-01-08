@@ -30,20 +30,24 @@ from home.views import (
 from account.views import (
     login_view,
     logout_view,
+    forced_reset_password_view,
 )
 
 urlpatterns = [
     # BASE
     path('', redirect_no_url),
     path('login/', login_view, name="login"),
+    path('reset-password/', forced_reset_password_view,
+         name="force_reset_password"),
     path('delete-alert-from-session/<str:id>',
          delete_alert_from_session, name='delete-alert'),
     path('password-change-done/', login_view, name='password_change_done'),
     path('superadmin/', admin.site.urls),
 
     # ADMIN SITE
+    path('admin/', admin_home_screen_view, name='admin-home'),
     path('admin/home', admin_home_screen_view, name='admin-home'),
-    path('admin/account/', include('account.urls')),
+    path('admin/accounts/', include('account.urls')),
     path('admin/clients/', include('clients.urls')),
     path('admin/deposits/', include('deposit.urls')),
     path('admin/envios/', include('envios.urls')),

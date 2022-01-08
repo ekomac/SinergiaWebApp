@@ -21,3 +21,14 @@ class AccountAuthenticationForm(forms.ModelForm):
         if email_ok and pass_ok and not authenticate(
                 email=email, password=password):
             raise forms.ValidationError('Credenciales inválidas.')
+
+
+class PasswordResetForm(forms.Form):
+    user_id = forms.CharField(
+        label='Id de usuario', required=True,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+            })
+    )

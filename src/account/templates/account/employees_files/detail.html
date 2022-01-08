@@ -1,0 +1,307 @@
+{% extends 'base_system.html' %}
+
+{% block content %}
+
+
+{% load static %}
+
+<style>
+    .table thead th {
+        border-bottom: 2px solid #C556FF;
+    }
+
+
+    .no-wrap-td {
+        overflow: auto;
+        white-space: nowrap;
+    }
+</style>
+<div class="col-md-12 col-xl-7 col-xxl-6 d-flex-block">
+
+
+    <!-- start CARD DETAIL -->
+    <div class="card flex-fill shadow-lg">
+
+        <!-- start CARD HEADER -->
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Detalle de empleado
+            </div>
+            <div class="">
+                <a href="{% url 'account:employees-list' %}">
+                    <i class="bi bi-list"></i>Ver lista completa</a>
+            </div>
+        </div>
+        <!-- end CARD HEADER -->
+
+        <!-- start CARD BODY -->
+        <div class="card-body">
+
+            <!-- start DETAILS HEADER -->
+            <div class="card-title d-flex justify-content-between flex-wrap align-content-center">
+
+                <!-- start DETAIL TITLE -->
+                <div class="me-2 w-100 d-flex align-items-center">
+                    {% if employee.profile_picture %}
+
+                    <!-- PROFILE PIC -->
+                    <img src="{{employee.profile_picture.url}}" alt="Avatar" width="56" height="56"
+                        class="rounded-circle me-2">
+
+                    {% else %}
+
+                    <!-- PROFILE PIC -->
+                    <img src="{% static 'default_account.png' %}" style="background-color: white;" alt="Avatar"
+                        width="56" height="56" class="rounded-circle me-2">
+
+                    {% endif %}
+                    <h2>#{{ employee.id }} | {{ employee.full_name }}</h2>
+                </div>
+                <!-- end DETAIL TITLE -->
+
+                <!-- start DETAIL INFO -->
+                <div class="mt-1 d-flex aling-items-center">
+                    <i class="bi bi-clock-history"></i>&nbsp;Se unió el {{ employee.date_joined|date:"d/m/Y" }} a las
+                    {{ employee.date_joined|date:"H:i" }}
+                </div>
+                <!-- end DETAIL INFO -->
+
+                <!-- start DETAIL BUTTONS -->
+                <div>
+                    {% if not employee.has_to_reset_password %}
+                    <button onclick="resetPassword();" id="btnResetPassword" class="btn btn-primary btn-sm me-1"><i
+                            class="bi bi-key me-1"></i>Blanqueo de clave</button>
+                    {% endif %}
+                    <a href="{% url 'account:employees-edit' employee.id %}" class="btn btn-secondary btn-sm me-1"><i
+                            class="bi bi-pencil me-1"></i>Editar</a>
+                    <a href="{% url 'account:employees-delete' employee.id %}" class="btn btn-danger btn-sm me-1"><i
+                            class="bi bi-trash me-1"></i>Eliminar</a>
+
+                </div>
+                <!-- end DETAIL BUTTONS -->
+
+            </div>
+            <!-- end DETAILS HEADER -->
+
+            <hr>
+
+            <!-- start DETAILS -->
+            <div class="card-text">
+
+                <table class="table table-bordered">
+                    <tbody id="overrided-1" class="overrided-tbody">
+
+                        <!-- row USERNAME -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-at me-1"></i>Usuario</td>
+                            <td class="w-100">{% if employee.username %}{{ employee.username }}{% else %}Sin
+                                especificar{% endif %}</td>
+                        </tr>
+
+
+                        <!-- row DNI -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-person-badge me-1"></i>No. de documento</td>
+                            <td class="w-100">{% if employee.dni %}{{ employee.dni }}{% else %}Sin
+                                especificar{% endif %}</td>
+                        </tr>
+
+                        <!-- row DATE OF BIRTH -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-calendar me-1"></i>Fecha de nacimiento</td>
+                            <td class="w-100">
+                                {% if employee.date_of_birth %}{{ employee.date_of_birth | date:"d/m/Y" }}{% else %}Sin
+                                especificar{% endif %}</td>
+                        </tr>
+
+                        <!-- row PHONE -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-telephone me-1"></i>Teléfono</td>
+                            <td class="w-100">{% if employee.phone %}{{ employee.phone }}{% else %}Sin
+                                especificar{% endif %}</td>
+                        </tr>
+
+
+                        <!-- row EMAIL -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-at me-1"></i>Correo electrónico</td>
+                            <td class="w-100">{% if employee.email %}{{ employee.email }}{% else %}Sin
+                                especificar{% endif %}</td>
+                        </tr>
+
+                        <!-- row VEHICLE TYPE -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-truck me-1"></i>Vehículo</td>
+                            <td class="w-100">
+                                {% if employee.vehicle_type %}{{ employee.get_vehicle_type_display }}{% else %}Sin
+                                especificar{% endif %}
+                            </td>
+                        </tr>
+
+
+                        <!-- row VEHICLE PLATE -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-123 me-1"></i>Patente</td>
+                            <td class="w-100">
+                                {% if employee.vehicle_id %}{{ employee.vehicle_id }}{% else %}Sin
+                                especificar{% endif %}
+                            </td>
+                        </tr>
+
+                        <!-- row DNI IMG -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-file-text me-1"></i>DNI</td>
+                            <td class="w-100">{% if employee.dni_img %}<a
+                                    href="{{ employee.dni_img.url }}">{{ employee.dni_img.url }}</a>{% else %}No se
+                                cargó{% endif %}
+                            </td>
+                        </tr>
+
+                        <!-- row DRIVER LICENCE -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-credit-card me-1"></i>Licencia de conducir</td>
+                            <td class="w-100">{% if employee.driver_licence %}<a
+                                    href="{{ employee.driver_licence.url }}">{{ employee.driver_licence.url }}</a>{% else %}No
+                                se
+                                cargó{% endif %}
+                            </td>
+                        </tr>
+
+                        <!-- row CRIMINAL RECORD -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-shield-check me-1"></i>Antecedentes penales</td>
+                            <td class="w-100">{% if employee.criminal_record %}<a
+                                    href="{{ employee.criminal_record.url }}">{{ employee.criminal_record.url }}</a>{% else %}No
+                                se
+                                cargó{% endif %}
+                            </td>
+                        </tr>
+
+                        <!-- row VTV -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-file-text me-1"></i>VTV</td>
+                            <td class="w-100">{% if employee.vtv %}<a
+                                    href="{{ employee.vtv.url }}">{{ employee.vtv.url }}</a>{% else %}No
+                                se
+                                cargó{% endif %}
+                            </td>
+                        </tr>
+
+                        <!-- row INSURANCE -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-shield-check me-1"></i>Seguro</td>
+                            <td class="w-100">{% if employee.insurance %}<a
+                                    href="{{ employee.insurance.url }}">{{ employee.insurance.url }}</a>{% else %}No se
+                                cargó{% endif %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+            <!-- end DETAILS -->
+
+        </div>
+    </div>
+    <!-- end CARD DETAIL -->
+
+
+    <!-- start CARD ENVIOS -->
+    {% if envios %}
+    <div class="card flex-fill shadow-lg mt-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div><i class="bi bi-truck me-1"></i>Envíos portados por este empleado ({{ envios | length }})</div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr class="bg-dark text-white fw-bold">
+                            <th scope="row">#</th>
+                            <th class="text-center">Tipo</th>
+                            <th>Envío</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obj in envios %}
+                        <tr onclick="window.location.href='{% url 'envios:envio-detail' obj.pk %}';"
+                            style="cursor: pointer;">
+                            <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                            <td class="text-center">
+                                {% if obj.is_flex %}
+                                <span class="badge" style="background-color: #212529;">FLEX</span>
+                                {% else %}
+                                <span class="badge" style="background-color: #808080;">MENSAJERIA</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ obj.full_address }} de <a
+                                    href="{% url 'clients:detail' obj.client.pk %}">{{ obj.client }}</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+    {% endif %}
+    <!-- end CARD ENVIOS -->
+
+    <form action="POST" id="id_reset_password_form" name="reset_password_form" class="d-none">{% csrf_token %}
+        <input type="text" id="id_user_id" name="user_id" value="{{ employee.pk }}">
+    </form>
+
+</div>
+<!-- end CARD BODY -->
+
+
+<script>
+    $(document).ready(function () {
+        $("#id_reset_password_form").on('submit', function (e) {
+            e.preventDefault();
+            alert("submit eh?=");
+            var csrftoken = getCookie('csrftoken');
+            // serialize the data for sending the form data.
+            var serializedData = $(this).serialize();
+            // make POST ajax call
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'account:employees-post-password-reset' employee.pk %}",
+                data: serializedData,
+                success: function (response) {
+                    // on successfull creating object
+                    // clear the form.
+                    $("#example_form").trigger('reset');
+
+                    $('#btnResetPassword').addClass('invisible');
+                    alert("listo")
+                },
+                error: function (response) {
+                    // alert the error if any error occured
+                    alert(response["responseJSON"]["error"]);
+                }
+            });
+        });
+    });
+
+    function resetPassword() {
+        var has_to_reset = confirm('¿Está seguro que desea resetear la contraseña del empleado?');
+        if (has_to_reset) {
+            $("#id_reset_password_form").submit();
+        }
+    }
+</script>
+
+{% endblock content %}

@@ -122,15 +122,7 @@ def decode_filters(s: str = '') -> Tuple[dict, int]:
 
             if key == 'u':
                 filters['status'] = value
-
-            if key == 'l':
-                what_localization = value.split('-')[0]
-                actual_localization = value.split('-')[1]
-                if what_localization == 'd':
-                    filters['deposit__id'] = int(actual_localization)
-                if what_localization == 'c':
-                    filters['carrier__id'] = int(actual_localization)
-
+    print(f'{filters=}')
     return filters, len(filters)
 
 

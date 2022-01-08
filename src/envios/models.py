@@ -1,4 +1,3 @@
-from decimal import Decimal
 from django.db import models
 from django.conf import settings
 from django.template.defaultfilters import truncatechars
@@ -34,6 +33,10 @@ class Destination(models.Model):
         blank=True, null=True)
 
     def __str__(self):
+        return self.full_address
+
+    @property
+    def full_address(self):
         return f'{self.street}, {self.zipcode} {self.town}'
 
 
@@ -129,7 +132,7 @@ class Envio(Receiver):
     tracked = models.BooleanField(default=False)
 
     def __str__(self):
-        address = self.full_address()
+        address = self.full_address
         client = self.client
         status = self.get_status_display()
         if status == self.STATUS_DELIVERED:
@@ -144,8 +147,12 @@ class Envio(Receiver):
             where = not_specified
         return f'{address} @{where} ({status}) >>> {client}'
 
-    def full_address(self):
-        return f'{self.street}, {self.zipcode} {self.town.name.title()}'
+    @property
+    def destination_for_client(self):
+        return self.full_address + ' de ' + self.client.name
+
+    # def full_address(self):
+    #     return f'{self.street}, {self.zipcode} {self.town.name.title()}'
 
     def get_status(self):
         status = self.get_status_display()
@@ -176,101 +183,6 @@ class Envio(Receiver):
     class Meta:
         verbose_name = 'Envío'
         verbose_name_plural = 'Envíos'
-
-
-class Bolson(models.Model):
-
-    envios = models.ManyToManyField(Envio)
-    datetime_created = models.DateTimeField(
-        verbose_name="creation datetime", auto_now_add=True)
-    carrier = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        blank=False, null=False, default=None)
-    history = HistoricalRecords()
-
-    def count(self):
-        return len(self.envios)
-
-    def __str__(self):
-        return f'{self.carrier.username} ({len(self.envios)} envíos)'
-
-    class Meta:
-        verbose_name = 'Bolsón'
-        verbose_name_plural = 'Bolsones'
-
-
-class PriceCalculator(object):
-
-    def __init__(self, envio: Envio):
-        self.envio = envio
-        self.discount = self.envio.client.discount
-        return
-
-    def calculate(self) -> Decimal:
-        """Performs de calculation for the price of the 'envio'
-
-        Returns:
-            Decimal: The total price
-        """
-        # Get the 'envio'
-        envio = self.envio
-
-        # Get the town of recipient's address
-        town = envio.town
-
-        #  Get the code. If 'envio' is from flex, return flex's code for
-        # given town, else the normal code.
-        code = town.flex_code if envio.is_flex else town.delivery_code
-
-        # Set code's price to default price. Later used when
-        # parsing the detail to a price
-        self.default_price = code.price
-
-        # Get the total price
-        total_price = self.get_price()
-
-        # If the 'envio' has got a discount
-        discount = envio.client.discount
-        if discount and discount > 0:
-            # Apply it to total price
-            total_price = Decimal(total_price * (discount / 100))
-
-        # return the total price
-        return total_price
-
-    def detail_to_price(self, detail) -> Decimal:
-        """Parse a package detail pair in "3-4" format,
-        where 3 is the id-code for the type of package,
-        and 4 is the amount of packages.
-
-        Args:
-            detail (str): package detail pair in "3-4" format.
-
-        Returns:
-            Decimal: the total price.
-        """
-        parts = detail.split('-')
-        code = parts[0]
-        amount = parts[1]
-        detail_code = DETAIL_CODES[code]
-        total_price = Decimal(
-            self.default_price * detail_code["multiplier"] * amount)
-        return total_price
-
-    def get_price(self):
-        if not self.envio.is_flex:
-            detail_codes = self.envio.detail.split(',')
-            prices = map(self.detail_to_price, detail_codes)
-            return Decimal(sum(prices))
-        return Decimal(self.default_price)
-
-
-class ListOfEnvios(object):
-
-    def __init__(self, envios):
-
-        pass
 
 
 def bulk_file_upload_path(instance, filename):

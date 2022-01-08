@@ -2,8 +2,6 @@ from django.contrib import admin
 from envios.models import (
     BulkLoadEnvios,
     Envio,
-    Bolson,
-    # TrackingMovement
 )
 
 
@@ -33,15 +31,5 @@ class BulkLoadEnviosAdmin(admin.ModelAdmin):
     fieldsets = ()
 
 
-class BolsonAdmin(admin.ModelAdmin):
-    list_display = ('carrier', 'datetime_created',)
-    search_fields = ('carrier', 'datetime_created',)
-
-    filter_horizontal = ()
-    list_filter = ()
-    fieldsets = ()
-
-
 admin.site.register(Envio, EnvioAdmin)
 admin.site.register(BulkLoadEnvios, BulkLoadEnviosAdmin)
-admin.site.register(Bolson, BolsonAdmin)

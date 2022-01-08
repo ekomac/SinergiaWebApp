@@ -1,0 +1,19 @@
+<style>
+    td {
+        overflow: auto;
+        white-space: nowrap;
+    }
+</style>
+
+
+<tr scope="row" id="tr-{{ obj.id }}" class="table-item highlight-row"
+    onclick="window.location.href='{% url 'account:employees-detail' pk=obj.id %}'">
+    <th id="td-{{ obj.id }}" class="td-item-checker">{{ counter }}</th>
+    <td>{{ obj.get_role_display }}</td>
+    <td>{{ obj.full_name_formal }}</td>
+    <td>{% if obj.dni %}{{ obj.dni }}{% else %}-{% endif %}</td>
+    <td>{% if obj.phone %}{{ obj.phone }}{% else %}-{% endif %}</td>
+    <td>{{ obj.email }}</td>
+    <td>{{ envios }}</td>
+
+</tr>

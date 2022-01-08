@@ -10,26 +10,28 @@
 </style>
 
 
-<tr id="tr-{{ obj.id }}" class="table-item highlight-row {% if obj.is_sinergia %}is-sinergia{% endif %}"
+<tr id="tr-{{ obj.id }}" class="table-item highlight-row"
     onclick="window.location.href='{% url 'deposits:detail' pk=obj.id %}'">
-    <th scope="row" id="td-{{ obj.id }}" class="td-item-checker">{{ counter }}</th>
-    <td>{{ obj.name }}</td>
-    <td>
+    <th scope="row" id="td-{{ obj.id }}" class="td-item-checker" {% if obj.is_sinergia %}style="color: red;"
+        {% endif %}>{{ counter }}</th>
+    <td {% if obj.is_sinergia %}style="color: red;" {% endif %}>{{ obj.name }}
+    <td {% if obj.is_sinergia %}style="color: red;" {% endif %}>
         {% if obj.is_sinergia %}
         Propio
         {% else %}
         {{ obj.client }}
         {% endif %}
-    <td>{{ obj.full_address }}</td>
-    <td class="text-center">
+    <td {% if obj.is_sinergia %}style="color: red;" {% endif %}>{{ obj.full_address }}</td>
+    <td class="text-center" {% if obj.is_sinergia %}style="color: red;" {% endif %}>
         {% if obj.is_active %}
         <span class="badge bg-success">Si</span>
         {% else %}
         <span class="badge bg-danger">No</span>
         {% endif %}
     </td>
-    <td class="text-center">{{ envios }}</td>
-    <td class="text-center">{{ obj.phone }}</td>
-    <td class="text-center">{{ obj.email }}</td>
+    <td class="text-center" {% if obj.is_sinergia %}style="color: red;" {% endif %}>{{ envios }}</td>
+    <td class="text-center" {% if obj.is_sinergia %}style="color: red;" {% endif %}>{{ obj.phone }}</td>
+    <td class="text-center" {% if obj.is_sinergia %}style="color: red;" {% endif %}>{{ obj.email }}</td>
 
 </tr>
+{% if obj.is_sinergia %}fst-italic{% endif %}
