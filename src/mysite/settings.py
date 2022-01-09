@@ -46,10 +46,11 @@ INSTALLED_APPS = [
     'home',
     'places',
     'prices',
-    'staff',
+    'summaries',
     'task',
     'tickets',
     'tracking',
+    'transactions',
 
     # DJANGO
     'django.contrib.admin',

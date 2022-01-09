@@ -53,7 +53,9 @@ urlpatterns = [
     path('admin/envios/', include('envios.urls')),
     path('admin/places/', include('places.urls')),
     path('admin/prices/', include('prices.urls')),
+    path('admin/summaries/', include('summaries.urls')),
     path('admin/tickets/', include('tickets.urls')),
+    path('admin/transactions/', include('transactions.urls')),
     path('admin/change-password/',
          auth_views.PasswordChangeView.as_view(
              template_name='registration/password_change.html'),

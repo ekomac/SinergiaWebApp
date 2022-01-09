@@ -183,25 +183,18 @@
             <!-- END Legajos -->
 
             <!-- START Facturación -->
-            <li class="nav-item {% if selected_tab == 'bill-tab' %}activetab{% endif %} li-navigation">
-                <a id="billing-tab" href="#" class="nav-link tab">
+            <li class="nav-item {% if selected_tab == 'summaries-tab' %}activetab{% endif %} li-navigation">
+                <a id="billing-tab" href="{% url 'summaries:list' %}" class="nav-link tab">
                     <i class="bi bi-list-check"></i> Resúmenes
                 </a>
             </li>
             <!-- END Facturación -->
 
-            <!-- START Liquidación -->
-            <li class="nav-item {% if selected_tab == 'settle-tab' %}activetab{% endif %} li-navigation">
-                <a id="settlement-tab" href="#" class="nav-link tab">
-                    <i class="bi bi-calendar-event"></i> Liquidación
-                </a>
-            </li>
-            <!-- END Liquidación -->
 
             <!-- START Contable -->
             <li class="nav-item {% if selected_tab == 'accounting-tab' %}activetab{% endif %} li-navigation">
                 <a id="accounting-tab" href="#" class="nav-link tab">
-                    <i class="bi bi-currency-euro"></i> Contable
+                    <i class="bi bi-wallet2"></i> Finanzas
                 </a>
             </li>
             <!-- END Contable -->

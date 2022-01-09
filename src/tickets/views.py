@@ -16,6 +16,7 @@ from django.views.generic.edit import CreateView
 from account.decorators import allowed_users, allowed_users_in_class_view
 from tickets.forms import CreateTicketForm
 from tickets.models import Attachment, Ticket
+from utils.alerts.views import delete_alert_and_redirect
 
 
 @login_required(login_url='/login/')
@@ -208,12 +209,13 @@ def truncate_start(s: str) -> str:
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "EmployeeTier1"])
 def ticket_delete_view(request, pk):
+    ticket = get_object_or_404(Ticket, pk=pk)
     if request.method == 'POST':
-        ticket = get_object_or_404(Ticket, pk=pk)
+        msg = f'El ticket "{ticket}" se eliminó  correctamente.'
         ticket.delete()
-        return redirect('tickets:list')
+        return delete_alert_and_redirect(request, msg, 'tickets:list')
     context = {
-        'ticket': get_object_or_404(Ticket, pk=pk),
+        'ticket': ticket,
         'selected_tab': 'tickets-tab'
     }
     return render(request, 'tickets/delete.html', context)

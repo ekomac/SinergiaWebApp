@@ -1,0 +1,98 @@
+<div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="baseModal" tabindex="-1"
+    aria-labelledby="baseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filtersModalLabel">Elegí cómo querés filtrar los envíos.
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- start DATES FROM AND TO FILTER -->
+                <div class="row g-2 mt-2">
+                    <div class="col form-floating">
+                        <div class="input-group mb-3">
+
+                            <!-- start DATE FROM -->
+                            <input type="date" class="form-control datepicker" name="max_delivery_date_since_modal"
+                                id="id_max_delivery_date_since_modal" value="" placeholder="Desde">
+                            <!-- end DATE FROM -->
+
+                            <span class="input-group-text">&nbsp;a&nbsp;</span>
+
+                            <!-- start DATE TO -->
+                            <input type="date" class="form-control datepicker" name="max_delivery_date_to_modal"
+                                id="id_max_delivery_date_to_modal" value="" placeholder="Desde">
+                            <!-- end DATE TO -->
+
+                        </div>
+                    </div>
+                </div>
+                <!-- end DATES FROM AND TO FILTER -->
+
+                <!-- start CLIENT TYPE SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_client_modal" class="form-label">Cliente</label>
+
+                        <!-- start CLIENT SELECTION -->
+                        <select id="id_client_modal" name="client_modal" class="form-select"
+                            aria-label="client selection">
+                            <option value="">---</option>
+                            {% for client in clients %}
+                            <option value="{{client.id}}">{{client.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <!-- end CLIENT SELECTION -->
+
+                    </div>
+                </div>
+                <!-- end CLIENT SELECTION -->
+
+                <!-- start SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_shipment_status" class="form-label">Estado</label>
+
+                        <!-- start SHIPMENT STATUS -->
+                        <select id="id_shipment_status" name="shipment_status_modal" class="form-select"
+                            aria-label="status selection">
+                            <option value="">---</option>
+                            <option value="N">Nuevo</option>
+                            <option value="S">En depósito</option>
+                            <option value="M">En viaje</option>
+                            <option value="D">Entregado</option>
+                        </select>
+                        <!-- end SHIPMENT STATUS -->
+
+                    </div>
+
+                    <div class="col">
+                        <label for="id_shipment_type_modal" class="form-label">Tipo</label>
+
+                        <!-- start SHIPMENT TYPE SELECTION -->
+                        <select id="id_shipment_type_modal" name="shipment_type_modal" class="form-select"
+                            aria-label="shipment type selection">
+                            <option value="" {% if not shipment_type%}selected{% endif %}>---</option>
+                            <option value="flex" {% if shipment_type == 'flex' %}selected{% endif %}>Flex</option>
+                            <option value="delivery" {% if shipment_type == 'delivery' %}selected{% endif %}>Mensajería
+                            </option>
+                        </select>
+                        <!-- end SHIPMENT TYPE SELECTION -->
+
+                    </div>
+                </div>
+            </div>
+            <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    onclick="clearFilters()">Limpiar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                    onclick="applyFilters()">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>

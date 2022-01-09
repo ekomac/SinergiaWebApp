@@ -240,3 +240,33 @@ def update_alert_and_redirect(
     if id:
         return redirect(url, id)
     return redirect(url)
+
+
+def delete_alert_and_redirect(
+    request: HttpResponse,
+    msg: str,
+    url: str,
+) -> HttpResponseRedirect:
+    """Returns an HttpResponse form a redirect but adds an
+    alert to notify a delete successful to request.
+
+    Args:
+        request (HttpResponse): the request from a django function based view.
+        msg (str): to pass to the alert (ToastAlert obj).
+        url (str): django's url formatted.
+
+    Returns:
+        HttpResponseRedirect: the redirect function which returns this object.
+    """
+    # Gets current alerts
+    alerts = request.session.get('alerts', [])
+    # Get current time
+    now = datetime.now()
+    # Create the alert
+    alert = ToastAlert('delete', 'success',
+                       'Eliminación correcta', msg, now)
+    # Append it to already existing ones
+    alerts.append(alert.get_as_dict())
+    # Set them back to request's session
+    request.session['alerts'] = alerts
+    return redirect(url)

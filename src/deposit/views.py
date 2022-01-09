@@ -64,7 +64,7 @@ def get_deposits_queryset(
         query: str = None, order_by_key: str = 'name',
 ) -> List[Deposit]:
     """Get all deposits that match provided query, if any. If none is given,
-    returns all clients. Also, performs the query in the specified
+    returns all deposits. Also, performs the query in the specified
     order_by_key.
 
     Args:
@@ -72,7 +72,7 @@ def get_deposits_queryset(
         order_by_key (str, optional): to perform ordery by. Defaults to 'name'.
 
     Returns:
-        List[Ticket]: a list containing the envios which match at least
+        List[Ticket]: a list containing the deposits which match at least
         one query.
     """
     query = unidecode.unidecode(query) if query else ""
@@ -92,10 +92,10 @@ def map_deposit_to_tuple(deposit: Deposit) -> Tuple[Deposit, int]:
     total envios holding.
 
     Args:
-        client (Client): the client to be mapped.
+        deposit (Deposit): the deposit to be mapped.
 
     Returns:
-        Tuple[Client, int]: the mapped client and the int with the total
+        Tuple[Deposit, int]: the mapped deposit and the int with the total
         envios holding.
     """
     envios_in_deposit = Envio.objects.filter(

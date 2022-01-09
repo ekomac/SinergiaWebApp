@@ -58,6 +58,10 @@ class Receiver(Destination):
         return f'{recipient}, {address}'
 
 
+class NotDeliveredYetError(Exception):
+    pass
+
+
 class Envio(Receiver):
 
     STATUS_NEW = 'N'
@@ -111,7 +115,7 @@ class Envio(Receiver):
         Deposit, on_delete=models.SET_NULL,
         verbose_name="Depósito", default=None, blank=True, null=True)
     detail = models.CharField(verbose_name="Detalle",
-                              max_length=2000, default='0-1')
+                              max_length=200, default='0-1')
     client = models.ForeignKey(
         Client, on_delete=models.CASCADE, verbose_name="Cliente",
         blank=False, null=False)
@@ -129,6 +133,8 @@ class Envio(Receiver):
     bulk_upload_id = models.ForeignKey(
         'BulkLoadEnvios', verbose_name="ID de carga masiva",
         on_delete=models.CASCADE, blank=True, null=True)
+    date_delivered = models.DateTimeField(
+        verbose_name="Fecha de entrega", blank=True, null=True, default=None)
     history = HistoricalRecords()
     tracked = models.BooleanField(default=False)
 
@@ -168,6 +174,10 @@ class Envio(Receiver):
             return f'{status} con {carrier.username}' +\
                 f' ({carrier.first_name} {carrier.last_name})'
         return status
+
+    @property
+    def readable_detail(self):
+        self.get_detail_readable()
 
     def get_detail_readable(self):
         details = map(self.map_detail, self.detail.split(","))

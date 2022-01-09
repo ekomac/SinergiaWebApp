@@ -32,7 +32,8 @@ def delivery(
         envios.update(
             status=Envio.STATUS_DELIVERED,
             carrier=None,
-            deposit=None
+            deposit=None,
+            date_delivered=movement.date_created
         )
     return envios[0]
 

@@ -63,7 +63,7 @@ def select_result_view(request):
                 proof_file=request.FILES.get('proof', None),
                 comment=request.POST.get('comment', None)
             )
-            address = envio.full_address()
+            address = envio.full_address
             client = envio.client
             status = envio.get_status_display()
             msg = f"El envío a {address} de {client} se marcó como {status}"
