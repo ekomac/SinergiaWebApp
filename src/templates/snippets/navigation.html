@@ -29,6 +29,21 @@
             </li>
             <!-- END Envíos -->
 
+            <!-- START Clientes -->
+            <li class="nav-item {% if selected_tab == 'clients-tab' %}activetab{% endif %} li-navigation">
+                <a id="clients-tab" href="{% url 'clients:list' %}" class="nav-link tab">
+                    <i class="bi bi-people"></i> Clientes
+                </a>
+            </li>
+            <!-- END Clientes -->
+
+            <!-- START Depósitos -->
+            <li class="nav-item {% if selected_tab == 'deposits-tab' %}activetab{% endif %} li-navigation">
+                <a id="deposits-tab" href="{% url 'deposits:list' %}" class="nav-link tab">
+                    <i class="bi bi-shop"></i> Depósitos
+                </a>
+            </li>
+            <!-- END Depósitos -->
 
             <!-- START Lugares -->
             <li class="nav-item">
@@ -159,22 +174,6 @@
             </li>
             <!-- END Precios -->
 
-            <!-- START Clientes -->
-            <li class="nav-item {% if selected_tab == 'clients-tab' %}activetab{% endif %} li-navigation">
-                <a id="clients-tab" href="{% url 'clients:list' %}" class="nav-link tab">
-                    <i class="bi bi-people"></i> Clientes
-                </a>
-            </li>
-            <!-- END Clientes -->
-
-            <!-- START Depósitos -->
-            <li class="nav-item {% if selected_tab == 'deposits-tab' %}activetab{% endif %} li-navigation">
-                <a id="deposits-tab" href="{% url 'deposits:list' %}" class="nav-link tab">
-                    <i class="bi bi-shop"></i> Depósitos
-                </a>
-            </li>
-            <!-- END Depósitos -->
-
             <!-- START Legajos -->
             <li class="nav-item {% if selected_tab == 'files-tab' %}activetab{% endif %} li-navigation">
                 <a id="staff-tab" href="{% url 'account:employees-list' %}" class="nav-link tab">
@@ -186,7 +185,7 @@
             <!-- START Facturación -->
             <li class="nav-item {% if selected_tab == 'bill-tab' %}activetab{% endif %} li-navigation">
                 <a id="billing-tab" href="#" class="nav-link tab">
-                    <i class="bi bi-receipt"></i> Facturación
+                    <i class="bi bi-list-check"></i> Resúmenes
                 </a>
             </li>
             <!-- END Facturación -->

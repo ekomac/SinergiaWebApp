@@ -98,5 +98,5 @@ def ticket_delete(sender, instance, **kwargs):
     """
     Delete the files associated with a ticket when the ticket is deleted.
     """
-    for file in instance.file_set.all():
+    for file in instance.attachment_set.all():
         file.delete(False)
