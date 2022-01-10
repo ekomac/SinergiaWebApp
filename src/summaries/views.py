@@ -1,9 +1,17 @@
+from django.conf import settings
+import os
+from django.contrib.staticfiles import finders
+from django.template.loader import get_template
+from django.http.response import HttpResponse
 import unidecode
 from typing import List, Tuple
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
+
+# Thirdparty
+from xhtml2pdf import pisa
 
 from account.decorators import allowed_users
 from envios.models import Envio
@@ -55,7 +63,55 @@ def summary_list_view(request):
 
         ctx['summaries'] = summaries
         ctx['selected_tab'] = 'summaries-tab'
+
+        template_path = 'summaries/snippets/client_summary.html'
+        context = ctx
+        # Create a Django response object, and specify content_type as pdf
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="resumen.pdf"'
+        # find the template and render it.
+        template = get_template(template_path)
+        html = template.render(context)
+        # create a pdf
+        pisa_status = pisa.CreatePDF(
+            html, dest=response, link_callback=link_callback)
+        # if error then show some funy view
+        if pisa_status.err:
+            return HttpResponse('We had some errors <pre>' + html + '</pre>')
+        return response
     return render(request, "summaries/list.html", ctx)
+
+
+def link_callback(uri, rel):
+    """
+    Convert HTML URIs to absolute system paths so xhtml2pdf can access those
+    resources
+    """
+    result = finders.find(uri)
+    if result:
+        if not isinstance(result, (list, tuple)):
+            result = [result]
+        result = list(os.path.realpath(path) for path in result)
+        path = result[0]
+    else:
+        sUrl = settings.STATIC_URL  # Typically /static/
+        sRoot = settings.STATIC_ROOT  # Typically /home/userX/project_static/
+        mUrl = settings.MEDIA_URL  # Typically /media/
+        mRoot = settings.MEDIA_ROOT  # Typically /home/userX/project_static/media/
+
+        if uri.startswith(mUrl):
+            path = os.path.join(mRoot, uri.replace(mUrl, ""))
+        elif uri.startswith(sUrl):
+            path = os.path.join(sRoot, uri.replace(sUrl, ""))
+        else:
+            return uri
+
+    # make sure that file exists
+    if not os.path.isfile(path):
+        raise Exception(
+            'media URI must start with %s or %s' % (sUrl, mUrl)
+        )
+    return path
 
 
 def get_summaries_queryset(
@@ -95,7 +151,6 @@ def map_summary_to_tuple(summary: Summary) -> Tuple[Summary, int]:
         Tuple[Summary, int]: the mapped summary and the int with the total
         envios holding.
     """
-    print(summary, summary.total_cost)
     envios_in_summary = Envio.objects.filter(
         date_delivered__gte=summary.date_from,
         date_delivered__lte=summary.date_to,

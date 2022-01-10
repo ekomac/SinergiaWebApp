@@ -1,0 +1,121 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resumen de cuenta {{client.name}}</title>
+</head>
+
+<style>
+    @page {
+        size: 7in 9.25in;
+        margin: 10mm 10mm 10mm 10mm;
+    }
+
+    body {
+        font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+        width: 2480px;
+        max-width: 2480px;
+    }
+
+    .header-info-th {
+        text-align: left;
+        font-weight: bold;
+    }
+
+    .header-info-td {
+        text-align: left;
+        width: 90%;
+        margin-bottom: 10px;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .th-resumen {
+        color: white;
+        background-color: black;
+        /*border: 2px solid #ffffff;*/
+    }
+
+    .grey-tr {
+        padding-top: 3px;
+        background-color: #d9d9d9;
+        border-top: 2px solid white;
+    }
+
+    .imagediv {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #total-div {
+        display: flex;
+        /*font-size: 18px;*/
+        margin-top: auto;
+        margin-bottom: auto;
+        background-color: #cff09e;
+    }
+</style>
+
+<body>
+    <div>
+        <img src="{{ STATIC_ROOT }}res/images/sinergia-logo-pdf.png" alt="">
+    </div>
+
+    <div style="margin-top: 4;">
+        <table>
+            <tbody>
+                <tr>
+                    <td class="header-info-th"><b>FECHA</b></td>
+                    <td class="header-info-td">10/1/2022</td>
+                </tr>
+                <tr>
+                    <td class="header-info-th"><b>PERÍODO</b></td>
+                    <td class="header-info-td">31/12/2021 al 10/1/2022</td>
+                </tr>
+                <tr>
+                    <td class="header-info-th"><b>CLIENTE</b></td>
+                    <td class="header-info-td">Bulonera Mitre S.A.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="total-div">
+        <span style="font-weight: bold;">TOTAL PERÍODO:</span> 370 entregas por $ 270.500,00
+    </div>
+
+    <div class="center">
+        <h4>RESUMEN DE CUENTA</h4>
+    </div>
+
+    <div>
+        <table class="width: 100%; min-width: 100%;">
+            <thead>
+                <tr style="padding-top: 3px;">
+                    <th class="th-resumen" style="width: 10%;">FECHA</th>
+                    <th class="th-resumen" style="width: 43%;">DOMICILIO</th>
+                    <th class="th-resumen" style="width: 35%;">DETALLE</th>
+                    <th class="th-resumen" style="width: 12%;">VALOR</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="grey-tr">
+                    <td class="grey-tr-td" style="text-align: center; padding-right: 2px; padding-left: 2px;">04/12/21
+                    </td>
+                    <td class="grey-tr-td" style="padding-right: 2px; padding-left: 2px;">Gral. Hornos 2933, REMEDIOS
+                        DE ESCALADA</td>
+                    <td class="grey-tr-td" style="text-align: center;  padding-right: 2px; padding-left: 2px;">Paquete
+                        de Mercado Libre</td>
+                    <td class="grey-tr-td" style="text-align: right;  padding-right: 2px; padding-left: 2px;">$ 820</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>

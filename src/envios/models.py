@@ -196,6 +196,10 @@ class Envio(Receiver):
         verbose_name_plural = 'Envíos'
 
     @property
+    def shimpent_type(self):
+        return 'Flex' if self.is_flex else 'Mensajería'
+
+    @property
     def price(self) -> Decimal:
         """
         Performs de calculation for the price of the 'envio'.
