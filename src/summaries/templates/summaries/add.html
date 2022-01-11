@@ -1,0 +1,110 @@
+{% extends 'base_system.html' %} {% block content %}
+
+<div class="col-12 col-md-10 col-lg-7 col-xl-6 col-xxl-5 d-flex-block">
+    <form method='POST' id="id_form" class="card flex-fill shadow-lg bg-white" name="form" target="_top"
+        enctype="multipart/form-data">{% csrf_token %}
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Crear objeto
+            </div>
+            <div>
+                <a href="{% url 'summaries:list' %}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <h3 class="card-title text-center mt-3">Generar nuevo resumen</h3>
+
+            <div class="row g-3">
+
+                <div class="col-4">
+                    <label for="id_name" class="form-label">A partir de:</label>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="summaryFromRadio" id="summaryFromRadioClient"
+                            value="summaryFromRadioClient" checked>
+                        <label class="form-check-label" for="summaryFromRadioClient">
+                            Cliente
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="summaryFromRadio"
+                            id="summaryFromRadioEmployee" value="summaryFromRadioEmployee">
+                        <label class="form-check-label" for="summaryFromRadioEmployee">
+                            Empleado
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-8" id="divClientSelection">
+                    <label for="id_client" class="form-label">Cliente</label>
+                    {{ form.client }}
+                </div>
+
+                <div class="col-8 d-none" id="divEmployeeSelection">
+                    <label for="id_employee" class="form-label">Empleado/a</label>
+                    {{ form.employee }}
+                </div>
+
+                <div class="input-field col-md-6">
+                    <label for="fromdate" class="form-label">Desde</label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-calendar-event" viewBox="0 0 16 16">
+                                <path
+                                    d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z" />
+                                <path
+                                    d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
+                            </svg>
+                        </span>
+                        <input type="date" class="form-control datepicker" placeholder="Fecha desde" id="fromdate"
+                            max='{{ max_date }}' required></input>
+                    </div>
+                </div>
+                <div class="input-field col-md-6">
+                    <label for="todate" class="form-label">Hasta</label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                class="bi bi-calendar-event" viewBox="0 0 16 16">
+                                <path
+                                    d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z" />
+                                <path
+                                    d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
+                            </svg>
+                        </span>
+                        <input type="date" class="form-control datepicker" placeholder="Fecha hasta" id="todate"
+                            max='{{ max_date }}' required></input>
+                    </div>
+                </div>
+
+                <!-- end DEPOSIT DATA -->
+
+                <!-- START SUMBIT BUTTON -->
+                <div class="d-grid gap-2 d-md-flex">
+                    <input type="submit" value="Guardar" class="btn btn-primary">
+                </div>
+                <!-- END SUMBIT BUTTON -->
+
+            </div>
+
+        </div>
+    </form>
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('input[type=radio][name=summaryFromRadio]').change(function () {
+            if (this.value == 'summaryFromRadioClient') {
+                $('#divClientSelection').removeClass('d-none');
+                $('#divEmployeeSelection').addClass('d-none');
+                $("._statusDDL").val('2');
+            } else if (this.value == 'summaryFromRadioEmployee') {
+                $('#divClientSelection').addClass('d-none');
+                $('#divEmployeeSelection').removeClass('d-none');
+            }
+        });
+    });
+</script>
+
+{% endblock %}

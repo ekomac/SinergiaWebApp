@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from django.conf import settings
 import os
 from django.contrib.staticfiles import finders
@@ -14,6 +15,8 @@ from django.shortcuts import get_object_or_404, render
 from xhtml2pdf import pisa
 
 from account.decorators import allowed_users
+from account.utils import get_employees_as_JSON
+from clients.utils import get_clients_as_JSON
 from envios.models import Envio
 from summaries.forms import CreateSummaryForm
 from summaries.models import Summary
@@ -63,55 +66,7 @@ def summary_list_view(request):
 
         ctx['summaries'] = summaries
         ctx['selected_tab'] = 'summaries-tab'
-
-        template_path = 'summaries/snippets/client_summary.html'
-        context = ctx
-        # Create a Django response object, and specify content_type as pdf
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="resumen.pdf"'
-        # find the template and render it.
-        template = get_template(template_path)
-        html = template.render(context)
-        # create a pdf
-        pisa_status = pisa.CreatePDF(
-            html, dest=response, link_callback=link_callback)
-        # if error then show some funy view
-        if pisa_status.err:
-            return HttpResponse('We had some errors <pre>' + html + '</pre>')
-        return response
     return render(request, "summaries/list.html", ctx)
-
-
-def link_callback(uri, rel):
-    """
-    Convert HTML URIs to absolute system paths so xhtml2pdf can access those
-    resources
-    """
-    result = finders.find(uri)
-    if result:
-        if not isinstance(result, (list, tuple)):
-            result = [result]
-        result = list(os.path.realpath(path) for path in result)
-        path = result[0]
-    else:
-        sUrl = settings.STATIC_URL  # Typically /static/
-        sRoot = settings.STATIC_ROOT  # Typically /home/userX/project_static/
-        mUrl = settings.MEDIA_URL  # Typically /media/
-        mRoot = settings.MEDIA_ROOT  # Typically /home/userX/project_static/media/
-
-        if uri.startswith(mUrl):
-            path = os.path.join(mRoot, uri.replace(mUrl, ""))
-        elif uri.startswith(sUrl):
-            path = os.path.join(sRoot, uri.replace(sUrl, ""))
-        else:
-            return uri
-
-    # make sure that file exists
-    if not os.path.isfile(path):
-        raise Exception(
-            'media URI must start with %s or %s' % (sUrl, mUrl)
-        )
-    return path
 
 
 def get_summaries_queryset(
@@ -161,7 +116,6 @@ def map_summary_to_tuple(summary: Summary) -> Tuple[Summary, int]:
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
 def summary_create_view(request):
-
     form = CreateSummaryForm()
     if request.method == 'POST':
         form = CreateSummaryForm(request.POST)
@@ -172,10 +126,17 @@ def summary_create_view(request):
             msg = f'El resumen "{summary}" se creó correctamente.'
             return create_alert_and_redirect(
                 request, msg, 'summaries:detail', summary.pk)
+    now = datetime.utcnow()
+    
     context = {
         'form': form,
         'selected_tab': 'summaries-tab',
+        'max_date': f'{now.year}-{now.month}-{now.day}',
+        # 'clients': get_clients_as_JSON(),
+        # 'employees': get_employees_as_JSON(),
     }
+    # print(context['clients'])
+    # print(context['employees'])
     return render(request, 'summaries/add.html', context)
 
 
@@ -226,3 +187,56 @@ def summary_delete_view(request, pk):
         'selected_tab': 'tickets-tab'
     }
     return render(request, 'tickets/delete.html', context)
+
+
+def create_pdf(request):
+    ctx = {}
+    ctx['nums'] = list(range(0, 500))
+
+    template_path = 'summaries/snippets/client_summary.html'
+    context = ctx
+    # Create a Django response object, and specify content_type as pdf
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="resumen.pdf"'
+    # find the template and render it.
+    template = get_template(template_path)
+    html = template.render(context)
+    # create a pdf
+    pisa_status = pisa.CreatePDF(
+        html, dest=response, link_callback=link_callback)
+    # if error then show some funy view
+    if pisa_status.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
+
+def link_callback(uri, rel):
+    """
+    Convert HTML URIs to absolute system paths so xhtml2pdf can access those
+    resources
+    """
+    result = finders.find(uri)
+    if result:
+        if not isinstance(result, (list, tuple)):
+            result = [result]
+        result = list(os.path.realpath(path) for path in result)
+        path = result[0]
+    else:
+        sUrl = settings.STATIC_URL  # Typically /static/
+        sRoot = settings.STATIC_ROOT  # Typically /home/userX/project_static/
+        mUrl = settings.MEDIA_URL  # Typically /media/
+        mRoot = settings.MEDIA_ROOT  # Typically /home/userX/project_static/media/
+
+        if uri.startswith(mUrl):
+            path = os.path.join(mRoot, uri.replace(mUrl, ""))
+        elif uri.startswith(sUrl):
+            path = os.path.join(sRoot, uri.replace(sUrl, ""))
+        else:
+            return uri
+
+    # make sure that file exists
+    if not os.path.isfile(path):
+        raise Exception(
+            'media URI must start with %s or %s' % (sUrl, mUrl)
+        )
+    return path

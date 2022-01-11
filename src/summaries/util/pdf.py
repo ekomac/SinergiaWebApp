@@ -454,13 +454,13 @@ def main():
         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
     ]
 
-    info = LongTable(data, style=[
+    info = Table(data, style=[
         ('FONTNAME', (0, 0), (0, 2), "Helvetica-Bold"),
         ('FONTSIZE', (0, 0), (0, 2), 12),
         ('FONTNAME', (1, 0), (-1, -1), "Helvetica"),
         ('FONTSIZE', (1, 0), (-1, -1), 12),
         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-    ])
+    ], repeatRows=1)
     # BASE_FRAME_WIDTH/2 TABLE_HIEGHT_UNIT*1.5
     # table.setStyle(table_header_style)
     story.append(info)
@@ -477,7 +477,8 @@ def main():
 
 def main2():
     elements = []
-    doc = SimpleDocTemplate("ejemplo2.pdf", pagesize=A4, )
+    doc = SimpleDocTemplate("ejemplo2.pdf", pagesize=A4,
+                            rightMargin=0, leftMargin=0, topMargin=0, bottomMargin=0)
     data = [
         ['FECHA:', '10/1/2022'],
         ['PERÍODO:', '1/1/2022 al 10/1/2022',
@@ -870,11 +871,16 @@ def main2():
             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
     ]
 
-    t = LongTable(data, colWidths=[2 * cm, 5 *
-                  cm, 5 * cm, 2 * cm], longTableOptimize=True)
+    t = Table(data, colWidths=[2 * cm, 5 *
+                               cm, 5 * cm, 2 * cm], longTableOptimize=True, repeatRows=1)
     t.setStyle(TableStyle([('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
                            ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
                            ]))
+    logo = Image(
+        'C:\\Users\\jcmac\\Projects\\eko-software\\sinergia\\SinergiaDjangoWebApp\\src\\static\\res\\images\\sinergia-logo-pdf.png',
+        A4[0]-15, 130
+    )
+    elements.append(logo)
     elements.append(t)
     doc.build(elements)
 
