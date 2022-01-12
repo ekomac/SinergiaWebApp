@@ -14,9 +14,11 @@
         <div class="card-body">
             <h3 class="card-title text-center mt-3">Generar nuevo resumen</h3>
 
+            <input class="d-none" id="id_what" name="what" value="client">
+
             <div class="row g-3">
 
-                <div class="col-4">
+                <div class="col-12">
                     <label for="id_name" class="form-label">A partir de:</label>
                     <div class="form-check">
                         <input class="form-check-input" type="radio" name="summaryFromRadio" id="summaryFromRadioClient"
@@ -34,54 +36,59 @@
                     </div>
                 </div>
 
-                <div class="col-8" id="divClientSelection">
+                <div class="col-12 col-xl-7" id="divClientSelection">
                     <label for="id_client" class="form-label">Cliente</label>
                     {{ form.client }}
                 </div>
 
-                <div class="col-8 d-none" id="divEmployeeSelection">
+                <div class="col-12 col-md-7 d-none" id="divEmployeeSelection">
                     <label for="id_employee" class="form-label">Empleado/a</label>
                     {{ form.employee }}
                 </div>
 
-                <div class="input-field col-md-6">
+                <div class="input-field col-12 col-md-6">
                     <label for="fromdate" class="form-label">Desde</label>
                     <div class="input-group mb-3">
-                        <span class="input-group-text">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-calendar-event" viewBox="0 0 16 16">
-                                <path
-                                    d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z" />
-                                <path
-                                    d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
-                            </svg>
-                        </span>
-                        <input type="date" class="form-control datepicker" placeholder="Fecha desde" id="fromdate"
-                            max='{{ max_date }}' required></input>
+                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                        <input type="date"
+                            class="form-control datepicker {% if form.date_from.errors %}is-invalid{% endif %}"
+                            placeholder="Fecha desde" id="id_date_from" name="date_from" max="{{ max_date }}"
+                            min="2022-01-01" required>
+                        <div class="invalid-feedback">
+                            {% for error in form.date_from.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-                <div class="input-field col-md-6">
+                <div class="input-field col-12 col-md-6">
                     <label for="todate" class="form-label">Hasta</label>
                     <div class="input-group mb-3">
-                        <span class="input-group-text">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-calendar-event" viewBox="0 0 16 16">
-                                <path
-                                    d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z" />
-                                <path
-                                    d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
-                            </svg>
-                        </span>
-                        <input type="date" class="form-control datepicker" placeholder="Fecha hasta" id="todate"
-                            max='{{ max_date }}' required></input>
+                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                        <input type="date"
+                            class="form-control datepicker {% if form.date_to.errors %}is-invalid{% endif %}"
+                            placeholder="Fecha hasta" id="id_date_to" name="date_to" min="2022-01-01" max="{{max_date}}"
+                            required>
+                        <div class="invalid-feedback">
+                            {% for error in form.datedate_to_from.errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
 
-                <!-- end DEPOSIT DATA -->
+                {% for error in form.non_field_errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+                {% endfor %}
 
+                <div id="selectSomething" class="alert alert-danger d-none" role="alert">
+                    Por favor, seleccioná un cliente o un empleado.
+                </div>
                 <!-- START SUMBIT BUTTON -->
                 <div class="d-grid gap-2 d-md-flex">
-                    <input type="submit" value="Guardar" class="btn btn-primary">
+                    <input type="submit" value="Generar" class="btn btn-primary">
                 </div>
                 <!-- END SUMBIT BUTTON -->
 
@@ -94,16 +101,52 @@
 
 <script>
     $(document).ready(function () {
+        $('#id_client').prop('required', true);
         $('input[type=radio][name=summaryFromRadio]').change(function () {
             if (this.value == 'summaryFromRadioClient') {
                 $('#divClientSelection').removeClass('d-none');
                 $('#divEmployeeSelection').addClass('d-none');
-                $("._statusDDL").val('2');
+                $('#id_client').prop('required', true);
+                $('#id_employee').prop('required', false);
+                $('#id_what').val('client');
             } else if (this.value == 'summaryFromRadioEmployee') {
                 $('#divClientSelection').addClass('d-none');
                 $('#divEmployeeSelection').removeClass('d-none');
+                $('#id_client').prop('required', false);
+                $('#id_employee').prop('required', true);
+                $('#id_what').val('employee');
             }
         });
+        /*
+        $('#id_form').submit(function (e) {
+            e.preventDefault();
+            var selected_summary_type = $('input[type=radio][name=summaryFromRadio]').val();
+            alert(selected_summary_type);
+            if (
+                (
+                    selected_summary_type == 'summaryFromRadioClient' &&
+                    $('#id_client').find(":selected").text() != "----------"
+                ) || (
+                    selected_summary_type == 'summaryFromRadioEmployee' &&
+                    $('#id_employee').find(":selected").text() != "----------"
+                )
+            ) {
+                $(this).unbind('submit').submit();
+            } else {
+                if (selected_summary_type == 'summaryFromRadioClient' && $('#id_client').find(
+                        ":selected").text() != "----------") {
+                    $('#id_client').addClass('is-invalid');
+                } else {
+                    $('#id_client').removeClass('is-invalid');
+                }
+                if (selected_summary_type == 'summaryFromRadioEmployee' && $('#id_employee').find(
+                        ":selected").text() != "----------") {
+                    $('#id_employee').addClass('is-invalid');
+                } else {
+                    $('#id_employee').removeClass('is-invalid');
+                }
+            }
+        })*/
     });
 </script>
 

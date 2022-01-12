@@ -14,7 +14,7 @@ class Summary(models.Model):
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
         verbose_name='Creado por', blank=False, null=False,
-        related_name="autor",)
+        related_name="autor")
     date_from = models.DateField(
         verbose_name='Desde', blank=False, null=False)
     date_to = models.DateField(
@@ -33,9 +33,11 @@ class Summary(models.Model):
         if self.client:
             return f'Factura {self.pk}: {self.client} del'\
                 + f' {self.date_from:%Y-%m-%d} al {self.date_to:%Y-%m-%d}'
-        else:
+        elif self.employee:
             return f'Liquidación {self.pk}: {self.employee.full_name_formal} '\
                 + f'del {self.date_from:%Y-%m-%d} al {self.date_to:%Y-%m-%d}'
+        else:
+            return "Resumen sin cliente ni empleado"
 
     def __get_envios(self):
         return Envio.objects.filter(**self.__get_envios_filters())

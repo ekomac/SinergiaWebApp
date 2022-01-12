@@ -118,25 +118,26 @@ def map_summary_to_tuple(summary: Summary) -> Tuple[Summary, int]:
 def summary_create_view(request):
     form = CreateSummaryForm()
     if request.method == 'POST':
+        print("post", request.POST)
         form = CreateSummaryForm(request.POST)
         if form.is_valid():
-            summary = form.save()
+            summary = form.save(commit=False)
             summary.created_by = request.user
             summary.save()
             msg = f'El resumen "{summary}" se creó correctamente.'
             return create_alert_and_redirect(
                 request, msg, 'summaries:detail', summary.pk)
-    now = datetime.utcnow()
-    
+    now = datetime.now()
+    yesterday = now - timedelta(days=1)
+    year = str(yesterday.year).zfill(4)
+    month = str(yesterday.month).zfill(2)
+    day = str(yesterday.day).zfill(2)
+
     context = {
         'form': form,
         'selected_tab': 'summaries-tab',
-        'max_date': f'{now.year}-{now.month}-{now.day}',
-        # 'clients': get_clients_as_JSON(),
-        # 'employees': get_employees_as_JSON(),
+        'max_date': f'{year}-{month}-{day}',
     }
-    # print(context['clients'])
-    # print(context['employees'])
     return render(request, 'summaries/add.html', context)
 
 
