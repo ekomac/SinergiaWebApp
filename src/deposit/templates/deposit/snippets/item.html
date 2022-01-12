@@ -30,8 +30,11 @@
         {% endif %}
     </td>
     <td class="text-center" {% if obj.is_sinergia %}style="color: red;" {% endif %}>{{ envios }}</td>
-    <td class="text-center" {% if obj.is_sinergia %}style="color: red;" {% endif %}>{{ obj.phone }}</td>
-    <td class="text-center" {% if obj.is_sinergia %}style="color: red;" {% endif %}>{{ obj.email }}</td>
+    <td class="text-center" {% if obj.is_sinergia %}style="color: red;" {% endif %}>
+        {{ obj.phone |default_if_none:"Sin especificar"}}
+    </td>
+    <td class="text-center" {% if obj.is_sinergia %}style="color: red;" {% endif %}>
+        {{ obj.email |default_if_none:"Sin especificar"}}</td>
 
 </tr>
 {% if obj.is_sinergia %}fst-italic{% endif %}

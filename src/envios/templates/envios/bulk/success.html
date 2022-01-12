@@ -43,15 +43,15 @@
                 {% endif %}
 
                 <div class="alert alert-success mt-3 mb-3" role="alert">
-                    Podés descargar el archivo PDF con las etiquetas listas para los paquetes haciendo <a
-                        href="{% url 'envios:envio-download-labels' ids %}">click aquí</a>.
+                    Podés descargar el archivo PDF con las etiquetas listas para los paquetes haciendo <button
+                        type="button" class="btn btn-link m-0 p-0" id="btnPrintLabels">click aquí</button>.
 
                     Tené en cuenta que la creación del archivo puede tardar un poco, por favor esperá y no cierres la
                     página.
                 </div>
             </div>
 
-            <div class="mt-4 d-grid gap-2 d-md-flex pt-4">
+            <div class="d-grid gap-2 d-md-flex pt-2">
                 <a href="{% url 'envios:envio-list' %}" class="btn btn-secondary">Volver a envíos</a>
             </div>
 
@@ -59,5 +59,27 @@
 
     </div>
 </div>
-
+<script>
+    $(document).ready(function () {
+        $('#btnPrintLabels').click(function () {
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'envios:post-selected-ids' %}",
+                data: {
+                    ids: '{{ids}}',
+                    csrfmiddlewaretoken: getCookie('csrftoken'),
+                },
+                success: function (response) {
+                    var url_mask = "{% url 'envios:envio-download-labels' %}";
+                    window.location.href = url_mask;
+                },
+                error: function (response) {
+                    // alert the error if any error occured
+                    //alert(response["responseJSON"]["error"]);
+                    alert(JSON.stringify(response));
+                }
+            })
+        });
+    });
+</script>
 {% endblock content %}

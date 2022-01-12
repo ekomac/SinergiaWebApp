@@ -311,7 +311,11 @@ def bulk_create_envios_view(request):
 @allowed_users(roles=["Admins"])
 def success_bulk_create_envios_view(request, pk):
     bulk_load = BulkLoadEnvios.objects.get(id=pk)
-    envios = bulk_create_envios(bulk_load)
+    if bulk_load.load_status == BulkLoadEnvios.LOADING_STATUS_FINISHED:
+        envios = Envio.objects.filter(bulk_upload=bulk_load)
+    else:
+        envios = bulk_create_envios(bulk_load)
+        bulk_load.envios_were_created = True
     bulk_load.load_status = BulkLoadEnvios.LOADING_STATUS_FINISHED
     bulk_load.save()
     ids = "-".join([str(envio.id) for envio in envios])
@@ -327,9 +331,7 @@ def post_selected_ids(request):
         form = EnviosIdsSelection(request.POST)
         # save the data and after fetch the object in instance
         if form.is_valid():
-            print("is valid")
             ids = form.cleaned_data['ids']
-            print(f'{ids=}')
             # serialize in new friend object in json
             # ser_instance = serializers.serialize('json', [ids, ])
             # send to client side.

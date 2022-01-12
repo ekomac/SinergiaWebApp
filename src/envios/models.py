@@ -130,7 +130,7 @@ class Envio(Receiver):
     delivery_schedule = models.CharField(
         verbose_name='Horario de entrega', choices=SCHEDULES,
         max_length=5, blank=True, null=True, default=None)
-    bulk_upload_id = models.ForeignKey(
+    bulk_upload = models.ForeignKey(
         'BulkLoadEnvios', verbose_name="ID de carga masiva",
         on_delete=models.CASCADE, blank=True, null=True)
     date_delivered = models.DateTimeField(
@@ -309,6 +309,7 @@ class BulkLoadEnvios(models.Model):
     hashed_file = models.CharField(
         verbose_name="Hashed file",
         max_length=100, blank=True, null=True)
+    envios_were_created = models.BooleanField(default=False)
     history = HistoricalRecords()
 
     @property
