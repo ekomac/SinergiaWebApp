@@ -122,7 +122,6 @@ def decode_filters(s: str = '') -> Tuple[dict, int]:
 
             if key == 'u':
                 filters['status'] = value
-    print(f'{filters=}')
     return filters, len(filters)
 
 
