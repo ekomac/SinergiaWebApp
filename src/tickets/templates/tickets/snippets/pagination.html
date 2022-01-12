@@ -1,27 +1,33 @@
 <!-- FILTERED Pagination -->
-<div class="d-flex justify-content-between align-items-center flex-row  mt-3 helper-1">
-    <div class="w-10 d-flex flex-row helper-2 mt-1 mb-0 mx-1 align-items-center">
-        <div>
-            Mostrar de a
+<div class="row mt-3 overflow-x-auto">
+    <!-- start results per page -->
+    <div class="col-12 col-lg-4 d-flex justify-content-start align-items-center">
+        <div class="small">
+            Por pág.:
             <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                <input type="radio" class="btn-check" name="btnradio" id="btnRadioRPP50" autocomplete="off" checked>
+                <input type="radio" class="btn-check" name="btnradio" id="btnRadioRPP50" autocomplete="off"
+                    {% if results_per_page == '50' %}checked{% endif %}>
                 <label class="btn btn-outline-primary" for="btnRadioRPP50">50</label>
 
-                <input type="radio" class="btn-check" name="btnradio" id="btnRadioRPP100" autocomplete="off">
+                <input type="radio" class="btn-check" name="btnradio" id="btnRadioRPP100" autocomplete="off"
+                    {% if results_per_page == '100' %}checked{% endif %}>
                 <label class="btn btn-outline-primary" for="btnRadioRPP100">100</label>
 
-                <input type="radio" class="btn-check" name="btnradio" id="btnRadioRPP500" autocomplete="off">
+                <input type="radio" class="btn-check" name="btnradio" id="btnRadioRPP200" autocomplete="off"
+                    {% if results_per_page == '200' %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="btnRadioRPP200">200</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="btnRadioRPP500" autocomplete="off"
+                    {% if results_per_page == '500' %}checked{% endif %}>
                 <label class="btn btn-outline-primary" for="btnRadioRPP500">500</label>
             </div>
         </div>
-        <!--
-        <div class="d-flex align-items-center fs-6 fst-italic small ms-2">
-            Mostrando {{ tickets_from }} - {{ tickets_to }} de {{ tickets_count }}
-        </div>
-        -->
     </div>
-    <div class="helper-1">
-        <nav class="helper-3 mb-0" aria-label="Page navigation">
+    <!-- start results per page -->
+
+    <!-- start PAGINATION -->
+    <div class="col-12 col-lg-4">
+        <nav class="mb-0" aria-label="Page navigation">
             <ul class="pagination mt-1 mb-0 mx-1 pg-grey justify-content-center">
                 {% if tickets.has_previous %}
                 <li class="page-item">
@@ -54,10 +60,13 @@
             </ul>
         </nav>
     </div>
-    <div class="d-flex flex-row helper-2 mt-1 mb-0 mx-1 align-items-center">
+    <!-- end PAGINATION -->
+
+    <!-- start from to results -->
+    <div class="col-12 col-lg-4 d-flex justify-content-start justify-content-lg-end align-items-center">
         <div class="d-flex align-items-center fs-6 fst-italic small ms-2">
-            Mostrando {{ tickets_from }} - {{ tickets_to }} de {{ tickets_count }}
+            Mostrando {{ tickets_from }} a {{ tickets_to }} de {{ tickets_count }}
         </div>
     </div>
+    <!-- end from to results -->
 </div>
-<!-- end pagination-->

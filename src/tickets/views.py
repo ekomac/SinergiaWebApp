@@ -60,28 +60,21 @@ def list_tickets_view(request):
         tickets_paginator = Paginator(tickets, results_per_page)
         try:
             tickets = tickets_paginator.page(page)
+
+            # How many tickets in total
             context['tickets_count'] = tickets_paginator.count
-            context['tickets_from'] = tickets_paginator.per_page * \
-                (int(page) - 1) + 1
+
+            # Showing ticket from
+            context['tickets_from'] = (
+                tickets.number - 1) * tickets_paginator.per_page + 1
+
+            # Showing ticket to
+            if tickets_paginator.per_page > len(tickets):
+                what_to_sum = len(tickets)
+            else:
+                what_to_sum = tickets_paginator.per_page
             context['tickets_to'] = context['tickets_from'] + \
-                tickets_paginator.per_page - 1
-            # print(dir(tickets))
-            # print("end_index", tickets.end_index())
-            # print("has_next", tickets.has_next())
-            # print("has_other_pages", tickets.has_other_pages())
-            # print("has_previous", tickets.has_previous())
-            # print("next_page_number", tickets.next_page_number())
-            # print("number", tickets.number)
-            # print("object_list", tickets.object_list)
-            # print("paginator count", tickets.paginator.count)
-            # print("paginator num_pages", tickets.paginator.num_pages)
-            # print("paginator page_range", tickets.paginator.page_range)
-            # print("paginator per_page", tickets.paginator.per_page)
-            # print("paginator dir", dir(tickets.paginator))
-            # print("paginator dict", tickets.paginator.__dict__)
-            # print("previous_page_number", tickets.previous_page_number())
-            # print("start_index", tickets.start_index())
-            # print(tickets.__dict__)
+                what_to_sum - 1
         except PageNotAnInteger:
             tickets = tickets_paginator.page(results_per_page)
         except EmptyPage:
@@ -188,13 +181,13 @@ class CreateTicketView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('tickets:detail', kwargs={'pk': self.object.pk})
 
-    @ allowed_users_in_class_view(roles=["Admins", "Clients", "EmployeeTier1"])
+    @allowed_users_in_class_view(roles=["Admins", "Clients", "EmployeeTier1"])
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
 
-@ login_required(login_url='/login/')
-@ allowed_users(roles=["Admins", "EmployeeTier1"])
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins", "EmployeeTier1"])
 def ticket_detail_view(request, pk):
     if not request.user.ticket_set.filter(pk=pk).exists():
         return redirect('tickets:list')
@@ -228,8 +221,8 @@ def truncate_start(s: str) -> str:
     return s
 
 
-@ login_required(login_url='/login/')
-@ allowed_users(roles=["Admins", "EmployeeTier1"])
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins", "EmployeeTier1"])
 def ticket_delete_view(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk)
     if request.method == 'POST':

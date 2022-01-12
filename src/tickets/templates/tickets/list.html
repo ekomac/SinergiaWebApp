@@ -42,121 +42,51 @@
 
 
 <div class="col d-flex-inline">
-    <!--helper-1 responsive-color">-->
-    <div class="fs-5 fw-bold d-inline-flex justify-content-start align-items-center mb-2">
-        Tickets <a href="{% url 'tickets:add' %}" type="button" class="flex-fill btn btn-success btn-sm ms-2 me-1"><i
-                class="bi bi-plus"></i>Nuevo</a>
-    </div>
-    <div class="card flex-fill">
-        <div class="card-body d-flex flex-column">
+    <div class="d-flex justify-content-between align-items-center mb-2 row">
+        <div class="fs-5 fw-bold d-inline-flex justify-content-start align-items-center col-6">
+            Tickets <a href="{% url 'tickets:add' %}" type="button" class="btn btn-success btn-sm ms-2 me-1 shadow"><i
+                    class="bi bi-plus"></i>Nuevo</a>
+        </div>
+        <!-- start SEARCH AND ORDERING FUNCTIONALITIES -->
+        <div class="col-12 col-xl-6">
+            <form method="GET" class="m-auto shadow" id="list_form">
 
-            <!-- start SEARCH AND ORDERING FUNCTIONALITIES -->
-            <form method="GET" class="" id="list_form">
-                <div class="row g-2">
-                    <!--
-                        {% comment %} <div class="col-12 col-lg-5 d-inline-flex justify-content-start align-items-center">
-                            <input type="text" class="form-control " name="query_by" id="id_query_by"
-                            value="{% if query %}{{query}}{% endif %}" placeholder="Ingresá texto para buscar...">
-                            <div class="mx-lg-1">
-                                <div id="clearSearchDiv"
-                                class="{% if query_by == '' or not query_by %}hide-on-load{% endif %}">
-                                <a id="clearSearch" type="button" class="ms-2 text-decoration-none"
-                                onclick="clearSearch()" style="cursor: pointer;">Limpiar</i></a>
-                            </div>
-                        </div>
-                    </div> {% endcomment %}
-                    -->
-
-                    <div class="col">
-                        <input type="text" name="order_by" id="id_order_by" class="d-none" value="{{ order_by }}">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Ingresá texto para buscar"
-                                id="id_query_by" name="query_by" value="{% if query %}{{query}}{% endif %}"
-                                aria-label="Text to search">
-                            <button type="button" id="btnCleanQuery"
-                                class="btn btn-outline-danger {% if query_by == '' or not query_by %}hide-on-load{% endif %}"
-                                onclick="clearSearch()">Limpiar</button>
-                            <button type="button" class="btn btn-outline-primary mx-2" data-bs-toggle="modal"
-                                data-bs-target="#baseModal">Filtros <span
-                                    class="badge bg-danger">{{ filters_count }}</span></button>
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button"
-                                data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-sort-up"></i></button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><button onclick="orderByChanged('date_created_desc');"
-                                        class="dropdown-item">Más&nbsp;recientes&nbsp;primero</button>
-                                </li>
-                                <li><button onclick="orderByChanged('date_created');"
-                                        class="dropdown-item">Más&nbsp;antiguas&nbsp;primero</button>
-                                </li>
-                                <li><button onclick="orderByChanged('subject');"
-                                        class="dropdown-item">Asunto&nbsp;A-Z</button>
-                                </li>
-                                <li><button onclick="orderByChanged('subject_desc');"
-                                        class="dropdown-item">Asunto&nbsp;Z-A</button>
-                                </li>
-                                <li><button onclick="orderByChanged('priority');"
-                                        class="dropdown-item">Prioridad&nbsp;alta&nbsp;primero</button>
-                                </li>
-                                <li><button onclick="orderByChanged('priority_desc');"
-                                        class="dropdown-item">Prioridad&nbsp;baja&nbsp;primero</button>
-                                </li>
-
-                            </ul>
-                        </div>
-                    </div>
-
-
-                    <div class="col-12 col-lg-7 d-flex justify-content-end align-items-center">
-                        <label for="id_results_per_page" id="labelResults_per_page" class="me-2">Por hoja</label>
-                        <div aria-label="Default select example" class="me-3">
-                            <select id="id_results_per_page" name="results_per_page" class="form-select"
-                                aria-label="Results per page selection">
-                                <option value="10" {% if results_per_page == '10' %}selected{% endif %}>10
-                                </option>
-                                <option value="30" {% if results_per_page == '30' %}selected{% endif %}>30
-                                </option>
-                                <option value="50" {% if results_per_page == '50' %}selected{% endif %}>50
-                                </option>
-                                <option value="100" {% if results_per_page == '100' %}selected{% endif %}>
-                                    100
-                                </option>
-                                <option value="200" {% if results_per_page == '200' %}selected{% endif %}>
-                                    200
-                                </option>
-                                <option value="500" {% if results_per_page == '500' %}selected{% endif %}>
-                                    500
-                                </option>
-                            </select>
-                        </div>
-                        <!--
-                        <label for="id_order_by" id="labelOrder_by" class="me-2">Ordenar por: </label>
-                        <div aria-label="Default select example">
-                            <select id="id_order_by" name="order_by" class="form-select"
-                                aria-label="Order by selection">
-                                <option value="date_created_desc"
-                                    {% if order_by == 'date_created_desc' %}selected{% endif %}>
-                                    Más&nbsp;recientes&nbsp;primero</option>
-                                <option value="date_created" {% if order_by == 'date_created' %}selected{% endif %}>
-                                    Más&nbsp;antiguas&nbsp;primero</option>
-                                <option value="subject" {% if order_by == 'subject' %}selected{% endif %}>
-                                    Asunto&nbsp;A-Z
-                                </option>
-                                <option value="subject_desc" {% if order_by == 'subject_desc' %}selected{% endif %}>
-                                    Asunto&nbsp;Z-A
-                                </option>
-                                <option value="priority" {% if order_by == 'priority' %}selected{% endif %}>
-                                    Prioridad&nbsp;alta&nbsp;primero</option>
-                                <option value="priority_desc" {% if order_by == 'priority_desc' %}selected{% endif %}>
-                                    Prioridad&nbsp;baja&nbsp;primero</option>
-                            </select>
-                        </div>
-                        -->
-                        <!--
-                        <button type="button" class="btn btn-sm btn-primary mx-2" data-bs-toggle="modal"
+                <div class="col-12 m-auto">
+                    <input type="text" name="order_by" id="id_order_by" class="d-none" value="{{ order_by }}">
+                    <input type="text" name="results_per_page" id="id_results_per_page" class="d-none"
+                        value="{{ results_per_page }}">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Ingresá texto para buscar" id="id_query_by"
+                            name="query_by" value="{% if query %}{{query}}{% endif %}" aria-label="Text to search">
+                        <button type="button" id="btnCleanQuery"
+                            class="btn btn-outline-danger {% if query_by == '' or not query_by %}hide-on-load{% endif %}"
+                            onclick="clearSearch()">Limpiar</button>
+                        <button type="button" class="btn btn-primary mx-2" data-bs-toggle="modal"
                             data-bs-target="#baseModal">Filtros <span
                                 class="badge bg-danger">{{ filters_count }}</span></button>
-                        <input type="submit" hidden="true" />
-                        -->
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                            aria-expanded="false"><i class="bi bi-sort-up"></i></button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><button onclick="orderByChanged('date_created_desc');"
+                                    class="dropdown-item">Más&nbsp;recientes&nbsp;primero</button>
+                            </li>
+                            <li><button onclick="orderByChanged('date_created');"
+                                    class="dropdown-item">Más&nbsp;antiguas&nbsp;primero</button>
+                            </li>
+                            <li><button onclick="orderByChanged('subject');"
+                                    class="dropdown-item">Asunto&nbsp;A-Z</button>
+                            </li>
+                            <li><button onclick="orderByChanged('subject_desc');"
+                                    class="dropdown-item">Asunto&nbsp;Z-A</button>
+                            </li>
+                            <li><button onclick="orderByChanged('priority');"
+                                    class="dropdown-item">Prioridad&nbsp;alta&nbsp;primero</button>
+                            </li>
+                            <li><button onclick="orderByChanged('priority_desc');"
+                                    class="dropdown-item">Prioridad&nbsp;baja&nbsp;primero</button>
+                            </li>
+
+                        </ul>
                     </div>
                 </div>
 
@@ -167,11 +97,11 @@
 
 
             </form>
-            <!-- end SEARCH AND ORDERING FUNCTIONALITIES -->
-
-            <hr class="bg-dark mt-4">
-
-
+        </div>
+        <!-- end SEARCH AND ORDERING FUNCTIONALITIES -->
+    </div>
+    <div class="card flex-fill shadow">
+        <div class="card-body d-flex flex-column">
             <!-- start MAIN CONTENT -->
             {% if tickets %}
 
@@ -202,8 +132,12 @@
             {% else %}
 
             <div>
-                <p class="card-text">No se encontraron resultados que coincidan con la búsqueda:
-                    "{{query_by}}"</p>
+                {% if query %}
+                <p class="card-text">No se encontraron resultados que coincidan con la búsqueda: "{{query_by}}"</p>
+                {% else %}
+                <p class="card-text">Aún no creaste tickets. Hacé <a href="{% url 'tickets:add' %}">click acá</a> para
+                    crear uno.</p>
+                {% endif %}
             </div>
 
             {% endif %}
