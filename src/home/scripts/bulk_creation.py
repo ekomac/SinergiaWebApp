@@ -67,24 +67,10 @@ def create_demo_clients(demo_clients):
     Client.objects.bulk_create(
         [Client(**q) for q in demo_clients]
     )
-    for client in Client.objects.all():
-        Deposit(
-            client=client,
-            name=f"Depósito {client.name}",
-            zip_code="1663",
-            address="Dorrego",
-            phone="+54 9 11 6649-1969",
-            is_active=True,
-            email=client.email,
-            created_by=Account.objects.filter(is_superuser=True).first()
-        ).save()
 
 
 def create_user_groups():
     Group.objects.create(name='Admins')
-    if Account.objects.filter(is_superuser=True).exists():
-        su = Account.objects.filter(is_superuser=True).first()
-        su.groups.add(Group.objects.filter(name='Admins').first())
     Group.objects.create(name='Clients')
     Group.objects.create(name='EmployeeTier1')
     Group.objects.create(name='EmployeeTier2')
@@ -196,7 +182,11 @@ def create_central_deposit():
     ).save()
 
 
-def main(*args):
+def create_demo_clients_deposits(demo_clients):
+    pass
+
+
+def main():
     with open(settings.BASE_DIR+'\\bulk\\base_data.json') as data:
         data = json.load(data)
         mensajerias = data['mensajerias']
@@ -204,47 +194,22 @@ def main(*args):
         partidos = data['partidos']
         localidades = data['localidades']
         demo_clients = data['demo_clients']
+        demo_deposits = data['demo_deposits']
         names = data['NAMES']
         lasts = data['LASTS']
-        if len(args) == 0:
-            create_mensajerias(mensajerias)
-            create_flexes(flexs)
-            create_zones()
-            create_partidos(partidos)
-            create_localidades(localidades)
-            create_demo_clients(demo_clients)
-            create_codigos_postales()
-            create_user_groups()
-            create_users(names, lasts)
-            create_central_deposit()
-        else:
-            if 'mensajerias' in args:
-                create_mensajerias(mensajerias)
-            if 'flexs' in args:
-                create_flexes(flexs)
-            if 'zones' in args:
-                create_zones()
-            if 'partidos' in args:
-                create_partidos(partidos)
-            if 'localidades' in args:
-                create_localidades(localidades)
-            if 'demo_clients' in args:
-                create_demo_clients(demo_clients)
-            if 'codigos_postales' in args:
-                create_codigos_postales()
-            if 'user_groups' in args:
-                create_user_groups()
-            if 'users' in args:
-                create_users(names, lasts)
-            if 'central_deposit' in args:
-                create_central_deposit()
-
+        create_mensajerias(mensajerias)
+        create_flexes(flexs)
+        create_zones()
+        create_partidos(partidos)
+        create_localidades(localidades)
+        create_demo_clients(demo_clients)
+        create_demo_clients_deposits(demo_deposits)
+        create_codigos_postales()
+        create_user_groups()
+        create_users(names, lasts)
+        create_central_deposit()
     return True
 
 
 if __name__ == '__main__':
-    main()
-
-
-def run():
     main()

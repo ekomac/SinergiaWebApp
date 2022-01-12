@@ -40,30 +40,74 @@
     }
 </style>
 
-<div class="col-md-12 col-xl-10 col-xxl-9 d-flex-inline">
+
+<div class="col d-flex-inline">
+    <!--helper-1 responsive-color">-->
+    <div class="fs-5 fw-bold d-inline-flex justify-content-start align-items-center mb-2">
+        Tickets <a href="{% url 'tickets:add' %}" type="button" class="flex-fill btn btn-success btn-sm ms-2 me-1"><i
+                class="bi bi-plus"></i>Nuevo</a>
+    </div>
     <div class="card flex-fill">
         <div class="card-body d-flex flex-column">
-            <h2 class="card-title text-center mt-2">LISTADO DE TICKETS</h2>
 
             <!-- start SEARCH AND ORDERING FUNCTIONALITIES -->
-            <form method="GET" class="mt-4" id="list_form">
+            <form method="GET" class="" id="list_form">
                 <div class="row g-2">
-                    <div class="col-12 col-lg-5 d-inline-flex justify-content-start align-items-center">
-                        <input type="text" class="form-control " name="query_by" id="id_query_by"
-                            value="{% if query_by != '' and query_by%}{{query_by}}{% endif %}"
-                            placeholder="Ingresá texto para buscar...">
-                        <div class="mx-lg-1">
-                            <div id="clearSearchDiv"
+                    <!--
+                        {% comment %} <div class="col-12 col-lg-5 d-inline-flex justify-content-start align-items-center">
+                            <input type="text" class="form-control " name="query_by" id="id_query_by"
+                            value="{% if query %}{{query}}{% endif %}" placeholder="Ingresá texto para buscar...">
+                            <div class="mx-lg-1">
+                                <div id="clearSearchDiv"
                                 class="{% if query_by == '' or not query_by %}hide-on-load{% endif %}">
                                 <a id="clearSearch" type="button" class="ms-2 text-decoration-none"
-                                    onclick="clearSearch()" style="cursor: pointer;">Limpiar</i></a>
+                                onclick="clearSearch()" style="cursor: pointer;">Limpiar</i></a>
                             </div>
+                        </div>
+                    </div> {% endcomment %}
+                    -->
+
+                    <div class="col">
+                        <input type="text" name="order_by" id="id_order_by" class="d-none" value="{{ order_by }}">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Ingresá texto para buscar"
+                                id="id_query_by" name="query_by" value="{% if query %}{{query}}{% endif %}"
+                                aria-label="Text to search">
+                            <button type="button" id="btnCleanQuery"
+                                class="btn btn-outline-danger {% if query_by == '' or not query_by %}hide-on-load{% endif %}"
+                                onclick="clearSearch()">Limpiar</button>
+                            <button type="button" class="btn btn-outline-primary mx-2" data-bs-toggle="modal"
+                                data-bs-target="#baseModal">Filtros <span
+                                    class="badge bg-danger">{{ filters_count }}</span></button>
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-sort-up"></i></button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><button onclick="orderByChanged('date_created_desc');"
+                                        class="dropdown-item">Más&nbsp;recientes&nbsp;primero</button>
+                                </li>
+                                <li><button onclick="orderByChanged('date_created');"
+                                        class="dropdown-item">Más&nbsp;antiguas&nbsp;primero</button>
+                                </li>
+                                <li><button onclick="orderByChanged('subject');"
+                                        class="dropdown-item">Asunto&nbsp;A-Z</button>
+                                </li>
+                                <li><button onclick="orderByChanged('subject_desc');"
+                                        class="dropdown-item">Asunto&nbsp;Z-A</button>
+                                </li>
+                                <li><button onclick="orderByChanged('priority');"
+                                        class="dropdown-item">Prioridad&nbsp;alta&nbsp;primero</button>
+                                </li>
+                                <li><button onclick="orderByChanged('priority_desc');"
+                                        class="dropdown-item">Prioridad&nbsp;baja&nbsp;primero</button>
+                                </li>
+
+                            </ul>
                         </div>
                     </div>
 
+
                     <div class="col-12 col-lg-7 d-flex justify-content-end align-items-center">
-                        <label for="id_results_per_page" id="labelResults_per_page" class="me-2">Mostrar de
-                            a: </label>
+                        <label for="id_results_per_page" id="labelResults_per_page" class="me-2">Por hoja</label>
                         <div aria-label="Default select example" class="me-3">
                             <select id="id_results_per_page" name="results_per_page" class="form-select"
                                 aria-label="Results per page selection">
@@ -84,6 +128,7 @@
                                 </option>
                             </select>
                         </div>
+                        <!--
                         <label for="id_order_by" id="labelOrder_by" class="me-2">Ordenar por: </label>
                         <div aria-label="Default select example">
                             <select id="id_order_by" name="order_by" class="form-select"
@@ -105,10 +150,13 @@
                                     Prioridad&nbsp;baja&nbsp;primero</option>
                             </select>
                         </div>
+                        -->
+                        <!--
                         <button type="button" class="btn btn-sm btn-primary mx-2" data-bs-toggle="modal"
                             data-bs-target="#baseModal">Filtros <span
                                 class="badge bg-danger">{{ filters_count }}</span></button>
                         <input type="submit" hidden="true" />
+                        -->
                     </div>
                 </div>
 
@@ -122,20 +170,6 @@
             <!-- end SEARCH AND ORDERING FUNCTIONALITIES -->
 
             <hr class="bg-dark mt-4">
-
-
-            <!-- start ACTIONS -->
-            <div class="d-flex flex-wrap align-items-center">
-                <div class="d-flex d-lg-inline ms-auto p-2">
-                    <a href="{% url 'tickets:add' %}" type="button" class="flex-fill btn btn-success btn-sm me-1">
-                        <i class="bi bi-plus"></i>Crear ticket
-                    </a>
-                </div>
-            </div>
-            <!-- end ACTIONS -->
-
-
-            <hr class="bg-dark">
 
 
             <!-- start MAIN CONTENT -->

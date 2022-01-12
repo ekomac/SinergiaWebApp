@@ -26,7 +26,7 @@ function show(id, makeVisible = true) {
         $('#' + id).show(300);
     }
     if (!makeVisible && $('#' + id).is(":visible")) {
-        $('#' + id).hide(300);
+        $('#' + id).hide("fast", "swing");
     }
 }
 

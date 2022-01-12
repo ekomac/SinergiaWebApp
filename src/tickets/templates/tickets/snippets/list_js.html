@@ -1,4 +1,5 @@
 <script>
+    var lastQuery = "{{ query }}";
     const filtersIdEncoders = {
         'f': '#id_max_delivery_date_since_modal',
         't': '#id_max_delivery_date_to_modal',
@@ -25,11 +26,31 @@
 
         $('#id_query_by').on('change paste keyup', function () {
             show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
         });
 
         decodeAndSetFilters();
         controlDateFilterInputs();
+
+        if (lastQuery != '') {
+            $('#id_query_by').val(lastQuery);
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        }
     });
+
+    function clearSearch() {
+        $('#id_query_by').val('');
+        if (lastQuery != '') {
+            $('#list_form').submit();
+        }
+        show('btnCleanQuery', false);
+    }
+
+    function orderByChanged(order_by) {
+        $('#id_order_by').val(order_by);
+        $('#list_form').submit();
+    }
 
 
     function applyFilters() {

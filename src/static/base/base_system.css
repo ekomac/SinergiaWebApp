@@ -238,7 +238,12 @@ main {
 
 @media (max-width: 575px) {
     .responsive-color {
-        background-color: red;
+        background-color: pink;
+    }
+
+    .responsive-color::after {
+        content: "xs";
+        display: block;
     }
 }
 
@@ -247,7 +252,12 @@ main {
 
 @media (min-width: 576px) {
     .responsive-color {
-        background-color: pink;
+        background-color: red;
+    }
+
+    .responsive-color::after {
+        content: "sm";
+        display: block;
     }
 }
 
@@ -258,6 +268,11 @@ main {
     .responsive-color {
         background-color: orange;
     }
+
+    .responsive-color::after {
+        content: "md";
+        display: block;
+    }
 }
 
 
@@ -266,6 +281,11 @@ main {
 @media (min-width: 992px) {
     .responsive-color {
         background-color: yellow;
+    }
+
+    .responsive-color::after {
+        content: "lg";
+        display: block;
     }
 }
 
@@ -276,6 +296,11 @@ main {
     .responsive-color {
         background-color: green;
     }
+
+    .responsive-color::after {
+        content: "xl";
+        display: block;
+    }
 }
 
 
@@ -284,6 +309,11 @@ main {
 @media (min-width: 1400px) {
     .responsive-color {
         background-color: blue;
+    }
+
+    .responsive-color::after {
+        content: "xxl";
+        display: block;
     }
 }
 
