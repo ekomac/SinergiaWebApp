@@ -1,10 +1,14 @@
-from datetime import datetime, timedelta
-from django.conf import settings
+# Python
+import csv
 import os
+import unidecode
+from datetime import datetime, timedelta
+
+# Django
+from django.conf import settings
 from django.contrib.staticfiles import finders
 from django.template.loader import get_template
-from django.http.response import HttpResponse
-import unidecode
+from django.http.response import HttpResponse, StreamingHttpResponse
 from typing import List, Tuple
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -12,11 +16,11 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, render
 
 # Thirdparty
+from excel_response import ExcelResponse
 from xhtml2pdf import pisa
 
+# Project
 from account.decorators import allowed_users
-from account.utils import get_employees_as_JSON
-from clients.utils import get_clients_as_JSON
 from envios.models import Envio
 from summaries.forms import CreateSummaryForm
 from summaries.models import Summary
@@ -143,51 +147,14 @@ def summary_create_view(request):
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
-def summary_edit_view(request, pk):
-    summary = get_object_or_404(Summary, pk=pk)
-    if request.method == 'POST':
-        form = CreateSummaryForm(
-            request.POST, instance=summary)
-        if form.is_valid():
-            summary = form.save(commit=False)
-            summary.save()
-            msg = f'El resumen "{summary}" se actualizó correctamente.'
-            return update_alert_and_redirect(
-                request, msg, 'summaries:detail', pk)
-    else:
-        form = CreateSummaryForm(instance=summary)
-    context = {
-        'form': form,
-        'selected_tab': 'summaries-tab',
-        'summary': summary,
-    }
-    return render(request, 'summaries/edit.html', context)
-
-
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
 def summary_detail_view(request, pk):
     ctx = {}
     summary = get_object_or_404(Summary, pk=pk)
     ctx['summary'] = summary
     ctx['selected_tab'] = 'summaries-tab'
-    ctx['envios'] = summary.envios_dict
+    # ctx['envios'] = summary.total_envios
+    # ctx['total_cost'] = summary.total_cost
     return render(request, 'summaries/detail.html', ctx)
-
-
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
-def summary_delete_view(request, pk):
-    summary = get_object_or_404(Summary, pk=pk)
-    if request.method == 'POST':
-        msg = f'El resumen "{summary}" se eliminó  correctamente.'
-        summary.delete()
-        return delete_alert_and_redirect(request, msg, 'summaries:list')
-    context = {
-        'summary': summary,
-        'selected_tab': 'tickets-tab'
-    }
-    return render(request, 'tickets/delete.html', context)
 
 
 def create_pdf(request):
@@ -223,10 +190,14 @@ def link_callback(uri, rel):
         result = list(os.path.realpath(path) for path in result)
         path = result[0]
     else:
-        sUrl = settings.STATIC_URL  # Typically /static/
-        sRoot = settings.STATIC_ROOT  # Typically /home/userX/project_static/
-        mUrl = settings.MEDIA_URL  # Typically /media/
-        mRoot = settings.MEDIA_ROOT  # Typically /home/userX/project_static/media/
+        # Typically /static/
+        sUrl = settings.STATIC_URL
+        # Typically /home/userX/project_static/
+        sRoot = settings.STATIC_ROOT
+        # Typically /media/
+        mUrl = settings.MEDIA_URL
+        # Typically /home/userX/project_static/media/
+        mRoot = settings.MEDIA_ROOT
 
         if uri.startswith(mUrl):
             path = os.path.join(mRoot, uri.replace(mUrl, ""))
@@ -241,3 +212,49 @@ def link_callback(uri, rel):
             'media URI must start with %s or %s' % (sUrl, mUrl)
         )
     return path
+
+
+class Echo:
+    """An object that implements just the write method of the file-like
+    interface.
+    """
+
+    def write(self, value):
+        """Write the value by returning it, instead of storing in a buffer."""
+        return value
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def print_csv_summary(request, pk):
+    summary = get_object_or_404(Summary, pk=pk)
+    rows = ([envio_dict['date_delivered'], envio_dict['destination'],
+            envio_dict['detail'], envio_dict['price']
+             ] for envio_dict in summary.envios)
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    response = StreamingHttpResponse((writer.writerow(row) for row in rows),
+                                     content_type="text/csv")
+    filename = str(summary)
+    response['Content-Disposition'] = f'attachment; filename="{filename}.csv"'
+    return response
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def print_xls_summary(request, pk):
+    summary = get_object_or_404(Summary, pk=pk)
+    data = [['Fecha de entrega', 'Domicilio', 'Detalle', 'Valor']]
+    rows = [[envio_dict['date_delivered'], envio_dict['destination'],
+            envio_dict['detail'], envio_dict['price']
+             ] for envio_dict in summary.envios]
+    data.extend(rows)
+    filename = str(summary)
+    return ExcelResponse(
+        data=data, output_filename=filename, worksheet_name='Reporte')
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def print_pdf_summary(request, pk):
+    pass

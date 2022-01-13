@@ -17,14 +17,14 @@
         color: red;
     }
 </style>
-<div class="col-md-12 col-xl-7 col-xxl-6 d-flex-block">
+<div class="col-md-12 col-xl-10 col-xxl-8 d-flex-block">
     <div class="card flex-fill shadow-lg">
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
                 Detalle de resumen
             </div>
             <div class="">
-                <a href="{% url 'tickets:list' %}">
+                <a href="{% url 'summaries:list' %}">
                     <i class="bi bi-list"></i>Ver lista completa</a>
             </div>
         </div>
@@ -33,19 +33,16 @@
             <div class="card-title d-flex justify-content-between flex-wrap align-content-center">
 
                 <div class="me-2 w-100 align-content-center">
-                    <h2>Ticket #{{ ticket.id }}</h2>
+                    <h2>Resumen #{{ summary.id }}</h2>
                 </div>
                 <div class="mt-1 d-flex aling-items-center">
-                    <i class="bi bi-clock-history"></i>&nbsp;Creado el {{ ticket.date_created|date:"d/m/Y" }} a las
-                    {{ summary.date_created|date:"H:i" }}{% if deposit.created_by != None %}&nbsp;por&nbsp;<a href="#"
-                        data-bs-toggle="tooltip" data-bs-html="true"
-                        title="{{ deposit.created_by.first_name }}&nbsp;{{ deposit.created_by.last_name }}<em><br>{% if deposit.created_by.client != None %}&nbsp;({{ deposit.created_by.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ deposit.created_by.username }}</a>{% else %}&nbsp;con&nbsp;un
+                    <i class="bi bi-clock-history"></i>&nbsp;Creado el {{ summary.date_created|date:"d/m/Y" }} a las
+                    {{ summary.date_created|date:"H:i" }}{% if summary.created_by != None %}&nbsp;por&nbsp;<a
+                        href="{% url 'account:employees-detail' summary.created_by.pk %}" data-bs-toggle="tooltip"
+                        data-bs-html="true"
+                        title="{{ summary.created_by.full_name }}<em><br>{% if deposit.created_by.client != None %}&nbsp;({{ summary.created_by.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ summary.created_by.username }}</a>{% else %}&nbsp;con&nbsp;un
                     evento adminsitrativo{% endif %}
                 </div>
-                {% if ticket.status != '3' %}
-                <a href="{% url 'summaries:delete' summary.id %}" class="btn btn-danger btn-sm me-1"><i
-                        class="bi bi-trash me-1"></i>Eliminar</a>
-                {% endif %}
 
             </div>
 
@@ -55,90 +52,160 @@
 
                 <table class="table table-bordered">
                     <tbody id="overrided-1" class="overrided-tbody">
-                        <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-tag me-1"></i>
-                                Asunto</td>
-                            <td>{{ ticket.subject }}</td>
-                        </tr>
-                        <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i
-                                    class="bi bi-chat-left-text me-1"></i>
-                                Mensaje</td>
-                            <td>
-                                {{ ticket.msg }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-bell me-1"></i>Prioridad
-                            </td>
-                            <td>
-                                {% if ticket.priority == '1' %}
-                                <span class="badge rounded-pill bg-danger fw-5">{{ ticket.get_priority_display }}</span>
-                                {% elif ticket.priority == '2' %}
-                                <span
-                                    class="badge rounded-pill bg-primary fw-5">{{ ticket.get_priority_display }}</span>
-                                {% elif ticket.priority == '3' %}
-                                <span
-                                    class="badge rounded-pill bg-secondary fw-5">{{ ticket.get_priority_display }}</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i
-                                    class="bi bi-broadcast me-1"></i>Estado
-                            </td>
-                            <td>
-                                <span class="badge" style="background-color:
-            {% if ticket.status == '1' %}#C0BCAE{% elif ticket.status == '2' %}#817D6F{% else %}#212529;{% endif %};">
-                                    {{ ticket.get_status_display }}
-                                </span>
-                            </td>
-                        </tr>
-
-                        {% if ticket.status == '3' %}
-                        <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-x-lg me-1"></i>Motivo
-                                de cierre
-                            </td>
-                            <td>
-                                {{ ticket.get_closed_reason_display }}
-                            </td>
-                        </tr>
 
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i
-                                    class="bi bi-chat-left-text me-1"></i>Mensaje de cierre
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-type me-2"></i>{% if summary.client %}
+                                Cliente
+                                {% else %}
+                                Empleado
+                                {% endif %}</td>
                             </td>
-                            <td>
-                                {{ ticket.closed_msg }}
-                            </td>
+                            <td class="w-100">{% if summary.client %}
+                                {{ summary.client }}
+                                {% else %}
+                                {{ summary.employee.full_name_formal }}
+                                {% endif %}</td>
                         </tr>
-                        {% endif %}
-
-
-
-                        {% if attachments_count > 0 %}
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i
-                                    class="bi bi-paperclip me-1"></i>Adjuntos
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-calendar4-range me-2"></i>Período
                             </td>
-                            <td>
-                                {% for url, name in attachments %}
-                                <a href="{{ url }}">{{ name }}</a><br>
-                                {% endfor %}
+                            <td class="w-100">
+                                {{ summary.date_from|date:"d/m/Y" }} al {{ summary.date_to|date:"d/m/Y" }}
                             </td>
                         </tr>
-
-                        {% endif %}
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-currency-dollar me-2"></i>Costo total</td>
+                            <td class="w-100">$ {{ summary.total_cost }}</td>
+                        </tr>
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-123 me-2"></i>Cantidad
+                                de envíos incluídos</td>
+                            <td class="w-100">{{ summary.total_envios }}</td>
+                        </tr>
 
                     </tbody>
                 </table>
 
             </div>
 
+            <div class="d-flex justify-content-start align-items-center">
+                Exportar como:
+                <div class="ms-2 btn-group btn-group-sm" role="group" aria-label="Basic outlined example">
+                    <button id="btnPrintCSV" type="button" class="btn btn-outline-primary"><i
+                            class="bi bi-file-earmark-spreadsheet me-2"></i>CSV</button>
+                    <button id="btnPrintExcel" type="button" class="btn btn-outline-primary"><i
+                            class="bi bi-file-earmark-excel me-2"></i>Excel</button>
+                    <button id="btnPrintPDF" type="button" class="btn btn-outline-primary"><i
+                            class="bi bi-file-earmark-pdf me-2"></i>PDF</button>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <div class="card flex-fill shadow-lg mt-3">
+        <div
+            class="card-header d-flex flex-column align-items-baseline justify-content-start flex-sm-row justify-content-sm-between align-items-center">
+            <div class="d-flex justify-content-start"><i class="bi bi-truck me-1"></i>Envíos en este resumen</div>
+            <div class="d-flex justify-content-start justify-content-sm-end mt-1 mt-sm-0" id="list_form">
+                <div class="input-group">
+                    <input type="text" class="form-control shadow" placeholder="Ingresá texto para buscar"
+                        id="id_query_by" name="query_by" value="{% if query %}{{query}}{% endif %}"
+                        aria-label="Text to search">
+                    <button type="button" id="btnCleanQuery"
+                        class="btn btn-danger shadow {% if query_by == '' or not query_by %}hide-on-load{% endif %}"
+                        onclick="clearSearch()"><i class="bi bi-x"></i></button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            {% if summary.envios %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr class="bg-dark text-white fw-bold">
+                            <th class="text-center">Fecha</th>
+                            <th class="text-center">Domicilio</th>
+                            <th class="text-center">Detalle</th>
+                            <th class="text-center">Costo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obj in summary.envios %}
+                        <tr id="envio-{{ obj.id }}"
+                            onclick="window.location.href='{% url 'envios:envio-detail' obj.id %}';"
+                            style="cursor: pointer;">
+                            <td class="text-center">{{ obj.date_delivered }}</td>
+                            <td class="text-center">{{ obj.destination }}</td>
+                            <td class="text-center">{{ obj.detail }}</td>
+                            <td class="text-center">$ {{ obj.price }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            {% if summary.client %}
+            El cliente no tiene envíos entregados en el período seleccionado. Hacé <a
+                href="{% url 'summaries:add' %}">click acá</a> para crear otro resumen.
+            {% else %}
+            El empleado no entregó envíos en el período seleccionado. Hacé <a href="{% url 'summaries:add' %}">click
+                acá</a> para crear otro resumen.
+            {% endif %}
+            {% endif %}
         </div>
     </div>
 
 </div>
+<script>
+    var envios = JSON.parse('{{ summary.envios_as_JSON | escapejs }}');
+
+    $(document).ready(function () {
+        enableTooltips();
+
+        $('#id_query_by').on('change paste keyup', function () {
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+            updateEnvios(this.value);
+        });
+
+        $('#btnPrintCSV').click(function () {
+            window.location.href = "{% url 'summaries:print-csv' summary.pk %}";
+        });
+
+        $('#btnPrintExcel').click(function () {
+            window.location.href = "{% url 'summaries:print-excel' summary.pk %}";
+        });
+
+        $('#btnPrintPDF').click(function () {
+            if (true) {
+                alert("Proximamente...");
+            } else {
+                window.location.href = "{% url 'summaries:print-pdf' summary.pk %}";
+            }
+        });
+    });
+
+    function clearSearch() {
+        $('#id_query_by').val('');
+        show('btnCleanQuery', false);
+        updateEnvios('');
+    }
+
+    function updateEnvios(query = "") {
+        envios.forEach(function (envio) {
+            if (envio.destination.toLowerCase().includes(query.toLowerCase()) ||
+                envio.detail.toLowerCase().includes(query.toLowerCase())) {
+                show('envio-' + envio.id, true);
+            } else {
+                show('envio-' + envio.id, false);
+            }
+        });
+    }
+</script>
 
 {% endblock content %}

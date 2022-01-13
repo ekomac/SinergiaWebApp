@@ -192,9 +192,9 @@
 
 
             <!-- START Contable -->
-            <li class="nav-item {% if selected_tab == 'accounting-tab' %}activetab{% endif %} li-navigation">
-                <a id="accounting-tab" href="#" class="nav-link tab">
-                    <i class="bi bi-wallet2"></i> Finanzas
+            <li class="nav-item {% if selected_tab == 'transactions-tab' %}activetab{% endif %} li-navigation">
+                <a id="transactions-tab" href="{% url 'transactions:list' %}" class="nav-link tab">
+                    <i class="bi bi-cash-coin"></i> Finanzas
                 </a>
             </li>
             <!-- END Contable -->

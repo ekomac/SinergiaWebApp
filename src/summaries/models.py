@@ -1,3 +1,4 @@
+import json
 from decimal import Decimal
 from typing import Any, Dict
 from django.conf import settings
@@ -61,21 +62,35 @@ class Summary(models.Model):
         return round(total)
 
     @property
-    def envios_dict(self) -> dict:
-        result_dict = {}
+    def total_envios(self) -> Decimal:
+        return self.__get_envios().count()
+
+    @property
+    def envios(self) -> dict:
+        result = []
         for envio in self.__get_envios():
             if envio.is_flex:
                 code = envio.town.flex_code
+                code_type = "Flex"
             else:
                 code = envio.town.delivery_code
-            result_dict[envio.pk] = {
+                code_type = "Mensajería"
+            date = envio.date_delivered.strftime("%d/%m/%Y")
+            as_dict = {
+                'id': envio.pk,
                 'destination': envio.full_address,
-                'price': envio.price,
-                'code': code,
-                'date_delivered': envio.date_delivered,
-                'detail': envio.readable_detail,
+                'price': str(envio.price),
+                'code': code.code,
+                'code_type': code_type,
+                'date_delivered': date,
+                'detail': envio.get_detail_readable(),
             }
-        return result_dict
+            result.append(as_dict)
+        return result
+
+    @property
+    def envios_as_JSON(self):
+        return json.dumps(self.envios)
 
     class Meta:
         verbose_name = 'Resumen'

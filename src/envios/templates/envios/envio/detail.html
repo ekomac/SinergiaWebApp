@@ -226,12 +226,15 @@
                         {% if object.charge != None and object.charge != '' and object.charge > 0 %}
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-clock"></i>
-                                Cobrarle al
-                                destinatario
-                            </td>
+                                Cobrarle al destinatario</td>
                             <td class="w-100">{{ object.charge }}</td>
                         </tr>
                         {% endif %}
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-currency-dollar"></i> Precio actual</td>
+                            <td class="w-100">$ {{ object.price }}</td>
+                        </tr>
                     </tbody>
                 </table>
 

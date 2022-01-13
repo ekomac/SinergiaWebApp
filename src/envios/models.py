@@ -189,7 +189,7 @@ class Envio(Receiver):
         amount = parts[1]
         if index in DETAIL_CODES.keys():
             name = DETAIL_CODES[index]['name']
-            return f'{amount}x {name}'
+            return f'{amount}x {name}'.lower()
 
     class Meta:
         verbose_name = 'Envío'

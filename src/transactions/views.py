@@ -2,7 +2,9 @@ from django.shortcuts import render
 
 
 def transaction_list_view(request):
-    return render(request, "", {})
+    context = {}
+    context['selected_tab'] = "transactions-tab"
+    return render(request, "transactions/list.html", context)
 
 
 def transaction_create_view(request):
