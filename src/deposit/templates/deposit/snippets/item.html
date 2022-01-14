@@ -16,7 +16,7 @@
         {% endif %}>{{ counter }}</th>
     <td {% if obj.is_sinergia %}style="color: red;" {% endif %}>{{ obj.name }}
     <td {% if obj.is_sinergia %}style="color: red;" {% endif %}>
-        {% if obj.is_sinergia %}
+        {% if obj.is_sinergia or obj.client == None %}
         Propio
         {% else %}
         {{ obj.client }}

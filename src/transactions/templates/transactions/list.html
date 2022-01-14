@@ -41,10 +41,10 @@
 </style>
 
 
-<div class="col-12 d-flex flex-column">
+<div class="col-12 col-lg-8 d-flex flex-column">
     <div class="mb-2 fs-5 fw-bold d-flex align-items-center">
-        Movimientos <a href="{% url 'tickets:add' %}" type="button" class="btn btn-success btn-sm ms-2 me-1 shadow"><i
-                class="bi bi-plus"></i>Nuevo</a>
+        Movimientos <a href="{% url 'transactions:add' %}" type="button"
+            class="btn btn-success btn-sm ms-2 me-1 shadow"><i class="bi bi-plus"></i>Nuevo</a>
     </div>
 
     <div class="row">
@@ -121,26 +121,7 @@
 
                     <ul class="list-group list-group-flush">
                         {% for transaction in transactions %}
-                        <li class="list-group-item">
-                            <div class="d-flex justify-content-between">
-                                <div class="d-flex flex-column">
-                                    <a
-                                        href="{% url 'account:employees-detail' transaction.created_by.pk%}">@{{ transaction.created_by.username}}</a>
-                                    <div class="fs-6">
-                                        {{ transaction.description }}
-                                    </div>
-                                </div>
-                                <div class="d-flex flex-column align-items-end">
-                                    <div>
-                                        {{ transaction.date_created | date:"d/m/Y"}}
-                                    </div>
-                                    <div class="fs-3 fw-bold"
-                                        style="color: {% if transaction.sign == '+' %}green{% else %}red{% endif %};">
-                                        $ {{ transaction.amount }}
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
+                        {% include 'transactions/snippets/item.html' with transaction=transaction %}
                         {% endfor %}
                     </ul>
 

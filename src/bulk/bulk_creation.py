@@ -194,6 +194,7 @@ def create_central_deposit():
         email="jcmacielhenning@gmail.com",
         created_by=Account.objects.filter(
             email="jcmacielhenning@gmail.com").first(),
+        is_sinergia=True,
     ).save()
 
 

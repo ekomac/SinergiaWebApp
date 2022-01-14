@@ -1,0 +1,110 @@
+{% extends 'base_system.html' %} {% block content %}
+
+<div class="col-md-12 col-lg-8 col-xl-6 col-xxl-5 d-flex-block">
+    <form method='POST' id="id_form" class="card flex-fill shadow-lg bg-white" name="form" target="_top"
+        enctype="multipart/form-data">{% csrf_token %}
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="fw-bold">
+                Nueva transacción
+            </div>
+            <div>
+                <a href="{% url 'transactions:list' %}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+            </div>
+        </div>
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <!-- start CATEGORY SELECT -->
+                <div class="col-12">
+                    <label for="{{form.category.id_for_label}}" class="form-label">Categoría</label>
+                    {{ form.category }}
+                </div>
+                <!-- end CATEGORY SELECT -->
+
+                <!-- start DESCRIPTION INPUT -->
+                <div class="col-12">
+                    <label for="id_description" class="form-label">Descripción</label>
+                    <input id="id_description" name="description" type="text"
+                        {% if form.description.value %}value="{{form.description.value}}" {% endif %}
+                        class="form-control {% if form.description.errors %}is-invalid{% endif %}" required>
+                    <div class="invalid-feedback">
+                        {% for error in form.description.errors %}{{error}}<br>{% endfor %}
+                    </div>
+
+                </div>
+                <!-- end DESCRIPTION INPUT -->
+
+
+                <!-- start DATE INPUT -->
+                <div class="col-12 col-md-6">
+                    <label for="id_date" class="form-label">Fecha</label>
+                    <input id="id_date" name="date" type="date" {% if form.date.value %}value="{{form.date.value}}"
+                        {% endif %} class="form-control datepicker {% if form.date.errors %}is-invalid{% endif %}"
+                        max="{{ max_date }}" required>
+                    <div class="invalid-feedback">
+                        {% for error in form.date.errors %}{{error}}<br>{% endfor %}
+                    </div>
+
+                </div>
+                <!-- end DATE INPUT -->
+
+
+                <!-- start AMOUNT INPUT -->
+                <div class="col-12 col-md-6">
+                    <label for="id_amount" class="form-label">Importe</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        <input id="id_amount" name="amount" type="number" step="0.01" min="-9999999999.99"
+                            max="9999999999.99" class="form-control {% if form.amount.errors %}is-invalid{% endif %}"
+                            aria-label="Amount" required>
+                        <span class="input-group-text">.00</span>
+                        <div class="invalid-feedback">
+                            {% for error in form.amount.errors %}{{error}}<br>{% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <!-- end AMOUNT INPUT -->
+
+                <!-- start TRANSACTION INPUT -->
+                <div class="col-12">
+                    <label for="id_transaction_number" class="form-label">Nro. de transacción</label>
+                    <input id="id_transaction_number" name="transaction_number" type="text"
+                        {% if form.transaction_number.value %}value="{{form.transaction_number.value}}" {% endif %}
+                        class="form-control {% if form.transaction_number.errors %}is-invalid{% endif %}">
+                    <div class="invalid-feedback">
+                        {% for error in form.transaction_number.errors %}{{error}}<br>{% endfor %}
+                    </div>
+
+                </div>
+                <!-- end TRANSACTION INPUT -->
+
+
+                <!-- start SUMMARY -->
+                <div class="col-12">
+                    <label for="{{form.summary.id_for_label}}" class="form-label">Resumen relacionado</label>
+                    {{ form.summary }}
+                </div>
+                <!-- start SUMMARY -->
+
+
+                <!-- start FILES SELECT -->
+                <div class="mb-3">
+                    <label for="id_proof_of_payment" class="form-label">Comprobante de transacción</label>
+                    <input class="form-control" type="file" id="id_proof_of_payment" name="proof_of_payment">
+                </div>
+                <!-- end FILES SELECT -->
+
+                <!-- start SUMBIT BUTTON -->
+                <div class="d-grid gap-2 d-md-flex">
+                    <input type="submit" value="Guardar" class="btn btn-primary">
+                </div>
+                <!-- end SUMBIT BUTTON -->
+
+            </div>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}

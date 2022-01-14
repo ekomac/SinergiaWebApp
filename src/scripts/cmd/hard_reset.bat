@@ -8,7 +8,7 @@ echo "Make migrations"
 call C:\Users\jcmac\Projects\eko-software\sinergia\SinergiaDjangoWebApp\src\scripts\cmd\make_and_migrate.bat
 echo "Create superuser"
 call C:\Users\jcmac\Projects\eko-software\sinergia\SinergiaDjangoWebApp\src\scripts\cmd\create_superuser.bat
-echo "Create superuser"
+echo "Bulk creation"
 call C:\Users\jcmac\Projects\eko-software\sinergia\SinergiaDjangoWebApp\src\scripts\cmd\bulk_creation.bat
 echo "add_superadmin_to_admins"
 call C:\Users\jcmac\Projects\eko-software\sinergia\SinergiaDjangoWebApp\src\scripts\cmd\add_superadmin_to_admins.bat

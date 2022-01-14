@@ -25,9 +25,7 @@ from envios.models import Envio
 from summaries.forms import CreateSummaryForm
 from summaries.models import Summary
 from utils.alerts.views import (
-    create_alert_and_redirect,
-    delete_alert_and_redirect,
-    update_alert_and_redirect)
+    create_alert_and_redirect,)
 
 
 @login_required(login_url='/login/')

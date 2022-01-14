@@ -26,3 +26,9 @@ def bootstrap_color(value):
         return bcoloring[i]
     except ValueError:
         return 'primary'
+
+
+@register.filter
+def comma_to_point(value):
+    """Converts a comma separated string to a point separated string"""
+    return str(value).replace(',', '.')

@@ -11,10 +11,7 @@
 
     $(document).ready(function () {
 
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
+        enableTooltips();
 
         $('#id_order_by').change(function () {
             $('#list_form').submit();

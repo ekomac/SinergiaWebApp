@@ -2,6 +2,8 @@ from decimal import Decimal
 from django.conf import settings
 from django.db import models
 
+from utils.views import truncate_start
+
 
 def proof_of_payment_upload_location(instance, filename):
     date = instance.date_created.strftime('%Y-%m-%d_%H-%M-%S')
@@ -12,6 +14,21 @@ def proof_of_payment_upload_location(instance, filename):
 
 class Transaction(models.Model):
 
+    CATEGORIES = (
+        ('0', 'Administrativo'),
+        ('1', 'Alquiler'),
+        ('2', 'Compras'),
+        ('3', 'Facturación'),
+        ('4', 'Impuestos'),
+        ('5', 'Insumos'),
+        ('6', 'Mantenimiento'),
+        ('7', 'Publicidad'),
+        ('8', 'Seguros'),
+        ('9', 'Servicios'),
+        ('10', 'Sueldos'),
+        ('11', 'Otros'),
+    )
+
     date_created = models.DateTimeField(
         auto_now_add=True, verbose_name='Fecha de creación',
         blank=False, null=False)
@@ -20,6 +37,9 @@ class Transaction(models.Model):
         verbose_name='Creado por', blank=False, null=False)
     date = models.DateField(
         verbose_name='Fecha', blank=False, null=False)
+    category = models.CharField(
+        max_length=2, choices=CATEGORIES,
+        verbose_name='Categoría', blank=False, null=False)
     amount = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name='Monto',
         blank=False, null=False)
@@ -44,6 +64,12 @@ class Transaction(models.Model):
             return '+'
         else:
             return '-'
+
+    @property
+    def trucated_proof_url(self):
+        if self.proof_of_payment:
+            return truncate_start(self.proof_of_payment.url, 30)
+        return False
 
     class Meta:
         verbose_name = 'Transacción'

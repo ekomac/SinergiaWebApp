@@ -1,0 +1,14 @@
+{% extends 'safe_confirm_delete.html' %}
+
+{% load price_extras %}
+
+{% block deletion_specs %}
+<ul>
+    {% for transaction in objects %}
+    <li class="mt-1">
+        Transacción "{{ transaction.description }}" de ${{ transaction.amount }} del día
+        {{ transaction.date|date:"d/m/Y" }}
+    </li>
+    {% endfor %}
+</ul>
+{% endblock deletion_specs %}
