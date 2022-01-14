@@ -257,9 +257,9 @@ def bulk_create_envios(
         cols = row.split(",")
         kwargs = __cols_to_kwargs(cols, bulk_load_envios)
         envio = Envio(**kwargs)
-        print("deposit", bulk_load_envios.deposit)
+        # print("deposit", bulk_load_envios.deposit)
         envio.deposit = bulk_load_envios.deposit
-        print("envio.deposit", envio.deposit)
+        # print("envio.deposit", envio.deposit)
         envio.save()
         envios.append(envio)
     # envios = Envio.objects.bulk_create(envios)
@@ -281,8 +281,6 @@ def bulk_create_envios(
 def __cols_to_kwargs(
     cols: List[str], bulk_load_envios: BulkLoadEnvios
 ) -> Dict[str, Any]:
-    import inspect
-    print("inspect", inspect.getargspec(Envio.__init__))
     kwargs = {
         'street': cols[1],
         'remarks': cols[2],
@@ -295,7 +293,7 @@ def __cols_to_kwargs(
         'updated_by': bulk_load_envios.created_by,
         'client': bulk_load_envios.client,
         # 'state_ptr__deposit': bulk_load_envios.deposit,
-        'bulk_upload_id': bulk_load_envios,
+        'bulk_upload_id': bulk_load_envios.pk,
     }
     if cols[0]:
         kwargs['is_flex'] = True

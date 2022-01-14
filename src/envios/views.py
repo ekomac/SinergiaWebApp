@@ -40,7 +40,7 @@ from utils.forms import CheckPasswordForm
 from utils.views import DeleteObjectsUtil
 
 
-DEFAULT_ENVIOS_PER_PAGE = 30
+DEFAULT_ENVIOS_PER_PAGE = 50
 
 
 @login_required(login_url='/login/')
@@ -84,6 +84,22 @@ def envios_view(request):
         envios_paginator = Paginator(envios, results_per_page)
         try:
             envios = envios_paginator.page(page)
+
+            # How many envios in total
+            context['envios_count'] = envios_paginator.count
+
+            # Showing envio from
+            context['envios_from'] = (
+                envios.number - 1) * envios_paginator.per_page + 1
+
+            # Showing envio to
+            if envios_paginator.per_page > len(envios):
+                what_to_sum = len(envios)
+            else:
+                what_to_sum = envios_paginator.per_page
+            context['envios_to'] = context['envios_from'] + \
+                what_to_sum - 1
+
         except PageNotAnInteger:
             envios = envios_paginator.page(results_per_page)
         except EmptyPage:

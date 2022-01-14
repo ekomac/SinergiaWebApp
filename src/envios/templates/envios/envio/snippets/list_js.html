@@ -1,4 +1,5 @@
 <script>
+    var lastQuery = "{{ query_by }}";
     var selectionModeEnabled = false;
     var totalEnvios = parseInt('{{totalEnvios}}');
     const filtersIdEncoders = {
@@ -13,6 +14,9 @@
 
     $(document).ready(function () {
 
+        //enableTooltips();
+
+
         addingSelectedIdsAjaxConfig();
 
         $('#id_order_by').change(function () {
@@ -25,7 +29,14 @@
 
         $('#id_query_by').on('change paste keyup', function () {
             show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
         });
+
+        if (lastQuery != '') {
+            $('#id_query_by').val(lastQuery);
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        }
 
         decodeAndSetFilters();
         controlDateFilterInputs();
@@ -49,7 +60,37 @@
             e.stopPropagation();
             countCheckedItems();
         });
+
+        $('#btnRadioRPP50').click(function () {
+            $('#id_results_per_page').val(50);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP100').click(function () {
+            $('#id_results_per_page').val(100);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP200').click(function () {
+            $('#id_results_per_page').val(200);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP500').click(function () {
+            $('#id_results_per_page').val(500);
+            $('#list_form').submit();
+        });
     });
+
+    function clearSearch() {
+        $('#id_query_by').val('');
+        if (lastQuery != '' && lastQuery != null && lastQuery != undefined) {
+            $('#list_form').submit();
+        }
+        show('btnCleanQuery', false);
+    }
+
+    function orderByChanged(order_by) {
+        $('#id_order_by').val(order_by);
+        $('#list_form').submit();
+    }
 
     function onItemClicked(id, url) {
         if (selectionModeEnabled) {
@@ -148,12 +189,6 @@
     function createTask() {
         removeSelection();
         alert("Próximamente...")
-    }
-
-
-    function clearSearch() {
-        $('#id_query_by').val('');
-        $('#list_form').submit();
     }
 
     function applyFilters() {
