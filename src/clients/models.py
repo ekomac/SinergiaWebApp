@@ -1,3 +1,5 @@
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.conf import settings
 from django.core.validators import (
     FileExtensionValidator,
@@ -69,6 +71,11 @@ class Client(models.Model):
     class Meta:
         verbose_name = "Cliente"
         verbose_name_plural = "Clientes"
+
+
+@receiver(post_delete, sender=Client)
+def submission_delete(sender, instance, **kwargs):
+    instance.contract.delete(False)
 
 
 class Discount(models.Model):

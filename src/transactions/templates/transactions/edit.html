@@ -91,9 +91,24 @@
 
 
                 <!-- start FILES SELECT -->
+                <div class="">
+                    {% if proof_of_payment %}
+                    <label for="last_proof" class="form-label">Comprobante de transacción actual</label><br>
+                    <a href="{{ proof_of_payment.url }}">{{ proof_of_payment.text }}</a>
+                    <input class="form-check-input ms-3" type="checkbox" name="clean_previous_proof_of_payment"
+                        id="id_clean_previous_proof_of_payment">
+                    <label class="form-check-label" for="id_clean_previous_proof_of_payment">
+                        Limpiar
+                    </label><br>
+                    {% endif %}
+                </div>
                 <div class="mb-3">
-                    <label for="id_proof_of_payment" class="form-label">Comprobante de transacción</label>
-                    <input class="form-control" type="file" id="id_proof_of_payment" name="proof_of_payment">
+                    <label for="id_proof_of_payment" class="form-label">Modificar comprobante de transacción</label>
+                    <input class="form-control {% if form.proof_of_payment.errors %}is-invalid{% endif %}" type="file"
+                        id="id_proof_of_payment" name="proof_of_payment">
+                    <div class="invalid-feedback">
+                        {% for error in form.proof_of_payment.errors %}{{error}}<br>{% endfor %}
+                    </div>
                 </div>
                 <!-- end FILES SELECT -->
 

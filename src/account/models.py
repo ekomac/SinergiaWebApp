@@ -1,3 +1,5 @@
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -191,3 +193,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
         if self.insurance:
             docs.append("seguro")
         return ", ".join(docs)
+
+
+@receiver(post_delete, sender=Account)
+def submission_delete(sender, instance, **kwargs):
+    instance.dni_img.delete(False)
+    instance.driver_license.delete(False)
+    instance.criminal_record.delete(False)
+    instance.vtv.delete(False)
+    instance.insurance.delete(False)

@@ -1,3 +1,5 @@
+from django.dispatch import receiver
+from django.db.models.signals import post_delete
 from decimal import Decimal
 from django.conf import settings
 from django.db import models
@@ -54,16 +56,14 @@ class Transaction(models.Model):
     proof_of_payment = models.FileField(
         upload_to=proof_of_payment_upload_location,
         verbose_name='Comprobante de pago', blank=True, null=True)
+    hash_sum = models.CharField(max_length=108, blank=True, null=True)
 
     def __str__(self):
         return f'Transacción {self.pk}: {self.amount} {self.description}'
 
     @property
     def sign(self):
-        if Decimal(str(self.amount)) >= Decimal(0):
-            return '+'
-        else:
-            return '-'
+        return '+' if Decimal(str(self.amount)) >= Decimal(0) else '-'
 
     @property
     def trucated_proof_url(self):
@@ -75,3 +75,8 @@ class Transaction(models.Model):
         verbose_name = 'Transacción'
         verbose_name_plural = 'Transacciones'
         ordering = ['-date_created']
+
+
+@receiver(post_delete, sender=Transaction)
+def submission_delete(sender, instance, **kwargs):
+    instance.proof_of_payment.delete(False)

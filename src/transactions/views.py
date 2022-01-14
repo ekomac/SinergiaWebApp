@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from account.decorators import allowed_users
 
-from transactions.forms import TransactionForm
+from transactions.forms import CreateTransactionForm, UpdateTransactionForm
 from transactions.models import Transaction
 from utils.forms import CheckPasswordForm
 from utils.views import DeleteObjectsUtil, truncate_start
@@ -24,9 +24,10 @@ def transaction_list_view(request):
 def transaction_create_view(request):
     context = {}
     context['selected_tab'] = "transactions-tab"
-    form = TransactionForm()
+    form = CreateTransactionForm()
     if request.method == 'POST':
-        form = TransactionForm(request.POST or None)
+        form = CreateTransactionForm(
+            request.POST or None, request.FILES or None)
         if form.is_valid():
             transaction = form.save(commit=False)
             transaction.created_by = request.user
@@ -50,15 +51,7 @@ def transaction_edit_view(request, pk):
     context['selected_tab'] = "transactions-tab"
     transaction = get_object_or_404(Transaction, pk=pk)
     context['transaction'] = transaction
-    form = TransactionForm(instance=transaction)
-    if request.method == 'POST':
-        form = TransactionForm(request.POST or None, instance=transaction)
-        if form.is_valid():
-            transaction = form.save(commit=False)
-            transaction.created_by = request.user
-            transaction.save()
-            return redirect('transactions:list')
-    context['form'] = form
+    form = UpdateTransactionForm(instance=transaction)
 
     now = datetime.now()
     year = str(now.year).zfill(4)
@@ -66,6 +59,20 @@ def transaction_edit_view(request, pk):
     day = str(now.day).zfill(2)
 
     context['max_date'] = f'{year}-{month}-{day}'
+
+    if transaction.proof_of_payment:
+        context['proof_of_payment'] = {
+            'url': transaction.proof_of_payment.url,
+            'text': truncate_start(transaction.proof_of_payment.url),
+        }
+
+    if request.method == 'POST':
+        form = UpdateTransactionForm(
+            request.POST or None, request.FILES or None, instance=transaction)
+        if form.is_valid():
+            form.save()
+            return redirect('transactions:list')
+    context['form'] = form
     return render(request, "transactions/edit.html", context)
 
 
