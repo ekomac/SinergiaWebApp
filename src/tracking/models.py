@@ -1,8 +1,6 @@
 from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
-from simple_history.models import HistoricalRecords
-
 from deposit.models import Deposit
 
 
@@ -75,7 +73,6 @@ class TrackingMovement(models.Model):
     proof = models.FileField(upload_to=upload_location,
                              verbose_name="archivo probatorio",
                              blank=True, null=True)
-    history = HistoricalRecords()
 
     def __str__(self):
         user = self.created_by.username if self.created_by else ""

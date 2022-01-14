@@ -25,7 +25,7 @@ class BulkLoadEnviosAdmin(admin.ModelAdmin):
                     'load_status', 'client', 'short_csv_result_display',
                     'short_errors_display', 'cells_to_paint',
                     'requires_manual_fix',
-                    'hashed_file', 'history')
+                    'hashed_file',)
     filter_horizontal = ()
     list_filter = ()
     fieldsets = ()

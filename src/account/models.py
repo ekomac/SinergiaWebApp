@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
-from simple_history.models import HistoricalRecords
 from clients.models import Client
 
 
@@ -112,7 +111,6 @@ class Account(AbstractBaseUser, PermissionsMixin):
                                         blank=True, null=True)
     client = models.ForeignKey(
         Client, on_delete=models.CASCADE, null=True, blank=True)
-    history = HistoricalRecords()
 
     # USER INFO
     first_name = models.CharField(verbose_name="first name", max_length=30)

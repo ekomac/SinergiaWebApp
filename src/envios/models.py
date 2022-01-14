@@ -2,7 +2,6 @@ from decimal import Decimal
 from django.db import models
 from django.conf import settings
 from django.template.defaultfilters import truncatechars
-from simple_history.models import HistoricalRecords
 from clients.models import Client, Discount
 from deposit.models import Deposit
 from places.models import Town
@@ -135,7 +134,6 @@ class Envio(Receiver):
         on_delete=models.CASCADE, blank=True, null=True)
     date_delivered = models.DateTimeField(
         verbose_name="Fecha de entrega", blank=True, null=True, default=None)
-    history = HistoricalRecords()
     tracked = models.BooleanField(default=False)
 
     def __str__(self):
@@ -310,7 +308,6 @@ class BulkLoadEnvios(models.Model):
         verbose_name="Hashed file",
         max_length=100, blank=True, null=True)
     envios_were_created = models.BooleanField(default=False)
-    history = HistoricalRecords()
 
     @property
     def short_errors_display(self):

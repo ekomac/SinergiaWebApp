@@ -1,6 +1,5 @@
 from django.db import models
 from django.conf import settings
-from simple_history.models import HistoricalRecords
 
 
 class DeliveryCode(models.Model):
@@ -15,7 +14,6 @@ class DeliveryCode(models.Model):
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         verbose_name="Actualizado por", blank=True, null=True, default=None)
-    history = HistoricalRecords()
 
     def __str__(self):
         return f'{self.code} a ${self.price}'
@@ -38,7 +36,6 @@ class FlexCode(models.Model):
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         verbose_name="Actualizado por", blank=True, null=True, default=None)
-    history = HistoricalRecords()
 
     def __str__(self):
         return f'{self.code} a ${self.price}'

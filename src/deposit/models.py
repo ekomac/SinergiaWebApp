@@ -2,8 +2,6 @@
 from django.conf import settings
 from django.db import models
 
-# simple_history
-from simple_history.models import HistoricalRecords
 
 # project
 from clients.models import Client
@@ -43,7 +41,6 @@ class Deposit(models.Model):
         verbose_name="Es de sinergia?", default=False, blank=False, null=False)
     is_central = models.BooleanField(
         verbose_name="Es central?", default=False, blank=False, null=False)
-    history = HistoricalRecords()
 
     def __str__(self):
         name = self.name

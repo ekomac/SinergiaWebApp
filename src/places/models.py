@@ -1,6 +1,5 @@
 from django.db import models
 from django.conf import settings
-from simple_history.models import HistoricalRecords
 from account.models import Account
 
 
@@ -19,7 +18,6 @@ class Zone(models.Model):
         Account, on_delete=models.SET_NULL,
         verbose_name="Actualizado por", blank=True, null=True, default=None,
         related_name='updated_by')
-    history = HistoricalRecords()
 
     def __str__(self):
         return self.name.title()
@@ -71,7 +69,6 @@ class Partido(models.Model):
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         verbose_name="Actualizado por", blank=True, null=True, default=None)
-    history = HistoricalRecords()
 
     def __str__(self):
         return self.name.title()
@@ -99,7 +96,6 @@ class Town(models.Model):
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         verbose_name="Actualizado por", blank=True, null=True, default=None)
-    history = HistoricalRecords()
 
     def __str__(self):
         return self.name.title()

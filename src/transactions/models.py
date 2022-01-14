@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.conf import settings
 from django.db import models
 
@@ -17,7 +18,9 @@ class Transaction(models.Model):
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
         verbose_name='Creado por', blank=False, null=False)
-    ammount = models.DecimalField(
+    date = models.DateField(
+        verbose_name='Fecha', blank=False, null=False)
+    amount = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name='Monto',
         blank=False, null=False)
     description = models.CharField(
@@ -33,7 +36,14 @@ class Transaction(models.Model):
         verbose_name='Comprobante de pago', blank=True, null=True)
 
     def __str__(self):
-        return f'Transacción {self.pk}: {self.ammount} {self.description}'
+        return f'Transacción {self.pk}: {self.amount} {self.description}'
+
+    @property
+    def sign(self):
+        if Decimal(str(self.amount)) >= Decimal(0):
+            return '+'
+        else:
+            return '-'
 
     class Meta:
         verbose_name = 'Transacción'

@@ -56,7 +56,6 @@ class Client(models.Model):
             )
         ],
     )
-    history = HistoricalRecords()
 
     @property
     def contract_url(self):

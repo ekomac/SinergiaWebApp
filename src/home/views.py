@@ -83,7 +83,7 @@ def admin_home_screen_view(request):
         'main_stats': main_stats,
         'clients_with_envios': clients_with_envios,
         'envios_at_deposit': envios_at_deposit,
-        'carriers_with_envios': get_all(),
+        'carriers_with_envios': [],
     }
     return render(request, 'home.html', context)
 

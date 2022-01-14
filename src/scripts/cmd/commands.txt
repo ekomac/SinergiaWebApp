@@ -1,5 +1,6 @@
 # Run server as https
 python manage.py runserver_plus --cert-file cert.crt 0.0.0.0:8060
+python manage.py runserver_plus --cert-file cert.crt --print-sql --threaded  0.0.0.0:8060
 
 # Increase the primarykey
 ALTER SEQUENCE envios_destination_id_seq RESTART WITH 200500;

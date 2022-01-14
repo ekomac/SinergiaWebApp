@@ -75,7 +75,8 @@ def create_demo_clients(demo_clients):
             address="Dorrego",
             phone="+54 9 11 6649-1969",
             is_active=True,
-            email=client.email,
+            email=client.contact_email,
+            town=Town.objects.filter(name="SAN MIGUEL").first(),
             created_by=Account.objects.filter(is_superuser=True).first()
         ).save()
 
