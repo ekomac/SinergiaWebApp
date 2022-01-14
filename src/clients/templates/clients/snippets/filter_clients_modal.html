@@ -1,0 +1,53 @@
+<div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="baseModal" tabindex="-1"
+    aria-labelledby="baseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filtersModalLabel">Elegí cómo querés filtrar los envíos.
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- start is_sinergia -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="id_is_sinergia_modal">
+                            <label class="form-check-label" for="id_is_sinergia_modal">
+                                Propio
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- end is_sinergia -->
+
+                <!-- start has_discounts -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="id_has_discounts">
+                            <label class="form-check-label" for="id_has_discounts">
+                                Tiene descuentos
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- end has_discounts -->
+
+
+            </div>
+            <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    onclick="clearFilters()">Limpiar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                    onclick="applyFilters()">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>

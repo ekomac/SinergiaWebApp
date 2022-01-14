@@ -44,7 +44,7 @@ def client_list_view(request):
 
         results_per_page = request.GET.get("results_per_page", None)
         if results_per_page is None:
-            results_per_page = 30
+            results_per_page = 50
         context['results_per_page'] = str(results_per_page)
 
         # Filter clients
@@ -55,6 +55,22 @@ def client_list_view(request):
         clients_paginator = Paginator(clients, results_per_page)
         try:
             clients = clients_paginator.page(page)
+
+            # How many clients in total
+            context['clients_count'] = clients_paginator.count
+
+            # Showing client from
+            context['clients_from'] = (
+                clients.number - 1) * clients_paginator.per_page + 1
+
+            # Showing client to
+            if clients_paginator.per_page > len(clients):
+                what_to_sum = len(clients)
+            else:
+                what_to_sum = clients_paginator.per_page
+            context['clients_to'] = context['clients_from'] + \
+                what_to_sum - 1
+
         except PageNotAnInteger:
             clients = clients_paginator.page(results_per_page)
         except EmptyPage:
