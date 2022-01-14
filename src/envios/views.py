@@ -292,6 +292,15 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
         ctx['selected_tab'] = 'shipments-tab'
         ctx['partidos'] = Partido.objects.all().order_by("name")
         ctx['places'] = get_localidades_as_JSON()
+
+        # Get params urls to preload client and deposit
+        client_id = self.request.GET.get('client_id', None)
+        if client_id is not None:
+            ctx['initial_client_id'] = client_id
+        deposit_id = self.request.GET.get('deposit_id', None)
+        if deposit_id is not None:
+            ctx['initial_deposit_id'] = deposit_id
+
         return ctx
 
     def get_success_url(self):
@@ -319,6 +328,15 @@ def bulk_create_envios_view(request):
     context['upload_form'] = form
     context['selected_tab'] = 'shipments-tab'
     context['deposits'] = get_deposits_as_JSON()
+
+    # Get params urls to preload client and deposit
+    client_id = request.GET.get('client_id', None)
+    if client_id is not None:
+        context['initial_client_id'] = client_id
+    deposit_id = request.GET.get('deposit_id', None)
+    if deposit_id is not None:
+        context['initial_deposit_id'] = deposit_id
+
     return render(request, 'envios/bulk/add.html', context)
 
 

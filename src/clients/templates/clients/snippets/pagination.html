@@ -3,7 +3,7 @@
 
 
     <!-- start results per page -->
-    <div class="col-12 col-lg-4 d-flex justify-content-start align-items-center">
+    <div class="col-12 col-lg-4 d-flex justify-content-start align-items-center mt-1">
         <div class="small">
             Por pág.:
             <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
@@ -29,9 +29,9 @@
 
 
     <!-- start PAGINATION -->
-    <div class="col-12 col-lg-4">
+    <div class="col-12 col-lg-4 mt-1 align-items-center">
         <nav aria-label="Page navigation">
-            <ul class="pagination pg-grey justify-content-center">
+            <ul class="pagination pg-grey justify-content-start justify-content-md-center m-0">
                 {% if clients.has_previous %}
                 <li class="page-item">
                     <a class="page-link"
@@ -68,7 +68,7 @@
 
 
     <!-- start from to results -->
-    <div class="col-12 col-lg-4 d-flex justify-content-start justify-content-lg-end align-items-center">
+    <div class="col-12 col-lg-4 d-flex justify-content-start justify-content-lg-end align-items-center mt-1">
         <div class="d-flex align-items-center fs-6 fst-italic small ms-2">
             Mostrando {{ clients_from }} a {{ clients_to }} de {{ clients_count }}
         </div>

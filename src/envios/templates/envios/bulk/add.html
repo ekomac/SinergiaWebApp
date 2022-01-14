@@ -6,6 +6,7 @@
 
 
 {% block content %}
+{% load static %}
 
 <style>
     td {
@@ -27,7 +28,7 @@
 
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
-                Crear objeto
+                Carga masiva de envíos
             </div>
             <div>
                 <a href="{{ request.META.HTTP_REFERER }}"><i class="bi bi-arrow-left-short"></i>Volver</a>
@@ -35,7 +36,12 @@
         </div>
 
         <div class="card-body">
-            <h3 class="card-title text-center mt-3">CARGA MASIVA DE ENVÍOS</h3>
+
+            <div class="alert alert-info" role="alert">
+                Solución inteligente para cargar envíos con PDFs y Excels de TiendaNube, MercadoLibre y hojas de cálculo
+                personalizadas (<a href="#" data-bs-toggle="modal" data-bs-target="#baseModal">click acá</a> para más
+                info).
+            </div>
 
             {% if upload_in_progress %}
             <div class="row mt-3 alert alert-danger mt-3 mb-3" role="alert">
@@ -63,7 +69,7 @@
                 </div>
             </div>
             <div class="row mt-3 mb-4">
-                <div class="col-12 col-lg-6 mt-2">
+                <div class="col-12 col-lg-5 mt-2">
                     <label for="id_client" class="form-label">Cliente</label>
                     {{upload_form.client}}
                     <div class="invalid-feedback">
@@ -71,7 +77,7 @@
                     </div>
                 </div>
 
-                <div class="col-12 col-lg-6 mt-2">
+                <div class="col-12 col-lg-7 mt-2">
                     <label for="id_deposit" class="form-label">Depósito</label>
                     {{upload_form.deposit}}
                     <div class="invalid-feedback">
@@ -95,31 +101,14 @@
     </form>
 
 </div>
+<script src="{% static 'base/base_system.js' %}"></script>
 
 <script>
+    var initial_deposit_id = "{{initial_deposit_id}}";
+    var initial_client_id = "{{initial_client_id}}";
     var deposits = JSON.parse('{{ deposits | escapejs }}');
     $(document).ready(function () {
         $('#id_deposit').find('option:not(:first)').remove();
-        $.event.special.inputchange = {
-            setup: function () {
-                var self = this,
-                    val;
-                $.data(this, 'timer', window.setInterval(function () {
-                    val = self.value;
-                    if ($.data(self, 'cache') != val) {
-                        $.data(self, 'cache', val);
-                        $(self).trigger('inputchange');
-                    }
-                }, 20));
-            },
-            teardown: function () {
-                window.clearInterval($.data(this, 'timer'));
-            },
-            add: function () {
-                $.data(this, 'cache', this.value);
-            }
-        };
-
         $('#id_client').on('inputchange', function () {
             var selectedClientId = this.value.toString();
             console.log(selectedClientId);
@@ -133,24 +122,20 @@
                     $('#id_deposit').append('<option value="' + element.id + '">' + element.name +
                         '</option>');
                 }
+                if (initial_deposit_id != '') {
+                    $('#id_deposit').val(initial_deposit_id).change();
+                }
             } else {
                 $('#id_deposit').find('option:not(:first)').remove();
             }
         });
-    });
-
-    function setClientListener() {
-        $('#id_client').on('inputchange', function () {
-            alert("hola");
-            /*
-            $('#id_town').find('option:not(:first)').remove();
-            for (var element of placesFromPartido) {
-                $('#id_town').append('<option value="' + element.id + '">' + element.name +
-                    '</option>');
+        if (initial_client_id != '') {
+            $('#id_client').val(initial_client_id).change();
+            if (initial_deposit_id != '') {
+                $('#id_deposit').val(initial_deposit_id).change();
             }
-            */
-        });
-    }
+        }
+    });
 </script>
 
 {% endblock content %}

@@ -6,6 +6,7 @@ Depósitos
 
 {% block content %}
 
+{% load static %}
 {% load places_extras %}
 
 <style>
@@ -55,7 +56,7 @@ Depósitos
                     <label for="id_deposit" class="form-label">Depósito</label>
                     {{form.deposit}}
                     <div class="invalid-feedback">
-                        {% for error in form.client.errors %}{{error}}<br>{% endfor %}
+                        {% for error in form.deposit.errors %}{{error}}<br>{% endfor %}
                     </div>
                 </div>
                 <!-- END DEPO INPUT -->
@@ -340,47 +341,38 @@ Depósitos
     </form>
 
 </div>
-
+<script src="{% static 'base/base_system.js' %}"></script>
 {% if not is_client %}
 <script>
+    var initial_deposit_id = "{{initial_deposit_id}}";
+    var initial_client_id = "{{initial_client_id}}";
     var deposits = JSON.parse('{{ deposits | escapejs }}');
     $('#id_deposit').find('option:not(:first)').remove();
-    $.event.special.inputchange = {
-        setup: function () {
-            var self = this,
-                val;
-            $.data(this, 'timer', window.setInterval(function () {
-                val = self.value;
-                if ($.data(self, 'cache') != val) {
-                    $.data(self, 'cache', val);
-                    $(self).trigger('inputchange');
-                }
-            }, 20));
-        },
-        teardown: function () {
-            window.clearInterval($.data(this, 'timer'));
-        },
-        add: function () {
-            $.data(this, 'cache', this.value);
-        }
-    };
     $('#id_client').on('inputchange', function () {
         var selectedClientId = this.value.toString();
-        console.log(selectedClientId);
         if (![null, undefined, ''].includes(selectedClientId)) {
             var depositsFromClient = deposits.filter(function (deposit) {
                 return deposit.client_id == selectedClientId;
             });
-            console.log("depositsFromClient", depositsFromClient);
             $('#id_deposit').find('option:not(:first)').remove();
             for (var element of depositsFromClient) {
-                $('#id_deposit').append('<option value="' + element.id + '">' + element.name +
+                $('#id_deposit').append('<option value="' + element.id + '">' +
+                    element.name +
                     '</option>');
+            }
+            if (initial_deposit_id != '') {
+                $('#id_deposit').val(initial_deposit_id).change();
             }
         } else {
             $('#id_deposit').find('option:not(:first)').remove();
         }
     });
+    if (initial_client_id != '') {
+        $('#id_client').val(initial_client_id).change();
+        if (initial_deposit_id != '') {
+            $('#id_deposit').val(initial_deposit_id).change();
+        }
+    }
 </script>
 {% else %}
 <script>
@@ -420,7 +412,7 @@ Depósitos
     }
 
     $(document).ready(function () {
-
+        /*
         $.event.special.inputchange = {
             setup: function () {
                 var self = this,
@@ -439,7 +431,7 @@ Depósitos
             add: function () {
                 $.data(this, 'cache', this.value);
             }
-        };
+        };*/
         /*
         $('#id_client').on('inputchange', function () {
             var selectedClientId = this.value.toString();
