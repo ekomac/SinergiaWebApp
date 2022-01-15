@@ -57,8 +57,8 @@ def deposit_list_view(request):
         decoders = [
             {
                 'key': 'client_id',
-                'filter': lambda x: 'client__isnull' if x == -1 else 'client__id',
-                'function': lambda x: True if x == -1 else int(x),
+                'filter': lambda x: 'client__isnull' if x in [-1, '-1'] else 'client__id',
+                'function': lambda x: True if x in [-1, '-1'] else int(x),
                 'context': str,
             },
             {
@@ -148,7 +148,7 @@ def deposit_list_view(request):
 def get_deposits_queryset(
     query: str = None,
     order_by_key: str = 'name',
-    **filters
+    **filters: Dict[str, Any]
 ) -> List[Deposit]:
     """Get all deposits that match provided query, if any. If none is given,
     returns all deposits. Also, performs the query in the specified
