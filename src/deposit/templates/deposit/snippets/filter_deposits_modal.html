@@ -1,0 +1,70 @@
+<div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="baseModal" tabindex="-1"
+    aria-labelledby="baseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filtersModalLabel">Elegí cómo querés filtrar los tickets.
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- start CLIENT TYPE SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_client_modal" class="form-label">Cliente</label>
+
+                        <!-- start CLIENT SELECTION -->
+                        <select id="id_client_modal" name="client_modal" class="form-select"
+                            aria-label="client selection">
+                            <option value="">---</option>
+                            <option value="-1">Solo sinergia</option>
+                            {% for client in clients %}
+                            <option value="{{client.id}}">{{client.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <!-- end CLIENT SELECTION -->
+
+                    </div>
+                </div>
+                <!-- end CLIENT SELECTION -->
+
+                <!-- start ACTIVE SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_is_active_modal" class="form-label">Activo</label>
+                        <select id="id_is_active_modal" name="is_active_modal" class="form-select"
+                            aria-label="is active selection">
+                            <option value="">-----</option>
+                            <option value="true">Sí</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                    <!-- end ACTIVE SELECTION -->
+
+                    <!-- start HAS ENVIOS SELECTION -->
+                    <div class="col">
+                        <label for="id_has_envios_modal" class="form-label">Tiene envíos</label>
+                        <select id="id_has_envios_modal" name="has_envios_modal" class="form-select"
+                            aria-label="has envios selection">
+                            <option value="">-----</option>
+                            <option value="true">Sí</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                    <!-- end HAS ENVIOS SELECTION -->
+                </div>
+
+            </div>
+            <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    onclick="clearFilters()">Limpiar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                    onclick="applyFilters()">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>

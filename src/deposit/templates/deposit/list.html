@@ -3,12 +3,15 @@
 {% block modal_content %}
 
 <!-- start BASE MODAL DIALOG -->
-{% include 'tickets/snippets/filter_tickets_modal.html' %}
+{% include 'deposit/snippets/filter_deposits_modal.html' %}
 <!-- end BASE MODAL DIALOG -->
 
 {% endblock modal_content %}
 
 {% block content %}
+
+{% load static %}
+<script src="{% static 'base/list_kit.js' %}"></script>
 
 <style>
     .cell-centered,
@@ -95,12 +98,14 @@
                             data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-sort-up"></i></button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <button onclick="orderByChanged('name');" class="dropdown-item">
+                                <button type="button" onclick="orderByChanged('name','id_order_by','list_form',true);"
+                                    class="dropdown-item">
                                     A-Z
                                 </button>
                             </li>
                             <li>
-                                <button onclick="orderByChanged('name_desc');" class="dropdown-item">
+                                <button type="button" onclick="orderByChanged('name_desc','id_order_by','list_form');"
+                                    class="dropdown-item">
                                     Z-A
                                 </button>
                             </li>
@@ -113,9 +118,14 @@
                     <input type="text" name="order_by" id="id_order_by" class="d-none" value="{{ order_by }}">
                     <input type="text" name="results_per_page" id="id_results_per_page" class="d-none"
                         value="{{ results_per_page }}">
-                    <input id='id_filter_by' type="text" name="filter_by" class="d-none"
-                        value="{% if filter_by %}{{ filter_by }}{% endif %}">
-
+                    <input id='id_client_id' type="text" name="client_id" class="d-none"
+                        value="{% if client_id %}{{ client_id }}{% endif %}">
+                    <input id='id_is_active' type="text" name="is_active" class="d-none"
+                        value="{% if is_active %}{{ is_active }}{% endif %}">
+                    {% comment %} <input id='id_is_sinergia' type="text" name="is_sinergia" class="d-none"
+                        value="{% if is_sinergia %}{{ is_sinergia }}{% endif %}"> {% endcomment %}
+                    <input id='id_has_envios' type="text" name="has_envios" class="d-none"
+                        value="{% if has_envios %}{{ has_envios }}{% endif %}">
                 </form>
                 <!-- end SEARCH AND ORDERING FUNCTIONALITIES -->
 
@@ -186,15 +196,33 @@
 
 </div>
 
-
 <script>
+    const passedOrderBy = '{{ order_by }}';
+    const filtersIdEncoders = {
+        'client': '#id_client_modal',
+        'isactive': '#id_is_active_modal',
+        'hasenvios': '#id_has_envios_status',
+    }
+
+    const DEFAULT_FILTERS = 'client_isactive_hasenvios';
     $(document).ready(function () {
 
-        enableTooltips();
-
-        $('#id_order_by').change(function () {
-            $('#list_form').submit();
+        $('#list_form').submit(function (e) {
+            e.preventDefault();
+            ['id_query_by', 'id_order_by', 'id_results_per_page', 'id_client_id', 'id_is_active',
+                /*'id_is_sinergia',*/
+                'id_has_envios',
+            ].forEach(function (id) {
+                if ($('#' + id).val() == '') {
+                    $('#' + id).prop('disabled', true);
+                } else {
+                    $('#' + id).prop('disabled', false);
+                }
+            });
+            $(this).unbind('submit').submit();
         });
+
+        enableTooltips();
 
         $('#id_results_per_page').change(function () {
             $('#list_form').submit();
@@ -221,10 +249,32 @@
             $('#list_form').submit();
         });
 
+
     });
 
     function clearSearch() {
         $('#id_query_by').val('');
+        $('#list_form').submit();
+    }
+
+    function applyFilters() {
+        if ($('#id_client_modal').val() != '') {
+            $('#id_client_id').val($('#id_client_modal').val());
+        }
+        if ($('#id_is_active_modal').val() != '') {
+            $('#id_is_active').val($('#id_is_active_modal').val());
+        }
+        if ($('#id_has_envios_modal').val() != '') {
+            $('#id_has_envios').val($('#id_has_envios_modal').val());
+        };
+        alert();
+        $('#list_form').submit();
+    }
+
+    function clearFilters() {
+        $('#id_client_modal').val('');
+        $('#id_is_active_modal').val('');
+        $('#id_has_envios').val('');
         $('#list_form').submit();
     }
 </script>
