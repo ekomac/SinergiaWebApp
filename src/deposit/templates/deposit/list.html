@@ -66,6 +66,7 @@
 
                     <div class="input-group">
 
+
                         <!-- start SEARCH -->
                         <input type="text" class="form-control shadow" placeholder="Ingresá texto para buscar..."
                             id="id_query_by" name="query_by"
@@ -115,17 +116,22 @@
 
                     </div>
 
-                    <input type="text" name="order_by" id="id_order_by" class="d-none" value="{{ order_by }}">
-                    <input type="text" name="results_per_page" id="id_results_per_page" class="d-none"
-                        value="{{ results_per_page }}">
-                    <input id='id_client_id' type="text" name="client_id" class="d-none"
-                        value="{% if client_id %}{{ client_id }}{% endif %}">
-                    <input id='id_is_active' type="text" name="is_active" class="d-none"
-                        value="{% if is_active %}{{ is_active }}{% endif %}">
-                    {% comment %} <input id='id_is_sinergia' type="text" name="is_sinergia" class="d-none"
-                        value="{% if is_sinergia %}{{ is_sinergia }}{% endif %}"> {% endcomment %}
-                    <input id='id_has_envios' type="text" name="has_envios" class="d-none"
-                        value="{% if has_envios %}{{ has_envios }}{% endif %}">
+
+                    <div class="d-none">
+                        <input type="text" name="order_by" id="id_order_by" {% if order_by %}value="{{ order_by }}"
+                            {% endif %}>
+                        <input type="text" name="results_per_page" id="id_results_per_page"
+                            {% if results_per_page %}value="{{ results_per_page }}" {% endif %}>
+                        <input type="text" id='id_client_id' name="client_id" {% if client_id %}value="{{ client_id }}"
+                            {% endif %}>
+                        <input type="text" id='id_is_active' name="is_active" {% if is_active %}value="{{ is_active }}"
+                            {% endif %}>
+                        <input type="text" id='id_has_envios' name="has_envios"
+                            {% if has_envios %}value="{{ has_envios }}" {% endif %}>
+                        <input type="submit">
+                    </div>
+
+
                 </form>
                 <!-- end SEARCH AND ORDERING FUNCTIONALITIES -->
 
@@ -203,6 +209,7 @@
         'isactive': '#id_is_active_modal',
         'hasenvios': '#id_has_envios_status',
     }
+    var lastQuery = "{{ query_by }}";
 
     const DEFAULT_FILTERS = 'client_isactive_hasenvios';
     $(document).ready(function () {
@@ -230,7 +237,14 @@
 
         $('#id_query_by').on('change paste keyup', function () {
             show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
         });
+
+        if (lastQuery != '') {
+            $('#id_query_by').val(lastQuery);
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        }
 
         $('#btnRadioRPP50').click(function () {
             $('#id_results_per_page').val(50);
@@ -254,26 +268,23 @@
 
     function clearSearch() {
         $('#id_query_by').val('');
-        $('#list_form').submit();
+        if (lastQuery != '' && lastQuery != null && lastQuery != undefined) {
+            $('#list_form').submit();
+        }
+        show('btnCleanQuery', false);
     }
 
+
     function applyFilters() {
-        if ($('#id_client_modal').val() != '') {
-            $('#id_client_id').val($('#id_client_modal').val());
-        }
-        if ($('#id_is_active_modal').val() != '') {
-            $('#id_is_active').val($('#id_is_active_modal').val());
-        }
-        if ($('#id_has_envios_modal').val() != '') {
-            $('#id_has_envios').val($('#id_has_envios_modal').val());
-        };
-        alert();
+        $('#id_client_id').val($('#id_client_modal').val());
+        $('#id_is_active').val($('#id_is_active_modal').val());
+        $('#id_has_envios').val($('#id_has_envios_modal').val());
         $('#list_form').submit();
     }
 
     function clearFilters() {
-        $('#id_client_modal').val('');
-        $('#id_is_active_modal').val('');
+        $('#id_client_id').val('');
+        $('#id_is_active').val('');
         $('#id_has_envios').val('');
         $('#list_form').submit();
     }

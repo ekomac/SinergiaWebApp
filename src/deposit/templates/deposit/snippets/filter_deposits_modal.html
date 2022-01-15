@@ -18,9 +18,11 @@
                         <select id="id_client_modal" name="client_modal" class="form-select"
                             aria-label="client selection">
                             <option value="">---</option>
-                            <option value="-1">Solo sinergia</option>
+                            <option value="-1" {% if client_id == '-1' %}selected{% endif %}>Solo sinergia</option>
                             {% for client in clients %}
-                            <option value="{{client.id}}">{{client.name}}</option>
+                            <option value="{{client.id}}"
+                                {% if client_id == client.id|stringformat:"i" %}selected{% endif %}>
+                                {{client.name}}</option>
                             {% endfor %}
                         </select>
                         <!-- end CLIENT SELECTION -->
@@ -36,8 +38,8 @@
                         <select id="id_is_active_modal" name="is_active_modal" class="form-select"
                             aria-label="is active selection">
                             <option value="">-----</option>
-                            <option value="true">Sí</option>
-                            <option value="false">No</option>
+                            <option value="true" {% if is_active == 'true' %}selected{% endif %}>Sí</option>
+                            <option value="false" {% if is_active == 'false' %}selected{% endif %}>No</option>
                         </select>
                     </div>
                     <!-- end ACTIVE SELECTION -->
@@ -48,8 +50,9 @@
                         <select id="id_has_envios_modal" name="has_envios_modal" class="form-select"
                             aria-label="has envios selection">
                             <option value="">-----</option>
-                            <option value="true">Sí</option>
-                            <option value="false">No</option>
+                            <!-- True and false are inverted because this filters the Deposit QuerySet with the key 'envio__isnull' -->
+                            <option value="false" {% if has_envios == 'false' %}selected{% endif %}>Sí</option>
+                            <option value="true" {% if has_envios == 'true' %}selected{% endif %}>No</option>
                         </select>
                     </div>
                     <!-- end HAS ENVIOS SELECTION -->

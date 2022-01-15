@@ -84,26 +84,6 @@ def deposit_list_view(request):
                 filters[filter_key] = decoder['function'](value)
                 ctx[decoder['key']] = decoder['context'](value)
 
-        # client_id = request.GET.get("client_id", None)
-        # if client_id is not None:
-        #     ctx['client_id'] = str(client_id)
-        #     filters['client__id'] = client_id
-
-        # is_active = request.GET.get("is_active", None)
-        # if is_active is not None:
-        #     ctx['is_active'] = is_active
-        #     filters['is_active'] = True if is_active == 'true' else False
-
-        # is_sinergia = request.GET.get("is_sinergia", None)
-        # if is_sinergia is not None:
-        #     ctx['is_sinergia'] = is_sinergia
-        #     filters['is_sinergia'] = True if is_sinergia == 'true' else False
-
-        # has_envios = request.GET.get("has_envios", None)
-        # if has_envios is not None:
-        #     ctx['has_envios'] = has_envios
-        #     filters['has_envios'] = True if has_envios == 'true' else False
-
         ctx['pagination_base_url'] = get_pagination_base_url(
             query_by=query,
             order_by=ctx["order_by"],
@@ -121,10 +101,10 @@ def deposit_list_view(request):
             deposits = deposits_paginator.page(page)
 
             # How many deposits in total
-            ctx['deposits_count'] = deposits_paginator.count
+            ctx['pagination_count'] = deposits_paginator.count
 
             # Showing deposit from
-            ctx['deposits_from'] = (
+            ctx['pagination_from'] = (
                 deposits.number - 1) * deposits_paginator.per_page + 1
 
             # Showing deposit to
@@ -132,7 +112,7 @@ def deposit_list_view(request):
                 what_to_sum = len(deposits)
             else:
                 what_to_sum = deposits_paginator.per_page
-            ctx['deposits_to'] = ctx['deposits_from'] + \
+            ctx['pagination_to'] = ctx['pagination_from'] + \
                 what_to_sum - 1
         except PageNotAnInteger:
             deposits = deposits_paginator.page(results_per_page)
@@ -164,12 +144,11 @@ def get_deposits_queryset(
         one query.
     """
     query = unidecode.unidecode(query) if query else ""
+    q = Q(name__icontains=query) | Q(client__name__icontains=query) | Q(
+        address__icontains=query) | Q(town__name__icontains=query)
     return list(map(map_deposit_to_tuple, list(
         Deposit.objects.filter(**filters).filter(
-            Q(name__icontains=query) |
-            Q(client__name__icontains=query) |
-            Q(address__icontains=query) |
-            Q(town__name__icontains=query)
+            q
         ).order_by(order_by_key).distinct()
     )))
 
