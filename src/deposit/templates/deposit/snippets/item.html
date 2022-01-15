@@ -31,10 +31,10 @@
     </td>
     <td class="text-center" {% if obj.is_sinergia %}style="color: red;" {% endif %}>{{ envios }}</td>
     <td class="text-center" {% if obj.is_sinergia %}style="color: red;" {% endif %}>
-        {{ obj.phone |default_if_none:"Sin especificar"}}
+        {% if obj.phone %}{{ obj.phone }}{% else %}Sin especificar{% endif %}
     </td>
     <td class="text-center" {% if obj.is_sinergia %}style="color: red;" {% endif %}>
-        {{ obj.email |default_if_none:"Sin especificar"}}</td>
+        {% if obj.email %}{{ obj.email }}{% else %}Sin especificar{% endif %}
+    </td>
 
 </tr>
-{% if obj.is_sinergia %}fst-italic{% endif %}

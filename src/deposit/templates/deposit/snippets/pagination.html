@@ -1,3 +1,87 @@
+<!-- start FILTERED Pagination -->
+<div class="row mt-3 overflow-x-auto">
+
+
+    <!-- start results per page -->
+    <div class="col-12 col-lg-4 d-flex justify-content-start align-items-center">
+        <div class="small">
+            Por pág.:
+            <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                <input type="radio" class="btn-check" name="btnradio" id="btnRadioRPP50" autocomplete="off"
+                    {% if results_per_page == '50' %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="btnRadioRPP50">50</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="btnRadioRPP100" autocomplete="off"
+                    {% if results_per_page == '100' %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="btnRadioRPP100">100</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="btnRadioRPP200" autocomplete="off"
+                    {% if results_per_page == '200' %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="btnRadioRPP200">200</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="btnRadioRPP500" autocomplete="off"
+                    {% if results_per_page == '500' %}checked{% endif %}>
+                <label class="btn btn-outline-primary" for="btnRadioRPP500">500</label>
+            </div>
+        </div>
+    </div>
+    <!-- end results per page -->
+
+
+    <!-- start PAGINATION -->
+    <div class="col-12 col-lg-4">
+        <nav aria-label="Page navigation">
+            <ul class="pagination pg-grey justify-content-center">
+                {% if deposits.has_previous %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="?{% if query_by %}q={{query_by}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}{% if results_per_page %}results_per_page={{ results_per_page }}&{% endif %}page={{ deposits.previous_page_number }}">&laquo;Anterior
+                    </a>
+                </li>
+                {% endif %}
+
+                {% for i in deposits.paginator.page_range %}
+                {% if deposits.number == i %}
+                <li class="page-item active"><a class="page-link">{{ i }}</a></li>
+                {% else %}
+                <li class="page-item"><a class="page-link"
+                        href="?{% if query_by %}q={{query_by}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}{% if results_per_page %}results_per_page={{ results_per_page }}&{% endif %}page={{ i }}">{{ i }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+
+                {% if deposits.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="?{% if query_by %}q={{query_by}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}{% if results_per_page %}results_per_page={{ results_per_page }}&{% endif %}page={{ deposits.next_page_number }}">Siguiente</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link"
+                        href="?{% if query_by %}q={{query_by}}&{% endif %}{% if order_by %}order_by={{order_by}}&{% endif %}{% if results_per_page %}results_per_page={{ results_per_page }}&{% endif %}page={{ deposits.paginator.num_pages }}">Último&raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    <!-- end PAGINATION-->
+
+
+    <!-- start from to results -->
+    <div class="col-12 col-lg-4 d-flex justify-content-start justify-content-lg-end align-items-center">
+        <div class="d-flex align-items-center fs-6 fst-italic small ms-2">
+            Mostrando {{ deposits_from }} a {{ deposits_to }} de {{ deposits_count }}
+        </div>
+    </div>
+    <!-- end from to results -->
+
+
+
+</div>
+<!-- end FILTERED Pagination -->
+
+
+
+{% comment %}
 <!-- FILTERED Pagination -->
 <div class="d-flex flex-column m-auto pagination mt-3">
     <nav aria-label="Page navigation">
@@ -34,3 +118,4 @@
     </nav>
 </div>
 <!-- end pagination-->
+{% endcomment %}

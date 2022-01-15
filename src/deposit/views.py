@@ -39,7 +39,7 @@ def deposit_list_view(request):
 
         results_per_page = request.GET.get("results_per_page", None)
         if results_per_page is None:
-            results_per_page = 30
+            results_per_page = 50
         ctx['results_per_page'] = str(results_per_page)
 
         # Filter deposits
@@ -50,6 +50,21 @@ def deposit_list_view(request):
         deposits_paginator = Paginator(deposits, results_per_page)
         try:
             deposits = deposits_paginator.page(page)
+
+            # How many deposits in total
+            ctx['deposits_count'] = deposits_paginator.count
+
+            # Showing deposit from
+            ctx['deposits_from'] = (
+                deposits.number - 1) * deposits_paginator.per_page + 1
+
+            # Showing deposit to
+            if deposits_paginator.per_page > len(deposits):
+                what_to_sum = len(deposits)
+            else:
+                what_to_sum = deposits_paginator.per_page
+            ctx['deposits_to'] = ctx['deposits_from'] + \
+                what_to_sum - 1
         except PageNotAnInteger:
             deposits = deposits_paginator.page(results_per_page)
         except EmptyPage:
