@@ -174,11 +174,12 @@ class ComplexListView(View):
         self.context = {}
 
     def get(self, request, *args, **kwargs):
-        self.objects = self.model.objects
+        self.objects = self.model.objects.all()
         self.handle_filters_params(request)
         self.handle_query_param(request)
         self.handle_order_param(request)
-        self.objects = self.end_model_queryset("TODO: paramaetrizar")
+        self.objects = list(
+            map(self.queryset_map_callable, self.objects.distint()))
         if "pagination" in self.params_to_use:
             self.handle_results_per_page_param(request)
             self.setup_pagination()
@@ -246,9 +247,9 @@ class ComplexListView(View):
             if filters:
                 self.objects = self.objects.filter(**filters)
 
-    def transform_queryset_result(self):
-        self.objects = self.objects.all()
-        
+    def queryset_map_callable(self, obj):
+        return obj
+
     def end_model_queryset(self):
         self.objects = self.objects.distinct()
         return self.objects
