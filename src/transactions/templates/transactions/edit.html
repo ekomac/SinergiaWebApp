@@ -38,9 +38,6 @@
 
                 <!-- start DATE INPUT -->
                 <div class="col-12 col-md-6">
-                    {{form.date.value.year}}
-                    {{form.date.value.month}}
-                    {{form.date.value.day}}
                     <label for="id_date" class="form-label">Fecha</label>
                     <input id="id_date" name="date" type="date" value="{{ form.date.value | date:'Y-m-d' }}"
                         class="form-control datepicker {% if form.date.errors %}is-invalid{% endif %}"

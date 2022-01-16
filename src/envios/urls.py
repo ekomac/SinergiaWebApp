@@ -1,7 +1,8 @@
 from django.urls import path
 
 from .views import (
-    envios_view,
+    EnvioListView,
+    #     envios_view,
     EnvioDetailView,
     EnvioCreate,
     bulk_create_envios_view,
@@ -20,7 +21,8 @@ app_name = 'envios'
 urlpatterns = [
 
     # ******************************* ENVIOS *******************************
-    path('', envios_view, name="envio-list"),
+    #     path('', envios_view, name="envio-list"),
+    path('', EnvioListView.as_view(), name="envio-list"),
     path('<int:pk>/', EnvioDetailView.as_view(), name="envio-detail"),
     path('add/', EnvioCreate.as_view(), name="envio-add"),
     path('<int:pk>/edit/', edit_envio_view, name="envio-edit"),

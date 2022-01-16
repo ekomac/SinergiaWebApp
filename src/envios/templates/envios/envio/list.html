@@ -1,3 +1,494 @@
+{% extends 'base/base_list.html' %}
+
+
+{% block modal_content %}
+
+<div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="baseModal" tabindex="-1"
+    aria-labelledby="baseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filtersModalLabel">Elegí cómo querés filtrar los envíos.
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- start DATES FROM AND TO FILTER -->
+                <div class="row g-2 mt-2">
+                    <div class="col form-floating">
+                        <div class="input-group mb-3">
+
+                            <!-- start DATE FROM -->
+                            <input type="date" class="form-control datepicker" name="min_date_modal"
+                                id="id_min_date_modal" max="{{ max_selectable_date }}"
+                                value="{% if min_date %}{{ min_date }}{% endif %}" placeholder="Desde">
+                            <!-- end DATE FROM -->
+
+                            <span class="input-group-text">&nbsp;a&nbsp;</span>
+
+                            <!-- start DATE TO -->
+                            <input type="date" class="form-control datepicker" name="max_date_modal"
+                                id="id_max_date_modal" max="{{ max_selectable_date }}"
+                                value="{% if max_date %}{{ max_date }}{% endif %}" placeholder="Desde">
+                            <!-- end DATE TO -->
+
+                        </div>
+                    </div>
+                </div>
+                <!-- end DATES FROM AND TO FILTER -->
+
+                <!-- start CLIENT TYPE SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_client_modal" class="form-label">Cliente</label>
+
+                        <!-- start CLIENT SELECTION -->
+                        <select id="id_client_modal" name="client_modal" class="form-select"
+                            aria-label="client selection">
+                            <option value="">---</option>
+                            {% for client in clients %}
+                            <option value="{{client.id}}">{{client.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <!-- end CLIENT SELECTION -->
+
+                    </div>
+                </div>
+                <!-- end CLIENT SELECTION -->
+
+                <!-- start SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_status_modal" class="form-label">Estado</label>
+
+                        <!-- start SHIPMENT STATUS -->
+                        <select id="id_status_modal" name="status_modal" class="form-select"
+                            aria-label="status selection">
+                            <option value="">---</option>
+                            <option value="N" {% if status == 'N' %}selected{% endif %}>Nuevo</option>
+                            <option value="S" {% if status == 'S' %}selected{% endif %}>En depósito</option>
+                            <option value="M" {% if status == 'M' %}selected{% endif %}>En viaje</option>
+                            <option value="D" {% if status == 'D' %}selected{% endif %}>Entregado</option>
+                        </select>
+                        <!-- end SHIPMENT STATUS -->
+
+                    </div>
+
+                    <div class="col">
+                        <label for="id_is_flex_modal" class="form-label">Tipo</label>
+
+                        <!-- start SHIPMENT TYPE SELECTION -->
+                        <select id="id_is_flex_modal" name="is_flex_modal" class="form-select"
+                            aria-label="shipment type selection">
+                            <option value="" {% if not is_flex %}selected{% endif %}>---</option>
+                            <option value="true" {% if is_flex == 'true' %}selected{% endif %}>Flex</option>
+                            <option value="false" {% if is_flex == 'false' %}selected{% endif %}>Mensajería</option>
+                            </option>
+                        </select>
+                        <!-- end SHIPMENT TYPE SELECTION -->
+
+                    </div>
+                </div>
+            </div>
+            <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    onclick="clearFilters()">Limpiar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                    onclick="applyFilters()">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end BASE MODAL DIALOG -->
+
+{% endblock modal_content %}
+
+
+
+
+{% block add_url_block %}href="{% url 'envios:envio-add' %}" {% endblock add_url_block %}
+
+
+
+{% block orderby_block %}
+<li>
+    <button onclick="orderByChanged('date_created_desc');" class="dropdown-item">
+        Carga&nbsp;más&nbsp;recientes
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('date_created');" class="dropdown-item">
+        Carga&nbsp;más&nbsp;antiguas
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('is_flex_desc');" class="dropdown-item">
+        Flex&nbsp;primero
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('is_flex');" class="dropdown-item">
+        Mensajería&nbsp;primero
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('town__name');" class="dropdown-item">
+        Localidad&nbsp;A-Z
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('town__name_desc');" class="dropdown-item">
+        Localidad&nbsp;Z-A
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('client__name');" class="dropdown-item">
+        Cliente&nbsp;A-Z
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('client__name_desc');" class="dropdown-item">
+        Cliente&nbsp;Z-A
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('status');" class="dropdown-item">
+        Estado&nbsp;A-Z
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('status_desc');" class="dropdown-item">
+        Estado&nbsp;Z-A
+    </button>
+</li>
+{% endblock orderby_block %}
+
+
+
+{% block filters_block %}
+<input type="text" id='id_min_date' name="min_date" {% if min_date %}value="{{ min_date }}" {% endif %}>
+<input type="text" id='id_max_date' name="max_date" {% if max_date %}value="{{ max_date }}" {% endif %}>
+<input type="text" id='id_client_id' name="client_id" {% if client_id %}value="{{ client_id }}" {% endif %}>
+<input type="text" id='id_status' name="status" {% if status %}value="{{ status }}" {% endif %}>
+<input type="text" id='id_is_flex' name="is_flex" {% if is_flex %}value="{{ is_flex }}" {% endif %}>
+<input type="submit">
+{% endblock filters_block %}
+
+
+{% block actions_block %}
+<!-- start ACTIONS -->
+<div class="d-flex flex-wrap align-items-center">
+
+    <div class="d-none">
+        <form method="POST" id="example_form">{% csrf_token %}
+            <textarea type="text" id="id_ids" name="ids"></textarea>
+        </form>
+    </div>
+    <button type="button" id="printLabels" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2"
+        onclick="printSelectedItems()" disabled>
+        Imprimir etiquetas
+    </button>
+    <button type="button" id="bulkAddTask" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2" onclick="createTask()"
+        disabled>
+        Asociar tarea
+    </button>
+    <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{totalEnvios}} elementos seleccionados</div>
+    <div class="my-1 mx-xl-3">
+        <div id="clearSelectionDiv" class="hide-on-load">
+            <a id="clearSelection" type="button" class="ms-2 text-decoration-none" onclick="removeSelection()"
+                style="cursor: pointer;">Quitar selección
+                <i class="bi bi-x"></i></a>
+        </div>
+    </div>
+    <div class="d-flex d-lg-inline ms-auto p-2">
+        <a href="{% url 'envios:envio-add' %}" type="button" class="flex-fill btn btn-success btn-sm me-1">
+            <i class="bi bi-plus"></i>Crear nuevo
+        </a>
+        <a href="{% url 'envios:envio-bulk-add' %}" type="button" class="flex-fill btn btn-success btn-sm ms-1">
+            <i class="bi bi-plus"></i>Carga masiva
+        </a>
+    </div>
+</div>
+<!-- end ACTIONS -->
+
+<hr>
+
+{% endblock actions_block %}
+
+
+
+{% block objects_table_head_block %}
+<th>
+    <div class="form-check">
+        <input class="form-check-input checkbox-select" type="checkbox" id="checkAll">
+    </div>
+</th>
+<th class="cell-centered">Fecha de carga</th>
+<th class="cell-centered">Estado</th>
+<th class="cell-centered">Tipo</th>
+<th class="cell-centered">Cliente</th>
+<th>Destino</th>
+<th>Depósito/Portador</th>
+<th>Fecha límite</th>
+<th>Horario de entrega</th>
+{% endblock objects_table_head_block %}
+
+
+{% block objects_table_body_block %}
+{% for envio in objects %}
+{% include 'envios/envio/snippets/item.html' with obj=envio counter=forloop.counter%}
+{% endfor %}
+{% endblock objects_table_body_block %}
+
+
+{% block scripts_block %}
+<script>
+    const passedOrderBy = '{{ order_by }}';
+    var lastQuery = "{{ query_by }}";
+    var selectionModeEnabled = false;
+    var totalEnvios = parseInt('{{pagination_count}}');
+
+    $(document).ready(function () {
+        addingSelectedIdsAjaxConfig();
+        enableTooltips();
+        $('#list_form').submit(function (e) {
+            e.preventDefault();
+            [
+                'id_query_by',
+                'id_order_by',
+                'id_results_per_page',
+                'id_min_date',
+                'id_max_date',
+                'id_client_id',
+                'id_status',
+                'id_is_flex',
+            ].forEach(function (id) {
+                if ($('#' + id).val() == '') {
+                    $('#' + id).prop('disabled', true);
+                } else {
+                    $('#' + id).prop('disabled', false);
+                }
+            });
+            $(this).unbind('submit').submit();
+        });
+
+
+        $('#id_results_per_page').change(function () {
+            $('#list_form').submit();
+        });
+
+        $('#id_query_by').on('change paste keyup', function () {
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        });
+
+        if (lastQuery != '') {
+            $('#id_query_by').val(lastQuery);
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        }
+
+        $("#checkAll").click(function () {
+            $(".item-checker").prop('checked', this.checked);
+            countCheckedItems();
+        });
+
+        $(".item-checker").click(function (e) {
+            e.stopImmediatePropagation();
+            countCheckedItems();
+        });
+
+        $(".td-item-checker").click(function (e) {
+            var id = this.id.split("-")[1];
+            changeItemCheckerState('item-checker-' + id);
+            e.stopImmediatePropagation();
+            e.stopPropagation();
+            countCheckedItems();
+        });
+
+        $('#btnRadioRPP50').click(function () {
+            $('#id_results_per_page').val(50);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP100').click(function () {
+            $('#id_results_per_page').val(100);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP200').click(function () {
+            $('#id_results_per_page').val(200);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP500').click(function () {
+            $('#id_results_per_page').val(500);
+            $('#list_form').submit();
+        });
+
+
+    });
+
+    function clearSearch() {
+        $('#id_query_by').val('');
+        if (lastQuery != '' && lastQuery != null && lastQuery != undefined) {
+            $('#list_form').submit();
+        }
+        show('btnCleanQuery', false);
+    }
+
+
+    function applyFilters() {
+        $('#id_min_date').val($('#id_min_date_modal').val());
+        $('#id_max_date').val($('#id_max_date_modal').val());
+        $('#id_client_id').val($('#id_client_modal').val());
+        $('#id_status').val($('#id_status_modal').val());
+        $('#id_is_flex').val($('#id_is_flex_modal').val());
+        $('#list_form').submit();
+    }
+
+    function clearFilters() {
+        $('#id_min_date').val('');
+        $('#id_max_date').val('');
+        $('#id_client_id').val('');
+        $('#id_status').val('');
+        $('#id_is_flex').val('');
+        $('#list_form').submit();
+    }
+
+    function onItemClicked(id, url) {
+        if (selectionModeEnabled) {
+            $('#item-checker-' + id).prop('checked', !$('#item-checker-' + id).is(":checked"));
+        } else {
+            window.location.href = url;
+        }
+        countCheckedItems();
+    }
+
+    function countCheckedItems() {
+        // Get all checkboxes
+        var checkBoxes = Array.from(document.getElementsByClassName("item-checker"));
+        // Count total checkboxes
+        var totalCheckBoxes = checkBoxes.length;
+        // Count checked checkboxes
+        var checkedItemsCount = checkBoxes.filter(checkBox => checkBox.checked == true).length;
+        // If all checkboxes checked, check "checkAll" checkbox
+        $('#checkAll').prop('checked', checkedItemsCount == totalCheckBoxes);
+        // Update selected count
+        $('#selectedCount').text(checkedItemsCount + " de " + totalEnvios + " elementos seleccionados");
+
+        // Enable print labels btn if at least 1 checkbox is checked
+        isEnabled('printLabels', checkedItemsCount > 0);
+
+        // Enable bulk add task btn if at least 1 checkbox is checked
+        isEnabled('bulkAddTask', checkedItemsCount > 0);
+
+        // Enable selection mode if at least 1 checkbox checked
+        selectionModeEnabled = checkedItemsCount > 0;
+        // hide
+        show('clearSelectionDiv', selectionModeEnabled);
+    }
+
+    function changeItemCheckerState(id) {
+        $('#' + id).prop('checked', !$('#' + id).is(":checked"));
+    }
+
+    function isEnabled(id, enable = true) {
+        if (enable && $('#' + id).is(":disabled")) {
+            $('#' + id).removeAttr("disabled");
+        }
+        if (!enable && $('#' + id).is(":enabled")) {
+            $('#' + id).attr("disabled", true);
+        }
+    }
+
+    function itemClicked(id) {
+        if ($('#item-checker-' + id).is(":checked")) {
+            $('#item-checker-' + id).prop('checked', false);
+        } else if (selectionModeEnabled) {
+            $('#item-checker-' + id).prop('checked', true);
+        } else {
+            alert("launch detail item");
+        }
+
+    }
+
+    function removeSelection() {
+        $(".item-checker").prop('checked', false);
+        countCheckedItems();
+    }
+
+    function getSelectedIds() {
+        // Get all checked checkboxes
+        return Array.from(document.getElementsByClassName("item-checker"))
+            .filter(checkBox => checkBox.checked == true).map(function (checkbox) {
+                var id = checkbox.id;
+                return id.split("-checker-")[1];
+            }).join("-");
+    }
+
+    function printSelectedItems() {
+        $('#example_form').submit();
+        /*
+        var ids = getSelectedIds();
+        {% comment %} var url_mask = "{% url 'envios:envio-download-labels' 12345 %}".replace(/12345/, ids);
+        {% endcomment %}
+        removeSelection();
+        window.location.href = url_mask;
+        */
+    }
+
+    function createTask() {
+        removeSelection();
+        alert("Próximamente...")
+    }
+
+    function addingSelectedIdsAjaxConfig() {
+        $("#example_form").submit(function (e) {
+            // preventing from page reload and default actions
+            e.preventDefault();
+            var csrftoken = getCookie('csrftoken');
+            var ids = getSelectedIds();
+            $("#id_ids").val(ids);
+            // serialize the data for sending the form data.
+            var serializedData = $(this).serialize();
+            // make POST ajax call
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'envios:post-selected-ids' %}",
+                data: serializedData,
+                success: function (response) {
+                    // on successfull creating object
+                    // clear the form.
+                    $("#example_form").trigger('reset');
+
+                    removeSelection();
+                    var ids = getSelectedIds();
+                    var url_mask = "{% url 'envios:envio-download-labels' %}";
+                    window.location.href = url_mask;
+                },
+                error: function (response) {
+                    // alert the error if any error occured
+                    alert(response["responseJSON"]["error"]);
+                }
+            })
+        });
+    }
+</script>
+{% endblock scripts_block %}
+
+
+
+
+
+
+
+
+
+
+{% comment %}
+
 {% extends 'base_system.html' %}
 
 {% block modal_content %}
@@ -40,179 +531,6 @@
     }
 </style>
 
-{% comment %} <div class="col-md-12 col-xxl-12 d-flex">
-    <div class="card flex-fill">
-        <div class="card-body d-flex flex-column">
-            <h2 class="card-title text-center mt-2">LISTADO DE ENVIOS</h2>
-
-            <!-- start SEARCH AND ORDERING FUNCTIONALITIES -->
-            <form method="GET" class="mt-4" id="list_form">
-                <div class="row g-2">
-                    <div class="col-12 col-lg-5 d-inline-flex justify-content-start align-items-center">
-                        <input type="text" class="form-control " name="query_by" id="id_query_by"
-                            value="{% if query_by != '' and query_by%}{{query_by}}{% endif %}"
-                            placeholder="Ingresá texto para buscar...">
-                        <div class="mx-lg-1">
-                            <div id="clearSearchDiv"
-                                class="{% if query_by == '' or not query_by %}hide-on-load{% endif %}">
-                                <a id="clearSearch" type="button" class="ms-2 text-decoration-none"
-                                    onclick="clearSearch()" style="cursor: pointer;">Limpiar</i></a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-7 d-flex justify-content-end align-items-center">
-                        <label for="id_results_per_page" id="labelResults_per_page" class="me-2">Mostrar de a: </label>
-                        <div aria-label="Default select example" class="me-3">
-                            <select id="id_results_per_page" name="results_per_page" class="form-select"
-                                aria-label="Results per page selection">
-                                <option value="10" {% if results_per_page == '10' %}selected{% endif %}>10</option>
-                                <option value="30" {% if results_per_page == '30' %}selected{% endif %}>30</option>
-                                <option value="50" {% if results_per_page == '50' %}selected{% endif %}>50</option>
-                                <option value="100" {% if results_per_page == '100' %}selected{% endif %}>100
-                                </option>
-                                <option value="200" {% if results_per_page == '200' %}selected{% endif %}>200
-                                </option>
-                                <option value="500" {% if results_per_page == '500' %}selected{% endif %}>500
-                                </option>
-                            </select>
-                        </div>
-                        <label for="id_order_by" id="labelOrder_by" class="me-2">Ordenar por: </label>
-                        <div aria-label="Default select example">
-                            <select id="id_order_by" name="order_by" class="form-select"
-                                aria-label="Order by selection">
-                                <option value="date_created_desc"
-                                    {% if order_by == 'date_created_desc' %}selected{% endif %}>
-                                    Carga&nbsp;más&nbsp;recientes</option>
-                                <option value="date_created" {% if order_by == 'date_created' %}selected{% endif %}>
-                                    Carga&nbsp;más&nbsp;antiguas</option>
-                                <option value="is_flex_desc" {% if order_by == 'is_flex_desc' %}selected{% endif %}>
-                                    Flex&nbsp;primero</option>
-                                <option value="is_flex" {% if order_by == 'is_flex' %}selected{% endif %}>
-                                    Mensajería&nbsp;primero
-                                </option>
-                                <option value="town__name" {% if order_by == 'town__name' %}selected{% endif %}>
-                                    Localidad&nbsp;A-Z
-                                </option>
-                                <option value="town__name_desc"
-                                    {% if order_by == 'town__name_desc' %}selected{% endif %}>
-                                    Localidad&nbsp;Z-A
-                                </option>
-                                <option value="client__name" {% if order_by == 'client__name' %}selected{% endif %}>
-                                    Cliente&nbsp;A-Z</option>
-                                <option value="client__name_desc"
-                                    {% if order_by == 'client__name_desc' %}selected{% endif %}>
-                                    Cliente&nbsp;Z-A</option>
-                                <option value="status" {% if order_by == 'status' %}selected{% endif %}>Estado&nbsp;A-Z
-                                </option>
-                                <option value="status_desc" {% if order_by == 'status_desc' %}selected{% endif %}>
-                                    Estado&nbsp;Z-A</option>
-                            </select>
-                        </div>
-                        <button type="button" class="btn btn-sm btn-primary mx-2" data-bs-toggle="modal"
-                            data-bs-target="#baseModal">Filtros <span
-                                class="badge bg-danger">{{ filters_count }}</span></button>
-                        <input type="submit" hidden="true" />
-                    </div>
-                </div>
-
-                <div class="d-none">
-                    <input id='id_filter_by' type="text" name="filter_by"
-                        value="{% if filter_by %}{{ filter_by }}{% endif %}">
-                </div>
-
-
-            </form>
-            <!-- end SEARCH AND ORDERING FUNCTIONALITIES -->
-
-            <hr class="bg-dark mt-4">
-
-
-            <!-- start ACTIONS -->
-            <div class="d-flex flex-wrap align-items-center">
-
-                <div class="d-none">
-                    <form method="POST" id="example_form">{% csrf_token %}
-                        <textarea type="text" id="id_ids" name="ids"></textarea>
-                    </form>
-                </div>
-                <button type="button" id="printLabels" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2"
-                    onclick="printSelectedItems()" disabled>
-                    Imprimir etiquetas
-                </button>
-                <button type="button" id="bulkAddTask" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2"
-                    onclick="createTask()" disabled>
-                    Asociar tarea
-                </button>
-                <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{totalEnvios}} elementos seleccionados</div>
-                <div class="my-1 mx-xl-3">
-                    <div id="clearSelectionDiv" class="hide-on-load">
-                        <a id="clearSelection" type="button" class="ms-2 text-decoration-none"
-                            onclick="removeSelection()" style="cursor: pointer;">Quitar selección
-                            <i class="bi bi-x"></i></a>
-                    </div>
-                </div>
-                <div class="d-flex d-lg-inline ms-auto p-2">
-                    <a href="{% url 'envios:envio-add' %}" type="button" class="flex-fill btn btn-success btn-sm me-1">
-                        <i class="bi bi-plus"></i>Crear nuevo
-                    </a>
-                    <a href="{% url 'envios:envio-bulk-add' %}" type="button"
-                        class="flex-fill btn btn-success btn-sm ms-1">
-                        <i class="bi bi-plus"></i>Carga masiva
-                    </a>
-                </div>
-            </div>
-            <!-- end ACTIONS -->
-
-
-            <hr class="bg-dark">
-
-
-            <!-- start MAIN CONTENT -->
-            {% if envios %}
-
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>
-                                <div class="form-check">
-                                    <input class="form-check-input checkbox-select" type="checkbox" id="checkAll">
-                                </div>
-                            </th>
-                            <th class="cell-centered">Fecha de carga</th>
-                            <th class="cell-centered">Estado</th>
-                            <th class="cell-centered">Tipo</th>
-                            <th class="cell-centered">Cliente</th>
-                            <th>Destino</th>
-                            <th>Depósito/Portador</th>
-                            <th>Fecha límite</th>
-                            <th>Horario de entrega</th>
-                        </tr>
-                    </thead>
-                    <tbody id="overrided-1" class="overrided-tbody">
-                        {% for envio in envios %}
-                        {% include 'envios/envio/snippets/item.html' with obj=envio counter=forloop.counter%}
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            {% include 'envios/envio/snippets/pagination.html' with envios=envios %}
-
-            {% else %}
-
-            <div>
-                <p class="card-text">No se encontraron resultados que coincidan con la búsqueda: "{{query_by}}"</p>
-            </div>
-
-            {% endif %}
-            <!-- end MAIN CONTENT -->
-
-        </div>
-    </div>
-</div> {% endcomment %}
 
 <div class="col-12">
 
@@ -439,190 +757,8 @@
 
     </div>
 
-    {% comment %} <div class="card flex-fill">
-        <div class="card-body d-flex flex-column">
-            <h2 class="card-title text-center mt-2">LISTADO DE ENVIOS</h2>
-
-            <!-- start SEARCH AND ORDERING FUNCTIONALITIES -->
-            <form method="GET" class="mt-4" id="list_form">
-                <div class="row g-2">
-                    <div class="col-12 col-lg-5 d-inline-flex justify-content-start align-items-center">
-                        <input type="text" class="form-control " name="query_by" id="id_query_by"
-                            value="{% if query_by != '' and query_by%}{{query_by}}{% endif %}"
-                            placeholder="Ingresá texto para buscar...">
-                        <div class="mx-lg-1">
-                            <div id="clearSearchDiv"
-                                class="{% if query_by == '' or not query_by %}hide-on-load{% endif %}">
-                                <a id="clearSearch" type="button" class="ms-2 text-decoration-none"
-                                    onclick="clearSearch()" style="cursor: pointer;">Limpiar</i></a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-lg-7 d-flex justify-content-end align-items-center">
-                        <label for="id_results_per_page" id="labelResults_per_page" class="me-2">Mostrar de a: </label>
-                        <div aria-label="Default select example" class="me-3">
-                            <select id="id_results_per_page" name="results_per_page" class="form-select"
-                                aria-label="Results per page selection">
-                                <option value="10" {% if results_per_page == '10' %}selected{% endif %}>10</option>
-                                <option value="30" {% if results_per_page == '30' %}selected{% endif %}>30</option>
-                                <option value="50" {% if results_per_page == '50' %}selected{% endif %}>50</option>
-                                <option value="100" {% if results_per_page == '100' %}selected{% endif %}>100
-                                </option>
-                                <option value="200" {% if results_per_page == '200' %}selected{% endif %}>200
-                                </option>
-                                <option value="500" {% if results_per_page == '500' %}selected{% endif %}>500
-                                </option>
-                            </select>
-                        </div>
-                        <label for="id_order_by" id="labelOrder_by" class="me-2">Ordenar por: </label>
-                        <div aria-label="Default select example">
-                            <select id="id_order_by" name="order_by" class="form-select"
-                                aria-label="Order by selection">
-
-                                <option value="date_created_desc"
-                                    {% if order_by == 'date_created_desc' %}selected{% endif %}>
-                                    Carga&nbsp;más&nbsp;recientes</option>
-
-                                <option value="date_created" {% if order_by == 'date_created' %}selected{% endif %}>
-                                    Carga&nbsp;más&nbsp;antiguas</option>
-
-                                <option value="is_flex_desc" {% if order_by == 'is_flex_desc' %}selected{% endif %}>
-                                    Flex&nbsp;primero</option>
-
-                                <option value="is_flex" {% if order_by == 'is_flex' %}selected{% endif %}>
-                                    Mensajería&nbsp;primero
-                                </option>
-
-                                <option value="town__name" {% if order_by == 'town__name' %}selected{% endif %}>
-                                    Localidad&nbsp;A-Z
-                                </option>
-
-                                <option value="town__name_desc"
-                                    {% if order_by == 'town__name_desc' %}selected{% endif %}>
-                                    Localidad&nbsp;Z-A
-                                </option>
-
-                                <option value="client__name" {% if order_by == 'client__name' %}selected{% endif %}>
-                                    Cliente&nbsp;A-Z</option>
-
-                                <option value="client__name_desc"
-                                    {% if order_by == 'client__name_desc' %}selected{% endif %}>
-                                    Cliente&nbsp;Z-A</option>
-
-                                <option value="status" {% if order_by == 'status' %}selected{% endif %}>
-                                    Estado&nbsp;A-Z
-                                </option>
-
-                                <option value="status_desc" {% if order_by == 'status_desc' %}selected{% endif %}>
-                                    Estado&nbsp;Z-A</option>
-                            </select>
-                        </div>
-                        <button type="button" class="btn btn-sm btn-primary mx-2" data-bs-toggle="modal"
-                            data-bs-target="#baseModal">Filtros <span
-                                class="badge bg-danger">{{ filters_count }}</span></button>
-                        <input type="submit" hidden="true" />
-                    </div>
-                </div>
-
-                <div class="d-none">
-                    <input id='id_filter_by' type="text" name="filter_by"
-                        value="{% if filter_by %}{{ filter_by }}{% endif %}">
-                </div>
-
-
-            </form>
-            <!-- end SEARCH AND ORDERING FUNCTIONALITIES -->
-
-            <hr class="bg-dark mt-4">
-
-
-            <!-- start ACTIONS -->
-            <div class="d-flex flex-wrap align-items-center">
-
-                <div class="d-none">
-                    <form method="POST" id="example_form">{% csrf_token %}
-                        <textarea type="text" id="id_ids" name="ids"></textarea>
-                    </form>
-                </div>
-                <button type="button" id="printLabels" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2"
-                    onclick="printSelectedItems()" disabled>
-                    Imprimir etiquetas
-                </button>
-                <button type="button" id="bulkAddTask" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2"
-                    onclick="createTask()" disabled>
-                    Asociar tarea
-                </button>
-                <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{totalEnvios}} elementos seleccionados</div>
-                <div class="my-1 mx-xl-3">
-                    <div id="clearSelectionDiv" class="hide-on-load">
-                        <a id="clearSelection" type="button" class="ms-2 text-decoration-none"
-                            onclick="removeSelection()" style="cursor: pointer;">Quitar selección
-                            <i class="bi bi-x"></i></a>
-                    </div>
-                </div>
-                <div class="d-flex d-lg-inline ms-auto p-2">
-                    <a href="{% url 'envios:envio-add' %}" type="button" class="flex-fill btn btn-success btn-sm me-1">
-                        <i class="bi bi-plus"></i>Crear nuevo
-                    </a>
-                    <a href="{% url 'envios:envio-bulk-add' %}" type="button"
-                        class="flex-fill btn btn-success btn-sm ms-1">
-                        <i class="bi bi-plus"></i>Carga masiva
-                    </a>
-                </div>
-            </div>
-            <!-- end ACTIONS -->
-
-
-            <hr class="bg-dark">
-
-
-            <!-- start MAIN CONTENT -->
-            {% if envios %}
-
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>
-                                <div class="form-check">
-                                    <input class="form-check-input checkbox-select" type="checkbox" id="checkAll">
-                                </div>
-                            </th>
-                            <th class="cell-centered">Fecha de carga</th>
-                            <th class="cell-centered">Estado</th>
-                            <th class="cell-centered">Tipo</th>
-                            <th class="cell-centered">Cliente</th>
-                            <th>Destino</th>
-                            <th>Depósito/Portador</th>
-                            <th>Fecha límite</th>
-                            <th>Horario de entrega</th>
-                        </tr>
-                    </thead>
-                    <tbody id="overrided-1" class="overrided-tbody">
-                        {% for envio in envios %}
-                        {% include 'envios/envio/snippets/item.html' with obj=envio counter=forloop.counter%}
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            {% include 'envios/envio/snippets/pagination.html' with envios=envios %}
-
-            {% else %}
-
-            <div>
-                <p class="card-text">No se encontraron resultados que coincidan con la búsqueda: "{{query_by}}"</p>
-            </div>
-
-            {% endif %}
-            <!-- end MAIN CONTENT -->
-
-        </div>
-    </div> {% endcomment %}
 </div>
 
 {% include 'envios/envio/snippets/list_js.html' %}
 
-{% endblock content %}
+{% endblock content %} {% endcomment %}

@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from django.http.response import HttpResponse
 from django.http import JsonResponse
 from openpyxl.writer.excel import save_virtual_workbook
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple
 
 # Django
 from django.contrib.auth.decorators import login_required
@@ -37,7 +37,94 @@ from tracking.models import TrackingMovement
 from utils.alerts.views import (
     create_alert_and_redirect, update_alert_and_redirect)
 from utils.forms import CheckPasswordForm
-from utils.views import DeleteObjectsUtil
+from utils.views import DeleteObjectsUtil, CompleteListView
+
+
+def sanitize_date(s: str, top: bool = False) -> datetime:
+    """Parses the date given as a string
+    "yyyy-mm-dd" to the corresponding date object.
+
+    Args:
+        s (str): the date as a string.
+
+    Returns:
+        datetime: representing the date.
+    """
+    parts = s.split('-')
+    y = parts[0]
+    m = parts[1]
+    d = parts[2]
+    if top:
+        hours, mins, secs = (23, 59, 59)
+    else:
+        hours, mins, secs = (0, 0, 0)
+    return datetime(int(y), int(m), int(d), hours, mins, secs)
+
+
+class EnvioListView(CompleteListView, LoginRequiredMixin):
+    template_name = 'envios/envio/list.html'
+    model = Envio
+    decoders = (
+        {
+            'key': 'min_date',
+            'filter': 'date_created__gte',
+            'function': sanitize_date,
+            'context': lambda x: x,
+        },
+        {
+            'key': 'max_date',
+            'filter': 'date_created__lte',
+            'function': lambda x: sanitize_date(x, True) + timedelta(days=1),
+            'context': lambda x: x,
+        },
+        {
+            'key': 'client_id',
+            'filter': lambda x: 'client__isnull' if (
+                x in [-1, '-1']) else 'client__id',
+            'function': lambda x: True if x in [-1, '-1'] else int(x),
+            'context': str,
+        },
+        {
+            'key': 'status',
+            'filter': 'status',
+            'function': lambda x: x,
+            'context': lambda x: x,
+        },
+        {
+            'key': 'is_flex',
+            'filter': 'is_flex',
+            'function': lambda x: True if x == 'true' else False,
+            'context': lambda x: x,
+        },
+    )
+    query_keywords = (
+        'updated_by__first_name__icontains',
+        'updated_by__last_name__icontains',
+        'name__icontains',
+        'doc__icontains',
+        'phone__icontains',
+        'street__icontains',
+        'remarks__icontains',
+        'town__name__icontains',
+        'zipcode__icontains',
+        'client__name__icontains',
+    )
+
+    @allowed_users_in_class_view(roles=["Admins"])
+    def get(self, request):
+        return super(EnvioListView, self).get(request)
+
+    def get_context_data(self) -> Dict[str, Any]:
+        context = super().get_context_data()
+        context['clients'] = Client.objects.all()
+        context['selected_tab'] = 'shipments-tab'
+        context['clients'] = Client.objects.all()
+        now = datetime.now()
+        year = str(now.year).zfill(4)
+        month = str(now.month).zfill(2)
+        day = str(now.day).zfill(2)
+        context['max_selectable_date'] = f'{year}-{month}-{day}'
+        return context
 
 
 DEFAULT_ENVIOS_PER_PAGE = 50
@@ -141,21 +228,21 @@ def decode_filters(s: str = '') -> Tuple[dict, int]:
     return filters, len(filters)
 
 
-def sanitize_date(s: str) -> datetime:
-    """Parses the date given as a string
-    "yyyy-mm-dd" to the corresponding date object.
+# def sanitize_date(s: str) -> datetime:
+#     """Parses the date given as a string
+#     "yyyy-mm-dd" to the corresponding date object.
 
-    Args:
-        s (str): the date as a string.
+#     Args:
+#         s (str): the date as a string.
 
-    Returns:
-        datetime: representing the date.
-    """
-    parts = s.split('-')
-    y = parts[0]
-    m = parts[1]
-    d = parts[2]
-    return datetime(int(y), int(m), int(d))
+#     Returns:
+#         datetime: representing the date.
+#     """
+#     parts = s.split('-')
+#     y = parts[0]
+#     m = parts[1]
+#     d = parts[2]
+#     return datetime(int(y), int(m), int(d))
 
 
 def get_envio_queryset(

@@ -457,7 +457,7 @@ class CompleteListView(View):
             results_per_page = self.default_results_per_page
 
         # Create a Paginator object with the queryset and the results_per_page
-        objects_paginator = Paginator(self.objects, results_per_page)
+        objects_paginator = Paginator(self.objects*50, results_per_page)
 
         try:
             # Update the self.objects to contain the objects for the page
