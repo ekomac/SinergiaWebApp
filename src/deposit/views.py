@@ -1,31 +1,25 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from clients.models import Client
-from xml.etree.ElementInclude import default_loader
-from utils.forms import CheckPasswordForm
-from utils.views import DeleteObjectsUtil
-from places.utils import get_localidades_as_JSON
-from places.models import Partido
-from utils.alerts.views import (
-    create_alert_and_redirect, update_alert_and_redirect)
-import unidecode
-from typing import Any, Dict, List, Tuple
-from django.conf import settings
+# Python
+from typing import Any, Dict
 
+# Django
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models import Q
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404, redirect, render
 
+# Project
 from account.decorators import allowed_users, allowed_users_in_class_view
+from clients.models import Client
 from deposit.forms import CreateDepositForm
 from deposit.models import Deposit
 from envios.models import Envio
-from utils.views import CompleteListView
-
-default_rpp = settings.DEFAULT_RESULTS_PER_PAGE
-
-
-def str_to_bool(x): return True if x == 'true' else False
+from places.utils import get_localidades_as_JSON
+from places.models import Partido
+from utils.forms import CheckPasswordForm
+from utils.views import DeleteObjectsUtil, CompleteListView
+from utils.alerts.views import (
+    create_alert_and_redirect,
+    update_alert_and_redirect
+)
 
 
 class DepositListView(CompleteListView, LoginRequiredMixin):
@@ -43,13 +37,13 @@ class DepositListView(CompleteListView, LoginRequiredMixin):
         {
             'key': 'is_active',
             'filter': 'is_active',
-            'function': str_to_bool,
+            'function': lambda x: True if x == 'true' else False,
             'context': lambda x: x,
         },
         {
             'key': 'has_envios',
             'filter': 'envio__isnull',
-            'function': str_to_bool,
+            'function': lambda x: True if x == 'true' else False,
             'context': lambda x: x,
         },)
     query_keywords = ('name__icontains', 'client__name__icontains',
@@ -163,6 +157,11 @@ def deposit_delete_view(request, pk):
     return render(request, "deposit/delete.html", context)
 
 
+# from django.conf import settings
+
+# default_rpp = settings.DEFAULT_RESULTS_PER_PAGE
+
+
 # @login_required(login_url='/login/')
 # @allowed_users(roles=["Admins"])
 # def deposit_list_view(request):
@@ -273,8 +272,10 @@ def deposit_delete_view(request, pk):
 #     order_by_key.
 
 #     Args:
-#         query (str, optional): words to match the query. Defaults to empyt str.
-#         order_by_key (str, optional): to perform ordery by. Defaults to 'name'.
+#         query (str, optional): words to match the query. Defaults
+#         to empyt str.
+#         order_by_key (str, optional): to perform ordery by. Defaults to
+#         'name'.
 #         filters (Dict[str, Any], optional): filters to apply to the query.
 
 #     Returns:
