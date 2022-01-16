@@ -8,7 +8,7 @@
             Por pág.:
             <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
                 <input type="radio" class="btn-check" name="btnradio" id="btnRadioRPP50" autocomplete="off"
-                    {% if results_per_page == '50' %}checked{% endif %}>
+                    {% if results_per_page == '50' or results_per_page == None  %}checked{% endif %}>
                 <label class="btn btn-outline-primary" for="btnRadioRPP50">50</label>
 
                 <input type="radio" class="btn-check" name="btnradio" id="btnRadioRPP100" autocomplete="off"

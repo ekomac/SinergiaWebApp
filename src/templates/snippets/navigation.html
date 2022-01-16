@@ -39,7 +39,8 @@
 
             <!-- START Depósitos -->
             <li class="nav-item {% if selected_tab == 'deposits-tab' %}activetab{% endif %} li-navigation">
-                <a id="deposits-tab" href="{% url 'deposits:list' %}" class="nav-link tab">
+                <a id="deposits-tab" {% if selected_tab != 'deposits-tab' %}href="{% url 'deposits:list' %}" {% endif %}
+                    class="nav-link tab">
                     <i class="bi bi-shop"></i> Depósitos
                 </a>
             </li>

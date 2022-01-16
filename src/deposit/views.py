@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from clients.models import Client
 from xml.etree.ElementInclude import default_loader
 from utils.forms import CheckPasswordForm
@@ -15,15 +16,60 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
-from account.decorators import allowed_users
+from account.decorators import allowed_users, allowed_users_in_class_view
 from deposit.forms import CreateDepositForm
 from deposit.models import Deposit
 from envios.models import Envio
+from utils.views import CompleteListView
 
 default_rpp = settings.DEFAULT_RESULTS_PER_PAGE
 
 
 def str_to_bool(x): return True if x == 'true' else False
+
+
+class DepositListView(CompleteListView, LoginRequiredMixin):
+
+    template_name = 'deposit/list.html'
+    model = Deposit
+    decoders = (
+        {
+            'key': 'client_id',
+            'filter': lambda x: 'client__isnull' if (
+                x in [-1, '-1']) else 'client__id',
+            'function': lambda x: True if x in [-1, '-1'] else int(x),
+            'context': str,
+        },
+        {
+            'key': 'is_active',
+            'filter': 'is_active',
+            'function': str_to_bool,
+            'context': lambda x: x,
+        },
+        {
+            'key': 'has_envios',
+            'filter': 'envio__isnull',
+            'function': str_to_bool,
+            'context': lambda x: x,
+        },)
+    query_keywords = ('name__icontains', 'client__name__icontains',
+                      'address__icontains', 'town__name__icontains')
+
+    @allowed_users_in_class_view(roles=["Admins"])
+    def get(self, request):
+        return super(DepositListView, self).get(request)
+
+    def queryset_map_callable(self, obj):
+        envios_in_deposit = Envio.objects.filter(
+            deposit=obj,
+            status__in=[Envio.STATUS_STILL, Envio.STATUS_NEW, ]).count()
+        return (obj, envios_in_deposit)
+
+    def get_context_data(self) -> Dict[str, Any]:
+        context = super().get_context_data()
+        context['clients'] = Client.objects.all()
+        context['selected_tab'] = 'deposits-tab'
+        return context
 
 
 @login_required(login_url='/login/')
@@ -57,7 +103,8 @@ def deposit_list_view(request):
         decoders = [
             {
                 'key': 'client_id',
-                'filter': lambda x: 'client__isnull' if x in [-1, '-1'] else 'client__id',
+                'filter': lambda x: 'client__isnull' if (
+                    x in [-1, '-1']) else 'client__id',
                 'function': lambda x: True if x in [-1, '-1'] else int(x),
                 'context': str,
             },

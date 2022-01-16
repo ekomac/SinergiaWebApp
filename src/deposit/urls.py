@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .views import (
+    DepositListView,
     deposit_list_view,
     deposit_create_view,
     deposit_edit_view,
@@ -10,7 +11,7 @@ from .views import (
 
 app_name = 'deposits'
 urlpatterns = [
-    path('', deposit_list_view, name="list"),
+    path('', DepositListView.as_view(), name="list"),
     path('add/', deposit_create_view, name="add"),
     path('<int:pk>/', deposit_detail_view, name="detail"),
     path('<int:pk>/edit/', deposit_edit_view, name="edit"),
