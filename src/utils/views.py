@@ -171,6 +171,8 @@ class CompleteListView(View):
 
     decoders = ()
 
+    debug_multiplier = 1
+
     def __init__(self, *args, **kwargs) -> None:
         """
         Initializes the view. Creates an empty context dictionary.
@@ -457,7 +459,8 @@ class CompleteListView(View):
             results_per_page = self.default_results_per_page
 
         # Create a Paginator object with the queryset and the results_per_page
-        objects_paginator = Paginator(self.objects*50, results_per_page)
+        objects_paginator = Paginator(
+            self.objects*self.debug_multiplier, results_per_page)
 
         try:
             # Update the self.objects to contain the objects for the page
@@ -484,13 +487,15 @@ class CompleteListView(View):
         Args:
             objects_paginator (Page): The page from the paginator object.
         """
+        current_page_num = self.objects.number
+        total_pages = self.objects.paginator.num_pages
 
         # How many objects are there?
         self.context['pagination_count'] = page.count
 
         # Showing first index object from total in this page
         self.context['pagination_from'] = (
-            self.objects.number - 1) * page.per_page + 1
+            current_page_num - 1) * page.per_page + 1
 
         # Showing last index object from total in this page
         if page.per_page > len(self.objects):
@@ -500,6 +505,22 @@ class CompleteListView(View):
         # Showing last index object from total in this page
         self.context['pagination_to'] = self.context['pagination_from'] + \
             what_to_sum - 1
+
+        # Min number to show
+        if self.objects.number in [total_pages, total_pages-1]:
+            self.context['pagination_min_number'] = total_pages - 4
+        elif current_page_num-2 < 0:
+            self.context['pagination_min_number'] = 1
+        else:
+            self.context['pagination_min_number'] = current_page_num-2
+        # Max number to show
+        if current_page_num in [1, 2]:
+            self.context['pagination_max_number'] = 5
+        elif current_page_num+2 > total_pages:
+            self.context[
+                'pagination_max_number'] = total_pages
+        else:
+            self.context['pagination_max_number'] = current_page_num+2
 
     def get_context_data(self) -> Dict[str, Any]:
         """
