@@ -185,7 +185,14 @@ class CompleteListView(View):
             raise ValueError('A template_name should be specified as a str.')
         if not hasattr(self, 'model') and type(self.model) is None:
             raise ValueError('A model should be specified.')
-        self.context = {}
+        self.context = {
+            'filters_count': 0,
+            'use_query_by': True,
+            'use_order_by': True,
+            'use_results_per_page': True,
+            'use_filters': True,
+            'use_pagination': "pagination" in self.params_to_use,
+        }
         self.paginate = "pagination" in self.params_to_use
         self.pagination_url = ""
 
@@ -266,6 +273,8 @@ class CompleteListView(View):
                     q_object |= Q(**{kw: query})
                 # Filter the objects with the Q object
                 self.objects = self.objects.filter(q_object)
+        else:
+            self.context['use_query_by'] = False
 
     def handle_order_param(self, request) -> None:
         """
@@ -302,6 +311,8 @@ class CompleteListView(View):
                     cleaned = '-' + cleaned.replace('_desc', '')
                 # Orders the objects
                 self.objects = self.objects.order_by(cleaned)
+        else:
+            self.context['use_order_by'] = True
 
     def handle_results_per_page_param(self, request) -> None:
         """
@@ -335,6 +346,8 @@ class CompleteListView(View):
                     self.pagination_url += f'{self.results_per_page_kw}={rpp}&'
             else:
                 self.results_per_page = self.default_results_per_page
+        else:
+            self.context['use_results_per_page'] = False
 
     def handle_filters_params(self, request) -> None:
         """
@@ -387,6 +400,7 @@ class CompleteListView(View):
                     filters[filter_key] = decoder['function'](value)
                     # Add the filter to the context
                     self.context[decoder['key']] = decoder['context'](value)
+                    self.context['filters_count'] += 1
                     # Appends it to the self.url for pagination if needed
                     if self.paginate:
                         self.pagination_url += f"{decoder['key']}={value}&"
@@ -394,6 +408,8 @@ class CompleteListView(View):
             if filters:
                 # Apply the filters to the queryset
                 self.objects = self.objects.filter(**filters)
+        else:
+            self.context['use_filters'] = False
 
     def queryset_map_callable(self, obj) -> Any:
         """
@@ -498,26 +514,40 @@ class CompleteListView(View):
         # Add the pagination url to the context
         if self.paginate:
             self.context['pagination_base_url'] = self.pagination_url
+
+        # Get the title from the model class
+        self.context['title'] = self.get_verbose_name_plural()
+
         # Returns the context data
         return self.context
 
-    def get_pagination_base_url(
-        self,
-        query_by: str = "",
-        order_by: str = "",
-        results_per_page: int = None,
-        **filters
-    ) -> str:
+    # def get_pagination_base_url(
+    #     self,
+    #     query_by: str = "",
+    #     order_by: str = "",
+    #     results_per_page: int = None,
+    #     **filters
+    # ) -> str:
 
-        url = ""
-        if query_by is not None and query_by != "":
-            url += "query_by=" + query_by + "&"
-        if order_by is not None and order_by != "":
-            url += "order_by=" + order_by + "&"
-        if (results_per_page is not None and
-                results_per_page != self.default_results_per_page):
-            url += "results_per_page=" + str(results_per_page) + "&"
-        if filters:
-            for key, value in filters.items():
-                url += key + "=" + str(value) + "&"
-        return url
+    #     url = ""
+    #     if query_by is not None and query_by != "":
+    #         url += "query_by=" + query_by + "&"
+    #     if order_by is not None and order_by != "":
+    #         url += "order_by=" + order_by + "&"
+    #     if (results_per_page is not None and
+    #             results_per_page != self.default_results_per_page):
+    #         url += "results_per_page=" + str(results_per_page) + "&"
+    #     if filters:
+    #         for key, value in filters.items():
+    #             url += key + "=" + str(value) + "&"
+    #     return url
+
+    # def get_verbose_name(self):
+    #     if hasattr(self.model._meta, 'verbose_name'):
+    #         return self.model._meta.verbose_name
+    #     return type(self.model)
+
+    def get_verbose_name_plural(self):
+        if hasattr(self.model._meta, 'verbose_name_plural'):
+            return self.model._meta.verbose_name_plural
+        return type(self.model)
