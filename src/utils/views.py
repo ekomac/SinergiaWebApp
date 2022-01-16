@@ -239,7 +239,6 @@ class CompleteListView(View):
             query_by = request.GET.get(self.query_by_kw, None)
             # If found
             if query_by:
-                print(query_by)
                 # Pass is to the context
                 self.context[self.query_by_kw] = query_by
                 # Appends it to the self.url for pagination if needed
@@ -433,7 +432,8 @@ class CompleteListView(View):
                     f"The page param must be an int, got {page}")
         # If the page param is a number or a str representing an integer
         # If the self.results_per_param exists (class level)
-        if hasattr(self, 'results_per_page') and self.results_per_page is not None:
+        if (hasattr(self, 'results_per_page') and
+                self.results_per_page is not None):
             # Update the results_per_page with the self.results_per_page
             results_per_page = self.results_per_page
         else:

@@ -2,7 +2,6 @@ from django.urls import path
 
 from .views import (
     DepositListView,
-    deposit_list_view,
     deposit_create_view,
     deposit_edit_view,
     deposit_detail_view,
