@@ -57,3 +57,4 @@ class Deposit(models.Model):
     class Meta:
         verbose_name = 'Depósito'
         verbose_name_plural = 'Depósitos'
+        ordering = ['name']

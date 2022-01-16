@@ -134,6 +134,9 @@
         <!--- start CARD BODY -->
         <div class="card-body d-flex flex-column">
 
+            {% block actions_block %}
+            {% endblock actions_block %}
+
 
             <!-- start MAIN CONTENT -->
             {% if objects %}

@@ -1,3 +1,204 @@
+{% extends 'base/base_list.html' %}
+
+
+{% block modal_content %}
+
+<!-- start BASE MODAL DIALOG -->
+<div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="baseModal" tabindex="-1"
+    aria-labelledby="baseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filtersModalLabel">Elegí cómo querés filtrar los envíos.
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row g-2 mt-2">
+                    <!-- start HAS ENVIOS SELECTION -->
+                    <div class="col">
+                        <label for="id_has_discounts_modal" class="form-label">Tiene descuentos</label>
+                        <select id="id_has_discounts_modal" name="has_discounts_modal" class="form-select"
+                            aria-label="has envios selection">
+                            <option value="">-----</option>
+                            <!-- True and false are inverted because this filters the Deposit QuerySet with the key 'envio__isnull' -->
+                            <option value="false" {% if has_discounts == 'false' %}selected{% endif %}>Sí</option>
+                            <option value="true" {% if has_discounts == 'true' %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+                    <!-- end HAS ENVIOS SELECTION -->
+                </div>
+
+
+            </div>
+            <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    onclick="clearFilters()">Limpiar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                    onclick="applyFilters()">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end BASE MODAL DIALOG -->
+
+{% endblock modal_content %}
+
+
+
+{% block add_url_block %}href="{% url 'envios:envio-add' %}" {% endblock add_url_block %}
+
+
+
+{% block orderby_block %}
+<li>
+    <button type="button" onclick="orderByChanged('name','id_order_by','list_form',true);" class="dropdown-item">
+        A-Z
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('name_desc','id_order_by','list_form');" class="dropdown-item">
+        Z-A
+    </button>
+</li>
+
+{% endblock orderby_block %}
+
+
+{% block filters_block %}
+<input type="text" id='id_has_discounts' name="has_discounts" {% if has_discounts %}value="{{ has_discounts }}"
+    {% endif %}>
+{% endblock filters_block %}
+
+
+
+{% block objects_table_head_block %}
+<th>#</th>
+<th>Nombre</th>
+<th>Contacto</th>
+<th>Teléfono</th>
+<th>Email</th>
+<th>Depósitos</th>
+<th class="cell-centered">Descuentos</th>
+{% endblock objects_table_head_block %}
+
+
+{% block objects_table_body_block %}
+{% for client, deposits, discounts_count in objects %}
+{% include 'clients/snippets/item.html' with obj=client counter=forloop.counter deposits=deposits discounts_count=discounts_count%}
+{% endfor %}
+{% endblock objects_table_body_block %}
+
+
+{% block scripts_block %}
+<script>
+    const passedOrderBy = '{{ order_by }}';
+    const lastQuery = "{{ query_by }}";
+    const idsAndModals = [
+        ['id_has_discounts', 'id_has_discounts_modal'],
+    ];
+    const results_per_page_buttons = [
+        ['btnRadioRPP50', 50],
+        ['btnRadioRPP100', 100],
+        ['btnRadioRPP200', 200],
+        ['btnRadioRPP500', 500],
+    ];
+
+    $(document).ready(function () {
+
+        $('#list_form').submit(function (e) {
+            e.preventDefault();
+            [
+                'id_query_by',
+                'id_order_by',
+                'id_results_per_page',
+                'id_has_discounts',
+            ].forEach(function (id) {
+                if ($('#' + id).val() == '') {
+                    $('#' + id).prop('disabled', true);
+                } else {
+                    $('#' + id).prop('disabled', false);
+                }
+            });
+            $(this).unbind('submit').submit();
+        });
+
+        enableTooltips();
+
+        $('#id_results_per_page').change(function () {
+            $('#list_form').submit();
+        });
+
+        $('#id_query_by').on('change paste keyup', function () {
+            //show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        });
+
+        if (lastQuery != '') {
+            $('#id_query_by').val(lastQuery);
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        }
+
+        /*
+        results_per_page_buttons.forEach(function (button) {
+            $('#' + button[0]).click(function () {
+                $('#id_results_per_page').val(button[1]);
+                $('#list_form').submit();
+            });
+        });
+        */
+
+        $('#btnRadioRPP50').click(function () {
+            $('#id_results_per_page').val(50);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP100').click(function () {
+            $('#id_results_per_page').val(100);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP200').click(function () {
+            $('#id_results_per_page').val(200);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP500').click(function () {
+            $('#id_results_per_page').val(500);
+            $('#list_form').submit();
+        });
+    });
+
+    function clearSearch() {
+        $('#id_query_by').val('');
+        if (lastQuery != '' && lastQuery != null && lastQuery != undefined) {
+            $('#list_form').submit();
+        }
+        show('btnCleanQuery', false);
+    }
+
+
+    function applyFilters() {
+        $('#id_has_discounts').val($('#id_has_discounts_modal').val());
+        $('#list_form').submit();
+    }
+
+    function clearFilters() {
+        $('#id_has_discounts').val('');
+        $('#list_form').submit();
+    }
+</script>
+{% endblock scripts_block %}
+
+
+
+
+
+
+
+{% comment %}
 {% extends 'base_system.html' %}
 
 {% block modal_content %}
@@ -230,4 +431,4 @@
     }
 </script>
 
-{% endblock content %}
+{% endblock content %} {% endcomment %}

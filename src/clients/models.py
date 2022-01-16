@@ -71,6 +71,7 @@ class Client(models.Model):
     class Meta:
         verbose_name = "Cliente"
         verbose_name_plural = "Clientes"
+        ordering = ['name']
 
 
 @receiver(post_delete, sender=Client)
@@ -114,3 +115,4 @@ class Discount(models.Model):
     class Meta:
         verbose_name = "descuento"
         verbose_name_plural = "descuentos"
+        ordering = ['amount']

@@ -436,12 +436,12 @@ class CompleteListView(View):
             ValueError: if the page param is not an int.
         """
         # Gets the page param. If not found, use the default: 1
-        page = request.GET.get(self.results_per_page_kw, 1)
+        page = request.GET.get(self.page_kw, 1)
         # If the page param is not a number or is strictly a str
         if not isinstance(page, int) or isinstance(page, str):
             # Try to convert it to an int
             try:
-                int(page)
+                page = int(page)
             # If it's not a number it raises a ValueError
             except ValueError:
                 raise ValueError(
@@ -517,6 +517,11 @@ class CompleteListView(View):
 
         # Get the title from the model class
         self.context['title'] = self.get_verbose_name_plural()
+
+        self.context['query_by_kw'] = self.query_by_kw
+        self.context['order_by_kw'] = self.order_by_kw
+        self.context['results_per_page_kw'] = self.results_per_page_kw
+        self.context['page_kw'] = self.page_kw
 
         # Returns the context data
         return self.context

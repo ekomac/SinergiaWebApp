@@ -1,16 +1,17 @@
 # Basic Python
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 import unidecode
 
 # Django
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 
 # Project
-from account.decorators import allowed_users
+from account.decorators import allowed_users, allowed_users_in_class_view
 from clients.forms import CreateClientForm, CreateDiscountForm, EditClientForm
 from clients.models import Client, Discount
 from deposit.models import Deposit
@@ -19,7 +20,43 @@ from places.utils import get_localidades_as_JSON
 from utils.alerts.views import (
     create_alert_and_redirect, update_alert_and_redirect)
 from utils.forms import CheckPasswordForm
-from utils.views import DeleteObjectsUtil
+from utils.views import CompleteListView, DeleteObjectsUtil
+
+
+class ClientListView(CompleteListView, LoginRequiredMixin):
+    template_name = 'clients/list.html'
+    model = Client
+    decoders = (
+        {
+            'key': 'has_discounts',
+            'filter': 'discount__isnull',
+            'function': lambda x: True if x == 'true' else False,
+            'context': lambda x: x,
+        },
+    )
+    query_keywords = (
+        'name__icontains',
+        'contact_name__icontains',
+        'contact_phone__icontains',
+        'contact_email__icontains',
+    )
+
+    @allowed_users_in_class_view(roles=["Admins"])
+    def get(self, request):
+        return super(ClientListView, self).get(request)
+
+    def queryset_map_callable(self, obj):
+        deposits = ", ".join(
+            [depo.name for depo in Deposit.objects.filter(client=obj)])
+        places_with_discounts = Partido.objects.filter(
+            discount__client=obj).count()
+        return (obj, deposits, places_with_discounts)
+
+    def get_context_data(self) -> Dict[str, Any]:
+        context = super().get_context_data()
+        context['clients'] = Client.objects.all()
+        context['selected_tab'] = 'clients-tab'
+        return context
 
 
 @login_required(login_url='/login/')

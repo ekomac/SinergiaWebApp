@@ -45,7 +45,8 @@ class DepositListView(CompleteListView, LoginRequiredMixin):
             'filter': 'envio__isnull',
             'function': lambda x: True if x == 'true' else False,
             'context': lambda x: x,
-        },)
+        },
+    )
     query_keywords = ('name__icontains', 'client__name__icontains',
                       'address__icontains', 'town__name__icontains')
 
