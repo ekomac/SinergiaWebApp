@@ -59,14 +59,30 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # REST FRAMEWORK
     'rest_framework',
+    'rest_framework.authtoken',
 
     # THIRD PARTY
     'rest_framework_swagger',
     'django_extensions',
-    'simple_history',
     'django_cleanup.apps.CleanupConfig',
 ]
+
+AUTH_USER_MODEL = 'account.Account'
+
+rf = 'rest_framework'
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        f'{rf}.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        f'{rf}.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_PAGINATION_CLASS': f'{rf}.pagination.PageNumberPagination',
+    'PAGE_SIZE': 30,
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -79,6 +95,7 @@ MIDDLEWARE = [
     'simple_history.middleware.HistoryRequestMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 ]
+
 
 ROOT_URLCONF = 'mysite.urls'
 
@@ -100,7 +117,6 @@ TEMPLATES = [
     },
 ]
 
-AUTH_USER_MODEL = 'account.Account'
 
 WSGI_APPLICATION = 'mysite.wsgi.application'
 
@@ -164,6 +180,8 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_cdn')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media_cdn')
+TEMP = os.path.join(BASE_DIR, 'temp')
+
 
 LOGGING = {
     "version": 1,
