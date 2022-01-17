@@ -38,7 +38,7 @@
 <div class="col-12">
 
 
-    <div class="card flex-fill shadow">
+    <div class="card flex-fill m-auto shadow">
 
         <!--- start CARD HEADER -->
         <div class="card-header">
@@ -49,7 +49,9 @@
                     class="fs-5 fw-bold d-inline-flex justify-content-start align-items-center col-12 mt-1 mb-2 col-xl-6">
                     {{ title }} <a {% block add_url_block %}href="{% url 'deposits:add' %}" {% endblock add_url_block %}
                         type="button" class="btn btn-success btn-sm ms-2 me-1 shadow"><i
-                            class="bi bi-plus"></i>Nuevo</a>
+                            class="bi bi-plus-lg me-1"></i>Nuevo</a>
+                    {% block custom_add_block %}
+                    {% endblock custom_add_block %}
                 </div>
 
 
