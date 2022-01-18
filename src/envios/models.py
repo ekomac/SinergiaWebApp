@@ -282,8 +282,8 @@ class BulkLoadEnvios(models.Model):
     date_created = models.DateTimeField(
         verbose_name="Fecha de creación", auto_now_add=True)
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        verbose_name="Usuario", blank=False, null=False)
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        verbose_name="Usuario", blank=True, null=True)
     load_status = models.CharField(
         verbose_name="Estado",
         max_length=1, choices=LOADING_STATUSES,

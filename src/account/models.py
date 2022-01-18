@@ -1,9 +1,13 @@
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
+from django.conf import settings
+from rest_framework.authtoken.models import Token
+
+
 from clients.models import Client
 
 
@@ -194,6 +198,11 @@ class Account(AbstractBaseUser, PermissionsMixin):
             docs.append("seguro")
         return ", ".join(docs)
 
+    class Meta:
+        verbose_name = 'Cuenta'
+        verbose_name_plural = 'Cuentas'
+        ordering = ['-username']
+
 
 @receiver(post_delete, sender=Account)
 def submission_delete(sender, instance, **kwargs):
@@ -202,3 +211,9 @@ def submission_delete(sender, instance, **kwargs):
     instance.criminal_record.delete(False)
     instance.vtv.delete(False)
     instance.insurance.delete(False)
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)

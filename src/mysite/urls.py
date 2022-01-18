@@ -47,7 +47,7 @@ urlpatterns = [
     # ADMIN SITE
     path('admin/', admin_home_screen_view, name='admin-home'),
     path('admin/home', admin_home_screen_view, name='admin-home'),
-    path('admin/accounts/', include('account.urls')),
+    path('admin/account/', include('account.urls')),
     path('admin/clients/', include('clients.urls')),
     path('admin/deposits/', include('deposit.urls')),
     path('admin/envios/', include('envios.urls')),
@@ -74,6 +74,11 @@ urlpatterns = [
     # path('app/tickets/', include('app_tickets.urls')),
     path('app/transfer/', include('app_transfer.urls')),
     path('app/withdraw/', include('app_withdraw.urls')),
+
+    # REST API
+    path('api/deposit/', include('deposit.api.urls', 'deposit_api')),
+    path('api/account/', include('account.api.urls', 'account_api')),
+    path('api/envios/', include('envios.api.urls', 'envios_api')),
 ]
 
 

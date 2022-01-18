@@ -1,16 +1,14 @@
 
 from django.urls import path
-from deposit.api.views import (
-    ApiDepositListView,
-    api_detail_deposit_view,
+from envios.api.views import (
+    ApiEnvioListView,
 
 )
 
-app_name = 'deposits'
+app_name = 'envios'
 
 urlpatterns = [
-    path('list/', ApiDepositListView.as_view(), name="list"),
-    path('<int:pk>/', api_detail_deposit_view, name="detail"),
+    path('list/', ApiEnvioListView.as_view(), name="list"),
     # path('<slug>/update', api_update_blog_view, name="update"),
     # path('<slug>/delete', api_delete_blog_view, name="delete"),
     # path('create', api_create_blog_view, name="create"),

@@ -1,3 +1,6 @@
+# DJANGO
+from django.db.models import Count
+
 # REST FRAMEWORK
 from rest_framework import status
 from rest_framework.response import Response
@@ -10,30 +13,33 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 
 
 # PROJECT
-from deposit.api.serializers import DepositSerializer
-from deposit.models import Deposit
+from account.api.serializers import CarrierSerializer
+from account.models import Account
 
 
-@api_view(['GET', ])
-@permission_classes((IsAuthenticated, ))
-def api_detail_deposit_view(request, pk):
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_detail_carrier_view(request, pk):
     try:
-        deposit = Deposit.objects.get(pk=pk)
-    except Deposit.DoesNotExist:
+        account = Account.objects.get(pk=pk)
+    except Account.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
-        serializer = DepositSerializer(deposit)
+        serializer = CarrierSerializer(account)
         return Response(serializer.data)
 
 
-class ApiDepositListView(ListAPIView):
-    queryset = Deposit.objects.all()
-    serializer_class = DepositSerializer
+class ApiCarrierListView(ListAPIView):
+    queryset = Account.objects.filter(
+        groups__name__in=['Admins', 'EmployeeTier1', 'EmployeeTier2'],
+    ).annotate(envios=Count('Carrier')).distinct()
+    serializer_class = CarrierSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter, OrderingFilter)
-    search_fields = ('name', 'clien__name', )
+    search_fields = ('first_name', 'last_name', 'username', 'email')
     # Explicitly specify which fields the API may be ordered against
-    ordering_fields = ('name',)
-    ordering = ('name',)
+    ordering_fields = ('last_name', 'first_name',
+                       'envios', 'username', 'email',)
+    ordering = ('-envios', 'first_name', 'last_name', 'username', 'email')

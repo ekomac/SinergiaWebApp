@@ -12,7 +12,7 @@ class Deposit(models.Model):
     date_created = models.DateTimeField(
         verbose_name="Fecha de creación", auto_now_add=True)
     created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         verbose_name="Usuario", blank=True, null=True)
     client = models.ForeignKey(Client, on_delete=models.CASCADE,
                                verbose_name="Cliente", blank=True, null=True)
