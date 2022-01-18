@@ -11,7 +11,7 @@ from account.models import Account
 from app_deliver.decorators import deliver_safe
 from app_deliver.forms import DeliverForm
 from envios.models import Envio
-from tracking.api import delivery
+from tracking.tracking_funcs import delivery
 from utils.alerts.views import create_alert_and_redirect
 
 

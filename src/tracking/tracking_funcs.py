@@ -288,3 +288,5 @@ def withdraw(
         carrier=carrier,
         deposit=deposit,
     )
+
+    return movement

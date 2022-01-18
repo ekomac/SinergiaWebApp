@@ -13,7 +13,7 @@ from account.models import Account
 from app_transfer.decorators import transfer_safe
 from envios.models import Envio
 from places.models import Partido, Town, Zone
-from tracking.api import transfer
+from tracking.tracking_funcs import transfer
 from utils.alerts.views import create_alert_and_redirect
 
 

@@ -13,7 +13,7 @@ from account.models import Account
 from deposit.models import Deposit
 from envios.models import Envio
 from places.models import Zone, Partido, Town
-from tracking.api import withdraw
+from tracking.tracking_funcs import withdraw
 from utils.alerts.views import create_alert_and_redirect
 
 
@@ -166,20 +166,22 @@ def confirm_filtered_view(request, deposit_pk, carrier_pk) -> HttpResponse:
 
         if filter_by == 'zone':
             context['filter_by_name'] = 'zonas'
-            part_1 = 'partido__town__destination__'
-            part_2 = 'receiver__envio__status__in'
             filters = {
-                part_1 + part_2: [Envio.STATUS_NEW, Envio.STATUS_STILL],
+                'partido__town__destination__receiver__envio__status__in': [
+                    Envio.STATUS_NEW,
+                    Envio.STATUS_STILL
+                ],
                 'partido__town__destination__receiver__envio__deposit': deposit
             }
             context['objects'] = Zone.objects.filter(
                 **filters).distinct().order_by('name')
         elif filter_by == 'partido':
             context['filter_by_name'] = 'partidos'
-            part_1 = 'town__destination__receiver'
-            part_2 = '__envio__status__in'
             filters = {
-                part_1 + part_2: [Envio.STATUS_NEW, Envio.STATUS_STILL],
+                'town__destination__receiver__envio__status__in': [
+                    Envio.STATUS_NEW,
+                    Envio.STATUS_STILL,
+                ],
                 'town__destination__receiver__envio__deposit': deposit
             }
             context['objects'] = Partido.objects.filter(

@@ -10,7 +10,7 @@ from account.models import Account
 from deposit.models import Deposit
 from envios.models import Envio
 from places.models import Partido, Town, Zone
-from tracking.api import deposit
+from tracking.tracking_funcs import deposit
 from utils.alerts.views import create_alert_and_redirect
 
 
