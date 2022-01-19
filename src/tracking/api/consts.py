@@ -1,0 +1,5 @@
+SUCCESS = 'success'
+ERROR = 'error'
+DELETE_SUCCESS = 'deleted'
+UPDATE_SUCCESS = 'updated'
+CREATE_SUCCESS = 'created'
