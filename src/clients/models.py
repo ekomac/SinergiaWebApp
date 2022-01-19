@@ -36,6 +36,7 @@ class Client(models.Model):
         max_length=100,
         blank=False,
         null=False,
+        unique=True,
     )
     contact_name = models.CharField(
         verbose_name="Persona de contacto",

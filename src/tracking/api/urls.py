@@ -8,8 +8,8 @@ from tracking.api.views import (
 app_name = 'tracking'
 
 urlpatterns = [
-    path('withdraw/all/', api_withdraw_all_view, name="post-withdraw-all"),
-    path('withdraw/ids/', api_withdraw_by_ids_view, name="post-withdraw-ids"),
+    path('withdraw/all/', api_withdraw_all_view, name="api-withdraw-all"),
+    path('withdraw/ids/', api_withdraw_by_ids_view, name="api-withdraw-ids"),
     # path('withdraw/one', post_withdraw_view, name="post-withdraw-one"),
     # path('withdraw/by_filter', post_withdraw_view,
     #      name="post-withdraw-filtered"),

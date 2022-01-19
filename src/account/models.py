@@ -102,8 +102,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     )
 
     email = models.EmailField(verbose_name="email",
-                              max_length=100, unique=True)
-    username = models.CharField(max_length=40, unique=True)
+                              max_length=100, unique=True, null=False)
+    username = models.CharField(max_length=40, unique=True, null=False)
     date_joined = models.DateTimeField(
         verbose_name="date joined", auto_now_add=True)
     last_login = models.DateTimeField(verbose_name="last login", auto_now=True)
