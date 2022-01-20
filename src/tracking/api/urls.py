@@ -3,6 +3,7 @@ from django.urls import path
 from tracking.api.views import (
     api_withdraw_all_view,
     api_withdraw_by_ids_view,
+    api_withdraw_by_filter_view
 )
 
 app_name = 'tracking'
@@ -10,6 +11,8 @@ app_name = 'tracking'
 urlpatterns = [
     path('withdraw/all/', api_withdraw_all_view, name="api-withdraw-all"),
     path('withdraw/ids/', api_withdraw_by_ids_view, name="api-withdraw-ids"),
+    path('withdraw/filtered/', api_withdraw_by_filter_view,
+         name="api-withdraw-by-filter"),
     # path('withdraw/one', post_withdraw_view, name="post-withdraw-one"),
     # path('withdraw/by_filter', post_withdraw_view,
     #      name="post-withdraw-filtered"),

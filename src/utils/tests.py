@@ -1,57 +1,117 @@
+from random import sample
+from typing import List
 from account.models import Account
-from account.tests import carriers_samples as carriers
 from clients.models import Client
-from clients.tests import samples as clients
 from deposit.models import Deposit
-from deposit.tests import samples as deposits
 from envios.models import Envio
-from envios.tests import samples as envios
 from places.models import Town, Partido
-from places.tests import town_samples as towns, partido_samples as partidos
 from prices.models import DeliveryCode, FlexCode
-from places.tests import (
-    deliverycode_samples as delivery_codes,
-    flexcode_samples as flex_codes
-)
+from tracking.models import TrackingMovement
+from utils import sample_data as samples
 
 
-class Samples:
+class SimpleMockDB:
 
-    ARG_CARRIER = 1
-    ARG_CLIENT = 2
-    ARG_DEPOSIT = 3
-    ARG_ENVIO = 4
-    ARG_TOWN = 5
-    ARG_PARTIDO = 6
-    ARG_DELIVERY_CODE = 7
-    ARG_FLEX_CODE = 8
+    MIN_SAMPLE_QUANTITY = 1
+    MAX_SAMPLE_QUANTITY = 1
+    samples_quantity = MIN_SAMPLE_QUANTITY
 
     def __init__(self):
-        self.carriers = carriers
-        self.clients = clients
-        self.deposits = deposits
-        self.envios = envios
-        self.towns = towns
-        self.partidos = partidos
-        self.delivery_codes = delivery_codes
-        self.flex_codes = flex_codes
+        if self.samples_quantity > self.MAX_SAMPLE_QUANTITY:
+            raise ValueError(
+                f'{self.__class__.__name__} samples_quantity must be less ' +
+                f'or equal than {self.MAX_SAMPLE_QUANTITY}'
+            )
+        elif self.samples_quantity < self.MIN_SAMPLE_QUANTITY:
+            raise ValueError(
+                f'{self.__class__.__name__} samples_quantity must be ' +
+                f'greater or equal than {self.MIN_SAMPLE_QUANTITY}'
+            )
+        else:
+            self._accounts = []
+            self._delivery_codes = []
+            self._flex_codes = []
+            self._partidos = []
+            self._towns = []
+            self._clients = []
+            self._deposits = []
+            self._envios = []
+            self._trackingmovements = []
+
+    def create(self) -> None:
+        """
+        Creates all the objects required for the tests.
+        """
+        self.superadmin = Account(**samples.superuser)
+        self.accounts.append(self.superadmin)
+
+        for i in range(self.MIN_SAMPLE_QUANTITY, self.samples_quantity):
+            delivery_code = DeliveryCode(**samples.delivery_codes[i]).save()
+            flex_code = FlexCode(**samples.flex_codes[i]).save()
+            partido = Partido(**samples.partidos[i]).save()
+            town = Town(partido=partido, **samples.towns[i]).save()
+            carrier = Account(**samples.carriers[i]).save()
+            client = Client(**samples.clients[i]).save()
+            deposit = Deposit(client=client, **samples.deposits[i]).save()
+            envio = Envio(client=client, created_by=self.superuser,
+                          **samples.envios[i]).save()
+
+            tracking_movement = TrackingMovement(
+                created_by=self.superuser,
+                action=TrackingMovement.ACTION_ADDED_TO_SYSTEM,
+                result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
+                deposit=envio.deposit
+            )
+            tracking_movement.save()
+            tracking_movement.envios.add(*[envio])
+
+            self._delivery_codes.append(delivery_code)
+            self._flex_codes.append(flex_code)
+            self._partidos.append(partido)
+            self._towns.append(town)
+            self._accounts.append(carrier)
+            self._clients.append(client)
+            self._deposits.append(deposit)
+            self._envios.append(envio)
+            self._trackingmovements.append(tracking_movement)
+
+            print("delivery_codes", self.delivery_codes)
+            print("flex_codes", self.flex_codes)
+            print("partidos", self.partidos)
+            print("towns", self.towns)
+            print("clients", self.clients)
+            print("deposits", self.deposits)
+            print("envios", self.envios)
+            print("trackingmovements", self.trackingmovements)
 
     @property
-    def all_args(self):
-        return [
-            self.ARG_CARRIER,
-            self.ARG_CLIENT,
-            self.ARG_DEPOSIT,
-            self.ARG_ENVIO,
-            self.ARG_TOWN,
-            self.ARG_PARTIDO,
-            self.ARG_DELIVERY_CODE,
-            self.ARG_FLEX_CODE,
-        ]
+    def accounts(self) -> List[Account]:
+        return self._accounts
 
-    def sample(self, *args):
-        for arg in args:
-            if arg not in self.all_args:
-                raise ValueError(f'Invalid sample argument: {arg}')
-        
-        return args[0]
+    @property
+    def clients(self) -> List[Client]:
+        return self._clients
+
+    @property
+    def deposits(self) -> List[Deposit]:
+        return self._deposits
+
+    @property
+    def envios(self) -> List[Envio]:
+        return self._envios
+
+    @property
+    def towns(self) -> List[Town]:
+        return self._towns
+
+    @property
+    def partidos(self) -> Partido:
+        return self._partidos
+
+    @property
+    def delivery_codes(self) -> DeliveryCode:
+        return self._delivery_codes
+
+    @property
+    def flex_codes(self) -> FlexCode:
+        return self.flex_codes

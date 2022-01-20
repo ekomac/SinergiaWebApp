@@ -41,23 +41,23 @@ def create_partidos(partidos):
 
 def create_localidades(localidades):
     Town.objects.bulk_create(
-        [Town(**q)for q in map(map_localidades, localidades)]
+        [Town(**q) for q in map(map_localidades, localidades)]
     )
     return True
 
 
 def map_localidades(localidad):
     nombre, municipio, id_mensajeria, id_flex = tuple(localidad)
-    print(nombre, municipio, id_mensajeria, id_flex)
     result = {
         'name': nombre,
         'partido': Partido.objects.get(name=municipio),
     }
     try:
         result['delivery_code'] = DeliveryCode.objects.get(code=id_mensajeria)
-        result['flex_code'] = FlexCode.objects.get(code=id_flex)
     except DeliveryCode.DoesNotExist:
         print(f"DeliveryCode matching query '{id_mensajeria}' does not exist.")
+    try:
+        result['flex_code'] = FlexCode.objects.get(code=id_flex)
     except FlexCode.DoesNotExist:
         print(f"FlexCode matching query '{id_mensajeria}' does not exist.")
     return result

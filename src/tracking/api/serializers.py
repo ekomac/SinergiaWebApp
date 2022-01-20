@@ -1,5 +1,3 @@
-from tracking.api import actions
-from django.conf import settings
 from rest_framework import serializers
 
 from account.models import Account
@@ -15,6 +13,14 @@ MAX_COMMENT_LENGTH = 200
 NOT_ZONE_ERROR = "La zona con id {id} no existe."
 NOT_PARTIDO_ERROR = "El partido con id {id} no existe."
 NOT_TOWN_ERROR = "La localidad con id {id} no existe."
+
+
+class BaseWithdrawSerializer(serializers.ModelSerializer):
+    def check_deposit(self, deposit):
+        if deposit.envio_set.count() == 0:
+            raise serializers.ValidationError(
+                {"response": "El depósito no tiene envíos."}
+            )
 
 
 class WithdrawCreateSerializer(serializers.ModelSerializer):
@@ -87,23 +93,6 @@ class WithdrawCreateSerializer(serializers.ModelSerializer):
                     envios_ids=[scanned_envio_id]
                 )
 
-            # if len(comment) < MIN_COMMENT_LENGTH:
-            #     raise serializers.ValidationError(
-            #         {"response": "El comentario debe tener al menos " +
-            #                      f"{MIN_COMMENT_LENGTH} caracteres."})
-
-            # if len(comment) > MAX_COMMENT_LENGTH:
-            #     raise serializers.ValidationError(
-            #         {"response": "El comentario no puede tener más de " +
-            #                      f"{MAX_COMMENT_LENGTH} caracteres."})
-
-            # if scanned_envio_id:
-            #     if not Envio.objects.filter(pk=scanned_envio_id).exists():
-            #         raise serializers.ValidationError(
-            #             {"response": "El envío con id {id} no existe.".format(
-            #                 id=scanned_envio_id)}
-            #         )
-
             if filter_by:
                 if filter_by not in self.FILTER_BY_OPTIONS:
                     raise serializers.ValidationError(
@@ -138,7 +127,7 @@ class WithdrawCreateSerializer(serializers.ModelSerializer):
             )
 
 
-class WithdrawAllSerializer(serializers.ModelSerializer):
+class WithdrawAllSerializer(BaseWithdrawSerializer):
 
     class Meta:
         model = TrackingMovement
@@ -155,10 +144,11 @@ class WithdrawAllSerializer(serializers.ModelSerializer):
             deposit = self.validated_data['deposit']
             carrier = self.validated_data['carrier']
 
-            if deposit.envio_set.count() == 0:
-                raise serializers.ValidationError(
-                    {"response": "El depósito '{}' no tiene envíos.".format(
-                        deposit)})
+            self.check_deposit(deposit)
+            # if deposit.envio_set.count() == 0:
+            #     raise serializers.ValidationError(
+            #         {"response": "El depósito '{}' no tiene envíos.".format(
+            #             deposit)})
 
             movement = TrackingMovement(
                 created_by=author,
@@ -179,25 +169,18 @@ class WithdrawAllSerializer(serializers.ModelSerializer):
                 carrier=carrier,
                 deposit=None,
             )
-
-            # movement = actions.withdraw(
-            #     flag=actions.WITHDRAW_ALL_FLAG,
-            #     author=author,
-            #     carrier=carrier,
-            #     deposit=deposit,
-            # )
             return movement
         except KeyError as e:
             raise serializers.ValidationError(
-                {"response": "Faltan datos. Error: {}".format(e)}
+                {"response": "Faltan datos de {}".format(e)}
             )
 
 
-class WithdrawByIdsSerializer(serializers.ModelSerializer):
+class WithdrawByIdsSerializer(BaseWithdrawSerializer):
 
     envios_ids = serializers.ListField(
         child=serializers.IntegerField(min_value=0),
-        write_only=True)
+        write_only=True, allow_empty=False)
 
     class Meta:
         model = TrackingMovement
@@ -213,81 +196,172 @@ class WithdrawByIdsSerializer(serializers.ModelSerializer):
         try:
             author = self.validated_data['created_by']
             deposit = self.validated_data['deposit']
+            self.check_deposit(deposit)
             carrier = self.validated_data['carrier']
             envios_ids = self.validated_data['envios_ids']
-
-            envios = deposit.envio_set
-            if envios.count() == 0:
+            if len(envios_ids) == 0:
                 raise serializers.ValidationError(
-                    {"response": "El depósito '{}' no tiene envíos.".format(
-                        deposit)})
-            if envios.filter(pk__in=envios_ids).count() != len(envios_ids):
+                    {"response": "Faltan datos de 'envios_ids'"})
+
+            if deposit.envio_set.filter(
+                    pk__in=envios_ids).count() != len(envios_ids):
                 raise serializers.ValidationError(
                     {"response": "Alguno de los envíos con ids " +
                         "{} no existe o no está en el depósito {}.".format(
                             envios_ids, deposit)
                      }
                 )
-
-            movement = actions.withdraw(
-                flag=actions.WITHDRAW_BY_IDS_FLAG,
-                author=author,
+            movement = TrackingMovement(
+                created_by=author,
                 carrier=carrier,
                 deposit=deposit,
-                envios_ids=envios_ids
+                action=TrackingMovement.ACTION_RECOLECTION,
+                result=TrackingMovement.RESULT_TRANSFERED,
+            )
+            movement.save()
+            envios = Envio.objects.filter(
+                status__in=[Envio.STATUS_NEW, Envio.STATUS_STILL],
+                deposit=deposit,
+                id__in=envios_ids
+            )
+            # Add envios to the movement
+            movement.envios.add(*envios)
+            envios.update(
+                status=Envio.STATUS_MOVING,
+                carrier=carrier,
+                deposit=None,
             )
             return movement
         except KeyError as e:
             raise serializers.ValidationError(
-                {"response": "Faltan datos. Error: {}".format(e)}
+                {"response": "Faltan datos de {}".format(e)}
             )
 
 
-class WithdrawByFilterSerializer(serializers.ModelSerializer):
+class WithdrawByFilterSerializer(serializers.Serializer):
+
+    def check_deposit(self, deposit):
+        if deposit.envio_set.count() == 0:
+            raise serializers.ValidationError(
+                {"response": "El depósito no tiene envíos."}
+            )
+
+    # class Meta:
+    #     extra_kwargs = {'filter_by': {'required': False}}
+
+    created_by = serializers.IntegerField(min_value=0, write_only=True)
+    carrier = serializers.IntegerField(min_value=0, write_only=True)
+    deposit = serializers.IntegerField(min_value=0, write_only=True)
 
     selected_ids = serializers.ListField(
         child=serializers.IntegerField(min_value=0),
-        write_only=True)
+        write_only=True, allow_empty=False)
 
-    class Meta:
-        model = TrackingMovement
-        fields = (
-            'created_by',
-            'carrier',
-            'deposit',
-            'selected_ids',
-        )
+    FILTER_BY_OPTIONS = ['zone', 'partido', 'town']
+    filter_by = serializers.CharField(max_length=20, write_only=True)
+
+    def validate_created_by(self, created_by):
+        if created_by is None:
+            raise serializers.ValidationError(
+                {"response": "Falta el usuario que realiza la acción."})
+        if not Account.objects.filter(pk=created_by).exists():
+            raise serializers.ValidationError(
+                {"response": "El usuario con id {} no existe.".format(
+                    created_by)})
+        return created_by
+
+    def validate(self, data):
+        filter_by = data['filter_by']
+        if filter_by in [None, '']:
+            raise serializers.ValidationError(
+                {"response": "Falta el tipo de filtro <filter_by>."})
+        if filter_by not in self.FILTER_BY_OPTIONS:
+            raise serializers.ValidationError(
+                {"response": "Los filtros deben ser 'zone', 'partido' " +
+                 "o 'town'."})
+
+        return data
+        # try:
+        #     data = super().validate(data)
+        #     filter_by = data['filter_by']
+        #     selected_ids = data['selected_ids']
+        #     if filter_by not in self.FILTER_BY_OPTIONS:
+        #         raise serializers.ValidationError(
+        #             {"response": self.filter_by_error.format(
+        #                 used_filter=filter_by,
+        #                 options=self.FILTER_BY_OPTIONS
+        #             )})
+        #     if len(selected_ids) == 0:
+        #         raise serializers.ValidationError(
+        #             {"response": "Faltan datos de 'selected_ids'"})
+        #     return data
+        # except KeyError as e:
+        #     raise serializers.ValidationError(
+        #         {"response": "Faltan datos de {}".format(e)}
+        #     )
 
     def save(self):
 
         try:
-            author = self.validated_data['created_by']
-            deposit = self.validated_data['deposit']
-            carrier = self.validated_data['carrier']
-            envios_ids = self.validated_data['envios_ids']
-
-            envios = deposit.envio_set
-            if envios.count() == 0:
+            author = Account.objects.get(pk=self.validated_data['created_by'])
+            deposit = Deposit.objects.get(pk=self.validated_data['deposit'])
+            self.check_deposit(deposit)
+            carrier = Account.objects.get(pk=self.validated_data['carrier'])
+            selected_ids = self.validated_data['selected_ids']
+            filter_by = self.validated_data['filter_by']
+            if len(selected_ids) == 0:
                 raise serializers.ValidationError(
-                    {"response": "El depósito '{}' no tiene envíos.".format(
-                        deposit)})
-            if envios.filter(pk__in=envios_ids).count() != len(envios_ids):
-                raise serializers.ValidationError(
-                    {"response": "Alguno de los envíos con ids " +
-                        "{} no existe o no está en el depósito {}.".format(
-                            envios_ids, deposit)
-                     }
-                )
+                    {"response": "Faltan datos de 'selected_ids'"})
 
-            movement = actions.withdraw(
-                flag=actions.WITHDRAW_BY_IDS_FLAG,
-                author=author,
+            filters = {}
+            if filter_by == 'zone':
+                if Zone.objects.filter(pk__in=selected_ids).count() != \
+                        len(selected_ids):
+                    raise serializers.ValidationError(
+                        {"response": "Alguna de las zonas con ids " +
+                            "{} no existe.".format(selected_ids)})
+                filters = {"town__partido__zone__id__in": selected_ids}
+            elif filter_by == 'partido':
+                if Partido.objects.filter(pk__in=selected_ids).count() != \
+                        len(selected_ids):
+                    raise serializers.ValidationError(
+                        {"response": "Alguno de los partidos con ids " +
+                            "{} no existe.".format(selected_ids)})
+                filters = {"town__partido__id__in": selected_ids}
+            elif filter_by == 'town':
+                if Town.objects.filter(pk__in=selected_ids).count() != \
+                        len(selected_ids):
+                    raise serializers.ValidationError(
+                        {"response": "Alguna de las localidades con ids " +
+                            "{} no existe.".format(selected_ids)})
+                filters = {"town__id__in": selected_ids}
+            else:
+                raise serializers.ValidationError(
+                    {"response": "Los filtros deben ser 'zone', 'partido' " +
+                        "o 'town'"})
+
+            movement = TrackingMovement(
+                created_by=author,
                 carrier=carrier,
                 deposit=deposit,
-                envios_ids=envios_ids
+                action=TrackingMovement.ACTION_RECOLECTION,
+                result=TrackingMovement.RESULT_TRANSFERED,
+            )
+            movement.save()
+            envios = Envio.objects.filter(
+                status__in=[Envio.STATUS_NEW, Envio.STATUS_STILL],
+                deposit=deposit,
+                **filters
+            )
+            # Add envios to the movement
+            movement.envios.add(*envios)
+            envios.update(
+                status=Envio.STATUS_MOVING,
+                carrier=carrier,
+                deposit=None,
             )
             return movement
         except KeyError as e:
             raise serializers.ValidationError(
-                {"response": "Faltan datos. Error: {}".format(e)}
+                {"response": "Faltan datos de {}".format(e)}
             )
