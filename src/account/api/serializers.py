@@ -5,10 +5,12 @@ from rest_framework import serializers
 from account.models import Account
 
 
-class CarrierSerializer(serializers.ModelSerializer):
+class EmployeeSerializer(serializers.ModelSerializer):
 
-    envios = serializers.SerializerMethodField('get_envios_from_carrier')
-    full_name = serializers.SerializerMethodField('get_full_name_from_carrier')
+    envios = serializers.SerializerMethodField('get_envios_from_account')
+    full_name = serializers.SerializerMethodField('get_full_name_from_account')
+    profile_picture_url = serializers.SerializerMethodField(
+        'get_profile_picture_url_from_account')
 
     class Meta:
         model = Account
@@ -19,11 +21,15 @@ class CarrierSerializer(serializers.ModelSerializer):
             'full_name',
             'first_name',
             'last_name',
+            'profile_picture_url',
             'envios',
         )
 
-    def get_envios_from_carrier(self, account):
+    def get_envios_from_account(self, account):
         return account.Carrier.count()
 
-    def get_full_name_from_carrier(self, account):
+    def get_full_name_from_account(self, account):
         return account.full_name
+
+    def get_profile_picture_url_from_account(self, account):
+        return account.profile_picture.url if account.profile_picture else None

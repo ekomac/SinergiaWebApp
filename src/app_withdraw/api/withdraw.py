@@ -17,7 +17,7 @@ def withdraw_movement(
     movement = TrackingMovement(
         created_by=author,
         carrier=carrier,
-        action=TrackingMovement.ACTION_RECOLECTION,
+        action=TrackingMovement.ACTION_COLLECTION,
         result=TrackingMovement.RESULT_TRANSFERED,
     )
     movement.save()

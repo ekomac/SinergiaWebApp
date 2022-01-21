@@ -9,37 +9,52 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
-from rest_framework.filters import SearchFilter, OrderingFilter
 
 
 # PROJECT
-from account.api.serializers import CarrierSerializer
+from account.api.serializers import EmployeeSerializer
 from account.models import Account
 
 
-@api_view(['GET'])
+@api_view(['GET', ])
 @permission_classes([IsAuthenticated])
 def api_detail_carrier_view(request, pk):
     try:
         account = Account.objects.get(pk=pk)
-    except Account.DoesNotExist:
+        account = Account.objects.filter(
+            pk=pk, groups__name__in=[
+                'Admins', 'EmployeeTier1', 'EmployeeTier2']).last()
+        if account is None:
+            raise ValueError('No se encontró la cuenta')
+    except Account.DoesNotExist or ValueError:
         return Response(status=status.HTTP_404_NOT_FOUND)
+    except ValueError:
+        return Response(
+            data={
+                'response': "La cuenta de empleado con id {} no existe".format(
+                    pk)},
+            status=status.HTTP_404_NOT_FOUND)
     if request.method == 'GET':
-        serializer = CarrierSerializer(account)
+        serializer = EmployeeSerializer(account)
         return Response(serializer.data)
+
+
+class ApiEmployeesWithEnviosListView(ListAPIView):
+    queryset = Account.objects.filter(
+        groups__name__in=['Admins', 'EmployeeTier1', 'EmployeeTier2'],
+    ).annotate(envios=Count('Carrier')).order_by('-envios').distinct()
+    serializer_class = EmployeeSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    pagination_class = PageNumberPagination
 
 
 class ApiCarrierListView(ListAPIView):
     queryset = Account.objects.filter(
         groups__name__in=['Admins', 'EmployeeTier1', 'EmployeeTier2'],
-    ).annotate(envios=Count('Carrier')).distinct()
-    serializer_class = CarrierSerializer
+        Carrier__isnull=False,
+    ).annotate(envios=Count('Carrier')).order_by('-envios').distinct()
+    serializer_class = EmployeeSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
-    filter_backends = (SearchFilter, OrderingFilter)
-    search_fields = ('first_name', 'last_name', 'username', 'email')
-    # Explicitly specify which fields the API may be ordered against
-    ordering_fields = ('last_name', 'first_name',
-                       'envios', 'username', 'email',)
-    ordering = ('-envios', 'first_name', 'last_name', 'username', 'email')

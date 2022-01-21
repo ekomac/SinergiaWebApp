@@ -12,12 +12,47 @@ superuser = {
     'password': 'AMERICA123',
 }
 
+groups = [
+    {
+        'name': 'Admins',
+    },
+    {
+        'name': 'Clients',
+    },
+    {
+        'name': 'EmployeeTier1',
+    },
+    {
+        'name': 'EmployeeTier2',
+    },
+]
+
 carriers = [
     {
         'username': 'carrier',
         'first_name': "Carrier",
         'last_name': "Carrier",
         'email': "carrier@gmail.com",
+        'is_active': True,
+        'is_staff': True,
+        'is_superuser': False,
+        'password': 'AMERICA123',
+    },
+    {
+        'username': 'carrier2',
+        'first_name': "Carrier2",
+        'last_name': "Carrier2",
+        'email': "carrier2@gmail.com",
+        'is_active': True,
+        'is_staff': True,
+        'is_superuser': False,
+        'password': 'AMERICA123',
+    },
+    {
+        'username': 'carrier3',
+        'first_name': "Carrier3",
+        'last_name': "Carrier3",
+        'email': "carrier3@gmail.com",
         'is_active': True,
         'is_staff': True,
         'is_superuser': False,
@@ -31,6 +66,19 @@ clients = [
         'contact_name': 'Persona de contacto',
         'contact_phone': 'Número de teléfono',
         'contact_email': 'email@email.com',
+    },
+]
+
+clients_accounts = [
+    {
+        'username': 'usuario de Cliente de prueba',
+        'first_name': "Persona",
+        'last_name': "de contacto",
+        'email': "unusuario@deuncliente.com",
+        'is_active': True,
+        'is_staff': False,
+        'is_superuser': False,
+        'password': 'AMERICA123',
     },
 ]
 
@@ -53,6 +101,10 @@ deposits = [
     {
         'name': 'Depósito de prueba',
         'address': 'Dirección de prueba',
+    },
+    {
+        'name': 'Depósito propio',
+        'address': 'Dirección propia',
     },
 ]
 

@@ -3,12 +3,18 @@ from django.urls import path
 from account.api.views import (
     ApiCarrierListView,
     api_detail_carrier_view,
+    ApiEmployeesWithEnviosListView,
 
 )
 
-app_name = 'account'
+app_name = 'account-api'
 
 urlpatterns = [
-    path('carrier/', ApiCarrierListView.as_view(), name="carrier-list"),
-    path('carrier/<int:pk>/', api_detail_carrier_view, name="carrier-detail"),
+
+    path('employees-with-envios/', ApiEmployeesWithEnviosListView.as_view(),
+         name="employees-with-envios"),
+    path('carrier/', ApiCarrierListView.as_view(),
+         name="carriers"),
+    path('carrier/<int:pk>/', api_detail_carrier_view,
+         name="carrier-detail"),
 ]

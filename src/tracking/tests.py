@@ -1,3 +1,7 @@
-from django.test import TestCase
+from django.test import TestCase as DjangoTestCase
+from unittest import TestCase
 
-# Create your tests here.
+
+class TestTracking(TestCase):
+    def test_withdraw(self):
+        self.assertEqual(1, 1)

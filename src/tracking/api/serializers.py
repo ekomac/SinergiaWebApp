@@ -154,7 +154,7 @@ class WithdrawAllSerializer(BaseWithdrawSerializer):
                 created_by=author,
                 carrier=carrier,
                 deposit=deposit,
-                action=TrackingMovement.ACTION_RECOLECTION,
+                action=TrackingMovement.ACTION_COLLECTION,
                 result=TrackingMovement.RESULT_TRANSFERED,
             )
             movement.save()
@@ -215,7 +215,7 @@ class WithdrawByIdsSerializer(BaseWithdrawSerializer):
                 created_by=author,
                 carrier=carrier,
                 deposit=deposit,
-                action=TrackingMovement.ACTION_RECOLECTION,
+                action=TrackingMovement.ACTION_COLLECTION,
                 result=TrackingMovement.RESULT_TRANSFERED,
             )
             movement.save()
@@ -344,7 +344,7 @@ class WithdrawByFilterSerializer(serializers.Serializer):
                 created_by=author,
                 carrier=carrier,
                 deposit=deposit,
-                action=TrackingMovement.ACTION_RECOLECTION,
+                action=TrackingMovement.ACTION_COLLECTION,
                 result=TrackingMovement.RESULT_TRANSFERED,
             )
             movement.save()

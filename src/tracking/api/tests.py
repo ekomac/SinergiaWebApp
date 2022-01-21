@@ -132,7 +132,7 @@ class WithdrawAllTestCase(WithdrawWithMockDbTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         last_movement = TrackingMovement.objects.last()
         self.assertEqual(last_movement.action,
-                         TrackingMovement.ACTION_RECOLECTION)
+                         TrackingMovement.ACTION_COLLECTION)
         self.assertEqual(last_movement.result,
                          TrackingMovement.RESULT_TRANSFERED)
         # Check this movements has at least one envio
@@ -205,7 +205,7 @@ class WithdrawByIdTestCase(WithdrawWithMockDbTestCase):
         last_movement = TrackingMovement.objects.last()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(
-            last_movement.action, TrackingMovement.ACTION_RECOLECTION)
+            last_movement.action, TrackingMovement.ACTION_COLLECTION)
         self.assertEqual(last_movement.result,
                          TrackingMovement.RESULT_TRANSFERED)
         # Check this movements has at least one envio
@@ -297,7 +297,7 @@ class WithdrawByFiltersWithTownTestCase(WithdrawWithMockDbTestCase):
 
         last_movement = TrackingMovement.objects.last()
         self.assertEqual(
-            last_movement.action, TrackingMovement.ACTION_RECOLECTION)
+            last_movement.action, TrackingMovement.ACTION_COLLECTION)
         self.assertEqual(last_movement.result,
                          TrackingMovement.RESULT_TRANSFERED)
         # Check if there are envios in this movement which

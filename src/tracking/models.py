@@ -14,18 +14,19 @@ def upload_location(instance, filename):
 class TrackingMovement(models.Model):
 
     ACTION_ADDED_TO_SYSTEM = "AS"
-    ACTION_RECOLECTION = "RC"
+    ACTION_COLLECTION = "RC"
     ACTION_DEPOSIT = "DP"
     ACTION_DELIVERY_ATTEMPT = 'DA'
     ACTION_TRANSFER = 'TR'
     ACTIONS = [
         (ACTION_ADDED_TO_SYSTEM, "Carga en sistema"),
-        (ACTION_RECOLECTION, "Recolección"),
+        (ACTION_COLLECTION, "Recolección"),
         (ACTION_DEPOSIT, "Depósito"),
         (ACTION_DELIVERY_ATTEMPT, "Intento de entrega"),
     ]
 
     RESULT_ADDED_TO_SYSTEM = '_new'
+    RESULT_COLECTED = 'collected'
     RESULT_TRANSFERED = 'transfered'
     RESULT_IN_DEPOSIT = 'in_deposit'
     RESULT_DELIVERED = 'success'
@@ -41,6 +42,7 @@ class TrackingMovement(models.Model):
         (RESULT_REPROGRAMED, 'Reprogramado'),
         (RESULT_NO_ANSWER, 'Sin respuesta'),
         (RESULT_TRANSFERED, 'Transferido'),
+        (RESULT_COLECTED, 'Recolectado'),
         (RESULT_OTHER, 'Otro'),
     ]
 
@@ -73,6 +75,42 @@ class TrackingMovement(models.Model):
     proof = models.FileField(upload_to=upload_location,
                              verbose_name="archivo probatorio",
                              blank=True, null=True)
+
+    from_carrier = models.ForeignKey(
+        'account.Account',
+        related_name='movement_from_carrier',
+        null=True, on_delete=models.SET_NULL,
+        verbose_name="user which was carrying package(s)")
+    to_carrier = models.ForeignKey(
+        'account.Account',
+        related_name='movement_to_carrier',
+        null=True, on_delete=models.SET_NULL,
+        verbose_name="user which is carrying package(s)")
+    from_deposit = models.ForeignKey(
+        'deposit.Deposit',
+        related_name='movement_from_deposit',
+        null=True, on_delete=models.SET_NULL,
+        verbose_name="deposit which was holding package(s)")
+    to_deposit = models.ForeignKey(
+        'deposit.Deposit',
+        related_name='movement_to_deposit',
+        null=True, on_delete=models.SET_NULL,
+        verbose_name="deposit which is holding package(s)")
+
+    # @property
+    # def flow(self):
+    #     if self.action == self.ACTION_ADDED_TO_SYSTEM:
+    #         return 'added'
+    #     if (self.action == self.ACTION_COLLECTION and
+    #             self.result == self.RESULT_TRANSFERED):
+    #         return 'withdraw'
+    #     if (self.action == self.ACTION_DEPOSIT and
+    #             self.result == self.RESULT_IN_DEPOSIT):
+    #         return 'deposit'
+    #     if self.action == self.ACTION_TRANSFER and self.result == self.RESULT_TRANSFERED:
+    #     if self.action == self.ACTION_DELIVERY_ATTEMPT:
+    #         return 'delivered'
+    #     return 'unknown'
 
     def __str__(self):
         user = self.created_by.username if self.created_by else ""

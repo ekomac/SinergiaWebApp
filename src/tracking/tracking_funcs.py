@@ -253,7 +253,7 @@ def withdraw(
         created_by=author,
         carrier=carrier,
         deposit=deposit,
-        action=TrackingMovement.ACTION_RECOLECTION,
+        action=TrackingMovement.ACTION_COLLECTION,
         result=TrackingMovement.RESULT_TRANSFERED,
     )
     movement.save()

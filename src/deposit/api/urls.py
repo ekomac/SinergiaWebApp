@@ -2,18 +2,18 @@
 from django.urls import path
 from deposit.api.views import (
     ApiDepositListView,
+    ApiDepositWithEnviosListView,
+    ApiOwnDepositsListView,
     api_detail_deposit_view,
-
 )
 
-app_name = 'deposits'
+app_name = 'deposit-api'
 
 urlpatterns = [
-    path('list/', ApiDepositListView.as_view(), name="list"),
+    path('', ApiDepositListView.as_view(), name="list"),
+    path('with-envios-list', ApiDepositWithEnviosListView.as_view(),
+         name="with-envios-list"),
+    path('own', ApiOwnDepositsListView.as_view(),
+         name="own"),
     path('<int:pk>/', api_detail_deposit_view, name="detail"),
-    # path('<slug>/update', api_update_blog_view, name="update"),
-    # path('<slug>/delete', api_delete_blog_view, name="delete"),
-    # path('create', api_create_blog_view, name="create"),
-    # path('list', ApiBlogListView.as_view(), name="list"),
-    # path('<slug>/is_author', api_is_author_of_blogpost, name="is_author"),
 ]

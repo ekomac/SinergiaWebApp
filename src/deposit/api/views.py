@@ -1,4 +1,5 @@
 # REST FRAMEWORK
+from django.db.models import Count
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
@@ -37,3 +38,21 @@ class ApiDepositListView(ListAPIView):
     # Explicitly specify which fields the API may be ordered against
     ordering_fields = ('name',)
     ordering = ('name',)
+
+
+class ApiDepositWithEnviosListView(ListAPIView):
+    queryset = Deposit.objects.filter(
+        envio__isnull=False).annotate(
+            envios=Count('envio')).order_by('-envios')
+    serializer_class = DepositSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    pagination_class = PageNumberPagination
+
+
+class ApiOwnDepositsListView(ListAPIView):
+    queryset = Deposit.objects.filter(client__isnull=True).order_by('name')
+    serializer_class = DepositSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    pagination_class = PageNumberPagination

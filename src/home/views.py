@@ -131,7 +131,7 @@ def get_all():
     for envio in moving_envios:
         carrier = TrackingMovement.objects.filter(
             envios=envio,
-            action=TrackingMovement.ACTION_RECOLECTION,
+            action=TrackingMovement.ACTION_COLLECTION,
             result=TrackingMovement.RESULT_TRANSFERED
         ).last().carrier
         town = envio.town
@@ -191,7 +191,7 @@ def get_carriers_with_envios_queryset() -> Dict[str, List[Envio]]:
     result = {}
     for envio in envios:
         tracking_movements = TrackingMovement.objects.filter(
-            envios=envio, action=TrackingMovement.ACTION_RECOLECTION,
+            envios=envio, action=TrackingMovement.ACTION_COLLECTION,
             result=TrackingMovement.RESULT_TRANSFERED
         ).order_by('-date_created')
         if tracking_movements:
@@ -231,7 +231,7 @@ def get_carriers_with_envios_queryset() -> Dict[str, List[Envio]]:
 
 def map_envio_to_carrier(envio):
     tms = envio.trackingmovement_set.filter(
-        action=TrackingMovement.ACTION_RECOLECTION,
+        action=TrackingMovement.ACTION_COLLECTION,
         result=TrackingMovement.RESULT_TRANSFERED
     )
     if tms.exists():
