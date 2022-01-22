@@ -271,7 +271,7 @@ def bulk_create_envios(
         created_by=author,
         action=TrackingMovement.ACTION_ADDED_TO_SYSTEM,
         result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
-        deposit=bulk_load_envios.deposit
+        to_deposit=bulk_load_envios.deposit
     )
     tm.save()
     tm.envios.add(*envios)

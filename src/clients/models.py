@@ -7,7 +7,6 @@ from django.core.validators import (
     MinValueValidator,
 )
 from django.db import models
-from simple_history.models import HistoricalRecords
 
 
 def upload_location(instance, filename):
@@ -106,7 +105,6 @@ class Discount(models.Model):
         "places.Partido", blank=True, verbose_name="Partidos"
     )
     is_for_flex = models.BooleanField(default=False, verbose_name="Es Flex")
-    history = HistoricalRecords()
 
     def __str__(self) -> str:
         return "{a}% de descuento para {b} por {c} partidos".format(

@@ -1,16 +1,4 @@
 from rest_framework import status
-from django.urls import reverse
-from account.models import Account
-from clients.models import Client
-from deposit.models import Deposit
-from envios.models import Envio
-from places.models import Partido, Town
-from prices.models import DeliveryCode, FlexCode
-from tracking.models import TrackingMovement
-from utils import sample_data
-from rest_framework.authtoken.models import Token
-from rest_framework.test import APITestCase
-
 from utils.tests import BaseAuthorizationTestCase, SimpleMockDbTestCase
 
 
@@ -47,4 +35,5 @@ class DepositFromNoClient(SimpleMockDbTestCase):
         self.assertEqual(
             response.data['results'][0]['address'], self.deposit_2.address)
         self.assertEqual(
-            response.data['results'][0]['client']['pk'], self.deposit_2.pk)
+            response.data['results'][0]['client'], None)
+        self.assertTrue('client' in response.data['results'][0])
