@@ -76,9 +76,10 @@ urlpatterns = [
     path('app/withdraw/', include('app_withdraw.urls')),
 
     # REST API
-    path('api/deposit/', include('deposit.api.urls', 'deposit_api')),
     path('api/account/', include('account.api.urls')),
+    path('api/deposit/', include('deposit.api.urls', 'deposit_api')),
     path('api/envios/', include('envios.api.urls', 'envios_api')),
+    path('api/places/', include('places.api.urls', 'places_api')),
     path('api/tracking/', include('tracking.api.urls', 'tracking_api')),
 ]
 

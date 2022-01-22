@@ -54,10 +54,16 @@ class BaseAuthorizationTestCase(APITestCase):
             self.client.credentials(
                 HTTP_AUTHORIZATION='Token ' + self.token.key)
             for app in self.reverse_urls_apps:
-                self.assertNotEqual(
-                    self.client.get(reverse(app), format="json").status_code,
-                    status.HTTP_401_UNAUTHORIZED
-                )
+                if ':' in app:
+                    self.assertNotEqual(
+                        self.client.get(reverse(app), format="json").status_code,
+                        status.HTTP_401_UNAUTHORIZED
+                    )
+                elif '/' in app:
+                    self.assertNotEqual(
+                        self.client.get(reverse(app), format="json").status_code,
+                        status.HTTP_401_UNAUTHORIZED
+                    )
 
 
 class SimpleMockDbTestCase(APITestCase):
@@ -158,8 +164,12 @@ class SimpleMockDbTestCase(APITestCase):
         url = reverse(self.reverse_to_app)
         return self.client.post(url, data, format='json')
 
-    def get(self):
-        if self.reverse_to_app is None:
-            raise ValueError('reverse_to_app is not defined')
-        url = reverse(self.reverse_to_app)
+    def get(self, url: str = None):
+        if url is None:
+            if self.reverse_to_app is None:
+                raise ValueError('reverse_to_app is not defined')
+            url = reverse(self.reverse_to_app)
+            return self.client.get(url, format='json')
+        if '/' not in url:
+            raise ValueError(f"Url '{url}' is invalid.")
         return self.client.get(url, format='json')

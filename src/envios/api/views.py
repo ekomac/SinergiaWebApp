@@ -42,4 +42,3 @@ class ApiEnvioListView(ListAPIView):
             filters['status__in'] = [status] if isinstance(
                 status, str) else status
         return queryset.filter(**filters)
-
