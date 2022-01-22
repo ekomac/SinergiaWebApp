@@ -3,7 +3,7 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.generics import ListAPIView
 from places.models import Town
-from places.api import TownSerializer
+from places.api.serializers import TownSerializer
 
 
 class ApiTownsOfEnviosInDepositListView(ListAPIView):
@@ -12,7 +12,7 @@ class ApiTownsOfEnviosInDepositListView(ListAPIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
-    lookup_url_kwarg = "uid"
+    lookup_url_kwarg = "deposit_id"
 
     def get_queryset(self):
         queryset = super(ApiTownsOfEnviosInDepositListView,

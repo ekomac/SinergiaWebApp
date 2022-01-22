@@ -25,6 +25,7 @@ class Zone(models.Model):
     class Meta:
         verbose_name = "Zona"
         verbose_name_plural = "Zonas"
+        ordering = ['name']
 
 
 class Partido(models.Model):
@@ -76,6 +77,7 @@ class Partido(models.Model):
     class Meta:
         verbose_name = 'Partido'
         verbose_name_plural = 'Partidos'
+        ordering = ['name']
 
 
 class Town(models.Model):
@@ -103,6 +105,7 @@ class Town(models.Model):
     class Meta:
         verbose_name = 'Localidad'
         verbose_name_plural = 'Localidades'
+        ordering = ['name']
 
 
 class ZipCode(models.Model):

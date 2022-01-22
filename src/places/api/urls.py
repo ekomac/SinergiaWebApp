@@ -7,7 +7,7 @@ app_name = 'places-api'
 
 urlpatterns = [
     path(
-        'towns-of-envios-in-deposit',
+        'towns-of-envios-in-deposit/<int:deposit_id>/',
         ApiTownsOfEnviosInDepositListView.as_view(),
         name="towns-of-envios-in-deposit-list"
     ),

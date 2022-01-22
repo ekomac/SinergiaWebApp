@@ -91,6 +91,12 @@ towns = [
     },
 ]
 
+zones = [
+    {
+        'name': 'Zona de prueba',
+    },
+]
+
 partidos = [
     {
         'name': 'Partido de prueba',
@@ -118,7 +124,35 @@ flex_codes = [
 
 envios = [
     {
-        'street': 'Calle de prueba',
+        'street': 'Calle de prueba 1',
         'detail': '0-1',
-    }
+    },
+    {
+        'street': 'Calle de prueba 2',
+        'detail': '0-1',
+    },
+    {
+        'street': 'Calle de prueba 3',
+        'detail': '0-1',
+    },
+    {
+        'street': 'Calle de prueba 4',
+        'detail': '0-1',
+    },
+    {
+        'street': 'Calle de prueba 5',
+        'detail': '0-1',
+    },
+    {
+        'street': 'Calle de prueba 6',
+        'detail': '0-1',
+    },
+    {
+        'street': 'Calle de prueba 7',
+        'detail': '0-1',
+    },
+    {
+        'street': 'Calle de prueba 8',
+        'detail': '0-1',
+    },
 ]

@@ -1,5 +1,5 @@
 from rest_framework import status
-from utils.tests import BaseAuthorizationTestCase, SimpleMockDbTestCase
+from utils.tests import BaseAuthorizationTestCase, SimpleAuthorizedMockDBAPITestCase
 
 
 class AuthorizationTestCase(BaseAuthorizationTestCase):
@@ -9,7 +9,7 @@ class AuthorizationTestCase(BaseAuthorizationTestCase):
     )
 
 
-class DepositWithEnviosTestCase(SimpleMockDbTestCase):
+class DepositWithEnviosTestCase(SimpleAuthorizedMockDBAPITestCase):
 
     reverse_to_app = 'deposit-api:with-envios-list'
 
@@ -23,7 +23,7 @@ class DepositWithEnviosTestCase(SimpleMockDbTestCase):
         self.assertEqual(response.data['results'][0]['envios'], 4)
 
 
-class DepositFromNoClient(SimpleMockDbTestCase):
+class DepositFromNoClient(SimpleAuthorizedMockDBAPITestCase):
 
     reverse_to_app = 'deposit-api:own'
 

@@ -1,5 +1,5 @@
 from rest_framework import status
-from utils.tests import BaseAuthorizationTestCase, SimpleMockDbTestCase
+from utils.tests import BaseAuthorizationTestCase, SimpleAuthorizedMockDBAPITestCase
 
 
 class AuthorizationTestCase(BaseAuthorizationTestCase):
@@ -9,7 +9,7 @@ class AuthorizationTestCase(BaseAuthorizationTestCase):
     )
 
 
-class CarriersTestCase(SimpleMockDbTestCase):
+class CarriersTestCase(SimpleAuthorizedMockDBAPITestCase):
 
     reverse_to_app = 'account-api:carriers'
 
@@ -29,7 +29,7 @@ class CarriersTestCase(SimpleMockDbTestCase):
                          response.data["results"][1]['email'])
 
 
-class EmployeesWithEnviosTestCase(SimpleMockDbTestCase):
+class EmployeesWithEnviosTestCase(SimpleAuthorizedMockDBAPITestCase):
 
     reverse_to_app = 'account-api:employees-with-envios'
 
