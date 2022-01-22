@@ -11,15 +11,17 @@ class TownSerializer(serializers.ModelSerializer):
         fields = ['pk', 'name', 'partido', 'delivery_code', 'flex_code']
 
     def get_partido_from_town(self, town):
-        if town.partido:
-            return {
+        if town.partido is not None:
+            partido = {
                 'pk': town.partido.pk,
                 'name': town.partido.name.title(),
-                'zone': {
+            }
+            if town.partido.zone is not None:
+                partido['zone'] = {
                     'pk': town.partido.zone.pk,
                     'name': town.partido.zone.name.title(),
                 }
-            }
+            return partido
         return None
 
 
@@ -32,7 +34,7 @@ class PartidoSerializer(serializers.ModelSerializer):
         fields = ['pk', 'name', 'zone']
 
     def get_zone_from_partido(self, partido):
-        if partido.zone:
+        if partido.zone is not None:
             return {
                 'pk': partido.zone.pk,
                 'name': partido.zone.name.title(),
@@ -43,4 +45,4 @@ class PartidoSerializer(serializers.ModelSerializer):
 class ZoneSerializer(serializers.ModelSerializer):
     class Meta:
         model = Zone
-        fields = ['pk', 'name', 'partido', 'delivery_code', 'flex_code']
+        fields = ['pk', 'name', ]
