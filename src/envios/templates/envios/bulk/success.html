@@ -31,13 +31,18 @@
                 <h6>
                     Los siguientes envíos fueron agregados a la base:
                 </h6>
-                <br>
                 {% if envios %}
                 <ul>
                     {% for envio in envios %}
+                    {% if forloop.counter < 15 %}
                     <li>
-                        {{envio}}
+                        {{ envio.full_address }}
                     </li>
+                    {% elif forloop.counter == 15 %}
+                    <li>
+                        ...
+                    </li>
+                    {% endif %}
                     {% endfor %}
                 </ul>
                 {% endif %}

@@ -120,52 +120,52 @@
 
 {% block orderby_block %}
 <li>
-    <button onclick="orderByChanged('date_created_desc');" class="dropdown-item">
+    <button onclick="orderByChanged('date_created_desc','id_order_by','list_form');" class="dropdown-item">
         Carga&nbsp;más&nbsp;recientes
     </button>
 </li>
 <li>
-    <button onclick="orderByChanged('date_created');" class="dropdown-item">
+    <button onclick="orderByChanged('date_created','id_order_by','list_form');" class="dropdown-item">
         Carga&nbsp;más&nbsp;antiguas
     </button>
 </li>
 <li>
-    <button onclick="orderByChanged('is_flex_desc');" class="dropdown-item">
+    <button onclick="orderByChanged('is_flex_desc','id_order_by','list_form');" class="dropdown-item">
         Flex&nbsp;primero
     </button>
 </li>
 <li>
-    <button onclick="orderByChanged('is_flex');" class="dropdown-item">
+    <button onclick="orderByChanged('is_flex','id_order_by','list_form');" class="dropdown-item">
         Mensajería&nbsp;primero
     </button>
 </li>
 <li>
-    <button onclick="orderByChanged('town__name');" class="dropdown-item">
+    <button onclick="orderByChanged('town__name','id_order_by','list_form');" class="dropdown-item">
         Localidad&nbsp;A-Z
     </button>
 </li>
 <li>
-    <button onclick="orderByChanged('town__name_desc');" class="dropdown-item">
+    <button onclick="orderByChanged('town__name_desc','id_order_by','list_form');" class="dropdown-item">
         Localidad&nbsp;Z-A
     </button>
 </li>
 <li>
-    <button onclick="orderByChanged('client__name');" class="dropdown-item">
+    <button onclick="orderByChanged('client__name','id_order_by','list_form');" class="dropdown-item">
         Cliente&nbsp;A-Z
     </button>
 </li>
 <li>
-    <button onclick="orderByChanged('client__name_desc');" class="dropdown-item">
+    <button onclick="orderByChanged('client__name_desc','id_order_by','list_form');" class="dropdown-item">
         Cliente&nbsp;Z-A
     </button>
 </li>
 <li>
-    <button onclick="orderByChanged('status');" class="dropdown-item">
+    <button onclick="orderByChanged('status','id_order_by','list_form');" class="dropdown-item">
         Estado&nbsp;A-Z
     </button>
 </li>
 <li>
-    <button onclick="orderByChanged('status_desc');" class="dropdown-item">
+    <button onclick="orderByChanged('status_desc','id_order_by','list_form');" class="dropdown-item">
         Estado&nbsp;Z-A
     </button>
 </li>
@@ -582,59 +582,69 @@
                             data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-sort-up"></i></button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <button onclick="orderByChanged('date_created_desc');" class="dropdown-item">
+                                <button onclick="orderByChanged('date_created_desc','id_order_by','list_form');"
+                                    class="dropdown-item">
                                     Carga&nbsp;más&nbsp;recientes
                                 </button>
                             </li>
                             <li>
-                                <button onclick="orderByChanged('date_created');" class="dropdown-item">
+                                <button onclick="orderByChanged('date_created','id_order_by','list_form');"
+                                    class="dropdown-item">
                                     Carga&nbsp;más&nbsp;antiguas
                                 </button>
                             </li>
                             <li>
-                                <button onclick="orderByChanged('is_flex_desc');" class="dropdown-item">
+                                <button onclick="orderByChanged('is_flex_desc','id_order_by','list_form');"
+                                    class="dropdown-item">
                                     Flex&nbsp;primero
                                 </button>
                             </li>
 
                             <li>
-                                <button onclick="orderByChanged('is_flex');" class="dropdown-item">
+                                <button onclick="orderByChanged('is_flex','id_order_by','list_form');"
+                                    class="dropdown-item">
                                     Mensajería&nbsp;primero
                                 </button>
                             </li>
 
                             <li>
-                                <button onclick="orderByChanged('town__name');" class="dropdown-item">
+                                <button onclick="orderByChanged('town__name','id_order_by','list_form');"
+                                    class="dropdown-item">
                                     Localidad&nbsp;A-Z
                                 </button>
                             </li>
 
                             <li>
-                                <button onclick="orderByChanged('town__name_desc');" class="dropdown-item">
+                                <button onclick="orderByChanged('town__name_desc','id_order_by','list_form');"
+                                    class="dropdown-item">
                                     Localidad&nbsp;Z-A
                                 </button>
                             </li>
 
                             <li>
-                                <button onclick="orderByChanged('client__name');" class="dropdown-item">
+                                <button onclick="orderByChanged('client__name','id_order_by','list_form');"
+                                    class="dropdown-item">
                                     Cliente&nbsp;A-Z
                                 </button>
                             </li>
 
                             <li>
-                                <button onclick="orderByChanged('client__name_desc');" class="dropdown-item">
+                                <button onclick="orderByChanged('client__name_desc','id_order_by','list_form');"
+                                    class="dropdown-item">
                                     Cliente&nbsp;Z-A
                                 </button>
                             </li>
 
                             <li>
-                                <button onclick="orderByChanged('status');" class="dropdown-item">
+                                <button onclick="orderByChanged('status','id_order_by','list_form');"
+                                    class="dropdown-item">
                                     Estado&nbsp;A-Z
                                 </button>
                             </li>
 
                             <li>
-                                <button onclick="orderByChanged('status_desc');" class="dropdown-item">
+                                <button onclick="orderByChanged('status_desc','id_order_by','list_form');"
+                                    class="dropdown-item">
                                     Estado&nbsp;Z-A
                                 </button>
                             </li>

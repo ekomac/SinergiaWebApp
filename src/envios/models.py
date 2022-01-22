@@ -192,6 +192,7 @@ class Envio(Receiver):
     class Meta:
         verbose_name = 'Envío'
         verbose_name_plural = 'Envíos'
+        ordering = ['-date_created']
 
     @property
     def shimpent_type(self):

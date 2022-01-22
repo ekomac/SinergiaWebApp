@@ -118,7 +118,6 @@ class EnvioListView(CompleteListView, LoginRequiredMixin):
         context = super().get_context_data()
         context['clients'] = Client.objects.all()
         context['selected_tab'] = 'shipments-tab'
-        context['clients'] = Client.objects.all()
         now = datetime.now()
         year = str(now.year).zfill(4)
         month = str(now.month).zfill(2)
@@ -431,9 +430,11 @@ def bulk_create_envios_view(request):
 @allowed_users(roles=["Admins"])
 def success_bulk_create_envios_view(request, pk):
     bulk_load = BulkLoadEnvios.objects.get(id=pk)
-    if bulk_load.load_status == BulkLoadEnvios.LOADING_STATUS_FINISHED:
+    if bulk_load.envios_were_created:
+        print("Bulk load finished")
         envios = Envio.objects.filter(bulk_upload=bulk_load)
     else:
+        print("Bulk load not finished")
         envios = bulk_create_envios(bulk_load)
         bulk_load.envios_were_created = True
     bulk_load.load_status = BulkLoadEnvios.LOADING_STATUS_FINISHED

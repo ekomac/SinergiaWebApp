@@ -122,28 +122,30 @@ class TrackingMovement(models.Model):
         return f'{dt}_{user}_{action}_to_{result}'
 
     def admin_display(self):
-        added = self.action == self.ACTION_ADDED_TO_SYSTEM \
-            and self.result == self.RESULT_ADDED_TO_SYSTEM
-        withdraw_from_origin = self.action == self.ACTION_RECOLECTION \
-            and self.result == self.RESULT_TRANSFERED \
-            and self.deposit.client is not None
-        deposit = self.action == self.ACTION_DEPOSIT \
-            and self.result == self.RESULT_IN_DEPOSIT \
-            and self.deposit.client is None
-        withdraw_from_central = self.action == self.ACTION_RECOLECTION \
-            and self.result == self.RESULT_TRANSFERED \
-            and self.deposit.client is None and self.deposit.is_central
-        withdraw_from_deposit = self.action == self.ACTION_RECOLECTION \
-            and self.result == self.RESULT_TRANSFERED \
-            and self.deposit.client is None and self.deposit.is_sinergia
-        delivered = self.action == self.ACTION_DELIVERY_ATTEMPT \
-            and self.result == self.RESULT_DELIVERED
-        rejected = self.action == self.ACTION_DELIVERY_ATTEMPT \
-            and self.result == self.RESULT_REJECTED_AT_DESTINATION
-        reprogramed = self.action == self.ACTION_DELIVERY_ATTEMPT \
-            and self.result == self.RESULT_REPROGRAMED
-        no_answer = self.action == self.ACTION_DELIVERY_ATTEMPT \
-            and self.result == self.RESULT_NO_ANSWER
+        added = (self.action == self.ACTION_ADDED_TO_SYSTEM and
+                 self.result == self.RESULT_ADDED_TO_SYSTEM)
+        withdraw_from_origin = (self.action == self.ACTION_COLLECTION and
+                                self.result == self.RESULT_TRANSFERED and
+                                self.deposit.client is not None)
+        deposit = (self.action == self.ACTION_DEPOSIT and
+                   self.result == self.RESULT_IN_DEPOSIT and
+                   self.deposit.client is None)
+        withdraw_from_central = (self.action == self.ACTION_COLLECTION and
+                                 self.result == self.RESULT_TRANSFERED and
+                                 self.deposit.client is None and
+                                 self.deposit.is_central)
+        withdraw_from_deposit = (self.action == self.ACTION_COLLECTION and
+                                 self.result == self.RESULT_TRANSFERED and
+                                 self.deposit.client is None and
+                                 self.deposit.is_sinergia)
+        delivered = (self.action == self.ACTION_DELIVERY_ATTEMPT and
+                     self.result == self.RESULT_DELIVERED)
+        rejected = (self.action == self.ACTION_DELIVERY_ATTEMPT and
+                    self.result == self.RESULT_REJECTED_AT_DESTINATION)
+        reprogramed = (self.action == self.ACTION_DELIVERY_ATTEMPT and
+                       self.result == self.RESULT_REPROGRAMED)
+        no_answer = (self.action == self.ACTION_DELIVERY_ATTEMPT and
+                     self.result == self.RESULT_NO_ANSWER)
 
         if added:
             return '<b>Nuevo</b>: agregado al sistema.'

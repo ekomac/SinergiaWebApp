@@ -251,6 +251,7 @@ def bulk_create_envios(
     """
     # Get the csv file
     envios = []
+    print(bulk_load_envios.csv_result)
     for i, row in enumerate(bulk_load_envios.csv_result.split("\n")):
         if i == 0 or "traking_id" in row:
             continue
@@ -262,6 +263,7 @@ def bulk_create_envios(
         # print("envio.deposit", envio.deposit)
         envio.save()
         envios.append(envio)
+        print("ENVIO", envios)
     # envios = Envio.objects.bulk_create(envios)
     # for envio in envios:
     #     # For every envio, create a tracking movement

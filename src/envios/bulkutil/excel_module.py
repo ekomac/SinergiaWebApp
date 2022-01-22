@@ -202,8 +202,9 @@ class ExcelModule(ShipmentExractorModule):
 
             dest = ""
             if columns_order[DESTINATARIO] != -1:
-                if self.sheet.cell(row=row_i, column=columns_order[DESTINATARIO]
-                                   ).value:
+                if self.sheet.cell(
+                    row=row_i, column=columns_order[DESTINATARIO]
+                ).value:
                     dest = self.sheet.cell(
                         row=row_i, column=columns_order[DESTINATARIO]).value
             shipment.destinatario = dest
