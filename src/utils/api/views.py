@@ -10,10 +10,17 @@ class BaseListAPIView(ListAPIView):
     pagination_class = PageNumberPagination
     id_in_url_kwarg = None
     query_filter = None
+    extra_filters = None
 
     def get_queryset(self):
         queryset = super(BaseListAPIView, self).get_queryset()
-        if self.id_in_url_kwarg is None or self.query_filter is None:
-            return queryset
-        uid = self.kwargs.get(self.id_in_url_kwarg)
-        return queryset.filter(**{self.query_filter: uid}).distinct()
+        filters = {}
+        if (self.extra_filters is not None and
+                isinstance(self.extra_filters, dict)):
+            filters.update(self.extra_filters)
+        if self.id_in_url_kwarg is not None and self.query_filter is not None:
+            filters[self.query_filter] = self.kwargs.get(self.id_in_url_kwarg)
+        print(filters)
+        print(queryset.filter(**filters))
+        print(queryset.filter(**filters).distinct())
+        return queryset.filter(**filters).distinct()

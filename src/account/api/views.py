@@ -20,12 +20,16 @@ from account.models import Account
 @permission_classes([IsAuthenticated])
 def api_detail_carrier_view(request, pk):
     try:
-        account = Account.objects.get(pk=pk)
         account = Account.objects.filter(
             pk=pk, groups__name__in=[
                 'Admins', 'EmployeeTier1', 'EmployeeTier2']).last()
         if account is None:
-            raise ValueError('No se encontró la cuenta')
+            return Response(
+                data={
+                    'response': 'No se encontró la cuenta con id {}.'.format(
+                        account.pk)
+                },
+                status=status.HTTP_404_NOT_FOUND)
     except Account.DoesNotExist or ValueError:
         return Response(status=status.HTTP_404_NOT_FOUND)
     except ValueError:

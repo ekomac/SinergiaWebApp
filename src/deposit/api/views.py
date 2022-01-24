@@ -34,7 +34,7 @@ class ApiDepositListView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
     filter_backends = (SearchFilter, OrderingFilter)
-    search_fields = ('name', 'clien__name', )
+    search_fields = ('name', 'client__name', )
     # Explicitly specify which fields the API may be ordered against
     ordering_fields = ('name',)
     ordering = ('name',)

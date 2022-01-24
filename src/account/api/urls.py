@@ -13,7 +13,7 @@ urlpatterns = [
 
     path('employees-with-envios/', ApiEmployeesWithEnviosListView.as_view(),
          name="employees-with-envios"),
-    path('carrier/', ApiCarrierListView.as_view(),
+    path('carriers/', ApiCarrierListView.as_view(),
          name="carriers"),
     path('carrier/<int:pk>/', api_detail_carrier_view,
          name="carrier-detail"),
