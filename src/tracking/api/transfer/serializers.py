@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from envios.models import Envio
+from places.models import Partido, Town
 from tracking.models import TrackingMovement
 from tracking.utils.transfer import (
     transfer_all,
@@ -13,7 +14,8 @@ from tracking.utils.transfer import (
 
 class BaseTransferSerializer(serializers.ModelSerializer):
     def check_carrier_is_carrier(self, carrier):
-        if carrier.envios_carried_by.filter(status=Envio.STATUS_MOVING).count() == 0:
+        if carrier.envios_carried_by.filter(
+                status=Envio.STATUS_MOVING).count() == 0:
             raise serializers.ValidationError(
                 {"response": "Carrier isn't carrying any Envíos."}
             )
@@ -22,31 +24,18 @@ class BaseTransferSerializer(serializers.ModelSerializer):
 class TransferAllSerializer(BaseTransferSerializer):
     class Meta:
         model = TrackingMovement
-        fields = (
-            'created_by',
-            'from_carrier',
-            'to_carrier',
-        )
+        fields = ('created_by', 'from_carrier', 'to_carrier',)
         extra_kwargs = {
-            'from_carrier': {
-                'required': True,
-            },
-            'to_carrier': {
-                'required': True,
-            },
+            'from_carrier': {'required': True, },
+            'to_carrier': {'required': True, },
         }
 
     def save(self):
-
-        try:
-            author = self.validated_data['created_by']
-            from_carrier = self.validated_data['from_carrier']
-            to_carrier = self.validated_data['to_carrier']
-            self.check_carrier_is_carrier(from_carrier)
-            return transfer_all(author, from_carrier, to_carrier)
-        except KeyError as e:
-            raise serializers.ValidationError(
-                {"response": "Missing data from {}".format(e)})
+        author = self.validated_data['created_by']
+        from_carrier = self.validated_data['from_carrier']
+        to_carrier = self.validated_data['to_carrier']
+        self.check_carrier_is_carrier(from_carrier)
+        return transfer_all(author, from_carrier, to_carrier)
 
 
 class TransferByEnviosIdsSerializer(BaseTransferSerializer):
@@ -57,45 +46,30 @@ class TransferByEnviosIdsSerializer(BaseTransferSerializer):
 
     class Meta:
         model = TrackingMovement
-        fields = (
-            'created_by',
-            'from_carrier',
-            'to_carrier',
-            'envios_ids',
-        )
+        fields = ('created_by', 'from_carrier', 'to_carrier', 'envios_ids',)
         extra_kwargs = {
-            'from_carrier': {
-                'required': True,
-            },
-            'to_carrier': {
-                'required': True,
-            },
-            'envios_ids': {
-                'required': True,
-            },
+            'from_carrier': {'required': True, },
+            'to_carrier': {'required': True, },
+            'envios_ids': {'required': True, },
         }
 
     def save(self):
-        try:
-            author = self.validated_data['created_by']
-            from_carrier = self.validated_data['from_carrier']
-            to_carrier = self.validated_data['to_carrier']
-            self.check_carrier_is_carrier(from_carrier)
-            envios_ids = self.validated_data['envios_ids']
+        author = self.validated_data['created_by']
+        from_carrier = self.validated_data['from_carrier']
+        to_carrier = self.validated_data['to_carrier']
+        self.check_carrier_is_carrier(from_carrier)
+        envios_ids = self.validated_data['envios_ids']
 
-            if from_carrier.envios_carried_by.filter(
-                    pk__in=envios_ids).count() != len(envios_ids):
-                raise serializers.ValidationError(
-                    {"response": "Some of the Envíos with given ids " +
-                        "{} don't exist or aren't carried by {}.".format(
-                            envios_ids, from_carrier.full_name)
-                     }
-                )
-            return transfer_by_envios_ids(
-                author, from_carrier, to_carrier, *envios_ids)
-        except KeyError as e:
+        if from_carrier.envios_carried_by.filter(
+                pk__in=envios_ids).count() != len(envios_ids):
             raise serializers.ValidationError(
-                {"response": "Faltan datos de {}".format(e)})
+                {"response": "Some of the Envíos with given ids " +
+                    "{} don't exist or aren't carried by {}.".format(
+                        envios_ids, from_carrier.full_name)
+                 }
+            )
+        return transfer_by_envios_ids(
+            author, from_carrier, to_carrier, *envios_ids)
 
 
 class TransferByTownsIdsSerializer(BaseTransferSerializer):
@@ -106,46 +80,32 @@ class TransferByTownsIdsSerializer(BaseTransferSerializer):
 
     class Meta:
         model = TrackingMovement
-        fields = (
-            'created_by',
-            'from_carrier',
-            'to_carrier',
-            'towns_ids',
-        )
+        fields = ('created_by', 'from_carrier', 'to_carrier', 'towns_ids',)
         extra_kwargs = {
-            'from_carrier': {
-                'required': True,
-            },
-            'to_carrier': {
-                'required': True,
-            },
-            'towns_ids': {
-                'required': True,
-            },
+            'from_carrier': {'required': True, },
+            'to_carrier': {'required': True, },
+            'towns_ids': {'required': True, },
         }
 
     def save(self):
-        try:
-            author = self.validated_data['created_by']
-            from_carrier = self.validated_data['from_carrier']
-            to_carrier = self.validated_data['to_carrier']
-            self.check_carrier_is_carrier(from_carrier)
-            towns_ids = self.validated_data['towns_ids']
+        author = self.validated_data['created_by']
+        from_carrier = self.validated_data['from_carrier']
+        to_carrier = self.validated_data['to_carrier']
+        self.check_carrier_is_carrier(from_carrier)
+        towns_ids = self.validated_data['towns_ids']
 
-            if from_carrier.envios_carried_by.filter(
-                    town__id__in=towns_ids).count() != len(towns_ids):
-                raise serializers.ValidationError(
-                    {"response": "Some of the Towns with given ids {} ".format(
-                        towns_ids
-                    ) + "don't correspond to Envíos at the deposit {}.".format(
-                        deposit)
-                    }
-                )
-            return transfer_by_towns_ids(author, from_carrier, to_carrier, *towns_ids)
-        except KeyError as e:
+        if from_carrier.envios_carried_by.filter(
+                town__id__in=towns_ids).count() != len(
+                    Town.objects.filter(pk__in=towns_ids)):
             raise serializers.ValidationError(
-                {"response": "Faltan datos de {}".format(e)}
+                {"response": "Some of the Towns with given ids {} ".format(
+                    towns_ids
+                ) + "don't correspond to Envíos carried by {}.".format(
+                    from_carrier.full_name)
+                }
             )
+        return transfer_by_towns_ids(
+            author, from_carrier, to_carrier, *towns_ids)
 
 
 class TransferByPartidosIdsSerializer(BaseTransferSerializer):
@@ -156,12 +116,7 @@ class TransferByPartidosIdsSerializer(BaseTransferSerializer):
 
     class Meta:
         model = TrackingMovement
-        fields = (
-            'created_by',
-            'from_carrier',
-            'to_carrier',
-            'partidos_ids',
-        )
+        fields = ('created_by', 'from_carrier', 'to_carrier', 'partidos_ids',)
         extra_kwargs = {
             'from_carrier': {'required': True, },
             'to_carrier': {'required': True, },
@@ -169,27 +124,24 @@ class TransferByPartidosIdsSerializer(BaseTransferSerializer):
         }
 
     def save(self):
-        try:
-            author = self.validated_data['created_by']
-            from_carrier = self.validated_data['from_carrier']
-            to_carrier = self.validated_data['to_carrier']
-            self.check_carrier_is_carrier(from_carrier)
-            partidos_ids = self.validated_data['partidos_ids']
+        author = self.validated_data['created_by']
+        from_carrier = self.validated_data['from_carrier']
+        to_carrier = self.validated_data['to_carrier']
+        self.check_carrier_is_carrier(from_carrier)
+        partidos_ids = self.validated_data['partidos_ids']
 
-            if deposit.envio_set.filter(
-                    town__partido__id__in=partidos_ids
-            ).count() != len(partidos_ids):
-                raise serializers.ValidationError(
-                    {"response": "Some of the Partidos with given ids" +
-                     " {} don't correspond to Towns ".format(partidos_ids) +
-                     "of Envíos at the deposit {}.".format(deposit)}
-                )
-            return transfer_by_partidos_ids(
-                author, from_carrier, to_carrier, *partidos_ids)
-        except KeyError as e:
+        if from_carrier.envios_carried_by.filter(
+                town__partido__id__in=partidos_ids
+        ).count() != len(Partido.objects.filter(pk__in=partidos_ids)):
             raise serializers.ValidationError(
-                {"response": "Faltan datos de {}".format(e)}
+                {"response": "Some of the Partidos with given ids" +
+                 " {} don't correspond to Towns ".format(partidos_ids) +
+                 "of Envíos carried by {} (pk={}).".format(
+                     from_carrier.full_name, from_carrier.pk)
+                 }
             )
+        return transfer_by_partidos_ids(
+            author, from_carrier, to_carrier, *partidos_ids)
 
 
 class TransferByZonesIdsSerializer(BaseTransferSerializer):
@@ -200,12 +152,7 @@ class TransferByZonesIdsSerializer(BaseTransferSerializer):
 
     class Meta:
         model = TrackingMovement
-        fields = (
-            'created_by',
-            'from_carrier',
-            'to_carrier',
-            'zones_ids',
-        )
+        fields = ('created_by', 'from_carrier', 'to_carrier', 'zones_ids',)
         extra_kwargs = {
             'from_carrier': {'required': True, },
             'to_carrier': {'required': True, },
@@ -213,24 +160,23 @@ class TransferByZonesIdsSerializer(BaseTransferSerializer):
         }
 
     def save(self):
-        try:
-            author = self.validated_data['created_by']
-            from_carrier = self.validated_data['from_carrier']
-            to_carrier = self.validated_data['to_carrier']
-            self.check_carrier_is_carrier(from_carrier)
-            zones_ids = self.validated_data['zones_ids']
+        author = self.validated_data['created_by']
+        from_carrier = self.validated_data['from_carrier']
+        to_carrier = self.validated_data['to_carrier']
+        self.check_carrier_is_carrier(from_carrier)
+        zones_ids = self.validated_data['zones_ids']
 
-            if deposit.envio_set.filter(
-                    town__partido__zone__id__in=zones_ids
-            ).count() != len(zones_ids):
-                raise serializers.ValidationError(
-                    {"response": "Some of the Zones with given ids" +
-                     " {} don't correspond to Partidos of Towns ".format(
-                         zones_ids
-                     ) + "of Envíos at the deposit {}.".format(deposit)}
-                )
-            return transfer_by_zones_ids(author, from_carrier, to_carrier, *zones_ids)
-        except KeyError as e:
+        if from_carrier.envios_carried_by.filter(
+                town__partido__zone__id__in=zones_ids
+        ).count() != len(zones_ids):
             raise serializers.ValidationError(
-                {"response": "Faltan datos de {}".format(e)}
+                {"response": "Some of the Zones with given ids" +
+                 " {} don't correspond to Partidos of Towns ".format(
+                     zones_ids
+                 ) + "of Envíos carried by {}.".format(
+                     from_carrier.full_name
+                 )
+                 }
             )
+        return transfer_by_zones_ids(
+            author, from_carrier, to_carrier, *zones_ids)

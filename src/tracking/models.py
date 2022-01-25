@@ -23,6 +23,7 @@ class TrackingMovement(models.Model):
         (ACTION_COLLECTION, "Recolección"),
         (ACTION_DEPOSIT, "Depósito"),
         (ACTION_DELIVERY_ATTEMPT, "Intento de entrega"),
+        (ACTION_TRANSFER, "Transferencia"),
     ]
 
     RESULT_ADDED_TO_SYSTEM = '_new'
