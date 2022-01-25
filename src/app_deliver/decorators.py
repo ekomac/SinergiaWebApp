@@ -14,12 +14,12 @@ def deliver_safe(redirect_app: str = None, *redirect_args, **redirect_kwargs):
     def decorator(view_func):
         def wrapper_func(request, *args, **kwargs):
             # If the user is carrying a "Envío"
-            is_carrier = request.user.Carrier.count() > 0
+            is_carrier = request.user.envios_carried_by.count() > 0
             print("is_carrier", is_carrier)
             envio_id = request.GET.get('eid', None)
             # If the user isn't carrying something
             if not is_carrier or (is_carrier and envio_id is not None and
-                                  not request.user.Carrier.filter(
+                                  not request.user.envios_carried_by.filter(
                                       pk=envio_id).exists()
                                   ):
                 # And the redirect is correctly provided

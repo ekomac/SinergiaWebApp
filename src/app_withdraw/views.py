@@ -54,7 +54,7 @@ def select_carrier_view(request, deposit_pk) -> HttpResponse:
     # Get carriers which are employees
     carriers = Account.objects.filter(
         groups__name__in=['Admins', 'EmployeeTier1', 'EmployeeTier2']
-    ).annotate(envios=Count('Carrier')).order_by('envios').distinct().values(
+    ).annotate(envios=Count('envios_carried_by')).order_by('envios').distinct().values(
         "pk", "username", "first_name", "last_name", "envios")
     # Parse them to list of JSON
     carriers = [json.dumps(carrier, indent=4) for carrier in carriers]

@@ -116,7 +116,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
                                         upload_to=profile_pic_upload_location,
                                         blank=True, null=True)
     client = models.ForeignKey(
-        Client, on_delete=models.CASCADE, null=True, blank=True)
+        Client, on_delete=models.CASCADE, null=True, blank=True,
+        related_name="client_user_account")
 
     # USER INFO
     first_name = models.CharField(verbose_name="first name", max_length=30)

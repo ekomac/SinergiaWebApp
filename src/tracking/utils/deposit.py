@@ -7,7 +7,8 @@ from tracking.models import TrackingMovement
 def create_deposit_movement(
     author,
     from_carrier: Account,
-    to_deposit: Deposit
+    to_deposit: Deposit,
+    label: str
 ) -> TrackingMovement:
     """
     Creates a movement for the deposit action.
@@ -26,6 +27,7 @@ def create_deposit_movement(
         to_deposit=to_deposit,
         action=TrackingMovement.ACTION_DEPOSIT,
         result=TrackingMovement.RESULT_IN_DEPOSIT,
+        label=label
     )
     movement.save()
     return movement
@@ -50,6 +52,7 @@ def add_and_udpate_envios(
         status=Envio.STATUS_STILL,
         deposit=to_deposit,
         carrier=None,
+        updated_by=movement.created_by
     )
 
 
@@ -72,12 +75,13 @@ def deposit_all(
     Returns:
         TrackingMovement: the created movement.
     """
-    movement = create_deposit_movement(author, from_carrier, to_deposit)
+    movement = create_deposit_movement(
+        author, from_carrier, to_deposit, TrackingMovement.LABEL_ALL)
     add_and_udpate_envios(movement, from_carrier, to_deposit)
     return movement
 
 
-def deposit_by_ids(
+def deposit_by_envios_ids(
     author,
     from_carrier: Account,
     to_deposit: Deposit,
@@ -98,12 +102,13 @@ def deposit_by_ids(
     Returns:
         TrackingMovement: the created movement.
     """
-    movement = create_deposit_movement(author, from_carrier, to_deposit)
+    movement = create_deposit_movement(
+        author, from_carrier, to_deposit, TrackingMovement.LABEL_BY_ENVIOS_IDS)
     add_and_udpate_envios(movement, from_carrier, to_deposit, id__in=ids)
     return movement
 
 
-def deposit_by_town_ids(
+def deposit_by_towns_ids(
     author: Account,
     from_carrier: Account,
     to_deposit: Deposit,
@@ -123,13 +128,14 @@ def deposit_by_town_ids(
     Returns:
         TrackingMovement: the created movement.
     """
-    movement = create_deposit_movement(author, from_carrier, to_deposit)
+    movement = create_deposit_movement(
+        author, from_carrier, to_deposit, TrackingMovement.LABEL_BY_TOWNS_IDS)
     add_and_udpate_envios(movement, from_carrier,
                           to_deposit, town__id__in=town_ids)
     return movement
 
 
-def deposit_by_partido_ids(
+def deposit_by_partidos_ids(
     author: Account,
     from_carrier: Account,
     to_deposit: Deposit,
@@ -149,13 +155,15 @@ def deposit_by_partido_ids(
     Returns:
         TrackingMovement: the created movement.
     """
-    movement = create_deposit_movement(author, from_carrier, to_deposit)
+    movement = create_deposit_movement(
+        author, from_carrier, to_deposit,
+        TrackingMovement.LABEL_BY_PARTIDOS_IDS)
     add_and_udpate_envios(movement, from_carrier, to_deposit,
                           town__partido__id__in=partido_ids)
     return movement
 
 
-def deposit_by_zone_ids(
+def deposit_by_zones_ids(
     author: Account,
     from_carrier: Account,
     to_deposit: Deposit,
@@ -175,7 +183,8 @@ def deposit_by_zone_ids(
     Returns:
         TrackingMovement: the created movement.
     """
-    movement = create_deposit_movement(author, from_carrier, to_deposit)
+    movement = create_deposit_movement(
+        author, from_carrier, to_deposit, TrackingMovement.LABEL_BY_ZONES_IDS)
     add_and_udpate_envios(movement, from_carrier, to_deposit,
                           town__partido__zone__id__in=zone_ids)
     return movement

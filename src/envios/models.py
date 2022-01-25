@@ -101,13 +101,13 @@ class Envio(Receiver):
         auto_now=True, verbose_name="Actualización")
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
-        verbose_name="Editado por", related_name="Editor",
+        verbose_name="Editado por", related_name="envios_edited_by",
         blank=True, null=True, default=None)
     status = models.CharField(
         verbose_name="Estado",
         max_length=2, choices=STATUSES, default=STATUS_NEW)
     carrier = models.ForeignKey(
-        'account.Account', related_name="Carrier",
+        'account.Account', related_name="envios_carried_by",
         verbose_name="Portador", blank=True, null=True,
         default=None, on_delete=models.SET_NULL)
     deposit = models.ForeignKey(

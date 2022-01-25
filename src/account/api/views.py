@@ -46,7 +46,7 @@ def api_detail_carrier_view(request, pk):
 class ApiEmployeesWithEnviosListView(ListAPIView):
     queryset = Account.objects.filter(
         groups__name__in=['Admins', 'EmployeeTier1', 'EmployeeTier2'],
-    ).annotate(envios=Count('Carrier')).order_by('-envios').distinct()
+    ).annotate(envios=Count('envios_carried_by')).order_by('-envios').distinct()
     serializer_class = EmployeeSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -56,8 +56,8 @@ class ApiEmployeesWithEnviosListView(ListAPIView):
 class ApiCarrierListView(ListAPIView):
     queryset = Account.objects.filter(
         groups__name__in=['Admins', 'EmployeeTier1', 'EmployeeTier2'],
-        Carrier__isnull=False,
-    ).annotate(envios=Count('Carrier')).order_by('-envios').distinct()
+        envios_carried_by__isnull=False,
+    ).annotate(envios=Count('envios_carried_by')).order_by('-envios').distinct()
     serializer_class = EmployeeSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)

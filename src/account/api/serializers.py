@@ -26,7 +26,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
         )
 
     def get_envios_from_account(self, account):
-        return account.Carrier.count()
+        return account.envios_carried_by.count()
 
     def get_full_name_from_account(self, account):
         return account.full_name

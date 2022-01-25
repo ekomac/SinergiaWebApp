@@ -46,6 +46,19 @@ class TrackingMovement(models.Model):
         (RESULT_OTHER, 'Otro'),
     ]
 
+    LABEL_ALL = 'all'
+    LABEL_BY_ENVIOS_IDS = 'by_envios_ids'
+    LABEL_BY_TOWNS_IDS = 'by_towns_ids'
+    LABEL_BY_PARTIDOS_IDS = 'by_partidos_ids'
+    LABEL_BY_ZONES_IDS = 'by_zones_ids'
+    LABEL = [
+        (LABEL_ALL, 'Todos'),
+        (LABEL_BY_ENVIOS_IDS, 'By envíos'),
+        (LABEL_BY_TOWNS_IDS, 'By towns'),
+        (LABEL_BY_PARTIDOS_IDS, 'By partidos'),
+        (LABEL_BY_ZONES_IDS, 'By zonas'),
+    ]
+
     envios = models.ManyToManyField(
         'envios.Envio', verbose_name="Envios relacionados")
     created_by = models.ForeignKey('account.Account',
@@ -56,6 +69,9 @@ class TrackingMovement(models.Model):
                                 related_name='movement_carrier', blank=True,
                                 null=True, on_delete=models.SET_NULL,
                                 verbose_name="user carrying package")
+    label = models.CharField(verbose_name="Label", max_length=15,
+                             choices=LABEL, default=LABEL_ALL,
+                             blank=True, null=True)
     action = models.CharField(verbose_name="Acción", max_length=50,
                               default=ACTION_ADDED_TO_SYSTEM,
                               blank=False, null=False, choices=ACTIONS)
@@ -80,22 +96,22 @@ class TrackingMovement(models.Model):
         'account.Account',
         related_name='movement_from_carrier',
         null=True, on_delete=models.SET_NULL,
-        verbose_name="user which was carrying package(s)")
+        verbose_name="El usuario que transportó el/los paquete/s (FROM)")
     to_carrier = models.ForeignKey(
         'account.Account',
         related_name='movement_to_carrier',
         null=True, on_delete=models.SET_NULL,
-        verbose_name="user which is carrying package(s)")
+        verbose_name="El usuario que tiene el/los paquete/s (TO)")
     from_deposit = models.ForeignKey(
         'deposit.Deposit',
         related_name='movement_from_deposit',
         null=True, on_delete=models.SET_NULL,
-        verbose_name="deposit which was holding package(s)")
+        verbose_name="El depósito que tenía el/los paquete/s (FROM)")
     to_deposit = models.ForeignKey(
         'deposit.Deposit',
         related_name='movement_to_deposit',
         null=True, on_delete=models.SET_NULL,
-        verbose_name="deposit which is holding package(s)")
+        verbose_name="El depósito que tiene el/los paquete/s (TO)")
 
     # @property
     # def flow(self):
@@ -107,7 +123,8 @@ class TrackingMovement(models.Model):
     #     if (self.action == self.ACTION_DEPOSIT and
     #             self.result == self.RESULT_IN_DEPOSIT):
     #         return 'deposit'
-    #     if self.action == self.ACTION_TRANSFER and self.result == self.RESULT_TRANSFERED:
+    #     if self.action == self.ACTION_TRANSFER
+    #             and self.result == self.RESULT_TRANSFERED:
     #     if self.action == self.ACTION_DELIVERY_ATTEMPT:
     #         return 'delivered'
     #     return 'unknown'

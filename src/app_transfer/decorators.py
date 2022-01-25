@@ -19,7 +19,7 @@ def transfer_safe(
     def decorator(view_func):
         def wrapper_func(request, *args, **kwargs):
             # If the user is carrying a "Envío"
-            is_carrier = request.user.Carrier.count() > 0
+            is_carrier = request.user.envios_carried_by.count() > 0
             # If the user isn't carrying something and has an appropiate role
             if not is_carrier and request.user.groups.exists() and \
                     not request.user.groups.all().filter(

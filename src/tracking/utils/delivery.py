@@ -34,7 +34,7 @@ def delivery_attempt(
         action=TrackingMovement.ACTION_DELIVERY_ATTEMPT,
         result=result_obtained,
         proof=proof_file,
-        comment=comment
+        comment=comment,
     )
     movement.save()
 
@@ -48,7 +48,8 @@ def delivery_attempt(
             status=Envio.STATUS_DELIVERED,
             carrier=None,
             deposit=None,
-            date_delivered=movement.date_created
+            date_delivered=movement.date_created,
+            updated_by=movement.created_by
         )
     return movement, envios[0]
 
@@ -103,6 +104,7 @@ def indirect_delivery_attempt(
             status=Envio.STATUS_DELIVERED,
             carrier=None,
             deposit=None,
-            date_delivered=movement.date_created
+            date_delivered=movement.date_created,
+            updated_by=movement.created_by
         )
     return (movement, envios[0])

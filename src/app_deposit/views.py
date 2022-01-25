@@ -23,8 +23,8 @@ def index_view(request) -> HttpResponse:
         return redirect('app_deposit:select-deposit',
                         carrier_pk=request.user.pk)
     carriers = Account.objects.filter(
-        Carrier__isnull=False
-    ).annotate(envios=Count('Carrier')).order_by('envios').distinct()
+        envios_carried_by__isnull=False
+    ).annotate(envios=Count('envios_carried_by')).order_by('envios').distinct()
     context = {
         'carriers': carriers,
         'can_watch_other': 1
@@ -128,7 +128,7 @@ def filter_by_view(request, carrier_pk, deposit_pk) -> HttpResponse:
     carrier = get_object_or_404(Account, pk=carrier_pk)
     context['carrier'] = carrier
     context['deposit'] = get_object_or_404(Deposit, pk=deposit_pk)
-    context['envios_count'] = carrier.Carrier.count()
+    context['envios_count'] = carrier.envios_carried_by.count()
     return render(request, 'app_deposit/select_filter_by.html', context)
 
 
@@ -140,7 +140,7 @@ def confirmed_filtered_view(request, carrier_pk, deposit_pk) -> HttpResponse:
     _deposit = get_object_or_404(Deposit, pk=deposit_pk)
     context['carrier'] = carrier
     context['deposit'] = _deposit
-    context['envios_count'] = carrier.Carrier.count()
+    context['envios_count'] = carrier.envios_carried_by.count()
 
     if request.method == 'GET':
         filter_by = request.GET.get('filter_by')

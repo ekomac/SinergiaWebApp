@@ -27,8 +27,8 @@ def index_view(request) -> HttpResponse:
         return redirect('app_transfer:select-receiver',
                         carrier_pk=request.user.pk)
     carriers = Account.objects.filter(
-        Carrier__isnull=False
-    ).annotate(envios=Count('Carrier')).order_by('envios').distinct()
+        envios_carried_by__isnull=False
+    ).annotate(envios=Count('envios_carried_by')).order_by('envios').distinct()
     context = {
         'carriers': carriers,
         'can_watch_other': 1
@@ -56,7 +56,7 @@ def select_receiver_view(request, carrier_pk):
     receivers = Account.objects.filter(
         groups__name__in=['Admins', 'EmployeeTier1', 'EmployeeTier2']
     ).exclude(pk=carrier_pk).annotate(
-        envios=Count('Carrier')).order_by('envios').distinct().values(
+        envios=Count('envios_carried_by')).order_by('envios').distinct().values(
         "pk", "username", "first_name", "last_name", "envios")
     # Parse them to list of JSON
     receivers = [json.dumps(receiver, indent=4) for receiver in receivers]

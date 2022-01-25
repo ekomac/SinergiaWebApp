@@ -26,8 +26,8 @@ def index_view(request) -> HttpResponse:
         return redirect('app_deliver:scan',
                         carrier_pk=request.user.pk)
     carriers = Account.objects.filter(
-        Carrier__isnull=False
-    ).annotate(envios=Count('Carrier')).order_by('envios').distinct()
+        envios_carried_by__isnull=False
+    ).annotate(envios=Count('envios_carried_by')).order_by('envios').distinct()
     context = {
         'carriers': carriers
     }

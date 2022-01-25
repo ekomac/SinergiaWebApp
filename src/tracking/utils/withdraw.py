@@ -7,7 +7,8 @@ from tracking.models import TrackingMovement
 def create_withdraw_movement(
         author,
         from_deposit: Deposit,
-        to_carrier: Account
+        to_carrier: Account,
+        label: str
 ) -> TrackingMovement:
     """
     Creates a movement for the withdraw action.
@@ -27,30 +28,27 @@ def create_withdraw_movement(
         to_carrier=to_carrier,
         action=TrackingMovement.ACTION_COLLECTION,
         result=TrackingMovement.RESULT_COLECTED,
+        label=label,
     )
     movement.save()
     return movement
 
 
-def add_and_udpate_envios(
-    movement: TrackingMovement,
-    from_deposit: Deposit,
-    to_carrier: Account,
-    **filters
-) -> None:
+def add_and_udpate_envios(movement: TrackingMovement, **filters) -> None:
     """
     Adds and updates the envios of a movement.
     """
     envios = Envio.objects.filter(
         status__in=[Envio.STATUS_NEW, Envio.STATUS_STILL],
-        deposit=from_deposit,
+        deposit=movement.from_deposit,
         **filters
     )
     # Add envios to the movement
     movement.envios.add(*envios)
     envios.update(
+        updated_by=movement.created_by,
         status=Envio.STATUS_MOVING,
-        carrier=to_carrier,
+        carrier=movement.to_carrier,
         deposit=None
     )
 
@@ -74,13 +72,14 @@ def withdraw_all(
     Returns:
         TrackingMovement: the created movement.
     """
-    movement = create_withdraw_movement(author, from_deposit, to_carrier)
-    add_and_udpate_envios(movement, from_deposit, to_carrier)
+    movement = create_withdraw_movement(
+        author, from_deposit, to_carrier, TrackingMovement.LABEL_ALL)
+    add_and_udpate_envios(movement)
     return movement
 
 
-def withdraw_by_ids(
-    author,
+def withdraw_by_envios_ids(
+    author: Account,
     from_deposit: Deposit,
     to_carrier: Account,
     *ids: int
@@ -100,12 +99,13 @@ def withdraw_by_ids(
     Returns:
         TrackingMovement: the created movement.
     """
-    movement = create_withdraw_movement(author, from_deposit, to_carrier)
-    add_and_udpate_envios(movement, from_deposit, to_carrier, id__in=ids)
+    movement = create_withdraw_movement(
+        author, from_deposit, to_carrier, TrackingMovement.LABEL_BY_ENVIOS_IDS)
+    add_and_udpate_envios(movement, id__in=ids)
     return movement
 
 
-def withdraw_by_town_ids(
+def withdraw_by_towns_ids(
     author: Account,
     from_deposit: Deposit,
     to_carrier: Account,
@@ -126,13 +126,13 @@ def withdraw_by_town_ids(
     Returns:
         TrackingMovement: the created movement.
     """
-    movement = create_withdraw_movement(author, from_deposit, to_carrier)
-    add_and_udpate_envios(movement, from_deposit,
-                          to_carrier, town__id__in=town_ids)
+    movement = create_withdraw_movement(
+        author, from_deposit, to_carrier, TrackingMovement.LABEL_BY_TOWNS_IDS)
+    add_and_udpate_envios(movement, town__id__in=town_ids)
     return movement
 
 
-def withdraw_by_partido_ids(
+def withdraw_by_partidos_ids(
     author: Account,
     from_deposit: Deposit,
     to_carrier: Account,
@@ -153,13 +153,14 @@ def withdraw_by_partido_ids(
     Returns:
         TrackingMovement: the created movement.
     """
-    movement = create_withdraw_movement(author, from_deposit, to_carrier)
-    add_and_udpate_envios(movement, from_deposit,
-                          to_carrier, town__partido__id__in=partido_ids)
+    movement = create_withdraw_movement(
+        author, from_deposit, to_carrier,
+        TrackingMovement.LABEL_BY_PARTIDOS_IDS)
+    add_and_udpate_envios(movement, town__partido__id__in=partido_ids)
     return movement
 
 
-def withdraw_by_zone_ids(
+def withdraw_by_zones_ids(
     author: Account,
     from_deposit: Deposit,
     to_carrier: Account,
@@ -180,7 +181,7 @@ def withdraw_by_zone_ids(
     Returns:
         TrackingMovement: the created movement.
     """
-    movement = create_withdraw_movement(author, from_deposit, to_carrier)
-    add_and_udpate_envios(movement, from_deposit,
-                          to_carrier, town__partido__zone__id__in=zone_ids)
+    movement = create_withdraw_movement(
+        author, from_deposit, to_carrier, TrackingMovement.LABEL_BY_ZONES_IDS)
+    add_and_udpate_envios(movement, town__partido__zone__id__in=zone_ids)
     return movement

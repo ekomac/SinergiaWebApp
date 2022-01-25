@@ -6,7 +6,8 @@ from tracking.models import TrackingMovement
 def create_transfer_movement(
         author,
         from_carrier: Account,
-        to_carrier: Account
+        to_carrier: Account,
+        label: str
 ) -> TrackingMovement:
     """
     Creates a movement for the withdraw action.
@@ -26,6 +27,7 @@ def create_transfer_movement(
         to_carrier=to_carrier,
         action=TrackingMovement.ACTION_TRANSFER,
         result=TrackingMovement.RESULT_TRANSFERED,
+        label=label
     )
     movement.save()
     return movement
@@ -50,7 +52,8 @@ def add_and_udpate_envios(
     envios.update(
         status=Envio.STATUS_MOVING,
         carrier=to_carrier,
-        deposit=None
+        deposit=None,
+        updated_by=movement.created_by
     )
 
 
@@ -73,12 +76,13 @@ def transfer_all(
     Returns:
         TrackingMovement: the created movement.
     """
-    movement = create_transfer_movement(author, from_carrier, to_carrier)
+    movement = create_transfer_movement(
+        author, from_carrier, to_carrier, TrackingMovement.LABEL_ALL)
     add_and_udpate_envios(movement, from_carrier, to_carrier)
     return movement
 
 
-def transfer_by_ids(
+def transfer_by_envios_ids(
     author,
     from_carrier: Account,
     to_carrier: Account,
@@ -99,12 +103,13 @@ def transfer_by_ids(
     Returns:
         TrackingMovement: the created movement.
     """
-    movement = create_transfer_movement(author, from_carrier, to_carrier)
+    movement = create_transfer_movement(
+        author, from_carrier, to_carrier, TrackingMovement.LABEL_BY_ENVIOS_IDS)
     add_and_udpate_envios(movement, from_carrier, to_carrier, id__in=ids)
     return movement
 
 
-def transfer_by_town_ids(
+def transfer_by_towns_ids(
     author: Account,
     from_carrier: Account,
     to_carrier: Account,
@@ -125,13 +130,14 @@ def transfer_by_town_ids(
     Returns:
         TrackingMovement: the created movement.
     """
-    movement = create_transfer_movement(author, from_carrier, to_carrier)
+    movement = create_transfer_movement(
+        author, from_carrier, to_carrier, TrackingMovement.LABEL_BY_TOWNS_IDS)
     add_and_udpate_envios(movement, from_carrier,
                           to_carrier, town__id__in=town_ids)
     return movement
 
 
-def transfer_by_partido_ids(
+def transfer_by_partidos_ids(
     author: Account,
     from_carrier: Account,
     to_carrier: Account,
@@ -152,13 +158,15 @@ def transfer_by_partido_ids(
     Returns:
         TrackingMovement: the created movement.
     """
-    movement = create_transfer_movement(author, from_carrier, to_carrier)
+    movement = create_transfer_movement(
+        author, from_carrier, to_carrier,
+        TrackingMovement.LABEL_BY_PARTIDOS_IDS)
     add_and_udpate_envios(movement, from_carrier,
                           to_carrier, town__partido__id__in=partido_ids)
     return movement
 
 
-def transfer_by_zone_ids(
+def transfer_by_zones_ids(
     author: Account,
     from_carrier: Account,
     to_carrier: Account,
@@ -179,7 +187,8 @@ def transfer_by_zone_ids(
     Returns:
         TrackingMovement: the created movement.
     """
-    movement = create_transfer_movement(author, from_carrier, to_carrier)
+    movement = create_transfer_movement(
+        author, from_carrier, to_carrier, TrackingMovement.LABEL_BY_ZONES_IDS)
     add_and_udpate_envios(movement, from_carrier,
                           to_carrier, town__partido__zone__id__in=zone_ids)
     return movement

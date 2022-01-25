@@ -63,8 +63,10 @@ class ApiZonesAtCarrierListView(BaseListAPIView):
     serializer_class = ZoneSerializer
     id_in_url_kwarg = 'carrier_id'
     query_filter = 'partido__town__destination__receiver__envio__carrier__id'
+    part_one = 'partido__town__destination__'
+    part_two = 'receiver__envio__status'
     extra_filters = {
-        'partido__town__destination__receiver__envio__status': Envio.STATUS_MOVING,
+        part_one + part_two: Envio.STATUS_MOVING,
     }
 
 # class ApiTownsOfEnviosInDepositListView(ListAPIView):

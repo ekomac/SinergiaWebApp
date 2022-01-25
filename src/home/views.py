@@ -33,7 +33,7 @@ def app_view(request) -> HttpResponse:
     Renders the app's index view.
     """
     context = {}
-    is_carrier = request.user.Carrier.count() > 0
+    is_carrier = request.user.envios_carried_by.count() > 0
     can_transfer_any = request.user.groups.filter(
         name__in=["Admins", "EmployeeTier1"]).exists()
     # If user is carrying something, he can transfer it
