@@ -27,7 +27,7 @@ class TrackingMovement(models.Model):
     ]
 
     RESULT_ADDED_TO_SYSTEM = '_new'
-    RESULT_COLECTED = 'collected'
+    RESULT_COLLECTED = 'collected'
     RESULT_TRANSFERED = 'transfered'
     RESULT_IN_DEPOSIT = 'in_deposit'
     RESULT_DELIVERED = 'success'
@@ -43,7 +43,7 @@ class TrackingMovement(models.Model):
         (RESULT_REPROGRAMED, 'Reprogramado'),
         (RESULT_NO_ANSWER, 'Sin respuesta'),
         (RESULT_TRANSFERED, 'Transferido'),
-        (RESULT_COLECTED, 'Recolectado'),
+        (RESULT_COLLECTED, 'Recolectado'),
         (RESULT_OTHER, 'Otro'),
     ]
 
@@ -114,22 +114,6 @@ class TrackingMovement(models.Model):
         null=True, on_delete=models.SET_NULL,
         verbose_name="El depósito que tiene el/los paquete/s (TO)")
 
-    # @property
-    # def flow(self):
-    #     if self.action == self.ACTION_ADDED_TO_SYSTEM:
-    #         return 'added'
-    #     if (self.action == self.ACTION_COLLECTION and
-    #             self.result == self.RESULT_TRANSFERED):
-    #         return 'withdraw'
-    #     if (self.action == self.ACTION_DEPOSIT and
-    #             self.result == self.RESULT_IN_DEPOSIT):
-    #         return 'deposit'
-    #     if self.action == self.ACTION_TRANSFER
-    #             and self.result == self.RESULT_TRANSFERED:
-    #     if self.action == self.ACTION_DELIVERY_ATTEMPT:
-    #         return 'delivered'
-    #     return 'unknown'
-
     def __str__(self):
         user = self.created_by.username if self.created_by else ""
         dt = ""
@@ -143,19 +127,37 @@ class TrackingMovement(models.Model):
         added = (self.action == self.ACTION_ADDED_TO_SYSTEM and
                  self.result == self.RESULT_ADDED_TO_SYSTEM)
         withdraw_from_origin = (self.action == self.ACTION_COLLECTION and
-                                self.result == self.RESULT_TRANSFERED and
-                                self.deposit.client is not None)
+                                self.result == self.RESULT_COLLECTED and
+                                self.from_deposit is not None and
+                                self.from_deposit.client is not None and
+                                not self.from_deposit.is_sinergia)
         deposit = (self.action == self.ACTION_DEPOSIT and
                    self.result == self.RESULT_IN_DEPOSIT and
-                   self.deposit.client is None)
+                   self.to_deposit is not None)
         withdraw_from_central = (self.action == self.ACTION_COLLECTION and
-                                 self.result == self.RESULT_TRANSFERED and
-                                 self.deposit.client is None and
-                                 self.deposit.is_central)
+                                 self.result == self.RESULT_COLLECTED and
+                                 self.to_deposit is None and
+                                 self.from_deposit is not None and
+                                 self.from_deposit.client is None and
+                                 self.from_deposit.is_central)
         withdraw_from_deposit = (self.action == self.ACTION_COLLECTION and
-                                 self.result == self.RESULT_TRANSFERED and
-                                 self.deposit.client is None and
-                                 self.deposit.is_sinergia)
+                                 self.result == self.RESULT_COLLECTED and
+                                 self.to_deposit is None and
+                                 self.from_deposit is not None and
+                                 self.from_deposit.client is None and
+                                 self.from_deposit.is_sinergia)
+        withdraw_from_deposit = (self.action == self.ACTION_TRANSFER and
+                                 self.result == self.RESULT_COLLECTED and
+                                 self.to_deposit is None and
+                                 (self.from_deposit is not None and
+                                  self.from_deposit.client is None and
+                                  self.from_deposit.is_sinergia))
+        transfered = (self.action == self.ACTION_TRANSFER and
+                      self.result == self.RESULT_TRANSFERED and
+                      self.to_deposit is None and
+                      self.from_deposit is None and
+                      self.to_carrier is not None and
+                      self.from_carrier is not None)
         delivered = (self.action == self.ACTION_DELIVERY_ATTEMPT and
                      self.result == self.RESULT_DELIVERED)
         rejected = (self.action == self.ACTION_DELIVERY_ATTEMPT and
@@ -164,33 +166,43 @@ class TrackingMovement(models.Model):
                        self.result == self.RESULT_REPROGRAMED)
         no_answer = (self.action == self.ACTION_DELIVERY_ATTEMPT and
                      self.result == self.RESULT_NO_ANSWER)
+        other = (self.action == self.ACTION_DELIVERY_ATTEMPT and
+                 self.result == self.RESULT_OTHER)
 
         if added:
-            return '<b>Nuevo</b>: agregado al sistema.'
+            return ('Nuevo', 'agregado al sistema.')
         elif withdraw_from_origin:
-            return '<b>En nuestras manos</b>: retirado del depósito' +\
-                ' de origen e ingresó al circuito de distribución.'
+            return ('En nuestras manos',
+                    ("retirado del depósito de origen e ingresó"
+                     " al circuito de distribución."))
         elif deposit:
-            return '<b>En depósito</b>: ingresó en nuestro ' +\
-                f'depósito "{self.deposit.name}" y está listo para su' +\
-                ' distribución.'
+            return ('En depósito',
+                    ("ingresó en nuestro depósito '%s' y está"
+                     " listo para su distribución." % self.to_deposit.name))
         elif withdraw_from_central:
-            return '<b>Salida de depósito</b>: ' +\
-                'en camino al domicilio del destinatario.'
+            return ('Salida de depósito',
+                    'en camino al domicilio del destinatario.')
         elif withdraw_from_deposit:
-            return '<b>En depósito</b>: en camino al' +\
-                'domicilio del desinatario.'
+            return ('Salida de depósito',
+                    'en camino al domicilio del desinatario.')
+        elif transfered:
+            return ('En camino',
+                    ("retirado del circuito de distribución y"
+                     " en camino al destinatario."))
         elif delivered:
-            return '<b>Entregado</b>: se entregó con éxito.'
+            return ('Entregado', 'se entregó con éxito.')
         elif rejected:
-            return '<b>Intento de entrega</b>: el envío fue ' +\
-                'rechazado en destino.'
+            return ('Intento de entrega', 'el envío fue rechazado en destino.')
         elif reprogramed:
-            return '<b>Intento de entrega</b>: se reprogramó la entrega.'
+            return ('Intento de entrega', 'se reprogramó la entrega.')
         elif no_answer:
-            return '<b>Intento de entrega</b>: no pudimos entregar el envío' +\
-                ' porque nadie respondió en el domicilio de destino.'
-        return self.__str__()
+            return ('Intento de entrega',
+                    ("no pudimos entregar el envío porque nadie "
+                     "respondió en el domicilio de destino."))
+        elif other:
+            return ('Intento de entrega', 'otra causa.')
+        return ('Error',
+                'Ocurrió un error y no pudimos procesar la información.')
 
     def end_user_display(self):
         return self.__str__()
@@ -200,6 +212,6 @@ class TrackingMovement(models.Model):
         verbose_name_plural = 'Movimientos'
 
 
-@receiver(post_delete, sender=TrackingMovement)
+@ receiver(post_delete, sender=TrackingMovement)
 def submission_delete(sender, instance, **kwargs):
     instance.proof.delete(False)

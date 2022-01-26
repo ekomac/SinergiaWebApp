@@ -1,8 +1,10 @@
 from django.contrib import admin
+from django.conf import settings
 from envios.models import (
     BulkLoadEnvios,
     Envio,
 )
+from envios.debug_actions import actions as debug_actions
 
 
 class EnvioAdmin(admin.ModelAdmin):
@@ -14,6 +16,7 @@ class EnvioAdmin(admin.ModelAdmin):
                      'zipcode', 'is_flex',
                      'status', 'detail', 'date_created',
                      'zipcode', 'deposit', 'carrier')
+    actions = debug_actions if settings.DEBUG else []
 
     filter_horizontal = ()
     list_filter = ()

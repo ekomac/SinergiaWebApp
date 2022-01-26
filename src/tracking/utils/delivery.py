@@ -7,7 +7,7 @@ from tracking.models import TrackingMovement
 def delivery_attempt(
         author: Account,
         result_obtained: str,
-        envio_id: str,
+        envio_id: int,
         proof_file=None,
         comment: str = ""
 ) -> Tuple[TrackingMovement, Envio]:
@@ -18,7 +18,7 @@ def delivery_attempt(
         author (Account): the Account performing the action
         and carrying the envio.
         result_obtained (str): the result obtained by the carrier.
-        envio_id (str): the id of the envio to be delivered.
+        envio_id (int): the id of the envio to be delivered.
         proof_file ([File], optional): the proof file to be uploaded.
         Defaults to None.
         comment (str, optional): the comment to be added to the movement.
@@ -58,7 +58,7 @@ def indirect_delivery_attempt(
     author: Account,
     from_carrier: Account,
     result_obtained: str,
-    envio_id: str,
+    envio_id: int,
     proof_file=None,
     comment: str = ""
 ) -> Envio:
@@ -72,7 +72,7 @@ def indirect_delivery_attempt(
         author (Account): the Account performing the saving action.
         carrier (Account): the Account that performed the action.
         result_obtained (str): the result obtained by the carrier.
-        envio_id (str): the id of the envio to be delivered.
+        envio_id (int): the id of the envio to be delivered.
         proof_file ([type], optional): the proof file to be uploaded.
         Defaults to None.
         comment (str, optional): the comment to be added to the movement.
@@ -81,7 +81,8 @@ def indirect_delivery_attempt(
     Returns:
         Envio: [description]
     """
-    comment = comment + f" (Entrega indirecta realizada por {author.username})"
+    comment = comment + \
+        f" (Intento de entrega indirecto realizado por {author.username})"
 
     # Create the movement
     movement = TrackingMovement(

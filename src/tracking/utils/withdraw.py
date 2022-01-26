@@ -27,7 +27,7 @@ def create_withdraw_movement(
         from_deposit=from_deposit,
         to_carrier=to_carrier,
         action=TrackingMovement.ACTION_COLLECTION,
-        result=TrackingMovement.RESULT_COLECTED,
+        result=TrackingMovement.RESULT_COLLECTED,
         label=label,
     )
     movement.save()

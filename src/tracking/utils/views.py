@@ -1,8 +1,8 @@
 from tracking.models import TrackingMovement
 
 
-def get_movement_as_response_data(movement: TrackingMovement):
-    return {
+def get_movement_as_response_data(movement: TrackingMovement, *args, **kwargs):
+    result = {
         'tracking_movement': {
             'pk': movement.pk,
             'date_created': movement.date_created,
@@ -15,3 +15,12 @@ def get_movement_as_response_data(movement: TrackingMovement):
             'envios_count': movement.envios.count(),
         }
     }
+    if movement.proof is not None and kwargs.get('request', None) is not None:
+        url = str(
+            kwargs['request'].build_absolute_uri(movement.proof.url))
+        if '?' in url:
+            url = url[:url.rfind('?')]
+        result['tracking_movement']['proof'] = url
+    if movement.comment is not None and movement.comment != "":
+        result['tracking_movement']['comment'] = movement.comment
+    return result

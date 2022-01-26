@@ -1,60 +1,57 @@
 from rest_framework import serializers
 
 from envios.models import Envio
+from places.models import Partido, Town, Zone
 from tracking.models import TrackingMovement
-from tracking.utils.withdraw import (
-    withdraw_all,
-    withdraw_by_envios_ids,
-    withdraw_by_partidos_ids,
-    withdraw_by_towns_ids,
-    withdraw_by_zones_ids
+from tracking.utils.deposit import (
+    deposit_all,
+    deposit_by_envios_ids,
+    deposit_by_partidos_ids,
+    deposit_by_towns_ids,
+    deposit_by_zones_ids
 )
 
 
-class BaseWithdrawSerializer(serializers.ModelSerializer):
-    def check_deposit(self, deposit):
-        if deposit.envio_set.filter(
-            status__in=[
-                Envio.STATUS_STILL,
-                Envio.STATUS_NEW
-            ]
-        ).count() == 0:
-            raise serializers.ValidationError(
-                {"response": "Deposit hasn't got any Envíos."}
-            )
+class BaseDepositSerializer(serializers.ModelSerializer):
+
+    status = Envio.STATUS_MOVING
+
+    def check_carrier_is_carrier(self, data):
+        from_carrier = data['from_carrier']
+        envios_count = from_carrier.envios_carried_by.filter(
+            status=self.status).count()
+        if envios_count == 0:
+            id = from_carrier.id
+            msg = "Account with id %s isn't carrying any Envíos." % id
+            raise serializers.ValidationError({"response": msg})
+
+    def extra_validation_check(self, data):
+        pass
+
+    def validate(self, data):
+        self.check_carrier_is_carrier(data)
+        self.extra_validation_check(data)
+        return data
 
 
-class WithdrawAllSerializer(BaseWithdrawSerializer):
+class DepositAllSerializer(BaseDepositSerializer):
     class Meta:
         model = TrackingMovement
-        fields = (
-            'created_by',
-            'carrier',
-            'deposit',
-        )
+        fields = ('created_by', 'from_carrier', 'to_deposit',)
         extra_kwargs = {
-            'carrier': {
-                'required': True,
-            },
-            'deposit': {
-                'required': True,
-            },
+            'created_by': {'required': True, },
+            'from_carrier': {'required': True, },
+            'to_deposit': {'required': True, },
         }
 
     def save(self):
-
-        try:
-            author = self.validated_data['created_by']
-            deposit = self.validated_data['deposit']
-            carrier = self.validated_data['carrier']
-            self.check_deposit(deposit)
-            return withdraw_all(author, deposit, carrier)
-        except KeyError as e:
-            raise serializers.ValidationError(
-                {"response": "Missing data from {}".format(e)})
+        author = self.validated_data['created_by']
+        to_deposit = self.validated_data['to_deposit']
+        from_carrier = self.validated_data['from_carrier']
+        return deposit_all(author, from_carrier, to_deposit)
 
 
-class WithdrawByEnviosIdsSerializer(BaseWithdrawSerializer):
+class DepositByEnviosIdsSerializer(BaseDepositSerializer):
 
     envios_ids = serializers.ListField(
         child=serializers.IntegerField(min_value=0),
@@ -62,97 +59,84 @@ class WithdrawByEnviosIdsSerializer(BaseWithdrawSerializer):
 
     class Meta:
         model = TrackingMovement
-        fields = (
-            'created_by',
-            'carrier',
-            'deposit',
-            'envios_ids',
-        )
+        fields = ('created_by', 'from_carrier', 'to_deposit', 'envios_ids',)
         extra_kwargs = {
-            'carrier': {
-                'required': True,
-            },
-            'deposit': {
-                'required': True,
-            },
-            'envios_ids': {
-                'required': True,
-            },
+            'created_by': {'required': True, },
+            'from_carrier': {'required': True, },
+            'to_deposit': {'required': True, },
+            'envios_ids': {'required': True, },
         }
 
+    def extra_validation_check(self, data):
+        from_carrier = data['from_carrier']
+        pk = from_carrier.pk
+        envios_with_carrier = from_carrier.envios_carried_by.filter(
+            status=self.status
+        ).values_list('pk', flat=True)
+        envios_with_carrier_count = len(envios_with_carrier)
+        envios_ids = data['envios_ids']
+        if len(envios_ids) == 0:
+            msg = "'envios_ids' can't be empty."
+            raise serializers.ValidationError({"response": msg})
+        if len(envios_ids) > envios_with_carrier_count:
+            msg = "There are only %s Envíos with the Carrier with id=%s." % (
+                envios_with_carrier_count, pk)
+            raise serializers.ValidationError({"response": msg})
+        if set(envios_ids).issubset(envios_with_carrier):
+            msg = (
+                "Some of the Envíos with ids %s don't exist "
+                "or aren't carried by the Account with id=%s."
+            ) % (envios_ids, pk)
+
     def save(self):
-        try:
-            author = self.validated_data['created_by']
-            deposit = self.validated_data['deposit']
-            self.check_deposit(deposit)
-            carrier = self.validated_data['carrier']
-            envios_ids = self.validated_data['envios_ids']
-
-            if deposit.envio_set.filter(
-                    pk__in=envios_ids).count() != len(envios_ids):
-                raise serializers.ValidationError(
-                    {"response": "Some of the Envíos with given ids " +
-                        "{} don't exist or aren't at the deposit {}.".format(
-                            envios_ids, deposit)
-                     }
-                )
-            return withdraw_by_envios_ids(
-                author, deposit, carrier, *envios_ids)
-        except KeyError as e:
-            raise serializers.ValidationError(
-                {"response": "Faltan datos de {}".format(e)})
+        author = self.validated_data['created_by']
+        from_carrier = self.validated_data['from_carrier']
+        to_deposit = self.validated_data['to_deposit']
+        envios_ids = self.validated_data['envios_ids']
+        return deposit_by_envios_ids(
+            author, from_carrier, to_deposit, *envios_ids)
 
 
-class WithdrawByTownsIdsSerializer(BaseWithdrawSerializer):
+class DepositByTownsIdsSerializer(BaseDepositSerializer):
     towns_ids = serializers.ListField(
         child=serializers.IntegerField(min_value=0),
         write_only=True, allow_empty=False)
 
     class Meta:
         model = TrackingMovement
-        fields = (
-            'created_by',
-            'carrier',
-            'deposit',
-            'towns_ids',
-        )
+        fields = ('created_by', 'from_carrier', 'to_deposit', 'towns_ids')
         extra_kwargs = {
-            'carrier': {
-                'required': True,
-            },
-            'deposit': {
-                'required': True,
-            },
-            'towns_ids': {
-                'required': True,
-            },
+            'created_by': {'required': True, },
+            'from_carrier': {'required': True, },
+            'to_deposit': {'required': True, },
+            'towns_ids': {'required': True, },
         }
 
+    def extra_validation_check(self, data):
+        towns_ids = data['towns_ids']
+        from_carrier = data['from_carrier']
+        pk = from_carrier.pk
+        towns_ids_on_carrier = Town.objects.filter(
+            destination__receiver__envio__carrier__id=pk,
+            destination__receiver__envio__status=self.status,
+        ).values_list('pk', flat=True).distinct()
+        if not set(towns_ids).issubset(towns_ids_on_carrier):
+            msg = (
+                "Some of the Towns with given ids %s don't exist or don't "
+                "reach out to Envios carried by Account with id=%s."
+            ) % (towns_ids, pk)
+            raise serializers.ValidationError({"response": msg})
+
     def save(self):
-        try:
-            author = self.validated_data['created_by']
-            deposit = self.validated_data['deposit']
-            self.check_deposit(deposit)
-            carrier = self.validated_data['carrier']
-            towns_ids = self.validated_data['towns_ids']
-
-            if deposit.envio_set.filter(
-                    town__id__in=towns_ids).count() != len(towns_ids):
-                raise serializers.ValidationError(
-                    {"response": "Some of the Towns with given ids {} ".format(
-                        towns_ids
-                    ) + "don't correspond to Envíos at the deposit {}.".format(
-                        deposit)
-                    }
-                )
-            return withdraw_by_towns_ids(author, deposit, carrier, *towns_ids)
-        except KeyError as e:
-            raise serializers.ValidationError(
-                {"response": "Faltan datos de {}".format(e)}
-            )
+        author = self.validated_data['created_by']
+        from_carrier = self.validated_data['from_carrier']
+        to_deposit = self.validated_data['to_deposit']
+        towns_ids = self.validated_data['towns_ids']
+        return deposit_by_towns_ids(
+            author, from_carrier, to_deposit, *towns_ids)
 
 
-class WithdrawByPartidosIdsSerializer(BaseWithdrawSerializer):
+class DepositByPartidosIdsSerializer(BaseDepositSerializer):
 
     partidos_ids = serializers.ListField(
         child=serializers.IntegerField(min_value=0),
@@ -160,43 +144,39 @@ class WithdrawByPartidosIdsSerializer(BaseWithdrawSerializer):
 
     class Meta:
         model = TrackingMovement
-        fields = (
-            'created_by',
-            'carrier',
-            'deposit',
-            'partidos_ids',
-        )
+        fields = ('created_by', 'from_carrier', 'to_deposit', 'partidos_ids')
         extra_kwargs = {
-            'carrier': {'required': True, },
-            'deposit': {'required': True, },
+            'created_by': {'required': True, },
+            'from_carrier': {'required': True, },
+            'to_deposit': {'required': True, },
             'partidos_ids': {'required': True, },
         }
 
+    def extra_validations_check(self, data):
+        partidos_ids = data['partidos_ids']
+        from_carrier = data['from_carrier']
+        pk = from_carrier.pk
+        partidos_ids_on_carrier = Partido.objects.filter(
+            town__destination__receiver__envio__carrier__id=pk,
+            town__destination__receiver__envio__status=self.status,
+        ).values_list('pk', flat=True).distinct()
+        if not set(partidos_ids).issubset(partidos_ids_on_carrier):
+            msg = (
+                "Some of the Partidos with given ids %s don't exist or don't "
+                "reach out to Envios carried by Account with id=%s."
+            ) % (partidos_ids, pk)
+            raise serializers.ValidationError({"response": msg})
+
     def save(self):
-        try:
-            author = self.validated_data['created_by']
-            deposit = self.validated_data['deposit']
-            self.check_deposit(deposit)
-            carrier = self.validated_data['carrier']
-            partidos_ids = self.validated_data['partidos_ids']
-
-            if deposit.envio_set.filter(
-                    town__partido__id__in=partidos_ids
-            ).count() != len(partidos_ids):
-                raise serializers.ValidationError(
-                    {"response": "Some of the Partidos with given ids" +
-                     " {} don't correspond to Towns ".format(partidos_ids) +
-                     "of Envíos at the deposit {}.".format(deposit)}
-                )
-            return withdraw_by_partidos_ids(
-                author, deposit, carrier, *partidos_ids)
-        except KeyError as e:
-            raise serializers.ValidationError(
-                {"response": "Faltan datos de {}".format(e)}
-            )
+        author = self.validated_data['created_by']
+        from_carrier = self.validated_data['from_carrier']
+        to_deposit = self.validated_data['to_deposit']
+        partidos_ids = self.validated_data['partidos_ids']
+        return deposit_by_partidos_ids(
+            author, from_carrier, to_deposit, *partidos_ids)
 
 
-class WithdrawByZonesIdsSerializer(serializers.Serializer):
+class DepositByZonesIdsSerializer(BaseDepositSerializer):
 
     zones_ids = serializers.ListField(
         child=serializers.IntegerField(min_value=0),
@@ -204,37 +184,36 @@ class WithdrawByZonesIdsSerializer(serializers.Serializer):
 
     class Meta:
         model = TrackingMovement
-        fields = (
-            'created_by',
-            'carrier',
-            'deposit',
-            'zones_ids',
-        )
+        fields = ('created_by', 'from_carrier', 'to_deposit', 'zones_ids',)
         extra_kwargs = {
-            'carrier': {'required': True, },
-            'deposit': {'required': True, },
+            'created_by': {'required': True, },
+            'from_carrier': {'required': True, },
+            'to_deposit': {'required': True, },
             'zones_ids': {'required': True, },
         }
 
-    def save(self):
-        try:
-            author = self.validated_data['created_by']
-            deposit = self.validated_data['deposit']
-            self.check_deposit(deposit)
-            carrier = self.validated_data['carrier']
-            zones_ids = self.validated_data['zones_ids']
+    def extra_validations_check(self, data):
+        zones_ids = data['zones_ids']
+        from_carrier = data['from_carrier']
+        pk = from_carrier.pk
+        base_filter_srt = 'partido__town__destination__receiver__envio__'
+        filters = {
+            base_filter_srt + 'carrier__id': pk,
+            base_filter_srt + 'status': self.status,
+        }
+        zones_ids_on_carrier = Zone.objects.filter(
+            **filters).values_list('pk', flat=True).distinct()
+        if not set(zones_ids).issubset(zones_ids_on_carrier):
+            msg = (
+                "Some of the Zones with given ids %s don't exist or don't "
+                "reach out to Envios carried by Account with id=%s."
+            ) % (zones_ids, pk)
+            raise serializers.ValidationError({"response": msg})
 
-            if deposit.envio_set.filter(
-                    town__partido__zone__id__in=zones_ids
-            ).count() != len(zones_ids):
-                raise serializers.ValidationError(
-                    {"response": "Some of the Zones with given ids" +
-                     " {} don't correspond to Partidos of Towns ".format(
-                         zones_ids
-                     ) + "of Envíos at the deposit {}.".format(deposit)}
-                )
-            return withdraw_by_zones_ids(author, deposit, carrier, *zones_ids)
-        except KeyError as e:
-            raise serializers.ValidationError(
-                {"response": "Faltan datos de {}".format(e)}
-            )
+    def save(self):
+        author = self.validated_data['created_by']
+        from_carrier = self.validated_data['from_carrier']
+        to_deposit = self.validated_data['to_deposit']
+        zones_ids = self.validated_data['zones_ids']
+        return deposit_by_zones_ids(
+            author, from_carrier, to_deposit, *zones_ids)
