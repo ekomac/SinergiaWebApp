@@ -1,4 +1,5 @@
 # Python
+from django.conf import settings
 import json
 from itertools import groupby
 from datetime import datetime, timedelta
@@ -27,7 +28,7 @@ def redirect_no_url(request):
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def app_view(request) -> HttpResponse:
     """
     Renders the app's index view.
@@ -35,7 +36,7 @@ def app_view(request) -> HttpResponse:
     context = {}
     is_carrier = request.user.envios_carried_by.count() > 0
     can_transfer_any = request.user.groups.filter(
-        name__in=["Admins", "EmployeeTier1"]).exists()
+        name__in=["Admins", "Level 1"]).exists()
     # If user is carrying something, he can transfer it
     if is_carrier:
         print("is carrier")
@@ -50,13 +51,13 @@ def app_view(request) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def app_account_view(request) -> HttpResponse:
     return render(request, 'baseapp_account.html', {})
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def app_account_change_password_view(request) -> HttpResponse:
 
     return render(request, 'baseapp_account_change_password.html', {})

@@ -40,7 +40,8 @@ class DeleteObjectsUtil(SuccessfulDeletionAlertMixin):
 
         self.model = model
         if not self.model:
-            raise NotEnoughAttributes("A model arg must be specified.")
+            raise NotEnoughAttributes(
+                "A model arg must be specified.")
 
         self.request = request
         if self.request is None:
@@ -76,7 +77,8 @@ class DeleteObjectsUtil(SuccessfulDeletionAlertMixin):
 
         self.objects = self.model.objects.filter(
             pk__in=self.model_ids).order_by(order_by)
-        self.names = [obj.__str__() for obj in self.objects]
+        self.names = [obj.__str__()
+                      for obj in self.objects]
         self.total_count = len(self.objects)
         self.gender_repr = repr_as if repr_as else self.REPR_MALE
 
@@ -165,13 +167,16 @@ class CompleteListView(View):
     query_keywords = None
     default_order_by = None
 
-    params_to_use = ("query", "order", "rpp", "pagination")
+    params_to_use = (
+        "query", "order", "rpp", "pagination")
 
     paginate = False
 
     decoders = ()
 
     debug_multiplier = 1
+
+    selected_tab = None
 
     def __init__(self, *args, **kwargs) -> None:
         """
@@ -184,9 +189,11 @@ class CompleteListView(View):
         super().__init__(*args, **kwargs)
         if not hasattr(self, 'template_name') and type(
                 self.template_name) is str:
-            raise ValueError('A template_name should be specified as a str.')
+            raise ValueError(
+                'A template_name should be specified as a str.')
         if not hasattr(self, 'model') and type(self.model) is None:
-            raise ValueError('A model should be specified.')
+            raise ValueError(
+                'A model should be specified.')
         self.context = {
             'filters_count': 0,
             'use_query_by': True,
@@ -210,7 +217,7 @@ class CompleteListView(View):
             HttpResponse: [description]
         """
         # Get the model's objects
-        self.objects = self.model.objects.all()
+        self.objects = self.get_model_queryset()
         # Apply the filters and pass them to the self.context
         self.handle_filters_params(request)
         # Apply the main query as a filter and pass it to the self.context
@@ -223,10 +230,14 @@ class CompleteListView(View):
             map(self.queryset_map_callable, self.objects.distinct()))
         # Apply the pagination and pass it to the self.context
         if self.paginate:
-            self.handle_results_per_page_param(request)
+            self.handle_results_per_page_param(
+                request)
             self.setup_pagination(request)
         # Return the response
         return render(request, self.template_name, self.get_context_data())
+
+    def get_model_queryset(self):
+        return self.model.objects.all()
 
     def handle_query_param(self, request) -> None:
         """
@@ -245,7 +256,8 @@ class CompleteListView(View):
         # If the query keyword is in params to use.
         if "query" in self.params_to_use:
             # Get the query param
-            query_by = request.GET.get(self.query_by_kw, None)
+            query_by = request.GET.get(
+                self.query_by_kw, None)
             # If found
             if query_by:
                 # Pass is to the context
@@ -274,7 +286,8 @@ class CompleteListView(View):
                         raise ValueError(err)
                     q_object |= Q(**{kw: query})
                 # Filter the objects with the Q object
-                self.objects = self.objects.filter(q_object)
+                self.objects = self.objects.filter(
+                    q_object)
         else:
             self.context['use_query_by'] = False
 
@@ -298,7 +311,8 @@ class CompleteListView(View):
             if order_by:
                 # Raise error if not a str
                 if not isinstance(self.order_by_kw, str):
-                    raise ValueError("The order_by_kw must be a str.")
+                    raise ValueError(
+                        "The order_by_kw must be a str.")
                 # Pass is to the context
                 self.context[self.order_by_kw] = order_by
                 # Appends it to the self.url for pagination if needed
@@ -310,9 +324,12 @@ class CompleteListView(View):
                 if '_desc' in cleaned:
                     # Remove it and append a '-' to the start, which
                     # indicates descending order in the queryset
-                    cleaned = '-' + cleaned.replace('_desc', '')
+                    cleaned = '-' + \
+                        cleaned.replace(
+                            '_desc', '')
                 # Orders the objects
-                self.objects = self.objects.order_by(cleaned)
+                self.objects = self.objects.order_by(
+                    cleaned)
         else:
             self.context['use_order_by'] = True
 
@@ -392,16 +409,20 @@ class CompleteListView(View):
                             'context': Callable[Any, str],
                             """)
                 # Else, gets the value from the get request
-                value = request.GET.get(decoder['key'], None)
+                value = request.GET.get(
+                    decoder['key'], None)
                 # If found
                 if value is not None:
                     # Get the filter keyword
-                    filter_key = call_or_it(decoder['filter'], value)
+                    filter_key = call_or_it(
+                        decoder['filter'], value)
                     # Add the filter to filters with filter_key:value with
                     # the provided function applied
-                    filters[filter_key] = decoder['function'](value)
+                    filters[filter_key] = decoder['function'](
+                        value)
                     # Add the filter to the context
-                    self.context[decoder['key']] = decoder['context'](value)
+                    self.context[decoder['key']] = decoder['context'](
+                        value)
                     self.context['filters_count'] += 1
                     # Appends it to the self.url for pagination if needed
                     if self.paginate:
@@ -409,7 +430,8 @@ class CompleteListView(View):
             # If there are filters
             if filters:
                 # Apply the filters to the queryset
-                self.objects = self.objects.filter(**filters)
+                self.objects = self.objects.filter(
+                    **filters)
         else:
             self.context['use_filters'] = False
 
@@ -464,21 +486,25 @@ class CompleteListView(View):
 
         try:
             # Update the self.objects to contain the objects for the page
-            self.objects = objects_paginator.page(page)
+            self.objects = objects_paginator.page(
+                page)
 
         # If the page param is not an int
         except PageNotAnInteger:
             # Return the page which equals the total results per page
-            self.objects = objects_paginator.page(results_per_page)
+            self.objects = objects_paginator.page(
+                results_per_page)
 
         # If the page is empty
         except EmptyPage:
             # Return the last page
             num_pages = objects_paginator.num_pages
-            self.objects = objects_paginator.page(num_pages)
+            self.objects = objects_paginator.page(
+                num_pages)
 
         # Add the pagination data to the context
-        self.add_pagination_data_to_context(objects_paginator)
+        self.add_pagination_data_to_context(
+            objects_paginator)
 
     def add_pagination_data_to_context(self, page: Page) -> None:
         """
@@ -543,6 +569,9 @@ class CompleteListView(View):
         self.context['order_by_kw'] = self.order_by_kw
         self.context['results_per_page_kw'] = self.results_per_page_kw
         self.context['page_kw'] = self.page_kw
+
+        if self.selected_tab is not None:
+            self.context['selected_tab'] = self.selected_tab
 
         # Returns the context data
         return self.context

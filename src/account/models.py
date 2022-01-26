@@ -89,8 +89,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     ROLES = (
         ('admin', 'Administrador'),
         ('client', 'Cliente'),
-        ('employee1', 'Empleado 1'),
-        ('employee2', 'Empleado 2'),
+        ('level_1', 'Nivel 1'),
+        ('level_2', 'Nivel 2'),
     )
 
     VEHICLES = (
@@ -130,12 +130,12 @@ class Account(AbstractBaseUser, PermissionsMixin):
                            unique=True, blank=True, null=True)
     address = models.CharField(
         verbose_name="address", max_length=100, blank=True, null=True)
-    dni_img = models.ImageField(verbose_name='doc picture',
-                                upload_to=doc_upload_location,
-                                blank=True, null=True)
+    dni_img = models.ImageField(
+        verbose_name='doc picture', upload_to=doc_upload_location, blank=True,
+        null=True)
     # USER DOCUMENTATION
     role = models.CharField(verbose_name="Rol", max_length=9,
-                            choices=ROLES, default='employee2')
+                            choices=ROLES, default='level_2')
     driver_license = models.FileField(
         verbose_name="Licencia de conducir",
         upload_to=driver_licence_upload_location, blank=True, null=True)
@@ -143,14 +143,13 @@ class Account(AbstractBaseUser, PermissionsMixin):
         verbose_name="Antecedentes penales",
         upload_to=criminal_record_upload_location, blank=True, null=True)
     vtv = models.FileField(
-        verbose_name="VTV",
-        upload_to=vtv_upload_location, blank=True, null=True)
+        verbose_name="VTV", upload_to=vtv_upload_location, blank=True,
+        null=True)
     insurance = models.FileField(
-        verbose_name="Seguro",
-        upload_to=insurance_upload_location, blank=True, null=True)
+        verbose_name="Seguro", upload_to=insurance_upload_location, blank=True,
+        null=True)
     vehicle_type = models.CharField(
-        verbose_name="Tipo de vehículo",
-        max_length=10, blank=True, null=True,
+        verbose_name="Tipo de vehículo", max_length=10, blank=True, null=True,
         choices=VEHICLES)
     vehicle_id = models.CharField(
         verbose_name="Patente", max_length=10, blank=True, null=True)
@@ -202,7 +201,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = 'Cuenta'
         verbose_name_plural = 'Cuentas'
-        ordering = ['-username']
+        ordering = ['is_active', '-username']
 
 
 @receiver(post_delete, sender=Account)

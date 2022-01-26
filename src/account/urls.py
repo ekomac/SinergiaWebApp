@@ -1,7 +1,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import (
-    employees_list_view,
+    EmployeesListView,
     employee_create_view,
     employee_detail_view,
     employee_edit_view,
@@ -12,7 +12,7 @@ app_name = 'account'
 urlpatterns = [
     path('edit/', auth_views.PasswordChangeView.as_view(
         template_name='registration/password_change.html'), name="edit"),
-    path('', employees_list_view, name="employees-list"),
+    path('', EmployeesListView.as_view(), name="employees-list"),
     path('add/', employee_create_view, name="employees-add"),
     path('<int:pk>/', employee_detail_view, name="employees-detail"),
     path('<int:pk>/edit/', employee_edit_view, name="employees-edit"),

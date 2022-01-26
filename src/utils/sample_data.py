@@ -20,10 +20,10 @@ groups = [
         'name': 'Clients',
     },
     {
-        'name': 'EmployeeTier1',
+        'name': 'Level 1',
     },
     {
-        'name': 'EmployeeTier2',
+        'name': 'Level 2',
     },
 ]
 

@@ -87,8 +87,8 @@ def create_user_groups():
         su = Account.objects.filter(is_superuser=True).first()
         su.groups.add(Group.objects.filter(name='Admins').first())
     Group.objects.create(name='Clients')
-    Group.objects.create(name='EmployeeTier1')
-    Group.objects.create(name='EmployeeTier2')
+    Group.objects.create(name='Level 1')
+    Group.objects.create(name='Level 2')
 
 
 def encode_username(first, last):
@@ -129,10 +129,10 @@ def create_users(names, lasts):
                 user.save()
                 if i > 15:
                     group = Group.objects.filter(
-                        name='EmployeeTier1').first()
+                        name='Level 1').first()
                 else:
                     group = Group.objects.filter(
-                        name='EmployeeTier2').first()
+                        name='Level 2').first()
                 user.groups.add(group)
                 break
             except IntegrityError as e:

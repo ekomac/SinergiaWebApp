@@ -2,6 +2,7 @@
 import json
 
 # Django
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http.response import HttpResponse
@@ -18,7 +19,7 @@ from utils.alerts.views import create_alert_and_redirect
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def index_view(request) -> HttpResponse:
     deposits = Deposit.objects.annotate(
         num_envios=Count(
@@ -32,7 +33,7 @@ def index_view(request) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def select_carrier_view(request, deposit_pk) -> HttpResponse:
     context = {}
     # Get the current deposit
@@ -41,7 +42,7 @@ def select_carrier_view(request, deposit_pk) -> HttpResponse:
 
     # If user is not an admin or a tier1, skip the next step
     if not request.user.groups.filter(
-            name__in=["Admins", "EmployeeTier1"]).exists():
+            name__in=["Admins", "Level 1"]).exists():
         return redirect(
             'app_withdraw:deposit', deposit_pk=deposit_pk,
             carrier_pk=request.user.pk
@@ -53,9 +54,10 @@ def select_carrier_view(request, deposit_pk) -> HttpResponse:
     )
     # Get carriers which are employees
     carriers = Account.objects.filter(
-        groups__name__in=['Admins', 'EmployeeTier1', 'EmployeeTier2']
-    ).annotate(envios=Count('envios_carried_by')).order_by('envios').distinct().values(
-        "pk", "username", "first_name", "last_name", "envios")
+        groups__name__in=['Admins', 'Level 1', 'Level 2']
+    ).annotate(envios=Count('envios_carried_by')).order_by(
+        'envios').distinct().values(
+            "pk", "username", "first_name", "last_name", "envios")
     # Parse them to list of JSON
     carriers = [json.dumps(carrier, indent=4) for carrier in carriers]
     # Parse the list to JSON for template
@@ -64,7 +66,7 @@ def select_carrier_view(request, deposit_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def deposit_view(request, deposit_pk, carrier_pk) -> HttpResponse:
     context = {}
     deposit = get_object_or_404(Deposit, pk=deposit_pk)
@@ -75,7 +77,7 @@ def deposit_view(request, deposit_pk, carrier_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def confirm_all_view(request, deposit_pk, carrier_pk) -> HttpResponse:
     context = {}
     deposit = get_object_or_404(Deposit, pk=deposit_pk)
@@ -99,7 +101,7 @@ def confirm_all_view(request, deposit_pk, carrier_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def scan_view(request, deposit_pk, carrier_pk) -> HttpResponse:
     context = {}
     deposit = get_object_or_404(Deposit, pk=deposit_pk)
@@ -112,7 +114,7 @@ def scan_view(request, deposit_pk, carrier_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def confirm_scanned_view(request, deposit_pk, carrier_pk) -> HttpResponse:
     context = {}
     deposit = get_object_or_404(Deposit, pk=deposit_pk)
@@ -140,7 +142,7 @@ def confirm_scanned_view(request, deposit_pk, carrier_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def filter_by_view(request, deposit_pk, carrier_pk) -> HttpResponse:
     context = {}
     deposit = get_object_or_404(Deposit, pk=deposit_pk)
@@ -151,7 +153,7 @@ def filter_by_view(request, deposit_pk, carrier_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def confirm_filtered_view(request, deposit_pk, carrier_pk) -> HttpResponse:
     context = {}
     deposit = get_object_or_404(Deposit, pk=deposit_pk)

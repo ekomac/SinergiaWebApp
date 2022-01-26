@@ -199,9 +199,9 @@ LOGGING = {
 
 
 # PERMISSIONS LISTS
-TRANSFER_IN_NAME_OF_OTHERS = ["Admins", "EmployeeTier1"]
-DELIVER_IN_NAME_OF_OTHERS = ["Admins", "EmployeeTier1"]
-ACCESS_EMPLOYEE_APP = ["Admins", "EmployeeTier1", "EmployeeTier2"]
+TRANSFER_IN_NAME_OF_OTHERS = ["Admins", "Level 1"]
+DELIVER_IN_NAME_OF_OTHERS = ["Admins", "Level 1"]
+ACCESS_EMPLOYEE_APP = ["Admins", "Level 1", "Level 2"]
 
 
 DEFAULT_RESULTS_PER_PAGE = 50

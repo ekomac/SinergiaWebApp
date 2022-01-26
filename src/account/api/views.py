@@ -22,7 +22,7 @@ def api_detail_carrier_view(request, pk):
     try:
         account = Account.objects.filter(
             pk=pk, groups__name__in=[
-                'Admins', 'EmployeeTier1', 'EmployeeTier2']).last()
+                'Admins', 'Level 1', 'Level 2']).last()
         if account is None:
             return Response(
                 data={
@@ -45,7 +45,7 @@ def api_detail_carrier_view(request, pk):
 
 class ApiEmployeesWithEnviosListView(ListAPIView):
     queryset = Account.objects.filter(
-        groups__name__in=['Admins', 'EmployeeTier1', 'EmployeeTier2'],
+        groups__name__in=['Admins', 'Level 1', 'Level 2'],
     ).annotate(
         envios=Count('envios_carried_by')).order_by('-envios').distinct()
     serializer_class = EmployeeSerializer
@@ -56,7 +56,7 @@ class ApiEmployeesWithEnviosListView(ListAPIView):
 
 class ApiCarrierListView(ListAPIView):
     queryset = Account.objects.filter(
-        groups__name__in=['Admins', 'EmployeeTier1', 'EmployeeTier2'],
+        groups__name__in=['Admins', 'Level 1', 'Level 2'],
         envios_carried_by__isnull=False,
     ).annotate(
         envios=Count('envios_carried_by')).order_by('-envios').distinct()

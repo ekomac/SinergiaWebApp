@@ -1,4 +1,5 @@
 # Django
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.http.response import HttpResponse
@@ -15,11 +16,11 @@ from utils.alerts.views import create_alert_and_redirect
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def index_view(request) -> HttpResponse:
     # If user is not an admin or tier1, skip to deposit selection
     if not request.user.groups.filter(
-            name__in=["Admins", "EmployeeTier1"]).exists():
+            name__in=["Admins", "Level 1"]).exists():
         return redirect('app_deposit:select-deposit',
                         carrier_pk=request.user.pk)
     carriers = Account.objects.filter(
@@ -30,14 +31,14 @@ def index_view(request) -> HttpResponse:
         'can_watch_other': 1
     }
     if not request.user.groups.filter(
-            name__in=["Admins", "EmployeeTier1"]).exists():
+            name__in=["Admins", "Level 1"]).exists():
         context['carriers'] = carriers.filter(pk=request.user.pk)
         context['can_watch_other'] = 0
     return render(request, 'app_deposit/index.html', context)
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def select_deposit_view(request, carrier_pk):
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)
@@ -47,7 +48,7 @@ def select_deposit_view(request, carrier_pk):
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def carrier_view(request, carrier_pk, deposit_pk) -> HttpResponse:
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)
@@ -59,7 +60,7 @@ def carrier_view(request, carrier_pk, deposit_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def confirm_all_view(request, carrier_pk, deposit_pk) -> HttpResponse:
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)
@@ -82,7 +83,7 @@ def confirm_all_view(request, carrier_pk, deposit_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def scan_view(request, carrier_pk, deposit_pk) -> HttpResponse:
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)
@@ -96,7 +97,7 @@ def scan_view(request, carrier_pk, deposit_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def confirm_scanned_view(request, carrier_pk, deposit_pk) -> HttpResponse:
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)
@@ -122,7 +123,7 @@ def confirm_scanned_view(request, carrier_pk, deposit_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def filter_by_view(request, carrier_pk, deposit_pk) -> HttpResponse:
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)
@@ -133,7 +134,7 @@ def filter_by_view(request, carrier_pk, deposit_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def confirmed_filtered_view(request, carrier_pk, deposit_pk) -> HttpResponse:
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)

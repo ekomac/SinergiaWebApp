@@ -2,13 +2,15 @@ from django.http.response import JsonResponse
 import unidecode
 from typing import List, Tuple
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login, authenticate, logout
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render, redirect
-from account.decorators import allowed_users
+from account.decorators import allowed_users, allowed_users_in_class_view
 from account.forms import AccountAuthenticationForm, PasswordResetForm
 from envios.models import Envio
+from utils.views import CompleteListView
 from .models import Account
 
 
@@ -32,11 +34,13 @@ def login_view(request):
             return redirect('index')
 
     if request.POST:
-        form = AccountAuthenticationForm(request.POST)
+        form = AccountAuthenticationForm(
+            request.POST)
         if form.is_valid():
             email = request.POST['email']
             password = request.POST['password']
-            user = authenticate(email=email, password=password)
+            user = authenticate(
+                email=email, password=password)
 
             if user:
                 login(request, user)
@@ -48,28 +52,82 @@ def login_view(request):
                         next_url = 'admin-home'
                     else:
                         next_url = 'index'
-                spec_url = request.GET.get('next', None)
+                spec_url = request.GET.get(
+                    'next', None)
                 if spec_url:
                     return redirect(spec_url)
                 return redirect(next_url)
 
     context['login_form'] = form
 
-    return render(request, 'account/login.html', context)
+    return render(
+        request, 'account/login.html', context)
 
 
 def forced_reset_password_view(request):
-    return render(request, 'registration/forced_password_reset.html', {})
+    return render(
+        request,
+        'registration/forced_password_reset.html',
+        {})
 
 
 def edit_account_view(request):
     context = {}
-    return render(request, 'account/edit.html', context)
+    return render(
+        request, 'account/edit.html', context)
+
+
+class EmployeesListView(CompleteListView, LoginRequiredMixin):
+
+    template_name = 'account/employees_files/list.html'
+    model = Account
+    decoders = (
+        {
+            'key': 'is_active',
+            'filter': 'is_active',
+            'function': lambda x: True if x == 'true' else False,
+            'context': lambda x: x,
+        },
+        {
+            'key': 'has_envios',
+            'filter': 'envios_carried_by__isnull',
+            'function': lambda x: True if x == 'false' else False,
+            'context': lambda x: x,
+        },
+    )
+    query_keywords = (
+        'username__icontains', 'first_name__icontains', 'last_name__icontains',
+        'client__name__icontains', 'email__icontains', 'dni__icontains',
+        'phone__icontains', 'address__icontains',)
+
+    selected_tab = 'files-tab'
+
+    @allowed_users_in_class_view(roles=["Admins"])
+    def get(self, request):
+        return super(EmployeesListView, self).get(request)
+
+    def get_model_queryset(self):
+        queryset = super().get_model_queryset()
+        filters = {
+            'groups__name__in': ['Admins', 'Level 1', 'Level 2'],
+            'is_active': True,
+        }
+        return queryset.filter(**filters)
+
+    def queryset_map_callable(self, obj):
+        envios_carried = Envio.objects.filter(
+            carrier=obj,
+            status=Envio.STATUS_MOVING
+        ).count()
+        return (obj, envios_carried)
+
+    def get_verbose_name_plural(self):
+        return "Empleados/as"
 
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
-def employees_list_view(request):
+def employees_list_view_old(request):
 
     context = {}
 
@@ -107,7 +165,7 @@ def employees_list_view(request):
         context['employees'] = employees
         context['totalEmployees'] = len(employees)
         context['selected_tab'] = 'files-tab'
-    return render(request, 'account/employees_files/list.html', context)
+    return render(request, 'account/employees_files/list_old.html', context)
 
 
 def get_employees_queryset(
@@ -125,7 +183,8 @@ def get_employees_queryset(
         List[Account]: a list containing account employees which match at least
         one query.
     """
-    query = unidecode.unidecode(query) if query else ""
+    query = unidecode.unidecode(
+        query) if query else ""
     return list(map(map_employees_to_tuple, list(
         Account.objects.filter(
             Q(first_name__icontains=query) |
@@ -191,7 +250,8 @@ def reset_password_for_employee(request, pk):
         # get the form data
         form = PasswordResetForm(request.POST)
         if form.is_valid():
-            user = get_object_or_404(Account, pk=pk)
+            user = get_object_or_404(
+                Account, pk=pk)
             user.has_to_reset_password = True
             user.save()
             # serialize in new friend object in json

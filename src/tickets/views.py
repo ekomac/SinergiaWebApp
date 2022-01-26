@@ -20,7 +20,7 @@ from utils.alerts.views import delete_alert_and_redirect
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1"])
+@allowed_users(roles=["Admins", "Level 1"])
 def list_tickets_view(request):
 
     context = {}
@@ -181,13 +181,13 @@ class CreateTicketView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         return reverse('tickets:detail', kwargs={'pk': self.object.pk})
 
-    @allowed_users_in_class_view(roles=["Admins", "Clients", "EmployeeTier1"])
+    @allowed_users_in_class_view(roles=["Admins", "Clients", "Level 1"])
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1"])
+@allowed_users(roles=["Admins", "Level 1"])
 def ticket_detail_view(request, pk):
     if not request.user.ticket_set.filter(pk=pk).exists():
         return redirect('tickets:list')
@@ -222,7 +222,7 @@ def truncate_start(s: str) -> str:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1"])
+@allowed_users(roles=["Admins", "Level 1"])
 def ticket_delete_view(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk)
     if request.method == 'POST':

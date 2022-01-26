@@ -16,14 +16,16 @@ from places.models import Partido, Town, Zone
 from tracking.tracking_funcs import transfer
 from utils.alerts.views import create_alert_and_redirect
 
+from django.conf import settings
+
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
-@transfer_safe(roles=["Admins", "EmployeeTier1"], redirect_app='index')
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
+@transfer_safe(roles=["Admins", "Level 1"], redirect_app='index')
 def index_view(request) -> HttpResponse:
     # If user is not an admin or a tier1, skip to receiver selection
     if not request.user.groups.filter(
-            name__in=["Admins", "EmployeeTier1"]).exists():
+            name__in=["Admins", "Level 1"]).exists():
         return redirect('app_transfer:select-receiver',
                         carrier_pk=request.user.pk)
     carriers = Account.objects.filter(
@@ -34,15 +36,15 @@ def index_view(request) -> HttpResponse:
         'can_watch_other': 1
     }
     if not request.user.groups.filter(
-            name__in=["Admins", "EmployeeTier1"]).exists():
+            name__in=["Admins", "Level 1"]).exists():
         context['carriers'] = carriers.filter(pk=request.user.pk)
         context['can_watch_other'] = 0
     return render(request, 'app_transfer/index.html', context)
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
-@transfer_safe(roles=["Admins", "EmployeeTier1"], redirect_app='index')
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
+@transfer_safe(roles=["Admins", "Level 1"], redirect_app='index')
 def select_receiver_view(request, carrier_pk):
     context = {}
     # Get the current carrier
@@ -54,10 +56,10 @@ def select_receiver_view(request, carrier_pk):
     )
     # Get receivers which are employees
     receivers = Account.objects.filter(
-        groups__name__in=['Admins', 'EmployeeTier1', 'EmployeeTier2']
-    ).exclude(pk=carrier_pk).annotate(
-        envios=Count('envios_carried_by')).order_by('envios').distinct().values(
-        "pk", "username", "first_name", "last_name", "envios")
+        groups__name__in=['Admins', 'Level 1', 'Level 2']).exclude(
+        pk=carrier_pk).annotate(envios=Count('envios_carried_by')).order_by(
+        'envios').distinct().values("pk", "username", "first_name",
+                                    "last_name", "envios")
     # Parse them to list of JSON
     receivers = [json.dumps(receiver, indent=4) for receiver in receivers]
     # Parse the list to JSON for template
@@ -66,8 +68,8 @@ def select_receiver_view(request, carrier_pk):
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
-@transfer_safe(roles=["Admins", "EmployeeTier1"], redirect_app='index')
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
+@transfer_safe(roles=["Admins", "Level 1"], redirect_app='index')
 def carrier_view(request, carrier_pk, receiver_pk) -> HttpResponse:
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)
@@ -82,8 +84,8 @@ def carrier_view(request, carrier_pk, receiver_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
-@transfer_safe(roles=["Admins", "EmployeeTier1"], redirect_app='index')
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
+@transfer_safe(roles=["Admins", "Level 1"], redirect_app='index')
 def confirm_all_view(request, carrier_pk, receiver_pk) -> HttpResponse:
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)
@@ -107,8 +109,8 @@ def confirm_all_view(request, carrier_pk, receiver_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
-@transfer_safe(roles=["Admins", "EmployeeTier1"], redirect_app='index')
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
+@transfer_safe(roles=["Admins", "Level 1"], redirect_app='index')
 def scan_view(request, carrier_pk, receiver_pk) -> HttpResponse:
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)
@@ -124,8 +126,8 @@ def scan_view(request, carrier_pk, receiver_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
-@transfer_safe(roles=["Admins", "EmployeeTier1"], redirect_app='index')
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
+@transfer_safe(roles=["Admins", "Level 1"], redirect_app='index')
 def confirm_scanned_view(request, carrier_pk, receiver_pk) -> HttpResponse:
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)
@@ -154,8 +156,8 @@ def confirm_scanned_view(request, carrier_pk, receiver_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
-@transfer_safe(roles=["Admins", "EmployeeTier1"], redirect_app='index')
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
+@transfer_safe(roles=["Admins", "Level 1"], redirect_app='index')
 def filter_by_view(request, carrier_pk, receiver_pk) -> HttpResponse:
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)
@@ -170,8 +172,8 @@ def filter_by_view(request, carrier_pk, receiver_pk) -> HttpResponse:
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "EmployeeTier1", "EmployeeTier2"])
-@transfer_safe(roles=["Admins", "EmployeeTier1"], redirect_app='index')
+@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
+@transfer_safe(roles=["Admins", "Level 1"], redirect_app='index')
 def confirm_filtered_view(request, carrier_pk, receiver_pk) -> HttpResponse:
     context = {}
     carrier = get_object_or_404(Account, pk=carrier_pk)

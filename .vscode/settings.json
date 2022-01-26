@@ -13,7 +13,7 @@
         }
     ],
     // Whether to run code in Integrated Terminal.
-	"code-runner.runInTerminal": true,
+    "code-runner.runInTerminal": true,
     "editor.suggestSelection": "first",
     "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
     // "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\cmd.exe",
@@ -123,4 +123,9 @@
     "emmet.triggerExpansionOnTab": true,
     "files.autoSave": "afterDelay",
     "python.formatting.provider": "autopep8",
+    "python.formatting.autopep8Args": [
+        "--max-line-length",
+        "79",
+        "--experimental",
+    ],
 }
