@@ -79,13 +79,15 @@
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-currency-dollar me-2"></i>Costo total</td>
-                            <td class="w-100">$ {{ summary.total_cost }}</td>
+                            {% comment %} <td class="w-100">$ {{ summary.total_cost }}</td> {% endcomment %}
+                            <td class="w-100"></td>
                         </tr>
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-123 me-2"></i>Cantidad
                                 de envíos incluídos</td>
-                            <td class="w-100">{{ summary.total_envios }}</td>
+                            {% comment %} <td class="w-100">{{ summary.total_envios }}</td> {% endcomment %}
+                            <td class="w-100"></td>
                         </tr>
 
                     </tbody>
@@ -137,7 +139,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for obj in summary.envios %}
+                        {% for obj in envios %}
                         <tr id="envio-{{ obj.id }}"
                             onclick="window.location.href='{% url 'envios:envio-detail' obj.id %}';"
                             style="cursor: pointer;">

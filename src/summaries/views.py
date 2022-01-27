@@ -170,7 +170,8 @@ def employee_summary_create_view(request):
 @allowed_users(roles=["Admins"])
 def client_summary_detail_view(request, pk):
     summary = get_object_or_404(ClientSummary, pk=pk)
-    ctx = {'summary': summary, 'selected_tab': 'clients-summaries-tab', }
+    ctx = {
+        'summary': summary, 'selected_tab': 'clients-summaries-tab', }
     return render(request, 'summaries/detail.html', ctx)
 
 
@@ -255,7 +256,7 @@ def print_csv_summary(request, pk):
     summary = get_object_or_404(ClientSummary, pk=pk)
     rows = ([envio_dict['date_delivered'], envio_dict['destination'],
             envio_dict['detail'], envio_dict['price']
-             ] for envio_dict in summary.envios)
+             ] for envio_dict in summary.get_envios())
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
     response = StreamingHttpResponse((writer.writerow(row) for row in rows),

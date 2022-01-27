@@ -31,8 +31,8 @@ class Summary(models.Model):
     last_calculated_total = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name='Último total calculado',
         blank=True, null=True)
-    envios = models.ManyToManyField(
-        Envio, verbose_name='Envíos', blank=True, null=True)
+    # envios = models.ManyToManyField(
+    #     Envio, verbose_name='Envíos', blank=True, null=True)
 
     def __get_envios(self):
         return Envio.objects.filter(**self.get_envios_filters())
@@ -40,18 +40,15 @@ class Summary(models.Model):
     def get_envios_filters(self) -> Dict[str, Any]:
         raise NotImplementedError("This method should be overrided.")
 
-    @property
     def total_cost(self) -> Decimal:
         total = Decimal(0)
         total = sum([envio.price for envio in self.__get_envios()])
         return round(total)
 
-    @property
     def total_envios(self) -> int:
         return self.__get_envios().count()
 
-    @property
-    def envios(self) -> dict:
+    def get_envios(self) -> dict:
         result = []
         for envio in self.__get_envios():
             if envio.is_flex:
@@ -73,9 +70,8 @@ class Summary(models.Model):
             result.append(as_dict)
         return result
 
-    @property
     def envios_as_JSON(self):
-        return json.dumps(self.envios)
+        return json.dumps(self.get_envios())
 
 
 class ClientSummary(Summary):
