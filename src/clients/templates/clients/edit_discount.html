@@ -18,14 +18,13 @@
         enctype="multipart/form-data">{% csrf_token %}
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
-                Crear objeto
+                Editar descuento para {{ client.name }}
             </div>
             <div>
                 <a href="{% url 'clients:detail' client.pk %}"><i class="bi bi-arrow-left-short"></i>Volver</a>
             </div>
         </div>
         <div class="card-body">
-            <h3 class="card-title text-center mt-3">EDITAR DESCUENTO PARA {{ client.name | upper }}</h3>
 
             <div class="row g-3">
 
@@ -33,9 +32,12 @@
                 <!-- start AMOUNT INPUT -->
                 <div class="col-12 col-md-6">
                     <label for="id_amount" class="form-label">Porcentaje</label>
-                    <input id="id_amount" name="amount" type="number" step="1" min="1" max="100"
-                        class="form-control {% if form.amount.errors %}is-invalid{% endif %}"
-                        {% if form.amount.value %}value="{{ form.amount.value }}" {% endif %} required>
+                    <div class="input-group">
+                        <input id="id_amount" name="amount" type="number" step="1" min="1" max="100"
+                            class="form-control {% if form.amount.errors %}is-invalid{% endif %}"
+                            {% if form.amount.value %}value="{{ form.amount.value }}" {% endif %} required>
+                        <span class="input-group-text">%</span>
+                    </div>
                     <div class="invalid-feedback">
                         {% for error in form.amount.errors %}
                         {{ error }}

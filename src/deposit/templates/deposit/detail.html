@@ -189,8 +189,7 @@
                     </tbody>
                 </table>
             </div>
-            {% else %}
-            {% if deposit.client == None or deposit.is_sinergia %}
+            {% elif deposit.client == None or deposit.is_sinergia %}
             <div class="alert alert-info">
                 <i class="fa fa-info-circle"></i> No hay envíos en este depósito.
             </div>
@@ -209,7 +208,6 @@
         </div>
     </div>
 
-    {% endif %}
     <!-- end CARD ENVIOS -->
 
 

@@ -53,7 +53,7 @@ class Partido(models.Model):
         ('SC', 'Santa Cruz'),
         ('SF', 'Santa Fe'),
         ('SE', 'Santiago del Estero'),
-        ('TF', 'Tierra del Fuego...'),
+        ('TF', 'Tierra del Fuego'),
         ('TU', 'Tucumán'),
     ]
 
@@ -82,6 +82,10 @@ class Partido(models.Model):
 
 class Town(models.Model):
 
+    date_created = models.DateTimeField(
+        verbose_name="Fecha de creación", auto_now_add=True)
+    date_updated = models.DateTimeField(
+        verbose_name="Fecha de actualización", auto_now=True)
     name = models.CharField(
         verbose_name='Name', max_length=70, blank=False, null=False)
     partido = models.ForeignKey(

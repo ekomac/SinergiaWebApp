@@ -179,6 +179,8 @@ class CompleteListView(View):
 
     selected_tab = None
 
+    include_add_button = True
+
     def __init__(self, *args, **kwargs) -> None:
         """
         Initializes the view. Creates an empty context dictionary.
@@ -565,6 +567,8 @@ class CompleteListView(View):
 
         if self.selected_tab is not None:
             self.context['selected_tab'] = self.selected_tab
+
+        self.context['include_add_button'] = self.include_add_button
 
         # Returns the context data
         return self.context

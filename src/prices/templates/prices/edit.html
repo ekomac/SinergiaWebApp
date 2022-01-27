@@ -24,8 +24,9 @@
                     <label for="id_code" class="form-label">Código</label>
                     <input id="id_code" name="code" type="text" {% if form.code.value %}value="{{form.code.value}}"
                         {% endif %} class="form-control {% if form.code.errors %}is-invalid{% endif %}"
-                        placeholder="{{ name_suggestion }}"
-                        pattern="{% if code_type == 'd' %}^M[0-9]{1,3}${% else %}^F[0-9]{1,3}${% endif %}" required>
+                        placeholder="{{ name_suggestion }}" required> {% comment %}
+                    pattern="{% if code_type == 'd' %}^M[0-9]{1,3}${% else %}^F[0-9]{1,3}${% endif %}"
+                    {% endcomment %}
                     <div class="invalid-feedback">
                         {% for error in form.code.errors %}{{error}}<br>{% endfor %}
                     </div>

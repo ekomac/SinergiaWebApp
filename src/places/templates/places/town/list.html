@@ -1,296 +1,198 @@
-{% extends 'base_system.html' %}
-
-{% block content %}
-
-{% load places_extras %}
-
-<style>
-    .cell-centered,
-    h5 {
-        text-align: center;
-    }
-
-    h5 {
-        margin-bottom: 10px;
-        margin-top: 20px;
-    }
-
-    .bool-div {
-        color: white;
-        padding: 1px;
-    }
-
-    .bool-div-true {
-        background-color: green;
-    }
-
-    .bool-div-false {
-        background-color: red;
-    }
-
-    td {
-        overflow: auto;
-        white-space: nowrap;
-    }
-</style>
-
-<div class="col-md-12 col-xl-10 col-xxl-9 d-flex-inline">
-    <div class=" card flex-fill">
-        <div class="card-body d-flex flex-column">
-            <h2 class="card-title text-center mt-2">LISTADO DE LOCALIDADES</h2>
+{% extends 'base/base_list.html' %}
 
 
-            <!-- start SEARCH AND ORDERING FUNCTIONALITIES -->
-            <form method="GET" class="mt-4" id="list_form">
-                <div class="row g-2">
-                    <div class="col-12 col-lg-5 d-inline-flex justify-content-start align-items-center">
-                        <input type="text" class="form-control me-2" name="q" id="id_q"
-                            value="{% if query != '' and query%}{{query}}{% endif %}"
-                            placeholder="Ingresá texto para buscar...">
-                        <div class="mx-1">
-                            <div id="clearSearchDiv" class="{% if query == '' or not query %}hide-on-load{% endif %}">
-                                <a id="clearSearch" type="button" class="ms-2 text-decoration-none"
-                                    onclick="clearSearch()" style="cursor: pointer;">Limpiar</i></a>
-                            </div>
-                        </div>
-                    </div>
+{% block modal_content %}
 
-                    <div class="col-12 col-lg-7 d-flex justify-content-end align-items-center">
-                        <label for="id_order_by" id="labelOrder_by" class="me-2">Ordenar por: </label>
-                        <div aria-label="Default select example">
-                            <select id="id_order_by" name="order_by" class="form-select"
-                                aria-label="Order by selection">
-                                <option value="partido" {% if order_by == 'partido' %}selected{% endif %}>Partido A-Z
-                                </option>
-                                <option value="partido_desc" {% if order_by == 'partido_desc' %}selected{% endif %}>
-                                    Partido Z-A</option>
-                                <option value="town" {% if order_by == 'town' %}selected{% endif %}>Localidad A-Z
-                                </option>
-                                <option value="town_desc" {% if order_by == 'town_desc' %}selected{% endif %}>Localidad
-                                    Z-A</option>
-                                <option value="delivery" {% if order_by == 'delivery' %}selected{% endif %}>Cód.
-                                    Mensajería A-Z</option>
-                                <option value="delivery_desc" {% if order_by == 'delivery_desc' %}selected{% endif %}>
-                                    Cód. Mensajería Z-A</option>
-                                <option value="flex" {% if order_by == 'flex' %}selected{% endif %}>Cód. Flex A-Z
-                                </option>
-                                <option value="flex_desc" {% if order_by == 'flex_desc' %}selected{% endif %}>Cód. Flex
-                                    Z-A</option>
-                            </select>
-                        </div>
+<!-- start BASE MODAL DIALOG -->
+<div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="baseModal" tabindex="-1"
+    aria-labelledby="baseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filtersModalLabel">Elegí cómo querés filtrar los depósitos.
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_partido_modal" class="form-label">Partido</label>
+
+                        <!-- start PARTIDO SELECTION -->
+                        <select id="id_partido_modal" name="partido_modal" class="form-select"
+                            aria-label="partido selection">
+                            <option value="">---</option>
+                            {% for partido in partidos %}
+                            <option value="{{partido.id}}"
+                                {% if partido_id == partido.id|stringformat:"i" %}selected{% endif %}>
+                                {{partido.name|title}}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <!-- end PARTIDO SELECTION -->
+
                     </div>
                 </div>
-            </form>
-            <!-- end SEARCH AND ORDERING FUNCTIONALITIES -->
 
 
-            <hr class="bg-dark mt-4">
-
-
-            <!-- start ACTIONS -->
-            <div class="d-flex flex-wrap align-items-center">
-                <button type="button" id="bulkAsignDeliveryCode" class="btn btn-primary btn-sm m-2 m-xl-0 ms-xl-2"
-                    onclick="bulkDeliveryUpdateItems()" disabled>
-                    Asignar código mensajería
-                </button>
-                <button type="button" id="bulkAsignFlexCode" class="btn btn-primary btn-sm m-2 m-xl-0 ms-xl-2"
-                    onclick="bulkFlexUpdateItems()" disabled>
-                    Asignar código flex
-                </button>
-                <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{totalTowns}} elementos seleccionados
-                </div>
-                <div class="my-1 mx-xl-3">
-                    <div id="clearSelectionDiv" class="hide-on-load"> <a id="clearSelection" type="button"
-                            class="ms-2 text-decoration-none" onclick="removeSelection()"
-                            style="cursor: pointer;">Quitar selección<i class="bi bi-x"></i></a>
-                    </div>
-                </div>
-            </div>
-            <!-- end ACTIONS -->
-
-
-            <hr class="bg-dark">
-
-            <!-- start MAIN CONTENT -->
-            {% if towns %}
-
-            <div class="table-responsive">
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>
-                                <div class="form-check">
-                                    <input class="form-check-input checkbox-select" type="checkbox" id="checkAll">
-                                </div>
-                            </th>
-                            <th>Nombre</th>
-                            <th>Partido</th>
-                            <th>Provincia</th>
-                            <th class="cell-centered">Es amba</th>
-                            <th class="cell-centered">Zona</th>
-                            <th class="cell-centered">Cód. Mensajería</th>
-                            <th class="cell-centered">Cód. Flex</th>
-                            <th class="cell-centered"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="overrided-1" class="overrided-tbody">
-                        {% for item in towns %}
-                        {% include 'places/town/snippets/item.html' with obj=item counter=forloop.counter %}
-                        {% endfor %}
-                    </tbody>
-                </table>
             </div>
 
-            <!-- Pagination -->
-            {% include 'places/town/snippets/pagination.html' with towns=towns %}
 
-            {% else %}
-
-            <div>
-                <p class="card-text">No se encontraron resultados que coincidan con la búsqueda: "{{query}}"</p>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    onclick="clearFilters()">Limpiar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                    onclick="applyFilters()">Aplicar</button>
             </div>
-
-            {% endif %}
-            <!-- end MAIN CONTENT -->
-
-
         </div>
     </div>
-
 </div>
+<!-- end BASE MODAL DIALOG -->
 
+{% endblock modal_content %}
+
+
+
+{% block orderby_block %}
+<li>
+    <button type="button" onclick="orderByChanged('name','id_order_by','list_form',true);" class="dropdown-item">
+        A-Z
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('name_desc','id_order_by','list_form');" class="dropdown-item">
+        Z-A
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('partido__name','id_order_by','list_form',true);"
+        class="dropdown-item">
+        Partido A-Z
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('partido__name_desc','id_order_by','list_form');"
+        class="dropdown-item">
+        Partido Z-A
+    </button>
+</li>
+{% endblock orderby_block %}
+
+
+
+{% block filters_block %}
+<input type="text" id='id_partido_id' name="partido_id" {% if partido_id %}value="{{ partido_id }}" {% endif %}>
+<input type="submit">
+{% endblock filters_block %}
+
+
+
+{% block objects_table_head_block %}
+<th>Nombre</th>
+<th>Partido</th>
+<th>Provincia</th>
+<th>Cód. Mensajería</th>
+<th>Cód. Flex</th>
+{% endblock objects_table_head_block %}
+
+
+
+{% block objects_table_body_block %}
+{% for obj in objects %}
+<tr id="tr-{{ obj.id }}" class="table-item highlight-row"
+    onclick="window.location.href='{% url 'places:town-detail' pk=obj.id %}'">
+    <td>{{ obj.name |title}}</td>
+    <td>{{ obj.partido.name |title}}</td>
+    <td>{{ obj.partido.get_province_display }}</td>
+    <td>{% if obj.delivery_code %}{{ obj.delivery_code }}{% else %}-{% endif %}</td>
+    <td>{% if obj.flex_code %}{{ obj.flex_code }}{% else %}-{% endif %}</td>
+
+</tr>
+{% endfor %}
+{% endblock objects_table_body_block %}
+
+
+{% block scripts_block %}
 <script>
-    var selectionModeEnabled = false;
-    var totalTowns = JSON.parse('{{ totalTowns | escapejs }}');
-
+    const passedOrderBy = '{{ order_by }}';
+    var lastQuery = "{{ query_by }}";
 
     $(document).ready(function () {
 
-        $('#id_order_by').change(function () {
+        $('#list_form').submit(function (e) {
+            e.preventDefault();
+            [
+                'id_query_by',
+                'id_order_by',
+                'id_results_per_page',
+                'id_partido_id',
+            ].forEach(function (id) {
+                if ($('#' + id).val() == '') {
+                    $('#' + id).prop('disabled', true);
+                } else {
+                    $('#' + id).prop('disabled', false);
+                }
+            });
+            $(this).unbind('submit').submit();
+        });
+
+        enableTooltips();
+
+        $('#id_results_per_page').change(function () {
             $('#list_form').submit();
         });
 
-        $('#id_q').on('change paste keyup', function () {
-            show('clearSearchDiv', $('#id_q').val() != '');
+        $('#id_query_by').on('change paste keyup', function () {
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
         });
 
-        show('clearSelectionDiv', selectionModeEnabled);
+        if (lastQuery != '') {
+            $('#id_query_by').val(lastQuery);
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        }
 
-        $("#checkAll").click(function () {
-            $(".item-checker").prop('checked', this.checked);
-            countCheckedItems();
+        $('#btnRadioRPP50').click(function () {
+            $('#id_results_per_page').val(50);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP100').click(function () {
+            $('#id_results_per_page').val(100);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP200').click(function () {
+            $('#id_results_per_page').val(200);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP500').click(function () {
+            $('#id_results_per_page').val(500);
+            $('#list_form').submit();
         });
 
-        $(".item-checker").click(function (e) {
-            e.stopImmediatePropagation();
-            countCheckedItems();
-        });
 
-        $(".td-item-checker").click(function (e) {
-            var id = this.id.split("-")[1];
-            changeItemCheckerState('item-checker-' + id);
-            e.stopImmediatePropagation();
-            e.stopPropagation();
-            countCheckedItems();
-        });
     });
 
-    function onItemClicked(id, url) {
-        if (selectionModeEnabled) {
-            $('#item-checker-' + id).prop('checked', !$('#item-checker-' + id).is(":checked"));
-        } else {
-            window.location.href = url;
-        }
-        countCheckedItems();
-    }
-
-    function countCheckedItems() {
-        // Get all checkboxes
-        var checkBoxes = Array.from(document.getElementsByClassName("item-checker"));
-        // Count total checkboxes
-        var totalCheckBoxes = checkBoxes.length;
-        // Count checked checkboxes
-        var checkedItemsCount = checkBoxes.filter(checkBox => checkBox.checked == true).length;
-        // If all checkboxes checked, check "checkAll" checkbox
-        $('#checkAll').prop('checked', checkedItemsCount == totalCheckBoxes);
-        // Update selected count
-        $('#selectedCount').text(checkedItemsCount + " de " + totalTowns + " elementos seleccionados");
-        // Enable bulk edit btn only if more than one checked
-        isEnabled('bulkAsignDeliveryCode', checkedItemsCount > 0);
-        // Enable delete btn if at least 1 checkbox is checked
-        isEnabled('bulkAsignFlexCode', checkedItemsCount > 0);
-        // Enable selection mode if at least 1 checkbox checked
-        selectionModeEnabled = checkedItemsCount > 0;
-        // hide
-        show('clearSelectionDiv', selectionModeEnabled);
-    }
-
-    function changeItemCheckerState(id) {
-        $('#' + id).prop('checked', !$('#' + id).is(":checked"));
-    }
-
-    function show(id, makeVisible = true) {
-        if (makeVisible && $('#' + id).is(":hidden")) {
-            $('#' + id).hide();
-            $('#' + id).removeClass("hide-on-load");
-            $('#' + id).show(300);
-        }
-        if (!makeVisible && $('#' + id).is(":visible")) {
-            $('#' + id).hide(300);
-        }
-    }
-
-    function isEnabled(id, enable = true) {
-        if (enable && $('#' + id).is(":disabled")) {
-            $('#' + id).removeAttr("disabled");
-        }
-        if (!enable && $('#' + id).is(":enabled")) {
-            $('#' + id).attr("disabled", true);
-        }
-    }
-
-    function itemClicked(id) {
-        if ($('#item-checker-' + id).is(":checked")) {
-            $('#item-checker-' + id).prop('checked', false);
-        } else if (selectionModeEnabled) {
-            $('#item-checker-' + id).prop('checked', true);
-        } else {
-            alert("launch detail item");
-        }
-
-    }
-
-    function removeSelection() {
-        $(".item-checker").prop('checked', false);
-        countCheckedItems();
-    }
-
-    function getCheckboxIds() {
-        return Array.from(document.getElementsByClassName("item-checker"))
-            .filter(checkBox => checkBox.checked == true)
-            .map(function (checkbox) {
-                var id = checkbox.id;
-                return id.split("-checker-")[1];
-            }).join("-");
-    }
-
-    function bulkDeliveryUpdateItems() {
-        var checkBoxesIds = getCheckboxIds();
-        console.log(checkBoxesIds);
-        var url_mask = "{% url 'places:town-delivery-bulk-edit' 12345 %}".replace(/12345/, checkBoxesIds);
-        window.location.href = url_mask;
-    }
-
-    function bulkFlexUpdateItems() {
-        var checkBoxesIds = getCheckboxIds();
-        var url_mask = "{% url 'places:town-flex-bulk-edit' 12345 %}".replace(/12345/, checkBoxesIds);
-        window.location.href = url_mask;
-    }
-
     function clearSearch() {
-        $('#id_q').val('');
+        $('#id_query_by').val('');
+        if (lastQuery != '' && lastQuery != null && lastQuery != undefined) {
+            $('#list_form').submit();
+        }
+        show('btnCleanQuery', false);
+    }
+
+
+    function applyFilters() {
+        $('#id_partido_id').val($('#id_partido_modal').val());
+        $('#list_form').submit();
+    }
+
+    function clearFilters() {
+        $('#id_partido_id').val('');
         $('#list_form').submit();
     }
 </script>
 
-{% endblock content %}
+{% endblock scripts_block %}

@@ -1,6 +1,6 @@
 # Basic Python
 import unidecode
-from typing import List
+from typing import Any, Dict, List
 
 # Django imports
 from django.contrib.auth.decorators import login_required
@@ -14,7 +14,7 @@ from django.views.generic.edit import UpdateView
 from account.decorators import allowed_users, allowed_users_in_class_view
 
 # Projects utils
-from utils.views import DeleteObjectsUtil, ContextMixin
+from utils.views import CompleteListView, DeleteObjectsUtil, ContextMixin
 from utils.forms import CheckPasswordForm
 from utils.alerts.views import (
     SuccessfulUpdateAlertMixin,
@@ -59,7 +59,45 @@ NAME_ORDERING = {
 }
 
 
+class TownListView(CompleteListView, LoginRequiredMixin):
+    template_name = 'places/town/list.html'
+    model = Town
+    decoders = (
+        {
+            'key': 'partido_id',
+            'filter': lambda x: 'partido__isnull' if (
+                x in [-1, '-1']) else 'partido__id',
+            'function': lambda x: True if x in [-1, '-1'] else int(x),
+            'context': str,
+        },
+    )
+    query_keywords = (
+        'name__icontains', 'partido__name__icontains',
+        'partido__province__icontains', )
+    selected_tab = 'town-tab'
+    include_add_button = False
+
+    @allowed_users_in_class_view(roles=["Admins"])
+    def get(self, request):
+        return super(TownListView, self).get(request)
+
+    def get_context_data(self) -> Dict[str, Any]:
+        context = super().get_context_data()
+        context['partidos'] = Partido.objects.all()
+        return context
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def town_detail_view(request, pk):
+    ctx = {}
+    town = get_object_or_404(Town, pk=pk)
+    ctx['town'] = town
+    ctx['selected_tab'] = 'town-tab'
+    return render(request, 'places/town/detail.html', ctx)
 # ************************ PARTIDO ************************
+
+
 @login_required(login_url='/login/')
 @allowed_users(roles="Admins")
 def partidos_view(request):

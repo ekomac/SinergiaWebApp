@@ -11,8 +11,8 @@ from places.views import (
 
 
     # ******** TOWN ********
-    towns_view,
-    TownDetailView,
+    TownListView,
+    town_detail_view,
     TownUpdateView,
     bulk_edit_town_delivery_view,
     bulk_edit_town_flex_view,
@@ -43,8 +43,8 @@ urlpatterns = [
 
 
     # **************************** TOWN ****************************
-    path('town', towns_view, name="town-list"),
-    path('town/<int:pk>', TownDetailView.as_view(), name="town-detail"),
+    path('town', TownListView.as_view(), name="town-list"),
+    path('town/<int:pk>', town_detail_view, name="town-detail"),
     path('town/<int:pk>/edit', TownUpdateView.as_view(), name="town-edit"),
     path('town/<townsids>/bulk_delivery_edit',
          bulk_edit_town_delivery_view, name="town-delivery-bulk-edit"),

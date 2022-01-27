@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from django.contrib.auth.models import Group
 from django.db.utils import IntegrityError
 import os
@@ -5,6 +6,7 @@ import random
 import json
 from django.conf import settings
 from deposit.models import Deposit
+from envios.models import Envio
 from places.models import Partido, Town, Zone, ZipCode
 from prices.models import DeliveryCode, FlexCode
 from account.models import Account
@@ -196,6 +198,20 @@ def create_central_deposit():
             email="jcmacielhenning@gmail.com").first(),
         is_sinergia=True,
     ).save()
+
+
+def create_dummy_envios():
+    for i in range(10000):
+        data = {
+            'street': f"Calle False {i}",
+            'town': Town.objects.filter(name='SAN MIGUEL').first(),
+            'zipcode': "1663",
+            'status': Envio.STATUS_DELIVERED,
+            'deliverer': Account.objects.filter(is_superuser=True).first(),
+            'date_delivered': datetime.now()-timedelta(3),
+            'client': Client.objects.filter(name__icontains='Bulo').first(),
+        }
+        Envio(**data).save()
 
 
 def main(*args):
