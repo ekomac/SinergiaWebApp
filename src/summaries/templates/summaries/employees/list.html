@@ -1,0 +1,231 @@
+{% extends 'base/base_list.html' %}
+
+
+{% block modal_content %}
+
+<!-- start BASE MODAL DIALOG -->
+<div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="baseModal" tabindex="-1"
+    aria-labelledby="baseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filtersModalLabel">Elegí cómo querés filtrar los depósitos.
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- start DATES FROM AND TO FILTER -->
+                <div class="row g-2 mt-2">
+                    <div class="col ">
+
+                        <label for="id_min_date_modal" class="form-label">Fecha de creación</label>
+
+                        <div class="input-group mb-3">
+
+                            <!-- start DATE FROM -->
+                            <input type="date" class="form-control datepicker" name="min_date_modal"
+                                id="id_min_date_modal" max="{{ max_selectable_date }}"
+                                value="{% if min_date %}{{ min_date }}{% endif %}" placeholder="Desde">
+                            <!-- end DATE FROM -->
+
+                            <span class="input-group-text">&nbsp;a&nbsp;</span>
+
+                            <!-- start DATE TO -->
+                            <input type="date" class="form-control datepicker" name="max_date_modal"
+                                id="id_max_date_modal" max="{{ max_selectable_date }}"
+                                value="{% if max_date %}{{ max_date }}{% endif %}" placeholder="Desde">
+                            <!-- end DATE TO -->
+
+                        </div>
+                    </div>
+                </div>
+                <!-- end DATES FROM AND TO FILTER -->
+
+                <!-- start CLIENT TYPE SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_employee_modal" class="form-label">Empleados</label>
+
+                        <!-- start CLIENT SELECTION -->
+                        <select id="id_employee_modal" name="employee_modal" class="form-select"
+                            aria-label="employee selection">
+                            <option value="">---</option>
+                            {% for employee in employees %}
+                            <option value="{{employee.id}}"
+                                {% if employee_id == empoloyee.id|stringformat:"i" %}{% endif %}>
+                                {{employee.full_name_formal}}</option>
+                            {% endfor %}
+                        </select>
+                        <!-- end CLIENT SELECTION -->
+
+                    </div>
+                </div>
+                <!-- end CLIENT SELECTION -->
+
+            </div>
+            <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    onclick="clearFilters()">Limpiar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                    onclick="applyFilters()">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end BASE MODAL DIALOG -->
+
+{% endblock modal_content %}
+
+
+
+{% block add_url_block %}href="{% url 'summaries:employee-add' %}" {% endblock add_url_block %}
+
+
+
+{% block orderby_block %}
+<li>
+    <button onclick="orderByChanged('date_created_desc','id_order_by','list_form');" class="dropdown-item">
+        Más recientes primero
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('date_created','id_order_by','list_form');" class="dropdown-item">
+        Más antiguos primero
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('employee__name','id_order_by','list_form',true);"
+        class="dropdown-item">
+        Empleados A-Z
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('employee__name_desc','id_order_by','list_form');"
+        class="dropdown-item">
+        Empleados Z-A
+    </button>
+</li>
+{% endblock orderby_block %}
+
+
+
+
+{% block filters_block %}
+<input type="text" id='id_min_date' name="min_date" {% if min_date %}value="{{ min_date }}" {% endif %}>
+<input type="text" id='id_max_date' name="max_date" {% if max_date %}value="{{ max_date }}" {% endif %}>
+<input type="text" id='id_employee_id' name="employee_id" {% if employee_id %}value="{{ employee_id }}" {% endif %}>
+<input type="submit">
+{% endblock filters_block %}
+
+
+
+
+{% block objects_table_head_block %}
+<th class="cell-centered">Fecha de creación</th>
+<th class="cell-centered">Nombre</th>
+<th class="cell-centered">Desde</th>
+<th class="cell-centered">Hasta</th>
+<th class="cell-centered">Envíos</th>
+<th class="cell-centered">Costo</th>
+{% endblock objects_table_head_block %}
+
+
+
+
+{% block objects_table_body_block %}
+{% for summary in objects %}
+{% include 'summaries/snippets/item.html' with obj=summary counter=forloop.counter%}
+{% endfor %}
+{% endblock objects_table_body_block %}
+
+
+
+
+{% block scripts_block %}
+<script>
+    const passedOrderBy = '{{ order_by }}';
+    var lastQuery = "{{ query_by }}";
+
+    $(document).ready(function () {
+        $('#list_form').submit(function (e) {
+            e.preventDefault();
+            [
+                'id_query_by',
+                'id_order_by',
+                'id_results_per_page',
+                'id_min_date',
+                'id_max_date',
+                'id_employee_id',
+            ].forEach(function (id) {
+                if ($('#' + id).val() == '') {
+                    $('#' + id).prop('disabled', true);
+                } else {
+                    $('#' + id).prop('disabled', false);
+                }
+            });
+            $(this).unbind('submit').submit();
+        });
+
+        enableTooltips();
+
+        $('#id_results_per_page').change(function () {
+            $('#list_form').submit();
+        });
+
+        $('#id_query_by').on('change paste keyup', function () {
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        });
+
+        if (lastQuery != '') {
+            $('#id_query_by').val(lastQuery);
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        }
+
+        $('#btnRadioRPP50').click(function () {
+            $('#id_results_per_page').val(50);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP100').click(function () {
+            $('#id_results_per_page').val(100);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP200').click(function () {
+            $('#id_results_per_page').val(200);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP500').click(function () {
+            $('#id_results_per_page').val(500);
+            $('#list_form').submit();
+        });
+    });
+
+    function clearSearch() {
+        $('#id_query_by').val('');
+        if (lastQuery != '' && lastQuery != null && lastQuery != undefined) {
+            $('#list_form').submit();
+        }
+        show('btnCleanQuery', false);
+    }
+
+
+    function applyFilters() {
+        $('#id_min_date').val($('#id_min_date_modal').val());
+        $('#id_max_date').val($('#id_max_date_modal').val());
+        $('#id_employee_id').val($('#id_employee_modal').val());
+        $('#list_form').submit();
+    }
+
+    function clearFilters() {
+        $('#id_min_date').val('');
+        $('#id_max_date').val('');
+        $('#id_employee_id').val('');
+        $('#list_form').submit();
+    }
+</script>
+{% endblock scripts_block %}

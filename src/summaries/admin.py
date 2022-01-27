@@ -1,4 +1,5 @@
 from django.contrib import admin
-from summaries.models import Summary
+from summaries.models import ClientSummary, EmployeeSummary
 
-admin.site.register(Summary)
+admin.site.register(ClientSummary)
+admin.site.register(EmployeeSummary)

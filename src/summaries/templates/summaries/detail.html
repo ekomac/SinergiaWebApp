@@ -21,10 +21,11 @@
     <div class="card flex-fill shadow-lg">
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
-                Detalle de resumen
+                Detalle de resumen de cuenta de
+                {% if summary_type == 'client' %}cliente{% elif summary_type == 'employee' %}empleado{% endif %}
             </div>
             <div class="">
-                <a href="{% url 'summaries:list' %}">
+                <a href="{% url 'summaries:client-list' %}">
                     <i class="bi bi-list"></i>Ver lista completa</a>
             </div>
         </div>
@@ -152,9 +153,10 @@
             {% else %}
             {% if summary.client %}
             El cliente no tiene envíos entregados en el período seleccionado. Hacé <a
-                href="{% url 'summaries:add' %}">click acá</a> para crear otro resumen.
+                href="{% url 'summaries:client-add' %}">click acá</a> para crear otro resumen.
             {% else %}
-            El empleado no entregó envíos en el período seleccionado. Hacé <a href="{% url 'summaries:add' %}">click
+            El empleado no entregó envíos en el período seleccionado. Hacé <a
+                href="{% url 'summaries:client-add' %}">click
                 acá</a> para crear otro resumen.
             {% endif %}
             {% endif %}
@@ -174,18 +176,18 @@
         });
 
         $('#btnPrintCSV').click(function () {
-            window.location.href = "{% url 'summaries:print-csv' summary.pk %}";
+            window.location.href = "{% url 'summaries:client-print-csv' summary.pk %}";
         });
 
         $('#btnPrintExcel').click(function () {
-            window.location.href = "{% url 'summaries:print-excel' summary.pk %}";
+            window.location.href = "{% url 'summaries:client-print-excel' summary.pk %}";
         });
 
         $('#btnPrintPDF').click(function () {
             if (true) {
                 alert("Proximamente...");
             } else {
-                window.location.href = "{% url 'summaries:print-pdf' summary.pk %}";
+                window.location.href = "{% url 'summaries:client-print-pdf' summary.pk %}";
             }
         });
     });

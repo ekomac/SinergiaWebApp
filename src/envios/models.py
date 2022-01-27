@@ -134,6 +134,10 @@ class Envio(Receiver):
         on_delete=models.CASCADE, blank=True, null=True)
     date_delivered = models.DateTimeField(
         verbose_name="Fecha de entrega", blank=True, null=True, default=None)
+    deliverer = models.ForeignKey(
+        'account.Account', related_name="envios_delivered_by",
+        verbose_name="Quién lo entregó", blank=True, null=True,
+        default=None, on_delete=models.SET_NULL)
     tracked = models.BooleanField(default=False)
 
     def __str__(self):
@@ -155,9 +159,6 @@ class Envio(Receiver):
     @property
     def destination_for_client(self):
         return self.full_address + ' de ' + self.client.name
-
-    # def full_address(self):
-    #     return f'{self.street}, {self.zipcode} {self.town.name.title()}'
 
     def get_status(self):
         status = self.get_status_display()

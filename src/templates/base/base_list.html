@@ -208,7 +208,7 @@
 
             {% else %}
 
-            <div>
+            <div class="mb-3">
                 <p class="card-text">No se encontraron resultados que coincidan con los parámetros ingresados.</p>
             </div>
 
@@ -221,7 +221,7 @@
         <!--- end CARD BODY -->
 
 
-
+        {% if objects %}
         <!--- start CARD FOOTER -->
         {% if use_results_per_page or use_pagination %}
         <div class="card-footer">
@@ -266,7 +266,7 @@
         </div>
         {% endif %}
         <!--- end CARD FOOTER -->
-
+        {% endif %}
 
 
     </div>

@@ -1,134 +1,127 @@
 # Python
 import csv
 import os
-import unidecode
 from datetime import datetime, timedelta
+from typing import Any, Dict
 
 # Django
 from django.conf import settings
-from django.contrib.staticfiles import finders
-from django.template.loader import get_template
-from django.http.response import HttpResponse, StreamingHttpResponse
-from typing import List, Tuple
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models import Q
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.staticfiles import finders
+from django.http.response import HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, render
+from django.template.loader import get_template
 
 # Thirdparty
 from excel_response import ExcelResponse
 from xhtml2pdf import pisa
 
 # Project
-from account.decorators import allowed_users
-from envios.models import Envio
-from summaries.forms import CreateSummaryForm
-from summaries.models import Summary
-from utils.alerts.views import (
-    create_alert_and_redirect,)
+from account.decorators import allowed_users, allowed_users_in_class_view
+from account.models import Account
+from clients.models import Client
+from summaries.forms import CreateClientSummaryForm, CreateEmployeeSummaryForm
+from summaries.models import ClientSummary, EmployeeSummary
+from utils.alerts.views import create_alert_and_redirect
+from utils.views import CompleteListView, sanitize_date
+
+
+class ClientSummaryListView(CompleteListView, LoginRequiredMixin):
+
+    template_name = 'summaries/clients/list.html'
+    model = ClientSummary
+    decoders = (
+        {
+            'key': 'min_date',
+            'filter': 'date_created__gte',
+            'function': sanitize_date,
+            'context': lambda x: x,
+        },
+        {
+            'key': 'max_date',
+            'filter': 'date_created__lte',
+            'function': lambda x: sanitize_date(x, True) + timedelta(days=1),
+            'context': lambda x: x,
+        },
+        {
+            'key': 'client_id',
+            'filter': lambda x: 'client__isnull' if (
+                x in [-1, '-1']) else 'client__id',
+            'function': lambda x: True if x in [-1, '-1'] else int(x),
+            'context': str,
+        },
+    )
+    query_keywords = ('client__name', 'client__email', 'client__phone',)
+    selected_tab = 'clients-summaries-tab'
+
+    @allowed_users_in_class_view(roles=["Admins"])
+    def get(self, request):
+        return super(ClientSummaryListView, self).get(request)
+
+    def get_context_data(self) -> Dict[str, Any]:
+        context = super().get_context_data()
+        context['clients'] = Client.objects.filter(
+            envio__isnull=False).distinct()
+        return context
+
+
+class EmployeeSummaryListView(CompleteListView, LoginRequiredMixin):
+
+    template_name = 'summaries/employees/list.html'
+    model = EmployeeSummary
+    decoders = (
+        {
+            'key': 'min_date',
+            'filter': 'date_created__gte',
+            'function': sanitize_date,
+            'context': lambda x: x,
+        },
+        {
+            'key': 'max_date',
+            'filter': 'date_created__lte',
+            'function': lambda x: sanitize_date(x, True) + timedelta(days=1),
+            'context': lambda x: x,
+        },
+        {
+            'key': 'employee_id',
+            'filter': lambda x: 'employee__isnull' if (
+                x in [-1, '-1']) else 'employee__id',
+            'function': lambda x: True if x in [-1, '-1'] else int(x),
+            'context': str,
+        },
+    )
+    query_keywords = (
+        'employee__first_name', 'employee__last_name',
+        'employee__email', 'employee__phone',
+    )
+    selected_tab = 'employees-summaries-tab'
+
+    @allowed_users_in_class_view(roles=["Admins"])
+    def get(self, request):
+        return super(EmployeeSummaryListView, self).get(request)
+
+    def get_context_data(self) -> Dict[str, Any]:
+        context = super().get_context_data()
+        context['employees'] = Account.objects.filter(
+            employee_summary__isnull=False).distinct()
+        return context
 
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
-def summary_list_view(request):
-
-    ctx = {}
-
-    # Search
-    query = ""
-    if request.method == "GET":
-        query = request.GET.get("query_by", None)
-        if query:
-            ctx["query_by"] = str(query)
-
-        order_by = request.GET.get("order_by", 'date_created_desc')
-        if order_by:
-            order_by = str(order_by)
-            ctx["order_by"] = order_by
-            if '_desc' in order_by:
-                order_by = "-" + order_by[:-5]
-
-        results_per_page = request.GET.get("results_per_page", None)
-        if results_per_page is None:
-            results_per_page = 30
-        ctx['results_per_page'] = str(results_per_page)
-
-        # Filter summaries
-        summaries = get_summaries_queryset(query, order_by)
-
-        # Pagination
-        page = request.GET.get('page', 1)
-        summaries_paginator = Paginator(summaries, results_per_page)
-        try:
-            summaries = summaries_paginator.page(page)
-        except PageNotAnInteger:
-            summaries = summaries_paginator.page(results_per_page)
-        except EmptyPage:
-            summaries = summaries_paginator.page(summaries_paginator.num_pages)
-
-        ctx['summaries'] = summaries
-        ctx['selected_tab'] = 'summaries-tab'
-    return render(request, "summaries/list.html", ctx)
-
-
-def get_summaries_queryset(
-        query: str = None, order_by_key: str = '-date_created',
-) -> List[Summary]:
-    """Get all summaries that match provided query, if any. If none is given,
-    returns all summaries. Also, performs the query in the specified
-    order_by_key.
-
-    Args:
-        query (str, optional): words to match the query. Defaults to empyt str.
-        order_by_key (str, optional): to perform ordery by. Defaults to 'name'.
-
-    Returns:
-        List[Summary]: a list containing the summaries which match at least
-        one query.
-    """
-    query = unidecode.unidecode(query) if query else ""
-    return list(map(map_summary_to_tuple, list(
-        Summary.objects.filter(
-            Q(client__name__icontains=query) |
-            Q(employee__first_name__icontains=query) |
-            Q(employee__last_name__icontains=query)
-        ).order_by(order_by_key).distinct()
-    )))
-
-
-def map_summary_to_tuple(summary: Summary) -> Tuple[Summary, int]:
-    """
-    Maps a summary to a tuple containing the summary and the int with the
-    total envios holding.
-
-    Args:
-        summary (Summary): the client to be mapped.
-
-    Returns:
-        Tuple[Summary, int]: the mapped summary and the int with the total
-        envios holding.
-    """
-    envios_in_summary = Envio.objects.filter(
-        date_delivered__gte=summary.date_from,
-        date_delivered__lte=summary.date_to,
-        status__in=[Envio.STATUS_DELIVERED]).count()
-    return (summary, envios_in_summary)
-
-
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
-def summary_create_view(request):
-    form = CreateSummaryForm()
+def client_summary_create_view(request):
+    form = CreateClientSummaryForm()
     if request.method == 'POST':
         print("post", request.POST)
-        form = CreateSummaryForm(request.POST)
+        form = CreateClientSummaryForm(request.POST)
         if form.is_valid():
             summary = form.save(commit=False)
             summary.created_by = request.user
             summary.save()
             msg = f'El resumen "{summary}" se creó correctamente.'
             return create_alert_and_redirect(
-                request, msg, 'summaries:detail', summary.pk)
+                request, msg, 'summaries:client-detail', summary.pk)
     now = datetime.now()
     yesterday = now - timedelta(days=1)
     year = str(yesterday.year).zfill(4)
@@ -137,21 +130,55 @@ def summary_create_view(request):
 
     context = {
         'form': form,
-        'selected_tab': 'summaries-tab',
+        'selected_tab': 'clients-summaries-tab',
         'max_date': f'{year}-{month}-{day}',
+        'summary_type': 'client',
     }
     return render(request, 'summaries/add.html', context)
 
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
-def summary_detail_view(request, pk):
-    ctx = {}
-    summary = get_object_or_404(Summary, pk=pk)
-    ctx['summary'] = summary
-    ctx['selected_tab'] = 'summaries-tab'
-    # ctx['envios'] = summary.total_envios
-    # ctx['total_cost'] = summary.total_cost
+def employee_summary_create_view(request):
+    form = CreateEmployeeSummaryForm()
+    if request.method == 'POST':
+        print("post", request.POST)
+        form = CreateEmployeeSummaryForm(request.POST)
+        if form.is_valid():
+            summary = form.save(commit=False)
+            summary.created_by = request.user
+            summary.save()
+            msg = f'El resumen "{summary}" se creó correctamente.'
+            return create_alert_and_redirect(
+                request, msg, 'summaries:employee-detail', summary.pk)
+    now = datetime.now()
+    yesterday = now - timedelta(days=1)
+    year = str(yesterday.year).zfill(4)
+    month = str(yesterday.month).zfill(2)
+    day = str(yesterday.day).zfill(2)
+
+    context = {
+        'form': form,
+        'selected_tab': 'employees-summaries-tab',
+        'max_date': f'{year}-{month}-{day}',
+        'summary_type': 'employee',
+    }
+    return render(request, 'summaries/add.html', context)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def client_summary_detail_view(request, pk):
+    summary = get_object_or_404(ClientSummary, pk=pk)
+    ctx = {'summary': summary, 'selected_tab': 'clients-summaries-tab', }
+    return render(request, 'summaries/detail.html', ctx)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def employee_summary_detail_view(request, pk):
+    summary = get_object_or_404(EmployeeSummary, pk=pk)
+    ctx = {'summary': summary, 'selected_tab': 'employees-summaries-tab', }
     return render(request, 'summaries/detail.html', ctx)
 
 
@@ -225,7 +252,7 @@ class Echo:
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
 def print_csv_summary(request, pk):
-    summary = get_object_or_404(Summary, pk=pk)
+    summary = get_object_or_404(ClientSummary, pk=pk)
     rows = ([envio_dict['date_delivered'], envio_dict['destination'],
             envio_dict['detail'], envio_dict['price']
              ] for envio_dict in summary.envios)
@@ -241,7 +268,7 @@ def print_csv_summary(request, pk):
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
 def print_xls_summary(request, pk):
-    summary = get_object_or_404(Summary, pk=pk)
+    summary = get_object_or_404(ClientSummary, pk=pk)
     data = [['Fecha de entrega', 'Domicilio', 'Detalle', 'Valor']]
     rows = [[envio_dict['date_delivered'], envio_dict['destination'],
             envio_dict['detail'], envio_dict['price']

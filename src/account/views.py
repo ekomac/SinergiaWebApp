@@ -1,17 +1,21 @@
-from django.http.response import JsonResponse
+# Python
 import unidecode
 from typing import List, Tuple
+
+# Django
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login, authenticate, logout
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
+from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
+
+# Project
 from account.decorators import allowed_users, allowed_users_in_class_view
 from account.forms import AccountAuthenticationForm, PasswordResetForm
+from account.models import Account
 from envios.models import Envio
 from utils.views import CompleteListView
-from .models import Account
 
 
 DEFAULT_RESULTS_PER_PAGE = 30
@@ -123,49 +127,6 @@ class EmployeesListView(CompleteListView, LoginRequiredMixin):
 
     def get_verbose_name_plural(self):
         return "Empleados/as"
-
-
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
-def employees_list_view_old(request):
-
-    context = {}
-
-    # Search
-    query = ""
-    if request.method == "GET":
-        query = request.GET.get("query_by", "")
-        if query:
-            context["query_by"] = str(query)
-
-        order_by = request.GET.get("order_by", 'last_name')
-        if order_by:
-            order_by = str(order_by)
-            context["order_by"] = order_by
-            if '_desc' in order_by:
-                order_by = "-" + order_by[:-5]
-
-        results_per_page = request.GET.get(
-            "results_per_page", DEFAULT_RESULTS_PER_PAGE)
-        context['results_per_page'] = str(results_per_page)
-
-        # Filter employees
-        employees = get_employees_queryset(query, order_by)
-
-        # Pagination
-        page = request.GET.get('page', 1)
-        employees_paginator = Paginator(employees, results_per_page)
-        try:
-            employees = employees_paginator.page(page)
-        except PageNotAnInteger:
-            employees = employees_paginator.page(results_per_page)
-        except EmptyPage:
-            employees = employees_paginator.page(employees_paginator.num_pages)
-
-        context['employees'] = employees
-        context['totalEmployees'] = len(employees)
-        context['selected_tab'] = 'files-tab'
-    return render(request, 'account/employees_files/list_old.html', context)
 
 
 def get_employees_queryset(

@@ -49,6 +49,7 @@ class DepositListView(CompleteListView, LoginRequiredMixin):
     )
     query_keywords = ('name__icontains', 'client__name__icontains',
                       'address__icontains', 'town__name__icontains')
+    selected_tab = 'deposits-tab'
 
     @allowed_users_in_class_view(roles=["Admins"])
     def get(self, request):
@@ -63,7 +64,6 @@ class DepositListView(CompleteListView, LoginRequiredMixin):
     def get_context_data(self) -> Dict[str, Any]:
         context = super().get_context_data()
         context['clients'] = Client.objects.all()
-        context['selected_tab'] = 'deposits-tab'
         return context
 
 
@@ -105,7 +105,8 @@ def deposit_edit_view(request, pk):
             return update_alert_and_redirect(
                 request, msg, 'deposits:detail', pk)
     else:
-        form = CreateDepositForm(instance=Deposit.objects.get(pk=pk))
+        form = CreateDepositForm(
+            instance=Deposit.objects.get(pk=pk))
     context = {
         'form': form,
         'selected_tab': 'deposits-tab',

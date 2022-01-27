@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.http import HttpResponse
 from django.db.models import Q
 from django.core.paginator import EmptyPage, Page, PageNotAnInteger, Paginator
@@ -187,13 +188,11 @@ class CompleteListView(View):
             ValueError: if the model is not specified.
         """
         super().__init__(*args, **kwargs)
-        if not hasattr(self, 'template_name') and type(
-                self.template_name) is str:
-            raise ValueError(
-                'A template_name should be specified as a str.')
+        if (not hasattr(self, 'template_name') and
+                type(self.template_name) is str):
+            raise ValueError('A template_name should be specified as a str.')
         if not hasattr(self, 'model') and type(self.model) is None:
-            raise ValueError(
-                'A model should be specified.')
+            raise ValueError('A model should be specified.')
         self.context = {
             'filters_count': 0,
             'use_query_by': True,
@@ -256,8 +255,7 @@ class CompleteListView(View):
         # If the query keyword is in params to use.
         if "query" in self.params_to_use:
             # Get the query param
-            query_by = request.GET.get(
-                self.query_by_kw, None)
+            query_by = request.GET.get(self.query_by_kw, None)
             # If found
             if query_by:
                 # Pass is to the context
@@ -273,8 +271,8 @@ class CompleteListView(View):
                 if (self.query_keywords is None or
                         not isinstance(self.query_keywords, (list, tuple))):
                     raise ValueError(
-                        'query_keywords should be a list or a ' +
-                        'tuple with at least one element.')
+                        "query_keywords should be a list or a " +
+                        "tuple with at least one element.")
                 # Create a Q object
                 q_object = Q()
                 # And for each kw append a Q object to the original one
@@ -286,8 +284,7 @@ class CompleteListView(View):
                         raise ValueError(err)
                     q_object |= Q(**{kw: query})
                 # Filter the objects with the Q object
-                self.objects = self.objects.filter(
-                    q_object)
+                self.objects = self.objects.filter(q_object)
         else:
             self.context['use_query_by'] = False
 
@@ -305,14 +302,12 @@ class CompleteListView(View):
         # If the order keyword is in params to use.
         if "order" in self.params_to_use:
             # Get the order param
-            order_by = request.GET.get(
-                self.order_by_kw, self.default_order_by)
+            order_by = request.GET.get(self.order_by_kw, self.default_order_by)
             # If found
             if order_by:
                 # Raise error if not a str
                 if not isinstance(self.order_by_kw, str):
-                    raise ValueError(
-                        "The order_by_kw must be a str.")
+                    raise ValueError("The order_by_kw must be a str.")
                 # Pass is to the context
                 self.context[self.order_by_kw] = order_by
                 # Appends it to the self.url for pagination if needed
@@ -324,9 +319,7 @@ class CompleteListView(View):
                 if '_desc' in cleaned:
                     # Remove it and append a '-' to the start, which
                     # indicates descending order in the queryset
-                    cleaned = '-' + \
-                        cleaned.replace(
-                            '_desc', '')
+                    cleaned = '-' + cleaned.replace('_desc', '')
                 # Orders the objects
                 self.objects = self.objects.order_by(
                     cleaned)
@@ -576,33 +569,28 @@ class CompleteListView(View):
         # Returns the context data
         return self.context
 
-    # def get_pagination_base_url(
-    #     self,
-    #     query_by: str = "",
-    #     order_by: str = "",
-    #     results_per_page: int = None,
-    #     **filters
-    # ) -> str:
-
-    #     url = ""
-    #     if query_by is not None and query_by != "":
-    #         url += "query_by=" + query_by + "&"
-    #     if order_by is not None and order_by != "":
-    #         url += "order_by=" + order_by + "&"
-    #     if (results_per_page is not None and
-    #             results_per_page != self.default_results_per_page):
-    #         url += "results_per_page=" + str(results_per_page) + "&"
-    #     if filters:
-    #         for key, value in filters.items():
-    #             url += key + "=" + str(value) + "&"
-    #     return url
-
-    # def get_verbose_name(self):
-    #     if hasattr(self.model._meta, 'verbose_name'):
-    #         return self.model._meta.verbose_name
-    #     return type(self.model)
-
     def get_verbose_name_plural(self):
         if hasattr(self.model._meta, 'verbose_name_plural'):
             return self.model._meta.verbose_name_plural
         return type(self.model)
+
+
+def sanitize_date(s: str, top: bool = False) -> datetime:
+    """Parses the date given as a string
+    "yyyy-mm-dd" to the corresponding date object.
+
+    Args:
+        s (str): the date as a string.
+
+    Returns:
+        datetime: representing the date.
+    """
+    parts = s.split('-')
+    y = parts[0]
+    m = parts[1]
+    d = parts[2]
+    if top:
+        hours, mins, secs = (23, 59, 59)
+    else:
+        hours, mins, secs = (0, 0, 0)
+    return datetime(int(y), int(m), int(d), hours, mins, secs)

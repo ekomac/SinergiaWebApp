@@ -176,13 +176,75 @@
             </li>
             <!-- END Legajos -->
 
-            <!-- START Facturación -->
+            {% comment %}
+            <!-- START Summaries -->
             <li class="nav-item {% if selected_tab == 'summaries-tab' %}activetab{% endif %} li-navigation">
                 <a id="billing-tab" href="{% url 'summaries:list' %}" class="nav-link tab">
                     <i class="bi bi-list-check"></i> Resúmenes
                 </a>
+            </li> {% endcomment %}
+
+            <!-- START Summaries -->
+            <li class="nav-item">
+
+                <!-- START OPTION 1: A summary tab is selected-->
+                {% if selected_tab == 'clients-summaries-tab' or selected_tab == 'employees-summaries-tab' or selected_tab == 'summaries-tab' %}
+                <a class="parent-nav nav-link align-items-center rounded tab mt-2" data-bs-toggle="collapse"
+                    data-bs-target="#summaries-collapse" aria-expanded="true">
+                    Resúmenes
+                </a>
+                <div class="collapse show" id="summaries-collapse">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal" style="font-size: 13px;">
+                        <!-- START Precios Delivery -->
+                        <li
+                            class="nav-item {% if selected_tab == 'clients-summaries-tab' %}activetab{% endif %} li-navigation">
+                            <a id="clients-summaries-tab" href="{% url 'summaries:client-list' %}" class="nav-link tab">
+                                Clientes
+                            </a>
+                        </li>
+                        <!-- END Precios Delivery -->
+                        <!-- START Precios Flex -->
+                        <li
+                            class="nav-item {% if selected_tab == 'employees-summaries-tab' %}activetab{% endif %} li-navigation">
+                            <a id="employees-summaries-tab" href="{% url 'summaries:employee-list' %}"
+                                class="nav-link tab">
+                                Empleados
+                            </a>
+                        </li>
+                        <!-- END Precios Flex -->
+                    </ul>
+                </div>
+                {% else %}
+                <!-- END OPTION 1: A summary tab is selected-->
+                <!-- START OPTION 2: No summary tab is selected -->
+                <a class="parent-nav nav-link align-items-center rounded tab collapsed mt-2" data-bs-toggle="collapse"
+                    data-bs-target="#summaries-collapse" aria-expanded="false">
+                    Resúmenes
+                </a>
+                <div class="collapse" id="summaries-collapse">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal" style="font-size: 13px;">
+                        <!-- START Precios Delivery -->
+                        <li
+                            class="nav-item {% if selected_tab == 'clients-summaries-tab' %}activetab{% endif %} li-navigation">
+                            <a id="summaries-tab" href="{% url 'summaries:client-list' %}" class="nav-link tab">
+                                Clientes
+                            </a>
+                        </li>
+                        <!-- END Precios Delivery -->
+                        <!-- START Precios Flex -->
+                        <li
+                            class="nav-item {% if selected_tab == 'employees-summaries-tab' %}activetab{% endif %} li-navigation">
+                            <a id="summaries-tab" href="{% url 'summaries:employee-list' %}" class="nav-link tab">
+                                Empleados
+                            </a>
+                        </li>
+                        <!-- END Precios Flex -->
+                    </ul>
+                </div>
+                {% endif %}
+                <!-- END START OPTION 2: No price tab is selected -->
             </li>
-            <!-- END Facturación -->
+            <!-- END Summaries -->
 
 
             <!-- START Contable -->

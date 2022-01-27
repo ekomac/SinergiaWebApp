@@ -48,6 +48,7 @@ def delivery_attempt(
             status=Envio.STATUS_DELIVERED,
             carrier=None,
             deposit=None,
+            deliverer=author,
             date_delivered=movement.date_created,
             updated_by=movement.created_by
         )
@@ -105,6 +106,7 @@ def indirect_delivery_attempt(
             status=Envio.STATUS_DELIVERED,
             carrier=None,
             deposit=None,
+            deliverer=from_carrier,
             date_delivered=movement.date_created,
             updated_by=movement.created_by
         )

@@ -37,28 +37,7 @@ from tracking.models import TrackingMovement
 from utils.alerts.views import (
     create_alert_and_redirect, update_alert_and_redirect)
 from utils.forms import CheckPasswordForm
-from utils.views import DeleteObjectsUtil, CompleteListView
-
-
-def sanitize_date(s: str, top: bool = False) -> datetime:
-    """Parses the date given as a string
-    "yyyy-mm-dd" to the corresponding date object.
-
-    Args:
-        s (str): the date as a string.
-
-    Returns:
-        datetime: representing the date.
-    """
-    parts = s.split('-')
-    y = parts[0]
-    m = parts[1]
-    d = parts[2]
-    if top:
-        hours, mins, secs = (23, 59, 59)
-    else:
-        hours, mins, secs = (0, 0, 0)
-    return datetime(int(y), int(m), int(d), hours, mins, secs)
+from utils.views import DeleteObjectsUtil, CompleteListView, sanitize_date
 
 
 class EnvioListView(CompleteListView, LoginRequiredMixin):
@@ -225,23 +204,6 @@ def decode_filters(s: str = '') -> Tuple[dict, int]:
             if key == 'u':
                 filters['status'] = value
     return filters, len(filters)
-
-
-# def sanitize_date(s: str) -> datetime:
-#     """Parses the date given as a string
-#     "yyyy-mm-dd" to the corresponding date object.
-
-#     Args:
-#         s (str): the date as a string.
-
-#     Returns:
-#         datetime: representing the date.
-#     """
-#     parts = s.split('-')
-#     y = parts[0]
-#     m = parts[1]
-#     d = parts[2]
-#     return datetime(int(y), int(m), int(d))
 
 
 def get_envio_queryset(
