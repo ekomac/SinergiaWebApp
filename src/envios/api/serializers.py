@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 # PROJECT
 from envios.models import Envio
+from tracking.models import TrackingMovement
 
 
 class EnvioSerializer(serializers.ModelSerializer):
@@ -13,6 +14,7 @@ class EnvioSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField('get_status_from_envio')
     deposit = serializers.SerializerMethodField('get_deposit_from_envio')
     carrier = serializers.SerializerMethodField('get_carrier_from_envio')
+    error = serializers.SerializerMethodField('get_error_from_envio')
 
     class Meta:
         model = Envio
@@ -23,6 +25,7 @@ class EnvioSerializer(serializers.ModelSerializer):
             'client',
             'deposit',
             'carrier',
+            'error',
         )
 
     def get_destination_from_envio(self, envio):
@@ -54,3 +57,20 @@ class EnvioSerializer(serializers.ModelSerializer):
                 'username': envio.carrier.username,
             }
         return None
+
+    def get_error_from_envio(self, envio):
+        error_results = [
+            TrackingMovement.RESULT_REJECTED_AT_DESTINATION, TrackingMovement.
+            RESULT_REPROGRAMED, TrackingMovement.RESULT_NO_ANSWER,
+            TrackingMovement.RESULT_TRANSFERED, TrackingMovement.
+            RESULT_COLLECTED, TrackingMovement.RESULT_OTHER, ]
+        if not TrackingMovement.objects.filter(
+                envio=envio, result__in=error_results).exists():
+            return ""
+        error_movement: TrackingMovement = TrackingMovement.objects.filter(
+            envio=envio, result__in=error_results).last()
+        return {
+            'pk': error_movement.pk,
+            'result': error_movement.result,
+            'description': error_movement.admin_display(),
+        }
