@@ -1,4 +1,5 @@
 # REST FRAMEWORK
+from django.http import Http404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.pagination import PageNumberPagination
@@ -42,3 +43,17 @@ class ApiEnvioListView(ListAPIView):
             filters['status__in'] = [status] if isinstance(
                 status, str) else status
         return queryset.filter(**filters)
+
+
+class ApiEnvioListOfCarrierView(ListAPIView):
+    queryset = Envio.objects.all()
+    serializer_class = EnvioSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    pagination_class = PageNumberPagination
+
+    def get_queryset(self):
+        carrier_pk = self.kwargs.get("carrier_pk", None)
+        if carrier_pk is None:
+            raise Http404("Carrier not found")
+        return Envio.objects.filter(carrier__id=carrier_pk).distinct()

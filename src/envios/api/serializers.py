@@ -65,10 +65,10 @@ class EnvioSerializer(serializers.ModelSerializer):
             TrackingMovement.RESULT_TRANSFERED, TrackingMovement.
             RESULT_COLLECTED, TrackingMovement.RESULT_OTHER, ]
         if not TrackingMovement.objects.filter(
-                envio=envio, result__in=error_results).exists():
+                envios__in=[envio], result__in=error_results).exists():
             return ""
         error_movement: TrackingMovement = TrackingMovement.objects.filter(
-            envio=envio, result__in=error_results).last()
+            envios__in=[envio], result__in=error_results).last()
         return {
             'pk': error_movement.pk,
             'result': error_movement.result,
