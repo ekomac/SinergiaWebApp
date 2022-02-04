@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from tracking.api import consts
 from tracking.api.transfer.serializers import (
     TransferAllSerializer,
-    TransferByEnviosIdsSerializer,
+    TransferByEnviosTrackingIdsSerializer,
     TransferByTownsIdsSerializer,
     TransferByPartidosIdsSerializer,
     TransferByZonesIdsSerializer
@@ -36,7 +36,7 @@ def api_transfer_by_envios_ids_view(request):
     if request.method == 'POST':
         data = request.data.copy()
         data['created_by'] = request.user.pk
-        serializer = TransferByEnviosIdsSerializer(data=data)
+        serializer = TransferByEnviosTrackingIdsSerializer(data=data)
         response_data = {}
         if serializer.is_valid():
             movement = serializer.save()

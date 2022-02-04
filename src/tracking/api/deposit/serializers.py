@@ -5,7 +5,7 @@ from places.models import Partido, Town, Zone
 from tracking.models import TrackingMovement
 from tracking.utils.deposit import (
     deposit_all,
-    deposit_by_envios_ids,
+    deposit_by_envios_tracking_ids,
     deposit_by_partidos_ids,
     deposit_by_towns_ids,
     deposit_by_zones_ids
@@ -51,7 +51,7 @@ class DepositAllSerializer(BaseDepositSerializer):
         return deposit_all(author, from_carrier, to_deposit)
 
 
-class DepositByEnviosIdsSerializer(BaseDepositSerializer):
+class DepositByEnviosTrackingIdsSerializer(BaseDepositSerializer):
 
     envios_ids = serializers.ListField(
         child=serializers.IntegerField(min_value=0),
@@ -59,12 +59,13 @@ class DepositByEnviosIdsSerializer(BaseDepositSerializer):
 
     class Meta:
         model = TrackingMovement
-        fields = ('created_by', 'from_carrier', 'to_deposit', 'envios_ids',)
+        fields = ('created_by', 'from_carrier',
+                  'to_deposit', 'envios_tracking_ids',)
         extra_kwargs = {
             'created_by': {'required': True, },
             'from_carrier': {'required': True, },
             'to_deposit': {'required': True, },
-            'envios_ids': {'required': True, },
+            'envios_tracking_ids': {'required': True, },
         }
 
     def extra_validation_check(self, data):
@@ -74,27 +75,27 @@ class DepositByEnviosIdsSerializer(BaseDepositSerializer):
             status=self.status
         ).values_list('pk', flat=True)
         envios_with_carrier_count = len(envios_with_carrier)
-        envios_ids = data['envios_ids']
-        if len(envios_ids) == 0:
-            msg = "'envios_ids' can't be empty."
+        envios_tracking_ids = data['envios_ids']
+        if len(envios_tracking_ids) == 0:
+            msg = "'envios_tracking_ids' can't be empty."
             raise serializers.ValidationError({"response": msg})
-        if len(envios_ids) > envios_with_carrier_count:
+        if len(envios_tracking_ids) > envios_with_carrier_count:
             msg = "There are only %s Envíos with the Carrier with id=%s." % (
                 envios_with_carrier_count, pk)
             raise serializers.ValidationError({"response": msg})
-        if set(envios_ids).issubset(envios_with_carrier):
+        if set(envios_tracking_ids).issubset(envios_with_carrier):
             msg = (
                 "Some of the Envíos with ids %s don't exist "
                 "or aren't carried by the Account with id=%s."
-            ) % (envios_ids, pk)
+            ) % (envios_tracking_ids, pk)
 
     def save(self):
         author = self.validated_data['created_by']
         from_carrier = self.validated_data['from_carrier']
         to_deposit = self.validated_data['to_deposit']
-        envios_ids = self.validated_data['envios_ids']
-        return deposit_by_envios_ids(
-            author, from_carrier, to_deposit, *envios_ids)
+        envios_tracking_ids = self.validated_data['envios_tracking_ids']
+        return deposit_by_envios_tracking_ids(
+            author, from_carrier, to_deposit, *envios_tracking_ids)
 
 
 class DepositByTownsIdsSerializer(BaseDepositSerializer):

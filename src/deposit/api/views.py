@@ -28,7 +28,7 @@ def api_detail_deposit_view(request, pk):
 
 
 class ApiDepositListView(ListAPIView):
-    queryset = Deposit.objects.all()
+    queryset = Deposit.objects.filter(is_active=True)
     serializer_class = DepositSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -42,6 +42,7 @@ class ApiDepositListView(ListAPIView):
 
 class ApiDepositWithEnviosListView(ListAPIView):
     queryset = Deposit.objects.filter(
+        is_active=True,
         envio__isnull=False).annotate(
             envios=Count('envio')).order_by('-envios')
     serializer_class = DepositSerializer
@@ -51,7 +52,8 @@ class ApiDepositWithEnviosListView(ListAPIView):
 
 
 class ApiOwnDepositsListView(ListAPIView):
-    queryset = Deposit.objects.filter(client__isnull=True).order_by('name')
+    queryset = Deposit.objects.filter(
+        is_active=True, client__isnull=True).order_by('name')
     serializer_class = DepositSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)

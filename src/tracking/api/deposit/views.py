@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from tracking.api import consts
 from tracking.api.deposit.serializers import (
     DepositAllSerializer,
-    DepositByEnviosIdsSerializer,
+    DepositByEnviosTrackingIdsSerializer,
     DepositByTownsIdsSerializer,
     DepositByPartidosIdsSerializer,
     DepositByZonesIdsSerializer
@@ -37,7 +37,7 @@ def api_deposit_by_envios_ids_view(request):
     if request.method == 'POST':
         data = request.data.copy()
         data['created_by'] = request.user.pk
-        serializer = DepositByEnviosIdsSerializer(data=data)
+        serializer = DepositByEnviosTrackingIdsSerializer(data=data)
         response_data = {}
         if serializer.is_valid():
             movement = serializer.save()

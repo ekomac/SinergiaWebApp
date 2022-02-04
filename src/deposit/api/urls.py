@@ -11,7 +11,7 @@ app_name = 'deposit-api'
 
 urlpatterns = [
     path('', ApiDepositListView.as_view(), name="list"),
-    path('with-envios-list', ApiDepositWithEnviosListView.as_view(),
+    path('with-envios-list/', ApiDepositWithEnviosListView.as_view(),
          name="with-envios-list"),
     path('own', ApiOwnDepositsListView.as_view(),
          name="own"),

@@ -78,7 +78,7 @@ def withdraw_all(
     return movement
 
 
-def withdraw_by_envios_ids(
+def withdraw_by_envios_tracking_ids(
     author: Account,
     from_deposit: Deposit,
     to_carrier: Account,
@@ -101,7 +101,7 @@ def withdraw_by_envios_ids(
     """
     movement = create_withdraw_movement(
         author, from_deposit, to_carrier, TrackingMovement.LABEL_BY_ENVIOS_IDS)
-    add_and_udpate_envios(movement, id__in=ids)
+    add_and_udpate_envios(movement, tracking_id__in=ids)
     return movement
 
 

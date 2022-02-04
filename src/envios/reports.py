@@ -123,9 +123,9 @@ class PDFReport(object):
         envio_type = "Mercado Envíos Flex" if envio.is_flex else "Mensajería"
         header = self.get_table_header(envio.client.name, envio_type)
         qr_code = self.get_qr_code(
-            envio.id, envio.client.id, envio.town.id)
+            envio.tracking_id, envio.client.id, envio.town.id, envio.is_flex)
         table_below_qr_code = self.get_table_below_qr_code(
-            envio.id,
+            envio.tracking_id,
             envio.town.name,
             envio.town.partido.name)
         final_table = self.get_final_table(
@@ -133,7 +133,8 @@ class PDFReport(object):
             address=envio.street,
             zip_code=envio.zipcode,
             entrances=envio.remarks,
-            phone=envio.phone
+            phone=envio.phone,
+            flex_id=envio.flex_id if envio.flex_id else None,
         )
         return [header, qr_code, table_below_qr_code, final_table]
 
@@ -164,14 +165,17 @@ class PDFReport(object):
 
     def get_qr_code(
         self,
-        envio_id: int,
+        envio_tracking_id: int,
         client_id: int,
-        town_id: int
+        town_id: int,
+        is_flex: bool = False
     ) -> QRFlowable:
-        inner_envio = f'"envio_id": "{envio_id}",'
+        inner_envio = f'"envio_tracking_id": "{envio_tracking_id}",'
         inner_cliente = f'"client_id":"{client_id}",'
         inner_town = f'"town_id":"{town_id}"'
-        qr_value = "{" + inner_envio + inner_cliente + inner_town + "}"
+        inner_is_flex = f'"is_flex": "{is_flex}",'
+        qr_value = "{%s%s%s%s}" % (inner_envio, inner_cliente,
+                                   inner_town, inner_is_flex,)
         return QRFlowable(qr_value, 0.55)
 
     def get_table_below_qr_code(
@@ -212,7 +216,7 @@ class PDFReport(object):
         name, address, zip_code, reference, phone.
         By default, they are initialized as 'No especificado'.
         """
-        keys = ['name', 'address', 'zip_code', 'entrances', 'phone']
+        keys = ['name', 'address', 'zip_code', 'entrances', 'phone', 'flex_id']
         for key in keys:
             kwargs[key] = kwargs[key] if kwargs[key] else 'No especificado'
 
@@ -242,6 +246,12 @@ class PDFReport(object):
         if kwargs['phone'] != 'No especificado':
             data.append([self.phone_image, Paragraph(kwargs['phone'], styleN),
                         "", "", "", "", "", "", "", "", "", ""])
+        if kwargs['flex_id'] != 'No especificado':
+            data.append(["",
+                         Paragraph(
+                             "<b>Flex ID</b>: %s" % kwargs['flex_id'],
+                             styleN),
+                         "", "", "", "", "", "", "", "", "", ""])
 
         for i in range(len(data)):
             styles.append(('SPAN', (1, i), (-1, i)))

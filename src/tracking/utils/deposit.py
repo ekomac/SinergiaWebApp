@@ -81,7 +81,7 @@ def deposit_all(
     return movement
 
 
-def deposit_by_envios_ids(
+def deposit_by_envios_tracking_ids(
     author,
     from_carrier: Account,
     to_deposit: Deposit,
@@ -104,7 +104,8 @@ def deposit_by_envios_ids(
     """
     movement = create_deposit_movement(
         author, from_carrier, to_deposit, TrackingMovement.LABEL_BY_ENVIOS_IDS)
-    add_and_udpate_envios(movement, from_carrier, to_deposit, id__in=ids)
+    add_and_udpate_envios(movement, from_carrier,
+                          to_deposit, tracking_id__in=ids)
     return movement
 
 

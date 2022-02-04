@@ -1,6 +1,8 @@
+from django.db.models.signals import post_save
 from decimal import Decimal
 from django.db import models
 from django.conf import settings
+from django.dispatch import receiver
 from django.template.defaultfilters import truncatechars
 from clients.models import Client, Discount
 from deposit.models import Deposit
@@ -139,6 +141,9 @@ class Envio(Receiver):
         verbose_name="Quién lo entregó", blank=True, null=True,
         default=None, on_delete=models.SET_NULL)
     tracked = models.BooleanField(default=False)
+    tracking_id = models.CharField(
+        verbose_name="Tracking ID", blank=True, null=True, default=None,
+        max_length=50, unique=True)
 
     def __str__(self):
         address = self.full_address
@@ -257,6 +262,22 @@ class Envio(Receiver):
 
         # return the total price
         return total_price
+
+
+@receiver(post_save, sender=Envio)
+def create_tracking_id(sender, instance, created, **kwargs):
+    print("signal")
+    if created:
+        print("created")
+        if instance.tracking_id is None:
+            print("no trackibg id")
+            if instance.is_flex and instance.flex_id is not None:
+                print("is flex")
+                instance.tracking_id = "ML%s" % instance.flex_id
+            else:
+                print("not flex")
+                instance.tracking_id = "SN%s" % instance.pk
+        instance.save()
 
 
 def bulk_file_upload_path(instance, filename):

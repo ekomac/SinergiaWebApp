@@ -82,7 +82,7 @@ def transfer_all(
     return movement
 
 
-def transfer_by_envios_ids(
+def transfer_by_envios_tracking_ids(
     author,
     from_carrier: Account,
     to_carrier: Account,
@@ -105,7 +105,8 @@ def transfer_by_envios_ids(
     """
     movement = create_transfer_movement(
         author, from_carrier, to_carrier, TrackingMovement.LABEL_BY_ENVIOS_IDS)
-    add_and_udpate_envios(movement, from_carrier, to_carrier, id__in=ids)
+    add_and_udpate_envios(movement, from_carrier,
+                          to_carrier, tracking_id__in=ids)
     return movement
 
 

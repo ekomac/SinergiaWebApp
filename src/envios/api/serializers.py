@@ -15,17 +15,25 @@ class EnvioSerializer(serializers.ModelSerializer):
     deposit = serializers.SerializerMethodField('get_deposit_from_envio')
     carrier = serializers.SerializerMethodField('get_carrier_from_envio')
     error = serializers.SerializerMethodField('get_error_from_envio')
+    max_delivery_date = serializers.SerializerMethodField(
+        'get_max_delivery_date_from_envio')
 
     class Meta:
         model = Envio
         fields = (
             'pk',
+            'tracking_id',
             'destination',
             'status',
             'client',
             'deposit',
             'carrier',
             'error',
+            'charge',
+            'max_delivery_date',
+            'is_flex',
+            'flex_id',
+            'delivery_schedule',
         )
 
     def get_destination_from_envio(self, envio):
@@ -74,3 +82,8 @@ class EnvioSerializer(serializers.ModelSerializer):
             'result': error_movement.result,
             'description': error_movement.admin_display(),
         }
+
+    def get_max_delivery_date_from_envio(self, envio):
+        if envio.max_delivery_date is not None:
+            return envio.max_delivery_date.strftime("%d/%m/%Y")
+        return None

@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from tracking.api import consts
 from tracking.api.withdraw.serializers import (
     WithdrawAllSerializer,
-    WithdrawByEnviosIdsSerializer,
+    WithdrawByEnviosTrackingIdsSerializer,
     WithdrawByTownsIdsSerializer,
     WithdrawByPartidosIdsSerializer,
     WithdrawByZonesIdsSerializer
@@ -36,7 +36,7 @@ def api_withdraw_by_envios_ids_view(request):
     if request.method == 'POST':
         data = request.data.copy()
         data['created_by'] = request.user.pk
-        serializer = WithdrawByEnviosIdsSerializer(data=data)
+        serializer = WithdrawByEnviosTrackingIdsSerializer(data=data)
         response_data = {}
         if serializer.is_valid():
             movement = serializer.save()

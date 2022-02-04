@@ -238,6 +238,12 @@ class CreateEnvioForm(forms.ModelForm):
         }),
     )
 
+    def validate_flex_id(self):
+        if self.cleaned_data['is_flex']:
+            if not self.cleaned_data['flex_id']:
+                raise forms.ValidationError(
+                    'El campo Tracking ID de Flex es obligatorio')
+
     class Meta:
         model = Envio
         fields = [

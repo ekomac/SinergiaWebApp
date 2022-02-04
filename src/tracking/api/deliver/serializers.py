@@ -10,24 +10,24 @@ from tracking.models import TrackingMovement
 
 class DeliveryAttemptSerializer(serializers.ModelSerializer):
 
-    envio_id = serializers.IntegerField(required=True)
+    envio_tracking_id = serializers.IntegerField(required=True)
 
     class Meta:
         model = TrackingMovement
         fields = ('created_by', 'result',
-                  'envio_id', 'proof', 'comment',)
+                  'envio_tracking_id', 'proof', 'comment',)
         extra_kwargs = {
             'created_by': {'required': True, },
             'result': {'required': True, },
-            'envio_id': {'required': True, },
+            'envio_tracking_id': {'required': True, },
             'proof': {'required': False, },
             'comment': {'required': False, },
         }
 
     def check_envio_is_carried_by_author(self, data):
         author = data['created_by']
-        envio_id = data['envio_id']
-        envio = Envio.objects.get(pk=envio_id)
+        envio_tracking_id = data['envio_tracking_id']
+        envio = Envio.objects.get(tracking_id=envio_tracking_id)
         if envio.carrier != author:
             msg = "Envio is not carried by the Account trying to deliver it."
             raise serializers.ValidationError({"response": msg})
@@ -35,8 +35,8 @@ class DeliveryAttemptSerializer(serializers.ModelSerializer):
     def check_envio_is_still_moving_when_success(self, data):
         if data['result'] == TrackingMovement.RESULT_DELIVERED:
             return
-        envio_id = data['envio_id']
-        envio = Envio.objects.get(pk=envio_id)
+        envio_tracking_id = data['envio_tracking_id']
+        envio = Envio.objects.get(tracking_id=envio_tracking_id)
         if envio.status == Envio.STATUS_DELIVERED:
             msg = "Envio already delivered."
             raise serializers.ValidationError({"response": msg})
@@ -58,7 +58,7 @@ class DeliveryAttemptSerializer(serializers.ModelSerializer):
     def save(self):
         author = self.validated_data['created_by']
         result = self.validated_data['result']
-        envio_id = self.validated_data['envio_id']
+        envio_tracking_id = self.validated_data['envio_tracking_id']
         proof = self.validated_data.get('proof', None)
         comment = self.validated_data.get('comment', "")
         movement = TrackingMovement(
@@ -84,7 +84,7 @@ class DeliveryAttemptSerializer(serializers.ModelSerializer):
         os.remove(url)
         movement.save()
 
-        envio = Envio.objects.filter(pk=envio_id).first()
+        envio = Envio.objects.filter(tracking_id=envio_tracking_id).first()
 
         # Add envios to the movement
         movement.envios.add(envio)
