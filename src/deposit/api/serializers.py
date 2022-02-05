@@ -11,6 +11,8 @@ class DepositSerializer(serializers.ModelSerializer):
     client = serializers.SerializerMethodField('get_client_from_deposit')
     town = serializers.SerializerMethodField('get_town_from_deposit')
     envios = serializers.SerializerMethodField('get_envios_from_deposit')
+    envios_tracking_ids = serializers.SerializerMethodField(
+        'get_envios_tracking_ids')
 
     class Meta:
         model = Deposit
@@ -26,6 +28,7 @@ class DepositSerializer(serializers.ModelSerializer):
             'phone',
             'email',
             'envios',
+            'envios_tracking_ids',
         )
 
     def get_client_from_deposit(self, deposit):
@@ -51,3 +54,10 @@ class DepositSerializer(serializers.ModelSerializer):
     def get_envios_from_deposit(self, deposit):
         return deposit.envio_set.filter(
             status__in=[Envio.STATUS_STILL, Envio.STATUS_NEW]).count()
+
+    def get_envios_tracking_ids(self, deposit):
+        if deposit.envio_set.filter(
+                status__in=[Envio.STATUS_STILL, Envio.STATUS_NEW]).count() > 0:
+            return deposit.envio_set.filter(
+                status__in=[Envio.STATUS_STILL, Envio.STATUS_NEW]).values_list(
+                'tracking_id', flat=True)
