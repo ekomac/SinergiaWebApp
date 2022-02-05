@@ -10,7 +10,7 @@ from tracking.models import TrackingMovement
 
 class DeliveryAttemptSerializer(serializers.ModelSerializer):
 
-    envio_tracking_id = serializers.IntegerField(required=True)
+    envio_tracking_id = serializers.CharField(max_length=50, required=True)
 
     class Meta:
         model = TrackingMovement

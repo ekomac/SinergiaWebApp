@@ -36,9 +36,11 @@ def api_withdraw_by_envios_ids_view(request):
     if request.method == 'POST':
         data = request.data.copy()
         data['created_by'] = request.user.pk
+        data['can_overflow'] = request.POST.get('overflow_enabled', False)
         serializer = WithdrawByEnviosTrackingIdsSerializer(data=data)
         response_data = {}
         if serializer.is_valid():
+            print("Serializer is valid")
             movement = serializer.save()
             response_data = get_movement_as_response_data(movement)
             response_data['response'] = consts.CREATE_SUCCESS

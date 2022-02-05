@@ -57,7 +57,10 @@ class DepositSerializer(serializers.ModelSerializer):
 
     def get_envios_tracking_ids(self, deposit):
         if deposit.envio_set.filter(
-                status__in=[Envio.STATUS_STILL, Envio.STATUS_NEW]).count() > 0:
+                status__in=[Envio.STATUS_STILL, Envio.STATUS_NEW]).exists():
+            print(deposit.envio_set.filter(
+                status__in=[Envio.STATUS_STILL, Envio.STATUS_NEW]).values_list(
+                'tracking_id', flat=True))
             return deposit.envio_set.filter(
                 status__in=[Envio.STATUS_STILL, Envio.STATUS_NEW]).values_list(
                 'tracking_id', flat=True)

@@ -86,19 +86,20 @@ def transfer_by_envios_tracking_ids(
     author,
     from_carrier: Account,
     to_carrier: Account,
-    *ids: int
+    *tracking_ids: int
 ) -> TrackingMovement:
     """
     Performs a transfer action, creating a movement and updating
     the envios' status. The transfer is performed for all envios
-    which ids where given.
+    which tracking_ids where given.
 
     Args:
         author (Account): the Account performing the action.
         from_carrier (Account): the Account which from the
         envios are transfered.
         to_carrier (Account): the Account that receives the envios.
-        ids (Tuple[int]): the ids of the envios to be transfered.
+        tracking_ids (Tuple[int]): the tracking_ids of the envios
+        to be transfered.
 
     Returns:
         TrackingMovement: the created movement.
@@ -106,7 +107,7 @@ def transfer_by_envios_tracking_ids(
     movement = create_transfer_movement(
         author, from_carrier, to_carrier, TrackingMovement.LABEL_BY_ENVIOS_IDS)
     add_and_udpate_envios(movement, from_carrier,
-                          to_carrier, tracking_id__in=ids)
+                          to_carrier, tracking_id__in=tracking_ids)
     return movement
 
 

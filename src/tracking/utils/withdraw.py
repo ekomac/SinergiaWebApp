@@ -82,26 +82,27 @@ def withdraw_by_envios_tracking_ids(
     author: Account,
     from_deposit: Deposit,
     to_carrier: Account,
-    *ids: int
+    *tracking_ids: int
 ) -> TrackingMovement:
     """
     Performs a withdraw action, creating a movement and updating
     the envios' status. The withdraw is performed for all envios
-    which ids where given.
+    which tracking_ids where given.
 
     Args:
         author (Account): the Account performing the action.
         from_deposit (Deposit): the Deposit where the envios will be
         deposited.
         to_carrier (Account): the Account that will withdraw the envios.
-        ids (Tuple[int]): the ids of the envios to be withdrawn.
+        tracking_ids (Tuple[int]): the tracking_ids of the envios to
+        be withdrawn.
 
     Returns:
         TrackingMovement: the created movement.
     """
     movement = create_withdraw_movement(
         author, from_deposit, to_carrier, TrackingMovement.LABEL_BY_ENVIOS_IDS)
-    add_and_udpate_envios(movement, tracking_id__in=ids)
+    add_and_udpate_envios(movement, tracking_id__in=tracking_ids)
     return movement
 
 

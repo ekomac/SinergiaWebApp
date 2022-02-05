@@ -61,8 +61,8 @@ class TransferAllSerializer(BaseTransferSerializer):
 
 class TransferByEnviosTrackingIdsSerializer(BaseTransferSerializer):
 
-    envios_ids = serializers.ListField(
-        child=serializers.IntegerField(min_value=0),
+    envios_tracking_ids = serializers.ListField(
+        child=serializers.CharField(max_length=50),
         write_only=True, allow_empty=False)
 
     class Meta:

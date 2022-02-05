@@ -85,19 +85,20 @@ def deposit_by_envios_tracking_ids(
     author,
     from_carrier: Account,
     to_deposit: Deposit,
-    *ids: int
+    *tracking_ids: int
 ) -> TrackingMovement:
     """
     Performs a deposit action, creating a movement and updating
     the envios' status. The deposit is performed for all envios
-    which ids where given.
+    which tracking_ids where given.
 
     Args:
         author (Account): the Account performing the action.
         from_carrier (Account): the Account carrying the envios being
         deposited.
         to_deposit (Deposit): the Deposit where the envios will be deposited.
-        ids (Tuple[int]): the ids of the envios to be deposited.
+        tracking_ids (Tuple[int]): the tracking_ids of the envios to
+        be deposited.
 
     Returns:
         TrackingMovement: the created movement.
@@ -105,7 +106,7 @@ def deposit_by_envios_tracking_ids(
     movement = create_deposit_movement(
         author, from_carrier, to_deposit, TrackingMovement.LABEL_BY_ENVIOS_IDS)
     add_and_udpate_envios(movement, from_carrier,
-                          to_deposit, tracking_id__in=ids)
+                          to_deposit, tracking_id__in=tracking_ids)
     return movement
 
 

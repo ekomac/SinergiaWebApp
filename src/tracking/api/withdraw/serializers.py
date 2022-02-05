@@ -27,7 +27,7 @@ class BaseWithdrawSerializer(serializers.ModelSerializer):
     def extra_validation_check(self, data):
         pass
 
-    def validation(self, data):
+    def validate(self, data):
         self.check_deposit_has_envios(data)
         self.extra_validation_check(data)
         return data
@@ -52,19 +52,22 @@ class WithdrawAllSerializer(BaseWithdrawSerializer):
 
 class WithdrawByEnviosTrackingIdsSerializer(BaseWithdrawSerializer):
 
-    envios_ids = serializers.ListField(
-        child=serializers.IntegerField(min_value=0),
+    envios_tracking_ids = serializers.ListField(
+        child=serializers.CharField(max_length=50),
         write_only=True, allow_empty=False)
+
+    overflow_enabled = serializers.BooleanField(default=False)
 
     class Meta:
         model = TrackingMovement
         fields = ('created_by', 'from_deposit',
-                  'to_carrier', 'envios_tracking_ids',)
+                  'to_carrier', 'envios_tracking_ids', 'overflow_enabled')
         extra_kwargs = {
             'created_by': {'required': True, },
             'from_deposit': {'required': True, },
             'to_carrier': {'required': True, },
             'envios_tracking_ids': {'required': True, },
+            'overflow_enabled': {'required': False, },
         }
 
     def extra_validation_check(self, data):
@@ -72,22 +75,29 @@ class WithdrawByEnviosTrackingIdsSerializer(BaseWithdrawSerializer):
         pk = from_deposit.pk
         envios_at_deposit = from_deposit.envio_set.filter(
             status__in=self.statuses,
-        ).values_list('pk', flat=True)
+        ).values_list('tracking_id', flat=True)
         envios_at_deposit_count = len(envios_at_deposit)
         envios_tracking_ids = data['envios_tracking_ids']
         if len(envios_tracking_ids) == 0:
             msg = "'envios_tracking_ids' can't be empty."
             raise serializers.ValidationError({"response": msg})
-        if len(envios_tracking_ids) > envios_at_deposit_count:
-            msg = "There are only %s Envíos at the deposit with id=%s." % (
-                envios_at_deposit_count, pk)
-            raise serializers.ValidationError({"response": msg})
-        if set(envios_tracking_ids).issubset(envios_at_deposit):
-            msg = (
-                "Some of the Envíos with ids %s don't exist or "
-                "are not at the deposit with id=%s."
-            ) % (envios_tracking_ids, pk)
-            raise serializers.ValidationError({"response": msg})
+        overflow_enabled = data['overflow_enabled']
+        print("overflow_enabled", overflow_enabled)
+        if not overflow_enabled:
+            if len(envios_tracking_ids) > envios_at_deposit_count:
+                s1 = "There are only %s Envíos at the deposit with id=%s." % (
+                    envios_at_deposit_count, pk)
+                s2 = "You've sent %s" % (len(envios_tracking_ids))
+                full_msg = f'{s1} {s2}'
+                raise serializers.ValidationError({"response": full_msg})
+            print("set", set(envios_tracking_ids))
+            print("envios_at_deposit", envios_at_deposit)
+            if set(envios_tracking_ids).issubset(envios_at_deposit):
+                msg = (
+                    "Some of the Envíos with ids %s don't exist or "
+                    "are not at the deposit with id=%s."
+                ) % (envios_tracking_ids, pk)
+                raise serializers.ValidationError({"response": msg})
 
     def save(self):
         author = self.validated_data['created_by']

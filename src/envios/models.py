@@ -266,16 +266,11 @@ class Envio(Receiver):
 
 @receiver(post_save, sender=Envio)
 def create_tracking_id(sender, instance, created, **kwargs):
-    print("signal")
     if created:
-        print("created")
         if instance.tracking_id is None:
-            print("no trackibg id")
             if instance.is_flex and instance.flex_id is not None:
-                print("is flex")
                 instance.tracking_id = "ML%s" % instance.flex_id
             else:
-                print("not flex")
                 instance.tracking_id = "SN%s" % instance.pk
         instance.save()
 
