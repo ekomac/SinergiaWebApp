@@ -41,3 +41,27 @@ class EmployeeSerializer(serializers.ModelSerializer):
         if account.groups.exists():
             return account.groups.first().name
         return None
+
+
+class AccountPropertiesSerializer(serializers.ModelSerializer):
+
+    full_name = serializers.SerializerMethodField('get_full_name_from_account')
+    profile_picture_url = serializers.SerializerMethodField(
+        'get_profile_picture_url_from_account')
+
+    class Meta:
+        model = Account
+        fields = (
+            'profile_picture_url',
+            'full_name',
+            'email',
+            'first_name',
+            'last_name',
+            'username',
+        )
+
+    def get_full_name_from_account(self, account):
+        return account.full_name
+
+    def get_profile_picture_url_from_account(self, account):
+        return account.profile_picture.url if account.profile_picture else None

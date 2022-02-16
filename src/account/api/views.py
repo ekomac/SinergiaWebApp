@@ -16,7 +16,9 @@ from rest_framework.views import APIView
 
 
 # PROJECT
-from account.api.serializers import EmployeeSerializer
+from account.api.serializers import (
+    AccountPropertiesSerializer,
+    EmployeeSerializer)
 from account.models import Account
 
 ERROR_INVALID_PASSWORD = "Credenciales inválidas"
@@ -75,7 +77,7 @@ def api_account_properties_view(request):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = EmployeeSerializer(account)
+        serializer = AccountPropertiesSerializer(account)
         return Response(serializer.data)
 
 
