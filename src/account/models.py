@@ -119,6 +119,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
         Client, on_delete=models.CASCADE, null=True, blank=True,
         related_name="client_user_account")
 
+    has_access_denied = models.BooleanField(default=False)
+
     # USER INFO
     first_name = models.CharField(verbose_name="first name", max_length=30)
     last_name = models.CharField(verbose_name="last name", max_length=30)

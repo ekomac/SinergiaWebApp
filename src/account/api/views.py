@@ -19,6 +19,9 @@ from rest_framework.views import APIView
 from account.api.serializers import EmployeeSerializer
 from account.models import Account
 
+ERROR_INVALID_PASSWORD = "Credenciales inválidas"
+ERROR_INVALID_EMAIL = "El email no existe."
+
 
 class ObtainAuthTokenView(APIView):
 
@@ -32,10 +35,10 @@ class ObtainAuthTokenView(APIView):
                 email=email,
                 groups__name__in=settings.ACCESS_EMPLOYEE_APP).exists():
             data['response'] = 'Error'
-            data['error_message'] = 'Credenciales inválidas'
-            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+            data['error_message'] = ERROR_INVALID_EMAIL
+            return Response(data)
         password = request.POST.get('password') or request.data.get('password')
-        account: Account = authenticate(email=email, password=password)
+        account = authenticate(email=email, password=password)
         if account:
             try:
                 token = Token.objects.get(user=account)
@@ -49,20 +52,35 @@ class ObtainAuthTokenView(APIView):
             data['last_name'] = account.last_name
             data['username'] = account.username
             data['full_name'] = account.full_name
+            data['permission'] = account.groups.first().name
             data['profile_picture_url'] = None
             if (account.profile_picture and
                     account.profile_picture.url is not None):
                 data['profile_picture_url'] = request.build_absolute_uri(
                     account.profile_picture.url)
-            return Response(data, status=status.HTTP_200_OK)
         else:
             data['response'] = 'Error'
-            data['error_message'] = 'Credenciales inválidas'
-            return Response(data, status=status.HTTP_401_UNAUTHORIZED)
+            data['error_message'] = ERROR_INVALID_PASSWORD
+        return Response(data)
 
 
 @api_view(['GET', ])
-@permission_classes([IsAuthenticated])
+@permission_classes((IsAuthenticated, ))
+def api_account_properties_view(request):
+
+    try:
+        account = request.user
+        print(account)
+    except Account.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = EmployeeSerializer(account)
+        return Response(serializer.data)
+
+
+@api_view(['GET', ])
+@permission_classes((IsAuthenticated, ))
 def api_detail_carrier_view(request, pk):
     try:
         account = Account.objects.filter(
@@ -111,9 +129,7 @@ def api_detail_account_view(request, pk):
                 'Admins', 'Level 1', 'Level 2']).last()
         if account is None:
             print("Account doesn't exist!!!")
-            data = {
-                'response': 'No se encontró la cuenta con id %s.' % account.pk
-            },
+            data = {'response': 'No se encontró la cuenta con id %s.' % pk},
             return Response(data=data, status=status.HTTP_404_NOT_FOUND)
         if request.method == 'GET':
             serializer = EmployeeSerializer(account)
@@ -126,24 +142,43 @@ def api_detail_account_view(request, pk):
             data['last_name'] = account.last_name
             data['username'] = account.username
             data['full_name'] = account.full_name
-            data['access'] = account.groups.first().name
+            data['permission'] = account.groups.first().name
             data['profile_picture_url'] = None
-            if (account.profile_picture and
-                    account.profile_picture.url is not None):
-                data['profile_picture_url'] = request.build_absolute_uri(
-                    account.profile_picture.url)
+            if account.profile_picture:
+                if account.profile_picture.url is not None:
+                    data['profile_picture_url'] = request.build_absolute_uri(
+                        account.profile_picture.url)
             return Response(data, status=status.HTTP_200_OK)
     except Account.DoesNotExist:
         print("Account doesn't exist")
         return Response(status=status.HTTP_404_NOT_FOUND)
     except ValueError:
-        data = {
-            'response': "La cuenta de empleado con id %s no existe" % pk
-        }
-        print("Account doesn't exist (ValueError)")
+        data = {'response': "La cuenta de empleado con id %s no existe" % pk}
         return Response(
             data=data,
             status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET', ])
+@permission_classes([IsAuthenticated])
+def api_check_app_state_view(request, pk: int = 0):
+    try:
+        account = Account.objects.filter(
+            pk=pk, groups__name__in=['Admins', 'Level 1', 'Level 2']).last()
+        if account is None:
+            data = {'response': 'No se encontró la cuenta con id %s.' % pk},
+            return Response(data=data, status=status.HTTP_404_NOT_FOUND)
+        if request.method == 'GET':
+            data['response'] = 'User found.'
+            data['pk'] = account.pk
+            data['has_access_denied'] = account.has_access_denied
+            return Response(data, status=status.HTTP_200_OK)
+    except Account.DoesNotExist:
+        print("Account doesn't exist")
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    except ValueError:
+        data = {'response': "La cuenta de empleado con id %s no existe" % pk}
+        return Response(data=data, status=status.HTTP_404_NOT_FOUND)
 
 
 class ApiEmployeesWithEnviosListView(ListAPIView):

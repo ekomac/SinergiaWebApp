@@ -123,9 +123,15 @@
     "emmet.triggerExpansionOnTab": true,
     "files.autoSave": "afterDelay",
     "python.formatting.provider": "autopep8",
+    // "python.formatting.autopep8Args": [
+    //     "--max-line-length",
+    //     "120",
+    //     "--experimental"
+    // ],
     "python.formatting.autopep8Args": [
-        "--max-line-length",
-        "79",
-        "--experimental",
+        "--max-line-length=79"
+    ],
+    "python.linting.pycodestyleArgs": [
+        "--max-line-length=79"
     ],
 }

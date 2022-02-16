@@ -11,7 +11,8 @@ class EmployeeSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField('get_full_name_from_account')
     profile_picture_url = serializers.SerializerMethodField(
         'get_profile_picture_url_from_account')
-    access = serializers.SerializerMethodField('get_access_from_account')
+    permission = serializers.SerializerMethodField(
+        'get_permission_from_account')
 
     class Meta:
         model = Account
@@ -24,7 +25,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'last_name',
             'profile_picture_url',
             'envios',
-            'access',
+            'permission',
         )
 
     def get_envios_from_account(self, account):
@@ -36,7 +37,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
     def get_profile_picture_url_from_account(self, account):
         return account.profile_picture.url if account.profile_picture else None
 
-    def get_access_from_account(self, account: Account):
+    def get_permission_from_account(self, account: Account):
         if account.groups.exists():
             return account.groups.first().name
         return None
