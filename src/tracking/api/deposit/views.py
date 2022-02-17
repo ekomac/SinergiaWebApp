@@ -9,7 +9,8 @@ from tracking.api.deposit.serializers import (
     DepositByEnviosTrackingIdsSerializer,
     DepositByTownsIdsSerializer,
     DepositByPartidosIdsSerializer,
-    DepositByZonesIdsSerializer
+    DepositByZonesIdsSerializer,
+    EnviosToDepositFilteredRequestSerializer
 )
 from tracking.utils.views import get_movement_as_response_data
 
@@ -92,4 +93,17 @@ def api_deposit_by_zones_ids_view(request):
             response_data = get_movement_as_response_data(movement)
             response_data['response'] = consts.CREATE_SUCCESS
             return Response(data=response_data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST', ])
+@permission_classes((IsAuthenticated, ))
+def api_envios_for_deposit_preview(request):
+    if request.method == 'POST':
+        serializer = EnviosToDepositFilteredRequestSerializer(
+            data=request.data)
+        if serializer.is_valid():
+            data = serializer.save()
+            data['response'] = consts.SUCCESS
+            return Response(data=data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

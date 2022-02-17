@@ -5,7 +5,8 @@ from tracking.api.withdraw.views import (
     api_withdraw_by_envios_ids_view,
     api_withdraw_by_partidos_ids_view,
     api_withdraw_by_towns_ids_view,
-    api_withdraw_by_zones_ids_view
+    api_withdraw_by_zones_ids_view,
+    api_envios_for_withdraw_preview,
 )
 from tracking.api.deposit.views import (
     api_deposit_all_view,
@@ -13,6 +14,7 @@ from tracking.api.deposit.views import (
     api_deposit_by_towns_ids_view,
     api_deposit_by_partidos_ids_view,
     api_deposit_by_zones_ids_view,
+    api_envios_for_deposit_preview,
 )
 from tracking.api.transfer.views import (
     api_transfer_all_view,
@@ -20,6 +22,7 @@ from tracking.api.transfer.views import (
     api_transfer_by_towns_ids_view,
     api_transfer_by_partidos_ids_view,
     api_transfer_by_zones_ids_view,
+    api_envios_for_transfer_preview,
 )
 from tracking.api.deliver.views import api_delivery_attempt_view
 
@@ -36,6 +39,8 @@ urlpatterns = [
          name="api-withdraw-by-partido"),
     path('withdraw/by-zones-ids/', api_withdraw_by_zones_ids_view,
          name="api-withdraw-by-zone"),
+    path('withdraw/preview/', api_envios_for_withdraw_preview,
+         name="api-withdraw-preview"),
 
     path('deposit/all/', api_deposit_all_view,
          name="api-deposit-all"),
@@ -47,6 +52,8 @@ urlpatterns = [
          name="api-deposit-by-partido"),
     path('deposit/by-zones-ids/', api_deposit_by_zones_ids_view,
          name="api-deposit-by-zone"),
+    path('deposit/preview/', api_envios_for_deposit_preview,
+         name="api-deposit-preview"),
 
     path('transfer/all/', api_transfer_all_view,
          name="api-transfer-all"),
@@ -58,6 +65,8 @@ urlpatterns = [
          name="api-transfer-by-partido"),
     path('transfer/by-zones-ids/', api_transfer_by_zones_ids_view,
          name="api-transfer-by-zone"),
+    path('transfer/preview/', api_envios_for_transfer_preview,
+         name="api-transfer-preview"),
 
     path('deliver/attempt/', api_delivery_attempt_view,
          name="api-delivery-attempt"),

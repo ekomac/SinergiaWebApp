@@ -218,3 +218,63 @@ class DepositByZonesIdsSerializer(BaseDepositSerializer):
         zones_ids = self.validated_data['zones_ids']
         return deposit_by_zones_ids(
             author, from_carrier, to_deposit, *zones_ids)
+
+
+class EnviosToDepositFilteredRequestSerializer(serializers.ModelSerializer):
+
+    envios_tracking_ids = serializers.ListField(
+        child=serializers.CharField(), allow_empty=True, required=False)
+
+    partidos_ids = serializers.ListField(
+        child=serializers.IntegerField(), allow_empty=True, required=False)
+
+    towns_ids = serializers.ListField(
+        child=serializers.IntegerField(), allow_empty=True, required=False)
+
+    class Meta:
+        model = TrackingMovement
+        fields = (
+            'from_carrier',
+            'envios_tracking_ids',
+            'partidos_ids',
+            'towns_ids',
+        )
+        extra_kwargs = {
+            'from_carrier': {'required': True, },
+            'envios_tracking_ids': {'required': False, },
+            'partidos_ids': {'required': False, },
+            'towns_ids': {'required': False, },
+        }
+
+    def parse_envio_data(self, envio) -> dict:
+        address = envio.full_address
+        partido = envio.town.partido
+        client = envio.client.name
+        return {
+            'tracking_id': envio.tracking_id,
+            'data': f"{address}, {partido} de {client}"
+        }
+
+    def save(self):
+        filters = {
+            'status__in': [Envio.STATUS_NEW, Envio.STATUS_STILL],
+        }
+        from_carrier = self.validated_data.get('from_carrier', None)
+        if from_carrier is not None:
+            filters['carrier__id'] = from_carrier.pk
+        envios_tracking_ids = self.validated_data.get(
+            'envios_tracking_ids', None)
+        if envios_tracking_ids is not None:
+            print("envios_tracking_ids", envios_tracking_ids)
+            filters['tracking_id__in'] = envios_tracking_ids
+        partidos_ids = self.validated_data.get('partidos_ids', None)
+        if partidos_ids is not None:
+            filters['town__partido__id__in'] = partidos_ids
+        towns_ids = self.validated_data.get('towns_ids', None)
+        if towns_ids is not None:
+            filters['town__id__in'] = towns_ids
+        envios = Envio.objects.filter(**filters).distinct()
+        return {
+            'envios': [self.parse_envio_data(envio) for envio in envios],
+            'count': len(envios),
+        }

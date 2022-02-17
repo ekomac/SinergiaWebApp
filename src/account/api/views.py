@@ -72,7 +72,6 @@ def api_account_properties_view(request):
 
     try:
         account = request.user
-        print(account)
     except Account.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -187,7 +186,8 @@ class ApiEmployeesWithEnviosListView(ListAPIView):
     queryset = Account.objects.filter(
         groups__name__in=['Admins', 'Level 1', 'Level 2'],
     ).annotate(
-        envios=Count('envios_carried_by')).order_by('-envios').distinct()
+        envios=Count('envios_carried_by')).order_by(
+            'first_name', 'last_name', '-envios').distinct()
     serializer_class = EmployeeSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)

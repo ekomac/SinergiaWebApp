@@ -87,3 +87,20 @@ class EnvioSerializer(serializers.ModelSerializer):
         if envio.max_delivery_date is not None:
             return envio.max_delivery_date.strftime("%d/%m/%Y")
         return None
+
+
+class EnvioStringSerializer(serializers.ModelSerializer):
+
+    data = serializers.SerializerMethodField('get_data')
+
+    class Meta:
+        model = Envio
+        fields = (
+            'pk',
+            'data',
+        )
+
+    def get_data(self, envio: Envio):
+        address = envio.full_address
+        client = envio.client.name
+        return f"{address}, {client}"
