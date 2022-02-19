@@ -28,6 +28,7 @@ def api_withdraw_all_view(request):
             response_data = get_movement_as_response_data(movement)
             response_data['response'] = consts.CREATE_SUCCESS
             return Response(data=response_data, status=status.HTTP_201_CREATED)
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -46,6 +47,7 @@ def api_withdraw_by_envios_ids_view(request):
             response_data = get_movement_as_response_data(movement)
             response_data['response'] = consts.CREATE_SUCCESS
             return Response(data=response_data, status=status.HTTP_201_CREATED)
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -62,6 +64,7 @@ def api_withdraw_by_towns_ids_view(request):
             response_data = get_movement_as_response_data(movement)
             response_data['response'] = consts.CREATE_SUCCESS
             return Response(data=response_data, status=status.HTTP_201_CREATED)
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -78,6 +81,7 @@ def api_withdraw_by_partidos_ids_view(request):
             response_data = get_movement_as_response_data(movement)
             response_data['response'] = consts.CREATE_SUCCESS
             return Response(data=response_data, status=status.HTTP_201_CREATED)
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -94,6 +98,7 @@ def api_withdraw_by_zones_ids_view(request):
             response_data = get_movement_as_response_data(movement)
             response_data['response'] = consts.CREATE_SUCCESS
             return Response(data=response_data, status=status.HTTP_201_CREATED)
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

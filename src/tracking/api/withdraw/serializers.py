@@ -132,7 +132,7 @@ class WithdrawByTownsIdsSerializer(BaseWithdrawSerializer):
             destination__receiver__envio__deposit__id=pk,
             destination__receiver__envio__status__in=self.statuses,
         ).values_list('id', flat=True).distinct()
-        if not set(towns_ids, pk).issubset(towns_ids_on_deposit):
+        if not set(towns_ids).issubset(towns_ids_on_deposit):
             msg = (
                 "Some of the Towns with given ids %s don't exist or"
                 "don't reach out to Envios at Deposit with id=%s."

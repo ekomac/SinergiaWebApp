@@ -29,18 +29,26 @@ from tracking.api.deliver.views import api_delivery_attempt_view
 app_name = 'tracking'
 
 urlpatterns = [
+
     path('withdraw/all/', api_withdraw_all_view,
          name="api-withdraw-all"),
-    path('withdraw/by-envios-ids/', api_withdraw_by_envios_ids_view,
+
+    path('withdraw/by-tracking-envios-ids/', api_withdraw_by_envios_ids_view,
          name="api-withdraw-ids"),
+
     path('withdraw/by-towns-ids/', api_withdraw_by_towns_ids_view,
          name="api-withdraw-by-town"),
+
     path('withdraw/by-partidos-ids/', api_withdraw_by_partidos_ids_view,
          name="api-withdraw-by-partido"),
+
     path('withdraw/by-zones-ids/', api_withdraw_by_zones_ids_view,
          name="api-withdraw-by-zone"),
+
     path('withdraw/preview/', api_envios_for_withdraw_preview,
          name="api-withdraw-preview"),
+
+
 
     path('deposit/all/', api_deposit_all_view,
          name="api-deposit-all"),

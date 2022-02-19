@@ -1,5 +1,6 @@
 # Basic Python
 import os
+import json
 from typing import Any, List
 
 # Reportlab
@@ -170,12 +171,12 @@ class PDFReport(object):
         town_id: int,
         is_flex: bool = False
     ) -> QRFlowable:
-        inner_envio = f'"envio_tracking_id": "{envio_tracking_id}",'
-        inner_cliente = f'"client_id":"{client_id}",'
-        inner_town = f'"town_id":"{town_id}"'
-        inner_is_flex = f'"is_flex": "{is_flex}",'
-        qr_value = "{%s%s%s%s}" % (inner_envio, inner_cliente,
-                                   inner_town, inner_is_flex,)
+        qr_value = json.dumps({
+            "envio_tracking_id": str(envio_tracking_id),
+            "client_id": str(client_id),
+            "town_id": str(town_id),
+            "is_flex": str(is_flex),
+        })
         return QRFlowable(qr_value, 0.55)
 
     def get_table_below_qr_code(
