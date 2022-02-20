@@ -32,7 +32,7 @@ class ApiDepositListView(ListAPIView):
     serializer_class = DepositSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
-    pagination_class = PageNumberPagination
+    pagination_class = None
     filter_backends = (SearchFilter, OrderingFilter)
     search_fields = ('name', 'client__name', )
     # Explicitly specify which fields the API may be ordered against
@@ -48,7 +48,7 @@ class ApiDepositWithEnviosListView(ListAPIView):
     serializer_class = DepositSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
-    pagination_class = PageNumberPagination
+    pagination_class = None
 
 
 class ApiOwnDepositsListView(ListAPIView):
@@ -57,4 +57,4 @@ class ApiOwnDepositsListView(ListAPIView):
     serializer_class = DepositSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
-    pagination_class = PageNumberPagination
+    pagination_class = None

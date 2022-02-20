@@ -13,7 +13,7 @@ urlpatterns = [
     path('', ApiDepositListView.as_view(), name="list"),
     path('with-envios-list/', ApiDepositWithEnviosListView.as_view(),
          name="with-envios-list"),
-    path('own', ApiOwnDepositsListView.as_view(),
+    path('own/', ApiOwnDepositsListView.as_view(),
          name="own"),
     path('<int:pk>/', api_detail_deposit_view, name="detail"),
 ]

@@ -257,7 +257,7 @@ class EnviosToDepositFilteredRequestSerializer(serializers.ModelSerializer):
 
     def save(self):
         filters = {
-            'status__in': [Envio.STATUS_NEW, Envio.STATUS_STILL],
+            'status__in': [Envio.STATUS_MOVING],
         }
         from_carrier = self.validated_data.get('from_carrier', None)
         if from_carrier is not None:
