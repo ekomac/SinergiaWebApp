@@ -115,4 +115,4 @@ def api_envios_for_withdraw_preview(request):
         data = serializer.errors
         data["error_message"] = "Error en la solicitud"
         data["response"] = consts.ERROR
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(data, status=status.HTTP_400_BAD_REQUEST)

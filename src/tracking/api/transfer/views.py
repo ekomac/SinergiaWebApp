@@ -105,4 +105,7 @@ def api_envios_for_transfer_preview(request):
             data = serializer.save()
             data['response'] = consts.SUCCESS
             return Response(data=data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        data = serializer.errors
+        data["error_message"] = "Error en la solicitud"
+        data["response"] = consts.ERROR
+        return Response(data, status=status.HTTP_400_BAD_REQUEST)

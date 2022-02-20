@@ -52,29 +52,41 @@ urlpatterns = [
 
     path('deposit/all/', api_deposit_all_view,
          name="api-deposit-all"),
+
     path('deposit/by-envios-ids/', api_deposit_by_envios_ids_view,
          name="api-deposit-ids"),
+
     path('deposit/by-towns-ids/', api_deposit_by_towns_ids_view,
          name="api-deposit-by-town"),
+
     path('deposit/by-partidos-ids/', api_deposit_by_partidos_ids_view,
          name="api-deposit-by-partido"),
+
     path('deposit/by-zones-ids/', api_deposit_by_zones_ids_view,
          name="api-deposit-by-zone"),
+
     path('deposit/preview/', api_envios_for_deposit_preview,
          name="api-deposit-preview"),
 
+
     path('transfer/all/', api_transfer_all_view,
          name="api-transfer-all"),
+
     path('transfer/by-envios-ids/', api_transfer_by_envios_ids_view,
          name="api-transfer-ids"),
+
     path('transfer/by-towns-ids/', api_transfer_by_towns_ids_view,
          name="api-transfer-by-town"),
+
     path('transfer/by-partidos-ids/', api_transfer_by_partidos_ids_view,
          name="api-transfer-by-partido"),
+
     path('transfer/by-zones-ids/', api_transfer_by_zones_ids_view,
          name="api-transfer-by-zone"),
+
     path('transfer/preview/', api_envios_for_transfer_preview,
          name="api-transfer-preview"),
+
 
     path('deliver/attempt/', api_delivery_attempt_view,
          name="api-delivery-attempt"),
