@@ -50,7 +50,7 @@ class ApiEnvioListOfCarrierView(ListAPIView):
     serializer_class = EnvioSerializer
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
-    pagination_class = PageNumberPagination
+    pagination_class = None
 
     def get_queryset(self):
         carrier_pk = self.kwargs.get("carrier_pk", None)
