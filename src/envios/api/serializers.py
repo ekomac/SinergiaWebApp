@@ -1,4 +1,5 @@
 # REST FRAMEWORK
+from django.utils.dateformat import format
 from rest_framework import serializers
 
 # PROJECT
@@ -17,6 +18,8 @@ class EnvioSerializer(serializers.ModelSerializer):
     error = serializers.SerializerMethodField('get_error_from_envio')
     max_delivery_date = serializers.SerializerMethodField(
         'get_max_delivery_date_from_envio')
+    max_delivery_date_timestamp = serializers.SerializerMethodField(
+        'get_max_delivery_date_timestamp_from_envio')
     delivery_schedule = serializers.SerializerMethodField(
         'get_delivery_schedule_from_envio')
     receiver = serializers.SerializerMethodField('get_receiver_from_envio')
@@ -34,6 +37,7 @@ class EnvioSerializer(serializers.ModelSerializer):
             'error',
             'charge',
             'max_delivery_date',
+            'max_delivery_date_timestamp',
             'is_flex',
             'flex_id',
             'delivery_schedule',
@@ -97,12 +101,17 @@ class EnvioSerializer(serializers.ModelSerializer):
         return {
             'pk': error_movement.pk,
             'result': error_movement.get_result_display(),
-            'description': error_movement.admin_display(),
+            'description': error_movement.admin_display()[1],
         }
 
     def get_max_delivery_date_from_envio(self, envio):
         if envio.max_delivery_date is not None:
             return envio.max_delivery_date.strftime("%d/%m/%Y")
+        return None
+
+    def get_max_delivery_date_timestamp_from_envio(self, envio):
+        if envio.max_delivery_date is not None:
+            return format(envio.max_delivery_date, 'U')
         return None
 
     def get_delivery_schedule_from_envio(self, envio):
