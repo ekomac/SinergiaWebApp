@@ -23,6 +23,8 @@ class EnvioSerializer(serializers.ModelSerializer):
     delivery_schedule = serializers.SerializerMethodField(
         'get_delivery_schedule_from_envio')
     receiver = serializers.SerializerMethodField('get_receiver_from_envio')
+    tracking_id = serializers.SerializerMethodField(
+        'get_tracking_id_from_envio')
 
     class Meta:
         model = Envio
@@ -51,12 +53,15 @@ class EnvioSerializer(serializers.ModelSerializer):
             town = str(envio.destination_ptr.town.name).title()
             zipcode = envio.destination_ptr.zipcode
             partido = str(envio.destination_ptr.town.partido.name).title()
+            floor_apartment = str(
+                envio.destination_ptr.floor_apartment).title()
             return {
                 'street': street,
                 'remarks': remarks,
                 'town': town,
                 'zipcode': zipcode,
                 'partido': partido,
+                'floor_apartment': floor_apartment,
             }
         return None
 
@@ -127,6 +132,9 @@ class EnvioSerializer(serializers.ModelSerializer):
                 'phone': envio.receiver_ptr.phone,
             }
         return None
+
+    def get_tracking_id_from_envio(self, envio: Envio):
+        return envio.tracking_id if envio.tracking_id is not None else ""
 
 
 class EnvioStringSerializer(serializers.ModelSerializer):

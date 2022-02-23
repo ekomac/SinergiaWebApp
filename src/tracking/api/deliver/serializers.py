@@ -11,11 +11,13 @@ from tracking.models import TrackingMovement
 class DeliveryAttemptSerializer(serializers.ModelSerializer):
 
     envio_tracking_id = serializers.CharField(max_length=50, required=True)
+    receiver_doc_id = serializers.CharField(max_length=20, required=True)
 
     class Meta:
         model = TrackingMovement
         fields = ('created_by', 'result',
-                  'envio_tracking_id', 'proof', 'comment',)
+                  'envio_tracking_id', 'proof',
+                  'comment', 'receiver_doc_id')
         extra_kwargs = {
             'created_by': {'required': True, },
             'result': {'required': True, },
@@ -59,6 +61,7 @@ class DeliveryAttemptSerializer(serializers.ModelSerializer):
         author = self.validated_data['created_by']
         result = self.validated_data['result']
         envio_tracking_id = self.validated_data['envio_tracking_id']
+        receiver_doc_id = self.validated_data['receiver_doc_id']
         proof = self.validated_data.get('proof', None)
         comment = self.validated_data.get('comment', "")
         movement = TrackingMovement(
@@ -95,5 +98,6 @@ class DeliveryAttemptSerializer(serializers.ModelSerializer):
             envio.deposit = None
             envio.date_delivered = movement.date_created
             envio.updated_by = movement.created_by
+            envio.receiver_doc = receiver_doc_id
             envio.save()
         return movement, envio

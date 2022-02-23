@@ -27,10 +27,13 @@ def api_delivery_attempt_view(request):
                 movement, request=request)
             response_data['response'] = consts.CREATE_SUCCESS
             response_data['envio'] = {
-                'id': envio.id,
+                'pk': envio.pk,
                 'full_address': envio.full_address,
                 'partido': envio.town.partido.name.title(),
                 'status': envio.get_status_display(),
+                'tracking_id': envio.tracking_id,
             }
             return Response(data=response_data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        response_data['response'] = consts.CREATE_ERROR
+        response_data['errors'] = serializer.errors
+        return Response(response_data, status=status.HTTP_400_BAD_REQUEST)

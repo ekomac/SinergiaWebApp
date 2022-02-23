@@ -24,6 +24,9 @@ class Destination(models.Model):
     street = models.CharField(
         verbose_name="Domicilio de entrega", max_length=100,
         blank=False, null=False)
+    floor_apartment = models.CharField(
+        verbose_name="Piso/Departamento", max_length=50, blank=True,
+        null=True)
     remarks = models.CharField(
         verbose_name="Observaciones de entrega", max_length=500,
         blank=True, null=True)
@@ -144,6 +147,9 @@ class Envio(Receiver):
     tracking_id = models.CharField(
         verbose_name="Tracking ID", blank=True, null=True, default=None,
         max_length=50, unique=True)
+    receiver_doc = models.CharField(
+        verbose_name="DNI del destinatario", max_length=20,
+        blank=True, null=True)
 
     def __str__(self):
         address = self.full_address
