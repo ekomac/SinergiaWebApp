@@ -74,18 +74,19 @@ class DeliveryAttemptSerializer(serializers.ModelSerializer):
         )
         movement.save()
 
-        movement.proof = proof
+        if proof is not None:
+            movement.proof = proof
 
-        url = os.path.join(settings.TEMP, str(proof))
-        storage = FileSystemStorage(location=url)
+            url = os.path.join(settings.TEMP, str(proof))
+            storage = FileSystemStorage(location=url)
 
-        with storage.open('', 'wb+') as destination:
-            for chunk in proof.chunks():
-                destination.write(chunk)
-            destination.close()
+            with storage.open('', 'wb+') as destination:
+                for chunk in proof.chunks():
+                    destination.write(chunk)
+                destination.close()
 
-        os.remove(url)
-        movement.save()
+            os.remove(url)
+            movement.save()
 
         envio = Envio.objects.filter(tracking_id=envio_tracking_id).first()
 
