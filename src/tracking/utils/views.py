@@ -15,7 +15,10 @@ def get_movement_as_response_data(movement: TrackingMovement, *args, **kwargs):
             'envios_count': movement.envios.count(),
         }
     }
-    if movement.proof is not None and kwargs.get('request', None) is not None:
+    print(movement.proof)
+    if (movement.proof is not None
+            and len(str(movement.proof)) > 0
+            and kwargs.get('request', None) is not None):
         url = str(
             kwargs['request'].build_absolute_uri(movement.proof.url))
         if '?' in url:

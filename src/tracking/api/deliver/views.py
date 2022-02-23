@@ -14,6 +14,8 @@ from tracking.utils.views import get_movement_as_response_data
 @api_view(['POST', ])
 @permission_classes((IsAuthenticated,))
 def api_delivery_attempt_view(request):
+    print("llegamos al delivery attempt")
+    print(request.data)
     if request.method == 'POST':
         data = request.data.copy()
         data['created_by'] = request.user.pk
@@ -37,6 +39,7 @@ def api_delivery_attempt_view(request):
             return Response(data=response_data, status=status.HTTP_201_CREATED)
         response_data['response'] = consts.CREATE_ERROR
         response_data['errors'] = serializer.errors
+        print("Errors: ", serializer.errors)
         return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
 
 
