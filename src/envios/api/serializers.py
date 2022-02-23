@@ -94,13 +94,13 @@ class EnvioSerializer(serializers.ModelSerializer):
 
     def get_error_from_envio(self, envio):
         error_results = [
-            TrackingMovement.RESULT_REJECTED_AT_DESTINATION, TrackingMovement.
-            RESULT_REPROGRAMED, TrackingMovement.RESULT_NO_ANSWER,
-            TrackingMovement.RESULT_TRANSFERED, TrackingMovement.
-            RESULT_COLLECTED, TrackingMovement.RESULT_OTHER, ]
+            TrackingMovement.RESULT_REJECTED_AT_DESTINATION,
+            TrackingMovement.RESULT_REPROGRAMED,
+            TrackingMovement.RESULT_NO_ANSWER,
+            TrackingMovement.RESULT_OTHER, ]
         if not TrackingMovement.objects.filter(
                 envios__in=[envio], result__in=error_results).exists():
-            return ""
+            return None
         error_movement: TrackingMovement = TrackingMovement.objects.filter(
             envios__in=[envio], result__in=error_results).last()
         return {

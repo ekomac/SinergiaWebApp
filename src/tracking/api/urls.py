@@ -24,7 +24,10 @@ from tracking.api.transfer.views import (
     api_transfer_by_zones_ids_view,
     api_envios_for_transfer_preview,
 )
-from tracking.api.deliver.views import api_delivery_attempt_view
+from tracking.api.deliver.views import (
+    api_delivery_attempt_view,
+    api_post_successfull_delivery_view
+)
 
 app_name = 'tracking'
 
@@ -90,4 +93,7 @@ urlpatterns = [
 
     path('deliver/attempt/', api_delivery_attempt_view,
          name="api-delivery-attempt"),
+
+    path('deliver/success/', api_post_successfull_delivery_view,
+         name="api-post-successfull-delivery"),
 ]
