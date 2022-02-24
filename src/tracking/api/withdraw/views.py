@@ -7,6 +7,7 @@ from tracking.api import consts
 from tracking.api.withdraw.serializers import (
     EnviosToWithdrawFilteredRequestSerializer,
     WithdrawAllSerializer,
+    WithdrawByClientsIdsSerializer,
     WithdrawByEnviosTrackingIdsSerializer,
     WithdrawByTownsIdsSerializer,
     WithdrawByPartidosIdsSerializer,
@@ -28,8 +29,9 @@ def api_withdraw_all_view(request):
             response_data = get_movement_as_response_data(movement)
             response_data['response'] = consts.CREATE_SUCCESS
             return Response(data=response_data, status=status.HTTP_201_CREATED)
-        print(serializer.errors)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        response_data['response'] = consts.CREATE_ERROR
+        response_data['errors'] = serializer.errors
+        return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST', ])
@@ -47,8 +49,9 @@ def api_withdraw_by_envios_ids_view(request):
             response_data = get_movement_as_response_data(movement)
             response_data['response'] = consts.CREATE_SUCCESS
             return Response(data=response_data, status=status.HTTP_201_CREATED)
-        print(serializer.errors)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        response_data['response'] = consts.CREATE_ERROR
+        response_data['errors'] = serializer.errors
+        return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST', ])
@@ -64,8 +67,9 @@ def api_withdraw_by_towns_ids_view(request):
             response_data = get_movement_as_response_data(movement)
             response_data['response'] = consts.CREATE_SUCCESS
             return Response(data=response_data, status=status.HTTP_201_CREATED)
-        print(serializer.errors)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        response_data['response'] = consts.CREATE_ERROR
+        response_data['errors'] = serializer.errors
+        return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST', ])
@@ -81,8 +85,9 @@ def api_withdraw_by_partidos_ids_view(request):
             response_data = get_movement_as_response_data(movement)
             response_data['response'] = consts.CREATE_SUCCESS
             return Response(data=response_data, status=status.HTTP_201_CREATED)
-        print(serializer.errors)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        response_data['response'] = consts.CREATE_ERROR
+        response_data['errors'] = serializer.errors
+        return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST', ])
@@ -98,8 +103,27 @@ def api_withdraw_by_zones_ids_view(request):
             response_data = get_movement_as_response_data(movement)
             response_data['response'] = consts.CREATE_SUCCESS
             return Response(data=response_data, status=status.HTTP_201_CREATED)
-        print(serializer.errors)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        response_data['response'] = consts.CREATE_ERROR
+        response_data['errors'] = serializer.errors
+        return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST', ])
+@permission_classes((IsAuthenticated,))
+def api_withdraw_by_clients_ids_view(request):
+    if request.method == 'POST':
+        data = request.data.copy()
+        data['created_by'] = request.user.pk
+        serializer = WithdrawByClientsIdsSerializer(data=data)
+        response_data = {}
+        if serializer.is_valid():
+            movement = serializer.save()
+            response_data = get_movement_as_response_data(movement)
+            response_data['response'] = consts.CREATE_SUCCESS
+            return Response(data=response_data, status=status.HTTP_201_CREATED)
+        response_data['response'] = consts.CREATE_ERROR
+        response_data['errors'] = serializer.errors
+        return Response(response_data, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST', ])

@@ -19,5 +19,4 @@ class BaseListAPIView(ListAPIView):
             filters = self.extra_filters
         if self.id_in_url_kwarg is not None and self.query_filter is not None:
             filters[self.query_filter] = self.kwargs.get(self.id_in_url_kwarg)
-        print(queryset.filter(**filters).distinct())
         return queryset.filter(**filters).distinct()

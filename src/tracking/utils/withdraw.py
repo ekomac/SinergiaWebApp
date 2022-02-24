@@ -161,6 +161,34 @@ def withdraw_by_partidos_ids(
     return movement
 
 
+def withdraw_by_clients_ids(
+    author: Account,
+    from_deposit: Deposit,
+    to_carrier: Account,
+    *clients_ids
+) -> TrackingMovement:
+    """
+    Performs a withdraw action, creating a movement and updating
+    the envio's status. The withdraw is performed for all envios
+    which's client id is given.
+
+    Args:
+        author (Account): the Account performing the action.
+        from_deposit (Deposit): the Deposit where the envios will be
+        deposited.
+        to_carrier (Account): the Account that will withdraw the envios.
+        client_ids (Tuple[int]): the ids of the clients to use to filter.
+
+    Returns:
+        TrackingMovement: the created movement.
+    """
+    movement = create_withdraw_movement(
+        author, from_deposit, to_carrier,
+        TrackingMovement.LABEL_BY_PARTIDOS_IDS)
+    add_and_udpate_envios(movement, client__pk__in=clients_ids)
+    return movement
+
+
 def withdraw_by_zones_ids(
     author: Account,
     from_deposit: Deposit,

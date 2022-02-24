@@ -6,6 +6,7 @@ from tracking.api.withdraw.views import (
     api_withdraw_by_partidos_ids_view,
     api_withdraw_by_towns_ids_view,
     api_withdraw_by_zones_ids_view,
+    api_withdraw_by_clients_ids_view,
     api_envios_for_withdraw_preview,
 )
 from tracking.api.deposit.views import (
@@ -47,6 +48,9 @@ urlpatterns = [
 
     path('withdraw/by-zones-ids/', api_withdraw_by_zones_ids_view,
          name="api-withdraw-by-zone"),
+
+    path('withdraw/by-clients-ids/', api_withdraw_by_clients_ids_view,
+         name="api-withdraw-by-clients"),
 
     path('withdraw/preview/', api_envios_for_withdraw_preview,
          name="api-withdraw-preview"),

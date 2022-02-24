@@ -77,6 +77,7 @@ urlpatterns = [
 
     # REST API
     path('api/account/', include('account.api.urls')),
+    path('api/clients/', include('clients.api.urls', 'clients_api')),
     path('api/deposit/', include('deposit.api.urls', 'deposit_api')),
     path('api/envios/', include('envios.api.urls', 'envios_api')),
     path('api/places/', include('places.api.urls', 'places_api')),

@@ -57,3 +57,7 @@ class ApiEnvioListOfCarrierView(ListAPIView):
         if carrier_pk is None:
             raise Http404("Carrier not found")
         return Envio.objects.filter(carrier__id=carrier_pk).distinct()
+
+
+class ApiEnviosDeliveredByCarrier(ListAPIView):
+    queryset = Envio.objects.all()

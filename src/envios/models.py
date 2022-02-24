@@ -76,6 +76,8 @@ class Envio(Receiver):
     STATUS_STILL_TEXT = 'En depósito'
     STATUS_DELIVERED = 'D'
     STATUS_DELIVERED_TEXT = 'Entregado'
+    STATUS_RETURNED = 'R'
+    STATUS_RETURNED_TEXT = 'Devuelto'
 
     SCHEDULE_INDEX_7_10 = '07-10'
     SCHEDULE_PHRASE_7_10 = '7 a 10 h'
@@ -91,6 +93,7 @@ class Envio(Receiver):
         (STATUS_MOVING, STATUS_MOVING_TEXT),
         (STATUS_STILL, STATUS_STILL_TEXT),
         (STATUS_DELIVERED, STATUS_DELIVERED_TEXT),
+        (STATUS_RETURNED, STATUS_RETURNED_TEXT),
     ]
 
     SCHEDULES = [

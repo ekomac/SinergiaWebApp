@@ -1,10 +1,12 @@
 from rest_framework import serializers
+from clients.models import Client
 
 from envios.models import Envio
 from places.models import Partido, Town, Zone
 from tracking.models import TrackingMovement
 from tracking.utils.withdraw import (
     withdraw_all,
+    withdraw_by_clients_ids,
     withdraw_by_envios_tracking_ids,
     withdraw_by_partidos_ids,
     withdraw_by_towns_ids,
@@ -231,6 +233,46 @@ class WithdrawByZonesIdsSerializer(BaseWithdrawSerializer):
             author, from_deposit, to_carrier, *zones_ids)
 
 
+class WithdrawByClientsIdsSerializer(BaseWithdrawSerializer):
+
+    partidos_ids = serializers.ListField(
+        child=serializers.IntegerField(min_value=0),
+        write_only=True, allow_empty=False)
+
+    class Meta:
+        model = TrackingMovement
+        fields = ('created_by', 'from_deposit', 'to_carrier', 'clients_ids',)
+        extra_kwargs = {
+            'created_by': {'required': True, },
+            'from_deposit': {'required': True, },
+            'carrto_carrierier': {'required': True, },
+            'clients_ids': {'required': True, },
+        }
+
+    def extra_validation_check(self, data):
+        clients_ids = data['clients_ids']
+        from_deposit = data['from_deposit']
+        pk = from_deposit.pk
+        clients_ids_on_deposit = Client.objects.filter(
+            envio__deposit__id=pk,
+            envio__status__in=self.statuses,
+        ).values_list('id', flat=True).distinct()
+        if not set(clients_ids).issubset(clients_ids_on_deposit):
+            msg = (
+                "Some of the Clients with given ids %s don't exist or"
+                "don't reach out to Envíos at Deposit with id=%s."
+            ) % (clients_ids, pk)
+            raise serializers.ValidationError({"response": msg})
+
+    def save(self):
+        author = self.validated_data['created_by']
+        from_deposit = self.validated_data['from_deposit']
+        to_carrier = self.validated_data['to_carrier']
+        clients_ids = self.validated_data['clients_ids']
+        return withdraw_by_clients_ids(
+            author, from_deposit, to_carrier, *clients_ids)
+
+
 class EnviosToWithdrawFilteredRequestSerializer(serializers.ModelSerializer):
 
     envios_tracking_ids = serializers.ListField(
@@ -242,6 +284,9 @@ class EnviosToWithdrawFilteredRequestSerializer(serializers.ModelSerializer):
     towns_ids = serializers.ListField(
         child=serializers.IntegerField(), allow_empty=True, required=False)
 
+    clients_ids = serializers.ListField(
+        child=serializers.IntegerField(), allow_empty=True, required=False)
+
     class Meta:
         model = TrackingMovement
         fields = (
@@ -249,12 +294,14 @@ class EnviosToWithdrawFilteredRequestSerializer(serializers.ModelSerializer):
             'envios_tracking_ids',
             'partidos_ids',
             'towns_ids',
+            'clients_ids',
         )
         extra_kwargs = {
             'from_deposit': {'required': True, },
             'envios_tracking_ids': {'required': False, },
             'partidos_ids': {'required': False, },
             'towns_ids': {'required': False, },
+            'clients_ids': {'required': False, },
         }
 
     def parse_envio_data(self, envio) -> dict:
@@ -284,6 +331,10 @@ class EnviosToWithdrawFilteredRequestSerializer(serializers.ModelSerializer):
         towns_ids = self.validated_data.get('towns_ids', None)
         if towns_ids is not None:
             filters['town__id__in'] = towns_ids
+        envios = Envio.objects.filter(**filters).distinct()
+        clients_ids = self.validated_data.get('towns_ids', None)
+        if clients_ids is not None:
+            filters['client__id__in'] = clients_ids
         envios = Envio.objects.filter(**filters).distinct()
         return {
             'envios': [self.parse_envio_data(envio) for envio in envios],
