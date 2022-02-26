@@ -4,6 +4,7 @@
 .vscode/
 .session.sql
 *.session.sql
+/.VSCodeCounter
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

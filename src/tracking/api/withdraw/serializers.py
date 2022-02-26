@@ -235,7 +235,7 @@ class WithdrawByZonesIdsSerializer(BaseWithdrawSerializer):
 
 class WithdrawByClientsIdsSerializer(BaseWithdrawSerializer):
 
-    partidos_ids = serializers.ListField(
+    clients_ids = serializers.ListField(
         child=serializers.IntegerField(min_value=0),
         write_only=True, allow_empty=False)
 
@@ -332,7 +332,7 @@ class EnviosToWithdrawFilteredRequestSerializer(serializers.ModelSerializer):
         if towns_ids is not None:
             filters['town__id__in'] = towns_ids
         envios = Envio.objects.filter(**filters).distinct()
-        clients_ids = self.validated_data.get('towns_ids', None)
+        clients_ids = self.validated_data.get('clients_ids', None)
         if clients_ids is not None:
             filters['client__id__in'] = clients_ids
         envios = Envio.objects.filter(**filters).distinct()
