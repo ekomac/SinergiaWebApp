@@ -8,6 +8,9 @@ from places.api.views import (
     ApiTownsAtCarrierListView,
     ApiPartidosAtCarrierListView,
     ApiZonesAtCarrierListView,
+
+    ApiTownsAtCarrierWithClientFromDepositListView,
+    ApiPartidosAtCarrierWithClientFromDepositListView,
 )
 
 app_name = 'places-api'
@@ -45,5 +48,18 @@ urlpatterns = [
         'zones-at-carrier/<int:carrier_id>/',
         ApiZonesAtCarrierListView.as_view(),
         name="zones-at-carrier"
+    ),
+
+
+    # AT CARRIER WITH DEPOSIT
+    path(
+        'towns-at-carrier-with-deposit/<int:carrier_id>/',
+        ApiTownsAtCarrierWithClientFromDepositListView.as_view(),
+        name="towns-at-carrier"
+    ),
+    path(
+        'partidos-at-carrier-with-deposit/<int:carrier_id>/',
+        ApiPartidosAtCarrierWithClientFromListView.as_view(),
+        name="partidos-at-carrier"
     ),
 ]

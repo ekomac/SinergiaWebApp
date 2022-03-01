@@ -63,6 +63,7 @@ class ObtainAuthTokenView(APIView):
         else:
             data['response'] = 'Error'
             data['error_message'] = ERROR_INVALID_PASSWORD
+        print(data)
         return Response(data)
 
 
@@ -77,7 +78,11 @@ def api_account_properties_view(request):
 
     if request.method == 'GET':
         serializer = AccountPropertiesSerializer(account)
-        return Response(serializer.data)
+        data = serializer.data
+        data["permission"] = account.groups.first().name
+        data["profile_picture_url"] = request.build_absolute_uri(
+            account.profile_picture.url) if account.profile_picture else None
+        return Response(data)
 
 
 @api_view(['GET', ])

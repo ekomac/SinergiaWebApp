@@ -1,3 +1,4 @@
+from deposit.models import Deposit
 from envios.models import Envio
 from places.models import Partido, Town, Zone
 from places.api.serializers import (
@@ -48,6 +49,32 @@ class ApiTownsAtCarrierListView(BaseListAPIView):
     }
 
 
+class ApiTownsAtCarrierWithClientFromDepositListView(BaseListAPIView):
+    queryset = Town.objects.all()
+    serializer_class = TownSerializer
+    id_in_url_kwarg = 'carrier_id'
+    query_filter = 'destination__receiver__envio__carrier__id'
+    extra_filters = {
+        'destination__receiver__envio__status': Envio.STATUS_MOVING,
+    }
+
+    def get_queryset(self):
+        request = self.request
+        deposit_param = request.query_params.get('deposit_id')
+        deposit = Deposit.objects.get(id=deposit_param)
+        client = deposit.client
+        queryset = super(BaseListAPIView, self).get_queryset()
+        filters = {
+            'client__id': client.id,
+        }
+        if (self.extra_filters is not None and
+                isinstance(self.extra_filters, dict)):
+            filters = self.extra_filters
+        if self.id_in_url_kwarg is not None and self.query_filter is not None:
+            filters[self.query_filter] = self.kwargs.get(self.id_in_url_kwarg)
+        return queryset.filter(**filters).distinct()
+
+
 class ApiPartidosAtCarrierListView(BaseListAPIView):
     queryset = Partido.objects.all()
     serializer_class = PartidoSerializer
@@ -56,6 +83,32 @@ class ApiPartidosAtCarrierListView(BaseListAPIView):
     extra_filters = {
         'town__destination__receiver__envio__status': Envio.STATUS_MOVING,
     }
+
+
+class ApiPartidosAtCarrierWithClientFromDepositListView(BaseListAPIView):
+    queryset = Partido.objects.all()
+    serializer_class = PartidoSerializer
+    id_in_url_kwarg = 'carrier_id'
+    query_filter = 'town__destination__receiver__envio__carrier__id'
+    extra_filters = {
+        'town__destination__receiver__envio__status': Envio.STATUS_MOVING,
+    }
+
+    def get_queryset(self):
+        request = self.request
+        deposit_param = request.query_params.get('deposit_id')
+        deposit = Deposit.objects.get(id=deposit_param)
+        client = deposit.client
+        queryset = super(BaseListAPIView, self).get_queryset()
+        filters = {
+            'client__id': client.id,
+        }
+        if (self.extra_filters is not None and
+                isinstance(self.extra_filters, dict)):
+            filters = self.extra_filters
+        if self.id_in_url_kwarg is not None and self.query_filter is not None:
+            filters[self.query_filter] = self.kwargs.get(self.id_in_url_kwarg)
+        return queryset.filter(**filters).distinct()
 
 
 class ApiZonesAtCarrierListView(BaseListAPIView):

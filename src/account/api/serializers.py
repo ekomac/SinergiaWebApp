@@ -52,6 +52,7 @@ class AccountPropertiesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = (
+            'pk',
             'profile_picture_url',
             'full_name',
             'email',
