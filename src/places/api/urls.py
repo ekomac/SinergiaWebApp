@@ -59,7 +59,7 @@ urlpatterns = [
     ),
     path(
         'partidos-at-carrier-with-deposit/<int:carrier_id>/',
-        ApiPartidosAtCarrierWithClientFromListView.as_view(),
+        ApiPartidosAtCarrierWithClientFromDepositListView.as_view(),
         name="partidos-at-carrier"
     ),
 ]
