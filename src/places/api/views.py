@@ -60,8 +60,8 @@ class ApiTownsAtCarrierWithClientFromDepositListView(BaseListAPIView):
 
     def get_queryset(self):
         request = self.request
-        deposit_param = request.query_params.get('deposit_id')
-        deposit = Deposit.objects.get(id=deposit_param)
+        deposit_pk = request.query_params.get('deposit_id')
+        deposit = Deposit.objects.get(id=deposit_pk)
         client = deposit.client
         queryset = super(BaseListAPIView, self).get_queryset()
         filters = {
@@ -96,8 +96,8 @@ class ApiPartidosAtCarrierWithClientFromDepositListView(BaseListAPIView):
 
     def get_queryset(self):
         request = self.request
-        deposit_param = request.query_params.get('deposit_id')
-        deposit = Deposit.objects.get(id=deposit_param)
+        deposit_pk = request.query_params.get('deposit_id')
+        deposit = Deposit.objects.get(id=deposit_pk)
         client = deposit.client
         queryset = super(BaseListAPIView, self).get_queryset()
         filters = {

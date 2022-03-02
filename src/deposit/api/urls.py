@@ -5,6 +5,7 @@ from deposit.api.views import (
     ApiDepositWithEnviosListView,
     ApiOwnDepositsListView,
     api_detail_deposit_view,
+    ApiDepositForEnviosWithCarrierListView,
 )
 
 app_name = 'deposit-api'
@@ -16,4 +17,6 @@ urlpatterns = [
     path('own/', ApiOwnDepositsListView.as_view(),
          name="own"),
     path('<int:pk>/', api_detail_deposit_view, name="detail"),
+    path('for-envios-with-carrier/<int:carrier_pk>/',
+         ApiDepositForEnviosWithCarrierListView.as_view(), name="detail"),
 ]

@@ -17,6 +17,13 @@ from tracking.api.deposit.views import (
     api_deposit_by_zones_ids_view,
     api_envios_for_deposit_preview,
 )
+from tracking.api.devolver.views import (
+    api_devolver_all_view,
+    api_devolver_by_envios_ids_view,
+    api_devolver_by_towns_ids_view,
+    api_devolver_by_partidos_ids_view,
+    api_envios_for_devolver_preview,
+)
 from tracking.api.transfer.views import (
     api_transfer_all_view,
     api_transfer_by_envios_ids_view,
@@ -74,6 +81,23 @@ urlpatterns = [
 
     path('deposit/preview/', api_envios_for_deposit_preview,
          name="api-deposit-preview"),
+
+
+
+    path('devolver/all/', api_devolver_all_view,
+         name="api-devolver-all"),
+
+    path('devolver/by-envios-ids/', api_devolver_by_envios_ids_view,
+         name="api-devolver-ids"),
+
+    path('devolver/by-towns-ids/', api_devolver_by_towns_ids_view,
+         name="api-devolver-by-town"),
+
+    path('devolver/by-partidos-ids/', api_devolver_by_partidos_ids_view,
+         name="api-devolver-by-partido"),
+
+    path('devolver/preview/', api_envios_for_devolver_preview,
+         name="api-devolver-preview"),
 
 
     path('transfer/all/', api_transfer_all_view,

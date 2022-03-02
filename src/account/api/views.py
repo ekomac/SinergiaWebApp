@@ -43,6 +43,9 @@ class ObtainAuthTokenView(APIView):
         account = authenticate(email=email, password=password)
         if account:
             try:
+                token = Token.objects.filter(user=account)
+                new_key = token[0].generate_key()
+                token.update(key=new_key)
                 token = Token.objects.get(user=account)
             except Token.DoesNotExist:
                 token = Token.objects.create(user=account)

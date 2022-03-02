@@ -18,12 +18,14 @@ class TrackingMovement(models.Model):
     ACTION_DEPOSIT = "DP"
     ACTION_DELIVERY_ATTEMPT = 'DA'
     ACTION_TRANSFER = 'TR'
+    ACTION_RETURN = "RE"
     ACTIONS = [
         (ACTION_ADDED_TO_SYSTEM, "Carga en sistema"),
         (ACTION_COLLECTION, "Recolección"),
         (ACTION_DEPOSIT, "Depósito"),
         (ACTION_DELIVERY_ATTEMPT, "Intento de entrega"),
         (ACTION_TRANSFER, "Transferencia"),
+        (ACTION_RETURN, "Devolución"),
     ]
 
     RESULT_ADDED_TO_SYSTEM = '_new'
@@ -35,6 +37,7 @@ class TrackingMovement(models.Model):
     RESULT_REPROGRAMED = 'reprogram'
     RESULT_NO_ANSWER = 'not-respond'
     RESULT_OTHER = 'custom'
+    RESULT_RETURNED = "returned"
     RESULTS = [
         (RESULT_ADDED_TO_SYSTEM, 'Agregado al sistema'),
         (RESULT_IN_DEPOSIT, 'En depósito'),
@@ -45,6 +48,7 @@ class TrackingMovement(models.Model):
         (RESULT_TRANSFERED, 'Transferido'),
         (RESULT_COLLECTED, 'Recolectado'),
         (RESULT_OTHER, 'Otro'),
+        (RESULT_RETURNED, 'Devuelto'),
     ]
 
     LABEL_ALL = 'all'
@@ -54,10 +58,10 @@ class TrackingMovement(models.Model):
     LABEL_BY_ZONES_IDS = 'by_zones_ids'
     LABEL = [
         (LABEL_ALL, 'Todos'),
-        (LABEL_BY_ENVIOS_IDS, 'By envíos'),
-        (LABEL_BY_TOWNS_IDS, 'By towns'),
-        (LABEL_BY_PARTIDOS_IDS, 'By partidos'),
-        (LABEL_BY_ZONES_IDS, 'By zonas'),
+        (LABEL_BY_ENVIOS_IDS, 'por envíos'),
+        (LABEL_BY_TOWNS_IDS, 'por localidades'),
+        (LABEL_BY_PARTIDOS_IDS, 'por partidos'),
+        (LABEL_BY_ZONES_IDS, 'por zonas'),
     ]
 
     envios = models.ManyToManyField(
