@@ -9,9 +9,16 @@ def get_movement_as_response_data(movement: TrackingMovement, *args, **kwargs):
             'created_by': {
                 'pk': movement.created_by.pk,
                 'username': movement.created_by.username,
+                'full_name': movement.created_by.full_name,
+                'email': movement.created_by.email,
             },
-            'action': movement.get_action_display(),
-            'result': movement.get_result_display(),
+            'action': {
+                'key': movement.action,
+                'display': movement.get_action_display(), },
+            'result': {
+                'key': movement.result,
+                'display': movement.get_result_display(),
+            },
             'envios_count': movement.envios.count(),
         }
     }
