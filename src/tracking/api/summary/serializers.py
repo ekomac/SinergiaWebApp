@@ -16,6 +16,7 @@ class TrackingMovementSerializer(serializers.ModelSerializer):
         context.update({"request": self.request})
         return context
 
+    created_by = serializers.SerializerMethodField('get_created_by')
     from_carrier = serializers.SerializerMethodField('get_from_carrier')
     to_carrier = serializers.SerializerMethodField('get_to_carrier')
     from_deposit = serializers.SerializerMethodField('get_from_deposit')
@@ -33,7 +34,7 @@ class TrackingMovementSerializer(serializers.ModelSerializer):
     class Meta:
         model = TrackingMovement
         fields = (
-            'id',
+            'pk',
             'created_by',
             'date_created',
             'date_created_timestamp',
