@@ -22,7 +22,7 @@ class TrackingMovementsForCarrierListView(ListAPIView):
     def get_queryset(self):
         queryset = super(
             TrackingMovementsForCarrierListView, self).get_queryset()
-        carrier_pk = self.kwargs.get('carrier_id', None)
+        carrier_pk = self.kwargs.get('carrier_pk', None)
         if carrier_pk is not None:
             queryset = queryset.filter(
                 Q(from_carrier__id=carrier_pk) | Q(to_carrier__id=carrier_pk),

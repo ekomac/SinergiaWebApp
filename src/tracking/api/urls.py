@@ -1,13 +1,8 @@
 
 from django.urls import path
-from tracking.api.withdraw.views import (
-    api_withdraw_all_view,
-    api_withdraw_by_envios_ids_view,
-    api_withdraw_by_partidos_ids_view,
-    api_withdraw_by_towns_ids_view,
-    api_withdraw_by_zones_ids_view,
-    api_withdraw_by_clients_ids_view,
-    api_envios_for_withdraw_preview,
+from tracking.api.deliver.views import (
+    api_delivery_attempt_view,
+    api_post_successfull_delivery_view
 )
 from tracking.api.deposit.views import (
     api_deposit_all_view,
@@ -24,6 +19,7 @@ from tracking.api.devolver.views import (
     api_devolver_by_partidos_ids_view,
     api_envios_for_devolver_preview,
 )
+from tracking.api.summary.views import TrackingMovementsForCarrierListView
 from tracking.api.transfer.views import (
     api_transfer_all_view,
     api_transfer_by_envios_ids_view,
@@ -32,9 +28,14 @@ from tracking.api.transfer.views import (
     api_transfer_by_zones_ids_view,
     api_envios_for_transfer_preview,
 )
-from tracking.api.deliver.views import (
-    api_delivery_attempt_view,
-    api_post_successfull_delivery_view
+from tracking.api.withdraw.views import (
+    api_withdraw_all_view,
+    api_withdraw_by_envios_ids_view,
+    api_withdraw_by_partidos_ids_view,
+    api_withdraw_by_towns_ids_view,
+    api_withdraw_by_zones_ids_view,
+    api_withdraw_by_clients_ids_view,
+    api_envios_for_withdraw_preview,
 )
 
 app_name = 'tracking'
@@ -124,4 +125,9 @@ urlpatterns = [
 
     path('deliver/success/', api_post_successfull_delivery_view,
          name="api-post-successfull-delivery"),
+
+
+    path('summary/<int:carrier_pk>/',
+         TrackingMovementsForCarrierListView.as_view(),
+         name="tracking-summary-list"),
 ]
