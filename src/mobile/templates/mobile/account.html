@@ -1,0 +1,78 @@
+{% extends 'base_app.html' %}
+
+{% load static %}
+
+
+{% block thumbnail_menu_item %}
+
+<img class="me-3" src="{% static 'sinergia-software-logo.svg' %}" width="20" height="20" alt="">
+
+{% endblock thumbnail_menu_item %}
+
+{% block nav_items %}
+<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+<li class="breadcrumb-item active" aria-current="page">Cuenta</li>
+{% endblock nav_items %}
+
+{% block optional_subheader %}
+<div class="p-3 mb-0 d-flex flex-row">
+    <div class="">
+        {% if request.user.profile_picture %}
+        <img src="{{request.user.profile_picture.url}}" alt="Avatar" width="48" height="48" class="rounded-circle me-2">
+        {% else %}
+        <img src="{% static 'default_account.png' %}" style="background-color: white;" alt="Avatar" width="48"
+            height="48" class="rounded-circle me-2">
+        {% endif %}
+    </div>
+    <div>
+        <h5 class="font-weight-bold mb-0">{{request.user.full_name}}</h5>
+        <p class="text-muted mb-0">{{request.user.email}}</p>
+    </div>
+</div>
+{% endblock optional_subheader %}
+
+{% block content %}
+
+<style>
+    .menu-item {
+        background-color: #FFFFFF00;
+    }
+
+    .menu-item:hover {
+        background-color: #EEEEEE;
+    }
+</style>
+
+
+<ul class="list-group list-group-flush">
+    <li class="list-group-item menu-item" onclick="location.href='{% url 'baseapp-account-change-password' %}'"
+        style="cursor: pointer;">
+        <div class="d-inline-flex justify-content-start align-items-center">
+            <img src="{% static 'res/images/settings.png' %}" width="65" height="65" alt="">
+            <div class="d-flex flex-column align-items-top p-3">
+                <h3 style="color: rgb(90,90,90);">Cambiar contraseña</h3>
+            </div>
+        </div>
+    </li>
+    <li class="list-group-item menu-item" onclick="logout();" style="cursor: pointer;">
+        <div class="d-inline-flex justify-content-start align-items-center">
+            <img src="{% static 'res/images/exit.png' %}" width="65" height="65" alt="">
+            <div class="d-flex flex-column align-items-top p-3">
+                <h3 style="color: rgb(90,90,90);">Salir</h3>
+                <div>Cerrar sesión</div>
+            </div>
+        </div>
+    </li>
+</ul>
+
+<script>
+    function logout() {
+        if (confirm("¿Está seguro de cerrar sesión?") == true) {
+            window.location.href = "{% url 'logout' %}";
+        } else {
+            console.log("You canceled!");
+        }
+    }
+</script>
+
+{% endblock content %}

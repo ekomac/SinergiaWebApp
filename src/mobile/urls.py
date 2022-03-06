@@ -1,5 +1,5 @@
 from django.urls import path
-from home.views import (
+from mobile.views import (
     mobile_account_view,
     mobile_based_tracking_actions_view,
 )

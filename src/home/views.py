@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.db.models.aggregates import Count
 from django.db.models.query import QuerySet
+from django.http import Http404
 from django.http.response import HttpResponse, HttpResponseNotAllowed
 from django.shortcuts import render
 
@@ -19,47 +20,55 @@ from account.decorators import allowed_users
 from clients.models import Client
 from envios.models import Envio
 from tracking.models import TrackingMovement
+from mobile.views import mobile_based_tracking_actions_view
 # from account.models import Account
 
 
 @login_required(login_url='/login/')
 def redirect_no_url(request):
-    return mobile_based_tracking_actions_view(request)
+    if request.user.is_authenticated:
+        if request.user.groups.filter(name='Admins').exists():
+            return admin_home_screen_view(request)
+        elif request.user.groups.filter(
+                name__in=['Level 1', 'Level 2']).exists():
+            return mobile_based_tracking_actions_view(request)
+        elif request.user.groups.filter(name='Clients').exists():
+            return clients_index_view(request)
+    return Http404()
 
 
-@login_required(login_url='/login/')
-@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
-def mobile_based_tracking_actions_view(request) -> HttpResponse:
-    """
-    Renders the app's index view.
-    """
-    context = {}
-    is_carrier = request.user.envios_carried_by.count() > 0
-    can_transfer_any = request.user.groups.filter(
-        name__in=["Admins", "Level 1"]).exists()
-    # If user is carrying something, he can transfer it
-    if is_carrier:
-        print("is carrier")
-        context['user_can_transfer'] = True
-    # If user is not carrying anything, he can transfer
-    # anything if he is an admin or a tier 1 employee
-    elif not is_carrier and can_transfer_any:
-        context['user_can_transfer'] = True
-    else:
-        context['user_can_transfer'] = False
-    return render(request, 'baseapp_index.html', context)
+# @login_required(login_url='/login/')
+# @allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
+# def mobile_based_tracking_actions_view(request) -> HttpResponse:
+#     """
+#     Renders the app's index view.
+#     """
+#     context = {}
+#     is_carrier = request.user.envios_carried_by.count() > 0
+#     can_transfer_any = request.user.groups.filter(
+#         name__in=["Admins", "Level 1"]).exists()
+#     # If user is carrying something, he can transfer it
+#     if is_carrier:
+#         print("is carrier")
+#         context['user_can_transfer'] = True
+#     # If user is not carrying anything, he can transfer
+#     # anything if he is an admin or a tier 1 employee
+#     elif not is_carrier and can_transfer_any:
+#         context['user_can_transfer'] = True
+#     else:
+#         context['user_can_transfer'] = False
+#     return render(request, 'baseapp_index.html', context)
 
 
-@login_required(login_url='/login/')
-@allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
-def mobile_account_view(request) -> HttpResponse:
-    return render(request, 'baseapp_account.html', {})
+# @login_required(login_url='/login/')
+# @allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
+# def mobile_account_view(request) -> HttpResponse:
+#     return render(request, 'baseapp_account.html', {})
 
 
 @login_required(login_url='/login/')
 @allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
 def app_account_change_password_view(request) -> HttpResponse:
-
     return render(request, 'baseapp_account_change_password.html', {})
 
 
@@ -87,6 +96,12 @@ def admin_home_screen_view(request):
         'carriers_with_envios': [],
     }
     return render(request, 'home.html', context)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Clients"])
+def clients_index_view(request):
+    return "Hello"
 
 
 def get_clients_with_envios_queryset() -> QuerySet:

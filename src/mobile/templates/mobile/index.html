@@ -1,0 +1,92 @@
+{% extends 'base_app.html' %}
+
+{% load static %}
+
+
+{% block thumbnail_menu_item %}
+
+<img class="me-3" src="{% static 'sinergia-software-logo.svg' %}" width="20" height="20" alt="">
+
+{% endblock thumbnail_menu_item %}
+
+{% block nav_items %}
+<li class="breadcrumb-item active" aria-current="page">Inicio</li>
+{% endblock nav_items %}
+
+{% block content %}
+
+<style>
+    .menu-item {
+        background-color: #FFFFFF00;
+    }
+
+    .menu-item:hover {
+        background-color: #EEEEEE;
+    }
+</style>
+
+
+<ul class="list-group list-group-flush">
+    <li class="list-group-item menu-item" onclick="location.href='{% url 'admin-home' %}'" style="cursor: pointer;">
+        <div class="d-inline-flex justify-content-start align-items-center">
+            <img src="{% static 'res/images/administration.png' %}" width="65" height="65" alt="">
+            <div class="d-flex flex-column align-items-top p-3">
+                <h3 style="color: rgb(90,90,90);">Administración</h3>
+                <div>Paneles de control del negocio</div>
+            </div>
+        </div>
+    </li>
+    <li class="list-group-item menu-item" onclick="location.href='{% url 'mobile-withdraw:index' %}'"
+        style="cursor: pointer;">
+        <div class="d-inline-flex justify-content-start align-items-center">
+            <img src="{% static 'res/images/withdraw-at-origin.png' %}" width="65" height="65" alt="">
+            <div class="d-flex flex-column align-items-top p-3">
+                <h3 style="color: rgb(90,90,90);">Retirar</h3>
+                <div>Recolección de paquetes de depósitos</div>
+            </div>
+        </div>
+    </li>
+    <li class="list-group-item menu-item" onclick="location.href='{% url 'mobile-deposit:index' %}'"
+        style="cursor: pointer;">
+        <div class="d-inline-flex justify-content-start align-items-center">
+            <img src="{% static 'res/images/deposit.png' %}" width="65" height="65" alt="">
+            <div class="d-flex flex-column align-items-top p-3">
+                <h3 style="color: rgb(90,90,90);">Depositar</h3>
+                <div>Gestión centralizada de envíos</div>
+            </div>
+        </div>
+    </li>
+    {% if user_can_transfer %}
+    <li class="list-group-item menu-item" onclick="location.href='{% url 'mobile-transfer:index' %}'"
+        style="cursor: pointer;">
+        <div class="d-inline-flex justify-content-start align-items-center">
+            <img src="{% static 'res/images/transfer.png' %}" width="65" height="65" alt="">
+            <div class="d-flex flex-column align-items-top p-3">
+                <h3 style="color: rgb(90,90,90);">Transferir</h3>
+                <div>Para intermediarios, que pasan la posta</div>
+            </div>
+        </div>
+    </li>
+    {% endif %}
+    <li class="list-group-item menu-item" onclick="location.href='{% url 'mobile-deliver:scan' %}'"
+        style="cursor: pointer;">
+        <div class="d-inline-flex justify-content-start align-items-center">
+            <img src="{% static 'res/images/deliver.png' %}" width="65" height="65" alt="">
+            <div class="d-flex flex-column align-items-top p-3">
+                <h3 style="color: rgb(90,90,90);">Entregar</h3>
+                <div>Registrar un intento de entrega</div>
+            </div>
+        </div>
+    </li>
+    <li class="list-group-item menu-item" onclick="location.href='{% url 'mobile:account' %}'" style="cursor: pointer;">
+        <div class="d-inline-flex justify-content-start align-items-center">
+            <img src="{% static 'res/images/account.png' %}" width="65" height="65" alt="">
+            <div class="d-flex flex-column align-items-top p-3">
+                <h3 style="color: rgb(90,90,90);">Cuenta</h3>
+                <div>{{ request.user.email }}</div>
+            </div>
+        </div>
+    </li>
+</ul>
+
+{% endblock content %}
