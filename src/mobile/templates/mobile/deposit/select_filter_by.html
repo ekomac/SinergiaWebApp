@@ -9,12 +9,12 @@
 {% endblock thumbnail_menu_item %}
 
 {% block nav_items %}
-<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_deposit:index' %}">Depositar</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_deposit:select-deposit' carrier.pk %}">{{ carrier.username }}</a>
+<li class="breadcrumb-item"><a href="{% url 'mobile:index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-deposit:index' %}">Depositar</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-deposit:select-deposit' carrier.pk %}">{{ carrier.username }}</a>
 </li>
 <li class="breadcrumb-item"><a
-        href="{% url 'app_deposit:carrier' carrier_pk=carrier.pk deposit_pk=deposit.pk %}">{{ deposit.name }}</a>
+        href="{% url 'mobile-deposit:carrier' carrier_pk=carrier.pk deposit_pk=deposit.pk %}">{{ deposit.name }}</a>
 <li class="breadcrumb-item active" aria-current="page">Filtros</li>
 {% endblock nav_items %}
 
@@ -39,7 +39,7 @@
 {% block content %}
 <ul class="list-group list-group-flush bg-white">
     <li class="list-group-item list-menu-item p-3"
-        onclick="onItemClick('{% url 'app_deposit:confirm-filtered' carrier.pk deposit.pk %}','zone')"
+        onclick="onItemClick('{% url 'mobile-deposit:confirm-filtered' carrier.pk deposit.pk %}','zone')"
         style="cursor: pointer;">
         <div class="d-flex flex-row justify-content-between align-items-center my-2">
             <div class="d-flex flex-column justify-content-center align-items-bottom">
@@ -49,7 +49,7 @@
         </div>
     </li>
     <li class="list-group-item list-menu-item p-3"
-        onclick="onItemClick('{% url 'app_deposit:confirm-filtered' carrier.pk deposit.pk %}','partido')"
+        onclick="onItemClick('{% url 'mobile-deposit:confirm-filtered' carrier.pk deposit.pk %}','partido')"
         style="cursor: pointer;">
         <div class="d-flex flex-row justify-content-between align-items-center my-2">
             <div class="d-flex flex-column justify-content-center align-items-bottom">
@@ -59,7 +59,7 @@
         </div>
     </li>
     <li class="list-group-item list-menu-item p-3"
-        onclick="onItemClick('{% url 'app_deposit:confirm-filtered' carrier.pk deposit.pk %}','town')"
+        onclick="onItemClick('{% url 'mobile-deposit:confirm-filtered' carrier.pk deposit.pk %}','town')"
         style="cursor: pointer;">
         <div class="d-flex flex-row justify-content-between align-items-center my-2">
             <div class="d-flex flex-column justify-content-center align-items-bottom">

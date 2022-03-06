@@ -9,10 +9,10 @@
 {% endblock thumbnail_menu_item %}
 
 {% block nav_items %}
-<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_withdraw:index' %}">Retirar</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_withdraw:deposit' deposit.pk carrier.pk %}">{{deposit.name}}</a></li>
-<li class="breadcrumb-item active"><a href="{% url 'app_withdraw:scan' deposit.pk carrier.pk %}">Escáner</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile:index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-withdraw:index' %}">Retirar</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-withdraw:deposit' deposit.pk carrier.pk %}">{{deposit.name}}</a></li>
+<li class="breadcrumb-item active"><a href="{% url 'mobile-withdraw:scan' deposit.pk carrier.pk %}">Escáner</a></li>
 <li class="breadcrumb-item active" aria-current="page">Envío escaneado</li>
 {% endblock nav_items %}
 

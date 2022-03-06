@@ -1,11 +1,13 @@
-from django.urls import path, include
+from django.urls import path
+from home.views import (
+    mobile_account_view,
+    mobile_based_tracking_actions_view,
+)
 
 
 app_name = 'mobile'
 
 urlpatterns = [
-    path('deliver/', include('mobile.deliver.urls', 'mobile-deliver')),
-    path('deposit/', include('mobile.deposit.urls', 'mobile-deposit')),
-    path('transfer/', include('mobile.transfer.urls', 'mobile-transfer')),
-    path('withdraw/', include('mobile.withdraw.urls', 'mobile-withdraw')),
+    path('', mobile_based_tracking_actions_view, name="index"),
+    path('account/', mobile_account_view, name="account"),
 ]

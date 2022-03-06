@@ -29,7 +29,7 @@ def index_view(request) -> HttpResponse:
     context = {
         'deposits': deposits,
     }
-    return render(request, 'app_withdraw/index.html', context)
+    return render(request, 'mobile/withdraw/index.html', context)
 
 
 @login_required(login_url='/login/')
@@ -44,7 +44,7 @@ def select_carrier_view(request, deposit_pk) -> HttpResponse:
     if not request.user.groups.filter(
             name__in=["Admins", "Level 1"]).exists():
         return redirect(
-            'app_withdraw:deposit', deposit_pk=deposit_pk,
+            'mobile/withdraw:deposit', deposit_pk=deposit_pk,
             carrier_pk=request.user.pk
         )
 
@@ -62,7 +62,7 @@ def select_carrier_view(request, deposit_pk) -> HttpResponse:
     carriers = [json.dumps(carrier, indent=4) for carrier in carriers]
     # Parse the list to JSON for template
     context['carriers'] = json.dumps(carriers)
-    return render(request, 'app_withdraw/select_carrier.html', context)
+    return render(request, 'mobile/withdraw/select_carrier.html', context)
 
 
 @login_required(login_url='/login/')
@@ -73,7 +73,7 @@ def deposit_view(request, deposit_pk, carrier_pk) -> HttpResponse:
     context['deposit'] = deposit
     context['carrier'] = get_object_or_404(Account, pk=carrier_pk)
     context['envios_count'] = deposit.envio_set.count()
-    return render(request, 'app_withdraw/deposit.html', context)
+    return render(request, 'mobile/withdraw/deposit.html', context)
 
 
 @login_required(login_url='/login/')
@@ -97,7 +97,7 @@ def confirm_all_view(request, deposit_pk, carrier_pk) -> HttpResponse:
         )
         msg = 'Los envíos se retiraron correctamente'
         return create_alert_and_redirect(request, msg, 'index')
-    return render(request, 'app_withdraw/confirm_all.html', context)
+    return render(request, 'mobile/withdraw/confirm_all.html', context)
 
 
 @login_required(login_url='/login/')
@@ -110,7 +110,7 @@ def scan_view(request, deposit_pk, carrier_pk) -> HttpResponse:
     envios = Envio.objects.filter(
         status__in=[Envio.STATUS_NEW, Envio.STATUS_STILL], deposit=deposit)
     context['ids'] = "-".join(list(map(lambda x: str(x.pk), envios)))
-    return render(request, 'app_withdraw/scan.html', context)
+    return render(request, 'mobile/withdraw/scan.html', context)
 
 
 @login_required(login_url='/login/')
@@ -138,7 +138,7 @@ def confirm_scanned_view(request, deposit_pk, carrier_pk) -> HttpResponse:
         )
         msg = 'El envío se retiró correctamente'
         return create_alert_and_redirect(request, msg, 'index')
-    return render(request, 'app_withdraw/confirm_scanned.html', context)
+    return render(request, 'mobile/withdraw/confirm_scanned.html', context)
 
 
 @login_required(login_url='/login/')
@@ -149,7 +149,7 @@ def filter_by_view(request, deposit_pk, carrier_pk) -> HttpResponse:
     context['deposit'] = deposit
     context['carrier'] = get_object_or_404(Account, pk=carrier_pk)
     context['envios_count'] = deposit.envio_set.count()
-    return render(request, 'app_withdraw/select_filter_by.html', context)
+    return render(request, 'mobile/withdraw/select_filter_by.html', context)
 
 
 @login_required(login_url='/login/')
@@ -215,7 +215,7 @@ def confirm_filtered_view(request, deposit_pk, carrier_pk) -> HttpResponse:
         )
         msg = 'Los envíos se retiraron correctamente'
         return create_alert_and_redirect(request, msg, 'index')
-    return render(request, 'app_withdraw/confirm_filtered.html', context)
+    return render(request, 'mobile/withdraw/confirm_filtered.html', context)
 
 
 def carriers_as_html_li(deposit_pk, carriers):

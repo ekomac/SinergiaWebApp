@@ -21,8 +21,8 @@ from django.contrib.auth import views as auth_views
 
 
 from home.views import (
-    app_account_view,
-    app_view,
+    # mobile_account_view,
+    # mobile_based_tracking_actions_view,
     admin_home_screen_view,
     delete_alert_from_session,
     redirect_no_url,
@@ -62,18 +62,27 @@ urlpatterns = [
          name='password_change'),
     path('admin/logout/', logout_view, name="logout"),
 
-    # APP
-    path('app/', app_view, name="index"),
-    path('app/account/', app_account_view, name="baseapp-account"),
-    path('app/account/change-password',
-         auth_views.PasswordChangeView.as_view(
-             template_name='baseapp_account_change_password.html'),
-         name="baseapp-account-change-password"),
-    path('app/deliver/', include('app_deliver.urls')),
-    path('app/deposit/', include('app_deposit.urls')),
-    # path('app/tickets/', include('app_tickets.urls')),
-    path('app/transfer/', include('app_transfer.urls')),
-    path('app/withdraw/', include('app_withdraw.urls')),
+    # MOBILE BASED APP
+    path('mobile/', include('mobile.urls', 'mobile')),
+    path('mobile/deliver/',
+         include('mobile.deliver.urls', 'mobile-deliver')),
+    path('mobile/deposit/',
+         include('mobile.deposit.urls', 'mobile-deposit')),
+    path('mobile/transfer/',
+         include('mobile.transfer.urls', 'mobile-transfer')),
+    path('mobile/withdraw/',
+         include('mobile.withdraw.urls', 'mobile-withdraw')),
+    # path('mobile/account/', mobile_account_view, name="baseapp-account"),
+    # path('mobile/')
+    # path('app/account/change-password',
+    #      auth_views.PasswordChangeView.as_view(
+    #          template_name='baseapp_account_change_password.html'),
+    #      name="baseapp-account-change-password"),
+    # path('app/deliver/', include('app_deliver.urls')),
+    # path('app/deposit/', include('app_deposit.urls')),
+    # # path('app/tickets/', include('app_tickets.urls')),
+    # path('app/transfer/', include('app_transfer.urls')),
+    # path('app/withdraw/', include('app_withdraw.urls')),
 
     # REST API
     path('api/account/', include('account.api.urls')),

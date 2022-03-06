@@ -9,8 +9,8 @@
 {% endblock thumbnail_menu_item %}
 
 {% block nav_items %}
-<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_deposit:index' %}">Depositar</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile:index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-deposit:index' %}">Depositar</a></li>
 <li class="breadcrumb-item active" aria-current="page">{{ carrier.username }}</li>
 {% endblock nav_items %}
 
@@ -21,7 +21,7 @@
 <ul class="list-group list-group-flush">
     {% for deposit in deposits %}
     <li class="list-group-item list-group-item-action list-menu-item p-2"
-        onclick="location.href='{% url 'app_deposit:carrier' carrier.pk deposit.pk %}'" style="cursor: pointer;">
+        onclick="location.href='{% url 'mobile-deposit:carrier' carrier.pk deposit.pk %}'" style="cursor: pointer;">
         <div class="d-flex flex-row justify-content-between align-items-center my-2">
             <div class="d-flex flex-column justify-content-center align-items-bottom">
                 <h6 class="p-0 m-0" style="color: rgb(90,90,90);"><span

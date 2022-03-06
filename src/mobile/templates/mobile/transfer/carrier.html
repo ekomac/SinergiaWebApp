@@ -9,9 +9,9 @@
 {% endblock thumbnail_menu_item %}
 
 {% block nav_items %}
-<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_transfer:index' %}">Tranferir</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_transfer:select-receiver' carrier.pk %}">{{ carrier.username }}</a>
+<li class="breadcrumb-item"><a href="{% url 'mobile:index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-transfer:index' %}">Tranferir</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-transfer:select-receiver' carrier.pk %}">{{ carrier.username }}</a>
 </li>
 <li class="breadcrumb-item active" aria-current="page">{{ receiver.username }}</li>
 {% endblock nav_items %}
@@ -43,7 +43,8 @@
 
 <ul class="list-group list-group-flush bg-white">
     <li class="list-group-item list-menu-item p-3"
-        onclick="location.href='{% url 'app_transfer:confirm-all' carrier.pk receiver.pk %}'" style="cursor: pointer;">
+        onclick="location.href='{% url 'mobile-transfer:confirm-all' carrier.pk receiver.pk %}'"
+        style="cursor: pointer;">
         <div class="d-flex flex-row justify-content-between align-items-center my-2">
             <div class="d-flex flex-column justify-content-center align-items-bottom">
                 Todos&nbsp;los&nbsp;envíos&nbsp;disponibles
@@ -52,7 +53,7 @@
         </div>
     </li>
     <li class="list-group-item list-menu-item p-3"
-        onclick="location.href='{% url 'app_transfer:scan' carrier.pk receiver.pk %}'" style="cursor: pointer;">
+        onclick="location.href='{% url 'mobile-transfer:scan' carrier.pk receiver.pk %}'" style="cursor: pointer;">
         <div class="d-flex flex-row justify-content-between align-items-center my-2">
             <div class="d-flex flex-column justify-content-center align-items-bottom">
                 Algunos&nbsp;envíos&nbsp;específicos&nbsp;(escaneados)
@@ -61,7 +62,7 @@
         </div>
     </li>
     <li class="list-group-item list-menu-item p-3"
-        onclick="location.href='{% url 'app_transfer:filter-by' carrier.pk receiver.pk %}'" style="cursor:
+        onclick="location.href='{% url 'mobile-transfer:filter-by' carrier.pk receiver.pk %}'" style="cursor:
         pointer;">
         <div class="d-flex flex-row justify-content-between align-items-center my-2">
             <div class="d-flex flex-column justify-content-center align-items-bottom">

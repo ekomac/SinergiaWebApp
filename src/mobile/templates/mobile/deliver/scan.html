@@ -9,7 +9,7 @@
 {% endblock thumbnail_menu_item %}
 
 {% block nav_items %}
-<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile:index' %}">Inicio</a></li>
 <li class="breadcrumb-item">Entregar</li>
 <li class="breadcrumb-item">{{ request.user.username }}</li>
 <li class="breadcrumb-item active" aria-current="page">Escáner</li>
@@ -60,7 +60,7 @@
                 if ('envio_id' in data) {
                     if (ids.includes(data.envio_id)) {
                         location.href =
-                            "{% url 'app_deliver:select-result' %}?eid=" + data.envio_id;
+                            "{% url 'mobile-deliver:select-result' %}?eid=" + data.envio_id;
                     } else {
                         alert("El envío escaneado no está en tu posesión.");
                     }

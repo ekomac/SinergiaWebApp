@@ -9,10 +9,10 @@
 {% endblock thumbnail_menu_item %}
 
 {% block nav_items %}
-<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_deposit:index' %}">Depositar</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_deposit:select-deposit' carrier.pk %}">{{ carrier.username }}</a>
-<li class="breadcrumb-item"><a href="{% url 'app_deposit:filter-by' carrier.pk deposit.pk %}">Filtros</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile:index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-deposit:index' %}">Depositar</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-deposit:select-deposit' carrier.pk %}">{{ carrier.username }}</a>
+<li class="breadcrumb-item"><a href="{% url 'mobile-deposit:filter-by' carrier.pk deposit.pk %}">Filtros</a></li>
 <li class="breadcrumb-item active" aria-current="page">{{ filter_by_name.title }}</li>
 {% endblock nav_items %}
 
@@ -61,7 +61,7 @@
         <input type="text" id="id_filter_by" name="filter_by" class="d-none" value="{{ filter_by }}">
         <input type="text" id="id_selected_ids" name="selected_ids" class="d-none">
         <button type="button" class="btn btn-secondary btn-sm mx-1"
-            onclick="location.href='{% url 'index' %}'">Cancelar</button>
+            onclick="location.href='{% url 'mobile:index' %}'">Cancelar</button>
         <button type="submit" class="btn btn-primary btn-sm mx-1">Confirmar</button>
     </form>
 </div>

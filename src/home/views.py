@@ -24,12 +24,12 @@ from tracking.models import TrackingMovement
 
 @login_required(login_url='/login/')
 def redirect_no_url(request):
-    return app_view(request)
+    return mobile_based_tracking_actions_view(request)
 
 
 @login_required(login_url='/login/')
 @allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
-def app_view(request) -> HttpResponse:
+def mobile_based_tracking_actions_view(request) -> HttpResponse:
     """
     Renders the app's index view.
     """
@@ -52,7 +52,7 @@ def app_view(request) -> HttpResponse:
 
 @login_required(login_url='/login/')
 @allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
-def app_account_view(request) -> HttpResponse:
+def mobile_account_view(request) -> HttpResponse:
     return render(request, 'baseapp_account.html', {})
 
 

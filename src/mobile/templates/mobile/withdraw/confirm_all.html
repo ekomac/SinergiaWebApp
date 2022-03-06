@@ -9,9 +9,10 @@
 {% endblock thumbnail_menu_item %}
 
 {% block nav_items %}
-<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_withdraw:index' %}">Retirar</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_withdraw:deposit' deposit.pk carrier.pk %}">{{deposit.name}}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile:index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-withdraw:index' %}">Retirar</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-withdraw:deposit' deposit.pk carrier.pk %}">{{deposit.name}}</a>
+</li>
 <li class="breadcrumb-item active" aria-current="page">Todos</li>
 {% endblock nav_items %}
 
@@ -47,7 +48,7 @@
 {% block optional_footer %}
 <div class="d-flex justify-content-end m-3">
     <button type="button" class="btn btn-secondary btn-sm mx-1"
-        onclick="location.href='{% url 'app_withdraw:index' %}'">Cancelar</button>
+        onclick="location.href='{% url 'mobile-withdraw:index' %}'">Cancelar</button>
     <form method='POST' id="form" name="form" target="_top" enctype="multipart/form-data">{% csrf_token %}
         <button type="submit" class="btn btn-primary btn-sm mx-1">Confirmar</button>
     </form>

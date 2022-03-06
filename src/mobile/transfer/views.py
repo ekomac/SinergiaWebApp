@@ -26,7 +26,7 @@ def index_view(request) -> HttpResponse:
     # If user is not an admin or a tier1, skip to receiver selection
     if not request.user.groups.filter(
             name__in=["Admins", "Level 1"]).exists():
-        return redirect('app_transfer:select-receiver',
+        return redirect('mobile/transfer:select-receiver',
                         carrier_pk=request.user.pk)
     carriers = Account.objects.filter(
         envios_carried_by__isnull=False
@@ -39,7 +39,7 @@ def index_view(request) -> HttpResponse:
             name__in=["Admins", "Level 1"]).exists():
         context['carriers'] = carriers.filter(pk=request.user.pk)
         context['can_watch_other'] = 0
-    return render(request, 'app_transfer/index.html', context)
+    return render(request, 'mobile/transfer/index.html', context)
 
 
 @login_required(login_url='/login/')
@@ -64,7 +64,7 @@ def select_receiver_view(request, carrier_pk):
     receivers = [json.dumps(receiver, indent=4) for receiver in receivers]
     # Parse the list to JSON for template
     context['receivers'] = json.dumps(receivers)
-    return render(request, 'app_transfer/select_receiver.html', context)
+    return render(request, 'mobile/transfer/select_receiver.html', context)
 
 
 @login_required(login_url='/login/')
@@ -80,7 +80,7 @@ def carrier_view(request, carrier_pk, receiver_pk) -> HttpResponse:
         carrier=carrier, status=Envio.STATUS_MOVING).count()
     context['r_envios_count'] = Envio.objects.filter(
         carrier=receiver, status=Envio.STATUS_MOVING).count()
-    return render(request, 'app_transfer/carrier.html', context)
+    return render(request, 'mobile/transfer/carrier.html', context)
 
 
 @login_required(login_url='/login/')
@@ -105,7 +105,7 @@ def confirm_all_view(request, carrier_pk, receiver_pk) -> HttpResponse:
         )
         msg = 'Los envíos se transfirieron correctamente'
         return create_alert_and_redirect(request, msg, 'index')
-    return render(request, 'app_transfer/confirm_all.html', context)
+    return render(request, 'mobile/transfer/confirm_all.html', context)
 
 
 @login_required(login_url='/login/')
@@ -122,7 +122,7 @@ def scan_view(request, carrier_pk, receiver_pk) -> HttpResponse:
     context['c_envios_count'] = envios.count()
     context['r_envios_count'] = Envio.objects.filter(
         carrier=receiver, status=Envio.STATUS_MOVING).count()
-    return render(request, 'app_transfer/scan.html', context)
+    return render(request, 'mobile/transfer/scan.html', context)
 
 
 @login_required(login_url='/login/')
@@ -152,7 +152,7 @@ def confirm_scanned_view(request, carrier_pk, receiver_pk) -> HttpResponse:
         )
         msg = 'El envío se transfirieron correctamente'
         return create_alert_and_redirect(request, msg, 'index')
-    return render(request, 'app_transfer/confirm_scanned.html', context)
+    return render(request, 'mobile/transfer/confirm_scanned.html', context)
 
 
 @login_required(login_url='/login/')
@@ -168,7 +168,7 @@ def filter_by_view(request, carrier_pk, receiver_pk) -> HttpResponse:
         carrier=carrier, status=Envio.STATUS_MOVING).count()
     context['r_envios_count'] = Envio.objects.filter(
         carrier=receiver, status=Envio.STATUS_MOVING).count()
-    return render(request, 'app_transfer/select_filter_by.html', context)
+    return render(request, 'mobile/transfer/select_filter_by.html', context)
 
 
 @login_required(login_url='/login/')
@@ -233,4 +233,4 @@ def confirm_filtered_view(request, carrier_pk, receiver_pk) -> HttpResponse:
         )
         msg = 'Los envíos se trasnfirieron correctamente'
         return create_alert_and_redirect(request, msg, 'index')
-    return render(request, 'app_transfer/confirmed_filtered.html', context)
+    return render(request, 'mobile/transfer/confirmed_filtered.html', context)

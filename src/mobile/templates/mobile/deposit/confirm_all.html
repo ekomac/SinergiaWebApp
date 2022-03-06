@@ -9,12 +9,12 @@
 {% endblock thumbnail_menu_item %}
 
 {% block nav_items %}
-<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_deposit:index' %}">Depositar</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_deposit:select-deposit' carrier.pk %}">{{ carrier.username }}</a>
+<li class="breadcrumb-item"><a href="{% url 'mobile:index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-deposit:index' %}">Depositar</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-deposit:select-deposit' carrier.pk %}">{{ carrier.username }}</a>
 </li>
 <li class="breadcrumb-item"><a
-        href="{% url 'app_deposit:carrier' carrier_pk=carrier.pk deposit_pk=deposit.pk %}">{{ deposit.name }}</a>
+        href="{% url 'mobile-deposit:carrier' carrier_pk=carrier.pk deposit_pk=deposit.pk %}">{{ deposit.name }}</a>
 <li class="breadcrumb-item active" aria-current="page">Todos</li>
 {% endblock nav_items %}
 
@@ -52,7 +52,7 @@
 {% block optional_footer %}
 <div class="d-flex justify-content-end m-3">
     <button type="button" class="btn btn-secondary btn-sm mx-1"
-        onclick="location.href='{% url 'index' %}'">Cancelar</button>
+        onclick="location.href='{% url 'mobile:index' %}'">Cancelar</button>
     <form method='POST' id="form" name="form" target="_top" enctype="multipart/form-data">{% csrf_token %}
         <button type="submit" class="btn btn-primary btn-sm mx-1">Confirmar</button>
     </form>

@@ -1,4 +1,4 @@
-{% extends 'base_app.html' %}
+{% extends 'base_mobile.html' %}
 
 {% load static %}
 
@@ -9,11 +9,13 @@
 {% endblock thumbnail_menu_item %}
 
 {% block nav_items %}
-<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_withdraw:index' %}">Depositar</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_deposit:select-deposit' carrier.pk %}">{{ carrier.username }}</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_deposit:carrier' carrier.pk deposit.pk %}">{{ deposit.name }}</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_deposit:scan' carrier.pk deposit.pk %}">Escáner</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile:index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile_withdraw:index' %}">Depositar</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-deposit:select-deposit' carrier.pk %}">{{ carrier.username }}</a>
+</li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-deposit:carrier' carrier.pk deposit.pk %}">{{ deposit.name }}</a>
+</li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-deposit:scan' carrier.pk deposit.pk %}">Escáner</a></li>
 <li class="breadcrumb-item active" aria-current="page">Envío escaneado</li>
 {% endblock nav_items %}
 

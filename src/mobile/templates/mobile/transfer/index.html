@@ -9,7 +9,7 @@
 {% endblock thumbnail_menu_item %}
 
 {% block nav_items %}
-<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile:index' %}">Inicio</a></li>
 <li class="breadcrumb-item active" aria-current="page">Transferir</a></li>
 {% endblock nav_items %}
 
@@ -21,7 +21,7 @@
     {% for carrier in carriers %}
     {% if carrier.envios > 0 %}
     <li class="list-group-item list-group-item-action list-menu-item p-2"
-        onclick="location.href='{% url 'app_transfer:select-receiver' carrier.pk %}'" style="cursor: pointer;">
+        onclick="location.href='{% url 'mobile-transfer:select-receiver' carrier.pk %}'" style="cursor: pointer;">
         <div class="d-flex flex-row justify-content-between align-items-center my-2">
             <div class="d-flex flex-column flex-wrap justify-content-center align-items-bottom">
                 <h6 class="p-0 m-0" style="color: rgb(90,90,90);"><span

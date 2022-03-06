@@ -9,8 +9,8 @@
 {% endblock thumbnail_menu_item %}
 
 {% block nav_items %}
-<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_transfer:index' %}">Transferir</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile:index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-transfer:index' %}">Transferir</a></li>
 <li class="breadcrumb-item active" aria-current="page">{{ carrier.username }}</li>
 {% endblock nav_items %}
 

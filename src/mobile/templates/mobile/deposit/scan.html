@@ -9,11 +9,11 @@
 {% endblock thumbnail_menu_item %}
 
 {% block nav_items %}
-<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_deposit:index' %}">Depositar</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_deposit:select-deposit' carrier.pk %}">{{ carrier.username }}</a>
+<li class="breadcrumb-item"><a href="{% url 'mobile:index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-deposit:index' %}">Depositar</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-deposit:select-deposit' carrier.pk %}">{{ carrier.username }}</a>
 </li>
-<li class="breadcrumb-item"><a href="{% url 'app_deposit:carrier' carrier.pk deposit.pk %}">{{ deposit.name }}</a>
+<li class="breadcrumb-item"><a href="{% url 'mobile-deposit:carrier' carrier.pk deposit.pk %}">{{ deposit.name }}</a>
 <li class="breadcrumb-item active" aria-current="page">Escáner</li>
 {% endblock nav_items %}
 
@@ -64,7 +64,7 @@
                 if ('envio_id' in data) {
                     if (ids.includes(data.envio_id)) {
                         location.href =
-                            "{% url 'app_deposit:confirm-scanned' carrier.pk deposit.pk %}?envio_id=" +
+                            "{% url 'mobile-deposit:confirm-scanned' carrier.pk deposit.pk %}?envio_id=" +
                             data
                             .envio_id;
                     } else {

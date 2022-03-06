@@ -9,9 +9,10 @@
 {% endblock thumbnail_menu_item %}
 
 {% block nav_items %}
-<li class="breadcrumb-item"><a href="{% url 'index' %}">Inicio</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_withdraw:index' %}">Retirar</a></li>
-<li class="breadcrumb-item"><a href="{% url 'app_withdraw:deposit' deposit.pk carrier.pk %}">{{deposit.name}}</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile:index' %}">Inicio</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-withdraw:index' %}">Retirar</a></li>
+<li class="breadcrumb-item"><a href="{% url 'mobile-withdraw:deposit' deposit.pk carrier.pk %}">{{deposit.name}}</a>
+</li>
 <li class="breadcrumb-item active" aria-current="page">Escáner</li>
 {% endblock nav_items %}
 
@@ -63,7 +64,7 @@
                 if ('envio_id' in data) {
                     if (ids.includes(data.envio_id)) {
                         location.href =
-                            "{% url 'app_withdraw:confirm-scanned' deposit.pk carrier.pk %}?envio_id=" +
+                            "{% url 'mobile-withdraw:confirm-scanned' deposit.pk carrier.pk %}?envio_id=" +
                             data.envio_id;
                     } else {
                         alert("El envío escaneado no está en depósito.");
