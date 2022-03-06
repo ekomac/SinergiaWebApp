@@ -81,7 +81,7 @@ REST_FRAMEWORK = {
         f'{rf}.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASS': f'{rf}.pagination.PageNumberPagination',
-    'PAGE_SIZE': 30,
+    'PAGE_SIZE': 50,
 }
 
 MIDDLEWARE = [

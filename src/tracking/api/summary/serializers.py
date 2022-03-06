@@ -30,6 +30,8 @@ class TrackingMovementSerializer(serializers.ModelSerializer):
         'get_date_created_timestamp')
     envios_count = serializers.SerializerMethodField(
         'get_envios_count')
+    envio_referenced = serializers.SerializerMethodField(
+        'get_envio_referenced')
 
     class Meta:
         model = TrackingMovement
@@ -48,6 +50,7 @@ class TrackingMovementSerializer(serializers.ModelSerializer):
             'to_deposit',
             'label',
             'envios_count',
+            'envio_referenced',
         )
 
     def get_from_carrier(self, tracking_movement):
@@ -144,3 +147,35 @@ class TrackingMovementSerializer(serializers.ModelSerializer):
         if tracking_movement.envios is not None:
             return tracking_movement.envios.count()
         return 0
+
+    def get_envio_referenced(self, tracking_movement):
+        if (tracking_movement.envios is not None
+                and tracking_movement.envios.count() == 1):
+            envio = tracking_movement.envios.first()
+            return {
+                'pk': envio.id,
+                'tracking_id': envio.tracking_id,
+                'status': envio.status,
+                'status_display': envio.get_status_display(),
+                'destination': self.get_destination_from_envio(envio),
+            }
+        return None
+
+    def get_destination_from_envio(self, envio):
+        if envio.destination_ptr is not None:
+            street = envio.destination_ptr.street
+            remarks = envio.destination_ptr.remarks
+            town = str(envio.destination_ptr.town.name).title()
+            zipcode = envio.destination_ptr.zipcode
+            partido = str(envio.destination_ptr.town.partido.name).title()
+            floor_apartment = str(
+                envio.destination_ptr.floor_apartment).title()
+            return {
+                'street': street,
+                'remarks': remarks,
+                'town': town,
+                'zipcode': zipcode,
+                'partido': partido,
+                'floor_apartment': floor_apartment,
+            }
+        return None

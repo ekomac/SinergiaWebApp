@@ -19,6 +19,7 @@ class TrackingMovementsForCarrierListView(ListAPIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
+    # pagination_class = None
 
     def get_queryset(self):
         queryset = super(
@@ -43,5 +44,4 @@ class TrackingMovementsForCarrierListView(ListAPIView):
             min_date = int(params.get('min_date'))
             min_date = datetime.fromtimestamp(min_date)
             filters['date_created__gte'] = min_date
-        print(queryset.filter(**filters).distinct())
         return queryset.filter(**filters).distinct()
