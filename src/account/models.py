@@ -79,6 +79,11 @@ def insurance_upload_location(instance, filename):
     return f'account/{account_id}/insurance/{filename}'
 
 
+def cedula_upload_location(instance, filename):
+    account_id = str(instance.id)
+    return f'account/{account_id}/cedula/{filename}'
+
+
 def profile_pic_upload_location(instance, filename, *args, **kwargs):
     account_id = str(instance.id)
     return f'account/{account_id}/profile-{account_id}'
@@ -150,6 +155,9 @@ class Account(AbstractBaseUser, PermissionsMixin):
     insurance = models.FileField(
         verbose_name="Seguro", upload_to=insurance_upload_location, blank=True,
         null=True)
+    cedula = models.FileField(
+        verbose_name="Cédula", upload_to=insurance_upload_location, blank=True,
+        null=True)
     vehicle_type = models.CharField(
         verbose_name="Tipo de vehículo", max_length=10, blank=True, null=True,
         choices=VEHICLES)
@@ -219,3 +227,5 @@ def submission_delete(sender, instance, **kwargs):
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+    # if instance.fcm_token is not None:
+    #     FCMDevice()

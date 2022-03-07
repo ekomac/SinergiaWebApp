@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -89,6 +90,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'mysite.middleware.password.HasToResetPasswordMiddleware',
 ]
 
 
@@ -200,3 +202,6 @@ ACCESS_EMPLOYEE_APP = ["Admins", "Level 1", "Level 2"]
 
 
 DEFAULT_RESULTS_PER_PAGE = 50
+
+
+DEFAULT_RESET_PASSWORD = "Cambiar123"

@@ -11,8 +11,8 @@
     <form method='POST' id="id_form" class="card flex-fill shadow-lg bg-white" name="form" target="_top"
         enctype="multipart/form-data">{% csrf_token %}
         <div class="card-header d-flex justify-content-between align-items-center">
-            <div>
-                Crear depósito
+            <div class="fw-bold">
+                Nuevo depósito
             </div>
             <div>
                 <a href="{% url 'deposits:list' %}"><i class="bi bi-arrow-left-short"></i>Volver</a>

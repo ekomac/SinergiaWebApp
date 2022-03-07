@@ -1,4 +1,5 @@
 # DJANGO
+import re
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.db.models import Count
@@ -23,6 +24,22 @@ from account.models import Account
 
 ERROR_INVALID_PASSWORD = "Credenciales inválidas"
 ERROR_INVALID_EMAIL = "El email no existe."
+PASSWORD_RESET_ERROR_DATA_NOT_RECEIVED = (
+    "No se recibieron los datos de la contraseña.")
+PASSWORD_RESET_ERROR_PASSWORDS_DONT_MATCH = (
+    "Las contraseñas no coinciden.")
+PASSWORD_RESET_ERROR_AT_LEAST_EIGHT_CHARS = (
+    "La contraseña debe tener al menos 8 caracteres.")
+PASSWORD_RESET_ERROR_MAX_TWENTY_CHARS = (
+    "La contraseña debe tener menos de 20 caracteres.")
+PASSWORD_RESET_ERROR_MUST_CONTAIN_MAYUS = (
+    "La contraseña debe tener al menos una mayúscula.")
+PASSWORD_RESET_ERROR_MUST_CONTAIN_MINUS = (
+    "La contraseña debe tener al menos una minúscula.")
+PASSWORD_RESET_ERROR_MUST_CONTAIN_NUM = (
+    "La contraseña debe tener al menos un número.")
+PASSWORD_RESET_ERROR_MUST_CONTAIN_SPECIAL = (
+    "La contraseña debe tener al menos un caracter especial.")
 
 
 class ObtainAuthTokenView(APIView):
@@ -58,6 +75,7 @@ class ObtainAuthTokenView(APIView):
             data['username'] = account.username
             data['full_name'] = account.full_name
             data['permission'] = account.groups.first().name
+            data['has_to_reset_password'] = account.has_to_reset_password
             data['profile_picture_url'] = None
             if (account.profile_picture and
                     account.profile_picture.url is not None):
@@ -66,7 +84,6 @@ class ObtainAuthTokenView(APIView):
         else:
             data['response'] = 'Error'
             data['error_message'] = ERROR_INVALID_PASSWORD
-        print(data)
         return Response(data)
 
 
@@ -212,3 +229,75 @@ class ApiCarrierListView(ListAPIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
+
+
+@api_view(['POST', ])
+@permission_classes([IsAuthenticated])
+def api_reset_password(request):
+    if request.method == 'POST':
+        data = {}
+        email = request.POST.get('email') or request.data.get('email')
+        if not Account.objects.filter(
+                email=email,
+                groups__name__in=settings.ACCESS_EMPLOYEE_APP).exists():
+            data['response'] = 'Error'
+            data['error_message'] = ERROR_INVALID_EMAIL
+            return Response(data)
+        user = Account.objects.get(email=email)
+        password_1 = request.POST.get(
+            "password1", None) or request.data.get('password_1')
+        password_2 = request.POST.get(
+            "password2", None) or request.data.get('password_2')
+        if password_1 is None or password_2 is None:
+            data['response'] = 'Error'
+            data['error_message'] = PASSWORD_RESET_ERROR_DATA_NOT_RECEIVED
+        elif password_1 != password_2:
+            data['response'] = 'Error'
+            data['error_message'] = PASSWORD_RESET_ERROR_PASSWORDS_DONT_MATCH
+        elif len(password_1) < 8:
+            data['response'] = 'Error'
+            data['error_message'] = PASSWORD_RESET_ERROR_AT_LEAST_EIGHT_CHARS
+        elif len(password_1) > 20:
+            data['response'] = 'Error'
+            data['error_message'] = PASSWORD_RESET_ERROR_MAX_TWENTY_CHARS
+        elif not re.search(r'[A-Z]', password_1):
+            data['response'] = 'Error'
+            data['error_message'] = PASSWORD_RESET_ERROR_MUST_CONTAIN_MAYUS
+        elif not re.search(r'[a-z]', password_1):
+            data['response'] = 'Error'
+            data['error_message'] = PASSWORD_RESET_ERROR_MUST_CONTAIN_MINUS
+        elif not re.search(r'[0-9]', password_1):
+            data['response'] = 'Error'
+            data['error_message'] = PASSWORD_RESET_ERROR_MUST_CONTAIN_NUM
+        elif not re.search(r'[@#$%&*.,]', password_1):
+            data['response'] = 'Error'
+            data['error_message'] = PASSWORD_RESET_ERROR_MUST_CONTAIN_SPECIAL
+        if data.get('response') == 'Error':
+            print(data)
+            return Response(data)
+        user.set_password(password_1)
+        user.has_to_reset_password = False
+        user.save()
+        try:
+            token = Token.objects.filter(user=user)
+            new_key = token[0].generate_key()
+            token.update(key=new_key)
+            token = Token.objects.get(user=user)
+        except Token.DoesNotExist:
+            token = Token.objects.create(user=user)
+        data['response'] = 'Se actualizó la contraseña.'
+        data['pk'] = user.pk
+        data['email'] = email.lower()
+        data['token'] = token.key
+        data['first_name'] = user.first_name
+        data['last_name'] = user.last_name
+        data['username'] = user.username
+        data['full_name'] = user.full_name
+        data['permission'] = user.groups.first().name
+        data['has_to_reset_password'] = user.has_to_reset_password
+        data['profile_picture_url'] = None
+        if (user.profile_picture and
+                user.profile_picture.url is not None):
+            data['profile_picture_url'] = request.build_absolute_uri(
+                user.profile_picture.url)
+        return Response(data=data, status=status.HTTP_200_OK)

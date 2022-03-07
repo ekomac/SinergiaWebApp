@@ -263,6 +263,7 @@
             </li>
             <!-- END Tickets -->
 
+            {% if request.user.is_superuser %}
             <!-- START Mobile App -->
             <li class="nav-item {% if selected_tab == 'scanner-tab' %}activetab{% endif %} li-navigation">
                 <a id="scanner-tab" href="{% url 'mobile:index' %}" class="nav-link tab" aria-current="page">
@@ -272,7 +273,6 @@
             <!-- END Mobile App -->
 
             <!-- START SUPERADMIN -->
-            {% if request.user.is_superuser %}
             <li class="nav-item li-navigation">
                 <a id="superadmin-tab" href="{% url 'admin:index' %}" class="nav-link tab">
                     <i class="bi bi-person-check"></i> Superadmin

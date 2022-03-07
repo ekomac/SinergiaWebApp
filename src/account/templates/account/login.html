@@ -37,12 +37,16 @@
     .img-responsive {
         display: inline-block;
     }
+
+    #logo_img:hover {
+        opacity: 0.5;
+    }
 </style>
 
 <main class="form-signin">
     <div class="d-flex flex-column pb-3" style="text-align: center;">
-        <img class="rounded image-fluid mx-auto d-block" src="{% static 'sinergia-software-logo.svg' %}" width="40%"
-            height="40%" alt="Sinergia Logo">
+        <img class="rounded image-fluid mx-auto d-block" id="logo_img" src="{% static 'sinergia-software-logo.svg' %}"
+            width="40%" height="40%" alt="Sinergia Logo">
     </div>
     <form method="post" class="needs-validation" novalidate>{% csrf_token %}
 

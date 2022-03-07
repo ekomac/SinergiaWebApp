@@ -20,8 +20,6 @@ from account.decorators import allowed_users
 from clients.models import Client
 from envios.models import Envio
 from tracking.models import TrackingMovement
-from mobile.views import mobile_based_tracking_actions_view
-# from account.models import Account
 
 
 @login_required(login_url='/login/')
@@ -29,9 +27,9 @@ def redirect_no_url(request):
     if request.user.is_authenticated:
         if request.user.groups.filter(name='Admins').exists():
             return admin_home_screen_view(request)
-        elif request.user.groups.filter(
-                name__in=['Level 1', 'Level 2']).exists():
-            return mobile_based_tracking_actions_view(request)
+        # elif request.user.groups.filter(
+        #         name__in=['Level 1', 'Level 2']).exists():
+        #     return mobile_based_tracking_actions_view(request)
         elif request.user.groups.filter(name='Clients').exists():
             return clients_index_view(request)
     return Http404()

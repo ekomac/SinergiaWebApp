@@ -8,6 +8,7 @@ from account.api.views import (
     api_detail_account_view,
     api_check_app_state_view,
     ApiEmployeesWithEnviosListView,
+    api_reset_password,
 
 )
 
@@ -22,6 +23,7 @@ urlpatterns = [
     path('carrier/<int:pk>/', api_detail_carrier_view, name="carrier-detail"),
     path('employee/<int:pk>/', api_detail_account_view,
          name="employee-detail"),
-    path('employee/<int:pk>/check-app-state', api_check_app_state_view,
+    path('employee/<int:pk>/check-app-state/', api_check_app_state_view,
          name="employee-check-app-state"),
+    path('reset-password/', api_reset_password, name="reset-password"),
 ]

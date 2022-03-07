@@ -1,4 +1,5 @@
 # Python
+from datetime import datetime
 import unidecode
 from typing import List, Tuple
 
@@ -7,14 +8,16 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login, authenticate, logout
 from django.db.models import Q
-from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 
 # Project
 from account.decorators import allowed_users, allowed_users_in_class_view
 from account.forms import AccountAuthenticationForm, PasswordResetForm
 from account.models import Account
+from clients.models import Client
 from envios.models import Envio
+from home.views import redirect_no_url
+from utils.alerts.alert import ToastAlert
 from utils.views import CompleteListView
 
 
@@ -68,13 +71,6 @@ def login_view(request):
         request, 'account/login.html', context)
 
 
-def forced_reset_password_view(request):
-    return render(
-        request,
-        'registration/forced_password_reset.html',
-        {})
-
-
 def edit_account_view(request):
     context = {}
     return render(
@@ -126,7 +122,7 @@ class EmployeesListView(CompleteListView, LoginRequiredMixin):
         return (obj, envios_carried)
 
     def get_verbose_name_plural(self):
-        return "Empleados/as"
+        return "Usuarios"
 
 
 def get_employees_queryset(
@@ -176,7 +172,11 @@ def map_employees_to_tuple(account: Account) -> Tuple[Account, int]:
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
 def employee_create_view(request):
-    return render(request, '', {})
+    context = {
+        'selected_tab': 'files-tab',
+        'client_list': Client.objects.all(),
+    }
+    return render(request, 'account/employees_files/add.html', context)
 
 
 @login_required(login_url='/login/')
@@ -205,22 +205,24 @@ def employee_delete_view(request, pk):
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins", "Clients"])
-def reset_password_for_employee(request, pk):
-    if request.is_ajax and request.method == "POST":
-        # get the form data
+@allowed_users(roles=["Admins", "Clients", "Level 1", "Level 2"])
+def reset_password_view(request):
+    form = PasswordResetForm()
+    if request.method == 'POST':
         form = PasswordResetForm(request.POST)
         if form.is_valid():
-            user = get_object_or_404(
-                Account, pk=pk)
-            user.has_to_reset_password = True
-            user.save()
-            # serialize in new friend object in json
-            # ser_instance = serializers.serialize('json', [ids, ])
-            # send to client side.
-            return JsonResponse({"user_id": pk}, status=200)
-        else:
-            return JsonResponse({"error": form.errors}, status=400)
-
-    # some error occured
-    return JsonResponse({"error": "Unexpected error"}, status=400)
+            form.save()
+            alerts = request.session.get('alerts', [])
+            # Get current time
+            now = datetime.now()
+            # Create the alert
+            alert = ToastAlert('password-reset', 'success',
+                               'La contraseña se actualizó con éxito.',
+                               'La contraseña se actualizó con éxito.', now)
+            # Append it to already existing ones
+            alerts.append(alert.get_as_dict())
+            # Set them back to request's session
+            request.session['alerts'] = alerts
+            return redirect_no_url(request)
+    context = {'form': form}
+    return render(request, 'account/reset_password.html', context)
