@@ -79,15 +79,18 @@
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-currency-dollar me-2"></i>Costo total</td>
-                            {% comment %} <td class="w-100">$ {{ summary.total_cost }}</td> {% endcomment %}
+                            <td class="w-100" id="costo_total">
+                                <div id="cost_loading" class="spinner-border spinner-border-sm" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
                             <td class="w-100"></td>
                         </tr>
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-123 me-2"></i>Cantidad
                                 de envíos incluídos</td>
-                            {% comment %} <td class="w-100">{{ summary.total_envios }}</td> {% endcomment %}
-                            <td class="w-100"></td>
+                            <td class="w-100">{{ total_envios }}</td>
                         </tr>
 
                     </tbody>
@@ -127,7 +130,7 @@
             </div>
         </div>
         <div class="card-body">
-            {% if summary.envios %}
+            {% if envios %}
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead>
@@ -192,6 +195,22 @@
                 window.location.href = "{% url 'summaries:client-print-pdf' summary.pk %}";
             }
         });
+
+        const url =
+            "{% if selected_tab == 'clients-summaries-tab' %}{% url 'summaries:client-summary-total-cost' summary.pk %}{% else %}{% url 'summaries:employee-summary-total-cost' summary.pk %}{% endif %}";
+        console.log(url);
+        $.ajax({
+            type: 'GET',
+            url: url,
+            success: function (response) {
+                console.log(response);
+                $('#cost_loading').addClass("d-none");
+                $('#costo_total').text(response.total_cost);
+            },
+            error: function (response) {
+                console.log(response)
+            }
+        })
     });
 
     function clearSearch() {

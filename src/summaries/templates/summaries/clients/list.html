@@ -138,7 +138,7 @@
 
 {% block objects_table_body_block %}
 {% for summary in objects %}
-{% include 'summaries/snippets/item.html' with obj=summary counter=forloop.counter%}
+{% include 'summaries/snippets/item.html' with obj=summary counter=forloop.counter is_client=1 %}
 {% endfor %}
 {% endblock objects_table_body_block %}
 

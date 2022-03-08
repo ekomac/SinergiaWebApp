@@ -257,7 +257,7 @@ class Envio(Receiver):
         # only if the envio and discount match the is_for_flex and
         # is_flex flags
         discount = Discount.objects.filter(
-            client__id=self.client.id,
+            client=self.client,
             is_for_flex=self.is_flex,
             partidos__in=[self.town.partido]
         ).first()

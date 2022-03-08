@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.staticfiles import finders
+from django.http import JsonResponse
 from django.http.response import HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import get_template
@@ -170,8 +171,13 @@ def employee_summary_create_view(request):
 @allowed_users(roles=["Admins"])
 def client_summary_detail_view(request, pk):
     summary = get_object_or_404(ClientSummary, pk=pk)
+    envios = summary.get_envios()
     ctx = {
-        'summary': summary, 'selected_tab': 'clients-summaries-tab', }
+        'summary': summary,
+        'selected_tab': 'clients-summaries-tab',
+        'envios': envios,
+        'total_envios': len(envios),
+    }
     return render(request, 'summaries/detail.html', ctx)
 
 
@@ -179,7 +185,13 @@ def client_summary_detail_view(request, pk):
 @allowed_users(roles=["Admins"])
 def employee_summary_detail_view(request, pk):
     summary = get_object_or_404(EmployeeSummary, pk=pk)
-    ctx = {'summary': summary, 'selected_tab': 'employees-summaries-tab', }
+    envios = summary.get_envios()
+    ctx = {
+        'summary': summary,
+        'selected_tab': 'employees-summaries-tab',
+        'envios': envios,
+        'total_envios': len(envios),
+    }
     return render(request, 'summaries/detail.html', ctx)
 
 
@@ -284,3 +296,19 @@ def print_xls_summary(request, pk):
 @allowed_users(roles=["Admins"])
 def print_pdf_summary(request, pk):
     pass
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def ajax_get_client_summary_total_cost(request, pk):
+    summary = get_object_or_404(ClientSummary, pk=pk)
+    total_cost = summary.total_cost()
+    return JsonResponse({'total_cost': f"${total_cost}"})
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def ajax_get_employee_summary_total_cost(request, pk):
+    summary = get_object_or_404(EmployeeSummary, pk=pk)
+    total_cost = summary.total_cost()
+    return JsonResponse({'total_cost': f"${total_cost}"})

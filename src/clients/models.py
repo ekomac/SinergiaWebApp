@@ -100,11 +100,12 @@ class Discount(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(100)],
     )
     client = models.ForeignKey(
-        Client, on_delete=models.CASCADE, verbose_name="Es Flex")
+        Client, on_delete=models.CASCADE, verbose_name="Cliente")
     partidos = models.ManyToManyField(
         "places.Partido", blank=True, verbose_name="Partidos"
     )
-    is_for_flex = models.BooleanField(default=False, verbose_name="Es Flex")
+    is_for_flex = models.BooleanField(
+        default=False, verbose_name="Es para envíos flex")
 
     def __str__(self) -> str:
         return "{a}% de descuento para {b} por {c} partidos".format(

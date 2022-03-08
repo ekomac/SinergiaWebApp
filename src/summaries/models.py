@@ -88,6 +88,10 @@ class ClientSummary(Summary):
             'client': self.client,
         }
 
+    @property
+    def envios(self):
+        return self.get_envios()
+
     def __str__(self):
         client = self.client.name
         dfrom = self.date_from.strftime("%d/%m/%Y")

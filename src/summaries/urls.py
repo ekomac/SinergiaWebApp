@@ -10,6 +10,8 @@ from .views import (
     print_csv_summary,
     print_xls_summary,
     print_pdf_summary,
+    ajax_get_client_summary_total_cost,
+    ajax_get_employee_summary_total_cost,
 )
 
 app_name = 'summaries'
@@ -47,4 +49,13 @@ urlpatterns = [
         name="employee-print-excel"),
     path(
         'employees/<int:pk>/print-pdf/', print_pdf_summary,
-        name="employee-print-pdf"), ]
+        name="employee-print-pdf"),
+    path(
+        'employees/<int:pk>/total-cost/', ajax_get_employee_summary_total_cost,
+        name="employee-summary-total-cost"),
+    path(
+        'clients/<int:pk>/total-cost/', ajax_get_client_summary_total_cost,
+        name="client-summary-total-cost"),
+
+
+]
