@@ -198,10 +198,6 @@
         onclick="printSelectedItems()" disabled>
         Imprimir etiquetas
     </button>
-    <button type="button" id="bulkAddTask" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2" onclick="createTask()"
-        disabled>
-        Asociar tarea
-    </button>
     <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{totalEnvios}} elementos seleccionados</div>
     <div class="my-1 mx-xl-3">
         <div id="clearSelectionDiv" class="hide-on-load">
@@ -429,11 +425,6 @@
 
     function printSelectedItems() {
         $('#example_form').submit();
-    }
-
-    function createTask() {
-        removeSelection();
-        alert("Próximamente...")
     }
 
     function addingSelectedIdsAjaxConfig() {

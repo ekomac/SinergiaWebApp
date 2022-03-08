@@ -12,6 +12,13 @@
             </li>
             <!-- END Dashboard -->
 
+            <!-- START Legajos -->
+            <li class="nav-item {% if selected_tab == 'accounts-tab' %}activetab{% endif %} li-navigation">
+                <a id="staff-tab" href="{% url 'account:employees-list' %}" class="nav-link tab">
+                    <i class="bi bi-person-badge"></i> Usuarios
+                </a>
+            </li>
+            <!-- END Legajos -->
 
 
             <!-- START Envíos -->
@@ -167,14 +174,6 @@
                 <!-- END START OPTION 2: No price tab is selected -->
             </li>
             <!-- END Precios -->
-
-            <!-- START Legajos -->
-            <li class="nav-item {% if selected_tab == 'files-tab' %}activetab{% endif %} li-navigation">
-                <a id="staff-tab" href="{% url 'account:employees-list' %}" class="nav-link tab">
-                    <i class="bi bi-file-earmark-text"></i> Legajos
-                </a>
-            </li>
-            <!-- END Legajos -->
 
             {% comment %}
             <!-- START Summaries -->

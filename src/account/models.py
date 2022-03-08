@@ -56,7 +56,7 @@ class MyAccountManager(BaseUserManager):
 
 def doc_upload_location(instance, filename, *args, **kwargs):
     account_id = str(instance.id)
-    return f'account/{account_id}/dni/{instance.dni}'
+    return f'account/{account_id}/dni/{instance.dni}_{filename}'
 
 
 def driver_licence_upload_location(instance, filename):
@@ -86,7 +86,7 @@ def cedula_upload_location(instance, filename):
 
 def profile_pic_upload_location(instance, filename, *args, **kwargs):
     account_id = str(instance.id)
-    return f'account/{account_id}/profile-{account_id}'
+    return f'account/{account_id}/profile-{account_id}/{filename}'
 
 
 class Account(AbstractBaseUser, PermissionsMixin):
@@ -94,8 +94,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     ROLES = (
         ('admin', 'Administrador'),
         ('client', 'Cliente'),
-        ('level_1', 'Nivel 1'),
-        ('level_2', 'Nivel 2'),
+        ('level_1', 'Distribuidor + Repartidor'),
+        ('level_2', 'Motoquero'),
     )
 
     VEHICLES = (
@@ -137,7 +137,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
                            unique=True, blank=True, null=True)
     address = models.CharField(
         verbose_name="address", max_length=100, blank=True, null=True)
-    dni_img = models.ImageField(
+    dni_img = models.FileField(
         verbose_name='doc picture', upload_to=doc_upload_location, blank=True,
         null=True)
     # USER DOCUMENTATION
@@ -221,11 +221,15 @@ def submission_delete(sender, instance, **kwargs):
     instance.criminal_record.delete(False)
     instance.vtv.delete(False)
     instance.insurance.delete(False)
+    instance.cedula.delete(False)
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+        if instance.is_superuser:
+            instance.role = 'admin'
+            instance.save()
     # if instance.fcm_token is not None:
     #     FCMDevice()

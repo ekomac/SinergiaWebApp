@@ -20,7 +20,7 @@ from places.utils import get_localidades_as_JSON
 from utils.alerts.views import (
     create_alert_and_redirect, update_alert_and_redirect)
 from utils.forms import CheckPasswordForm
-from utils.views import CompleteListView, DeleteObjectsUtil
+from utils.views import CompleteListView, DeleteObjectsUtil, truncate_start
 
 
 class ClientListView(CompleteListView, LoginRequiredMixin):
@@ -234,23 +234,23 @@ def client_detail_view(request, pk):
     return render(request, 'clients/detail.html', ctx)
 
 
-def truncate_start(s: str, max_chars: int = 30) -> str:
-    """Truncates the given string to the last $max_chars$ characters.
+# def truncate_start(s: str, max_chars: int = 30) -> str:
+#     """Truncates the given string to the last $max_chars$ characters.
 
-    Args:
-        s (str): the string to be truncated.
-        max_chars (int, optional): the maximum number of characters to be used,
-        if the string is longer than this, or if s doesn't contains a '/'.
-        Defaults to 30.
+#     Args:
+#         s (str): the string to be truncated.
+#         max_chars (int, optional): the maximum number of characters to be used,
+#         if the string is longer than this, or if s doesn't contains a '/'.
+#         Defaults to 30.
 
-    Returns:
-        str: the truncated string.
-    """
-    if '/' in s:
-        return ".../" + s[s.rfind('/') + 1:]
-    elif len(s) > max_chars:
-        return "..." + s[-30:]
-    return s
+#     Returns:
+#         str: the truncated string.
+#     """
+#     if '/' in s:
+#         return ".../" + s[s.rfind('/') + 1:]
+#     elif len(s) > max_chars:
+#         return "..." + s[-30:]
+#     return s
 
 
 def map_discount_to_dict(discount: Discount) -> Dict[str, str]:

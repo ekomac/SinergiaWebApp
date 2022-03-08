@@ -4,6 +4,7 @@
 
 
 {% load static %}
+{% load url_extras %}
 
 <style>
     .table thead th {
@@ -25,7 +26,7 @@
         <!-- start CARD HEADER -->
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
-                Detalle de empleado
+                Detalle de usuario
             </div>
             <div class="">
                 <a href="{% url 'account:employees-list' %}">
@@ -42,10 +43,10 @@
 
                 <!-- start DETAIL TITLE -->
                 <div class="me-2 w-100 d-flex align-items-center">
-                    {% if employee.profile_picture %}
+                    {% if account.profile_picture %}
 
                     <!-- PROFILE PIC -->
-                    <img src="{{employee.profile_picture.url}}" alt="Avatar" width="56" height="56"
+                    <img src="{{account.profile_picture.url}}" alt="Avatar" width="56" height="56"
                         class="rounded-circle me-2">
 
                     {% else %}
@@ -55,27 +56,36 @@
                         width="56" height="56" class="rounded-circle me-2">
 
                     {% endif %}
-                    <h2>#{{ employee.id }} | {{ employee.full_name }}</h2>
+                    {% if account.is_active %}
+                    <h2>#{{ account.id }} | {{ account.full_name }}</h2>
+                    {% else %}
+                    <h2 style="color: red;">#{{ account.id }} | {{ account.full_name }}</h2>
+                    <h5 style="color: red;">&nbsp;[inactivo/a]</h5>
+                    {% endif %}
                 </div>
                 <!-- end DETAIL TITLE -->
 
                 <!-- start DETAIL INFO -->
-                <div class="mt-1 d-flex aling-items-center">
-                    <i class="bi bi-clock-history"></i>&nbsp;Se unió el {{ employee.date_joined|date:"d/m/Y" }} a las
-                    {{ employee.date_joined|date:"H:i" }}
+                <div class="mt-1 mb-2 d-flex aling-items-center">
+                    <i class="bi bi-clock-history"></i>&nbsp;Se unió el {{ account.date_joined|date:"d/m/Y" }} a las
+                    {{ account.date_joined|date:"H:i" }}
                 </div>
                 <!-- end DETAIL INFO -->
 
                 <!-- start DETAIL BUTTONS -->
                 <div>
-                    {% if not employee.has_to_reset_password %}
-                    <button onclick="resetPassword();" id="btnResetPassword" class="btn btn-primary btn-sm me-1"><i
-                            class="bi bi-key me-1"></i>Blanqueo de clave</button>
-                    {% endif %}
-                    <a href="{% url 'account:employees-edit' employee.id %}" class="btn btn-secondary btn-sm me-1"><i
+                    <button onclick="resetPassword();" id="btnResetPassword" class="btn btn-primary btn-sm me-1"
+                        {% if account.has_to_reset_password %}disabled{% endif %}><i class="bi bi-key me-1"></i>Blanqueo
+                        de clave</button>
+                    <a href="{% url 'account:account-edit' account.id %}" class="btn btn-secondary btn-sm me-1"><i
                             class="bi bi-pencil me-1"></i>Editar</a>
-                    <a href="{% url 'account:employees-delete' employee.id %}" class="btn btn-danger btn-sm me-1"><i
-                            class="bi bi-trash me-1"></i>Eliminar</a>
+                    {% if account.is_active %}
+                    <button type="button" onclick="disableAccount()" class="btn btn-danger btn-sm me-1"><i
+                            class="bi bi-toggle-off"></i>Desactivar cuenta</button>
+                    {% else %}
+                    <button type="button" onclick="enableAccount()" class="btn btn-primary btn-sm me-1"><i
+                            class="bi bi-toggle-on"></i>Activar cuenta</button>
+                    {% endif %}
 
                 </div>
                 <!-- end DETAIL BUTTONS -->
@@ -86,7 +96,7 @@
             <hr>
 
             <!-- start DETAILS -->
-            <div class="card-text">
+            <div class="card-text bg-white">
 
                 <table class="table table-bordered">
                     <tbody id="overrided-1" class="overrided-tbody">
@@ -95,7 +105,7 @@
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-at me-1"></i>Usuario</td>
-                            <td class="w-100">{% if employee.username %}{{ employee.username }}{% else %}Sin
+                            <td class="w-100">{% if account.username %}{{ account.username }}{% else %}Sin
                                 especificar{% endif %}</td>
                         </tr>
 
@@ -104,7 +114,7 @@
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-person-badge me-1"></i>No. de documento</td>
-                            <td class="w-100">{% if employee.dni %}{{ employee.dni }}{% else %}Sin
+                            <td class="w-100">{% if account.dni %}{{ account.dni }}{% else %}Sin
                                 especificar{% endif %}</td>
                         </tr>
 
@@ -113,7 +123,7 @@
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-calendar me-1"></i>Fecha de nacimiento</td>
                             <td class="w-100">
-                                {% if employee.date_of_birth %}{{ employee.date_of_birth | date:"d/m/Y" }}{% else %}Sin
+                                {% if account.date_of_birth %}{{ account.date_of_birth | date:"d/m/Y" }}{% else %}Sin
                                 especificar{% endif %}</td>
                         </tr>
 
@@ -121,7 +131,7 @@
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-telephone me-1"></i>Teléfono</td>
-                            <td class="w-100">{% if employee.phone %}{{ employee.phone }}{% else %}Sin
+                            <td class="w-100">{% if account.phone %}{{ account.phone }}{% else %}Sin
                                 especificar{% endif %}</td>
                         </tr>
 
@@ -130,7 +140,7 @@
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-at me-1"></i>Correo electrónico</td>
-                            <td class="w-100">{% if employee.email %}{{ employee.email }}{% else %}Sin
+                            <td class="w-100">{% if account.email %}{{ account.email }}{% else %}Sin
                                 especificar{% endif %}</td>
                         </tr>
 
@@ -139,7 +149,7 @@
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-truck me-1"></i>Vehículo</td>
                             <td class="w-100">
-                                {% if employee.vehicle_type %}{{ employee.get_vehicle_type_display }}{% else %}Sin
+                                {% if account.vehicle_type %}{{ account.get_vehicle_type_display }}{% else %}Sin
                                 especificar{% endif %}
                             </td>
                         </tr>
@@ -150,7 +160,7 @@
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-123 me-1"></i>Patente</td>
                             <td class="w-100">
-                                {% if employee.vehicle_id %}{{ employee.vehicle_id }}{% else %}Sin
+                                {% if account.vehicle_id %}{{ account.vehicle_id }}{% else %}Sin
                                 especificar{% endif %}
                             </td>
                         </tr>
@@ -159,8 +169,9 @@
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-file-text me-1"></i>DNI</td>
-                            <td class="w-100">{% if employee.dni_img %}<a
-                                    href="{{ employee.dni_img.url }}">{{ employee.dni_img.url }}</a>{% else %}No se
+                            <td class="w-100">{% if account.dni_img %}<a
+                                    href="{{ account.dni_img.url }}">{{ account.dni_img.url | truncate_start}}</a>{% else %}No
+                                se
                                 cargó{% endif %}
                             </td>
                         </tr>
@@ -169,8 +180,8 @@
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-credit-card me-1"></i>Licencia de conducir</td>
-                            <td class="w-100">{% if employee.driver_licence %}<a
-                                    href="{{ employee.driver_licence.url }}">{{ employee.driver_licence.url }}</a>{% else %}No
+                            <td class="w-100">{% if account.driver_licence %}<a
+                                    href="{{ account.driver_licence.url }}">{{ account.driver_licence.url | truncate_start}}</a>{% else %}No
                                 se
                                 cargó{% endif %}
                             </td>
@@ -180,8 +191,8 @@
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-shield-check me-1"></i>Antecedentes penales</td>
-                            <td class="w-100">{% if employee.criminal_record %}<a
-                                    href="{{ employee.criminal_record.url }}">{{ employee.criminal_record.url }}</a>{% else %}No
+                            <td class="w-100">{% if account.criminal_record %}<a
+                                    href="{{ account.criminal_record.url }}">{{ account.criminal_record.url| truncate_start}}</a>{% else %}No
                                 se
                                 cargó{% endif %}
                             </td>
@@ -191,8 +202,8 @@
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-file-text me-1"></i>VTV</td>
-                            <td class="w-100">{% if employee.vtv %}<a
-                                    href="{{ employee.vtv.url }}">{{ employee.vtv.url }}</a>{% else %}No
+                            <td class="w-100">{% if account.vtv %}<a
+                                    href="{{ account.vtv.url }}">{{ account.vtv.url | truncate_start}}</a>{% else %}No
                                 se
                                 cargó{% endif %}
                             </td>
@@ -202,8 +213,9 @@
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-shield-check me-1"></i>Seguro</td>
-                            <td class="w-100">{% if employee.insurance %}<a
-                                    href="{{ employee.insurance.url }}">{{ employee.insurance.url }}</a>{% else %}No se
+                            <td class="w-100 text-break">{% if account.insurance %}<a
+                                    href="{{ account.insurance.url }}">{{ account.insurance.url | truncate_start}}</a>{% else %}No
+                                se
                                 cargó{% endif %}
                             </td>
                         </tr>
@@ -260,7 +272,7 @@
     <!-- end CARD ENVIOS -->
 
     <form action="POST" id="id_reset_password_form" name="reset_password_form" class="d-none">{% csrf_token %}
-        <input type="text" id="id_user_id" name="user_id" value="{{ employee.pk }}">
+        <input type="text" id="id_user_id" name="user_id" value="{{ account.pk }}">
     </form>
 
 </div>
@@ -271,35 +283,46 @@
     $(document).ready(function () {
         $("#id_reset_password_form").on('submit', function (e) {
             e.preventDefault();
-            alert("submit eh?=");
             var csrftoken = getCookie('csrftoken');
             // serialize the data for sending the form data.
             var serializedData = $(this).serialize();
             // make POST ajax call
             $.ajax({
                 type: 'POST',
-                url: "{% url 'account:employees-post-password-reset' employee.pk %}",
+                url: "{% url 'account:post-password-reset' account.pk %}",
                 data: serializedData,
                 success: function (response) {
-                    // on successfull creating object
-                    // clear the form.
-                    $("#example_form").trigger('reset');
-
-                    $('#btnResetPassword').addClass('invisible');
-                    alert("listo")
+                    document.getElementById("btnResetPassword").disabled = true;
                 },
                 error: function (response) {
-                    // alert the error if any error occured
-                    alert(response["responseJSON"]["error"]);
+                    document.getElementById("btnResetPassword").disabled = false;
                 }
             });
         });
     });
 
     function resetPassword() {
-        var has_to_reset = confirm('¿Está seguro que desea resetear la contraseña del empleado?');
+        var has_to_reset = confirm('¿Estás seguro de querer resetear la contraseña del usuario?');
         if (has_to_reset) {
             $("#id_reset_password_form").submit();
+        }
+    }
+
+    function enableAccount() {
+        var has_to_reset = confirm(
+            '¿Estás seguro de querer habilitar la cuenta de este usuario? Se reiniciará su contraseña a "Cambiar123".'
+        );
+        if (has_to_reset) {
+            window.location.href = "{% url 'account:enable-account' account.pk %}"
+        }
+    }
+
+    function disableAccount() {
+        var has_to_reset = confirm(
+            '¿Está seguro de querer inhabilitar la cuenta de este usuario?'
+        );
+        if (has_to_reset) {
+            window.location.href = "{% url 'account:disable-account' account.pk %}"
         }
     }
 </script>

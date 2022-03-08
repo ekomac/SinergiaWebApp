@@ -195,7 +195,7 @@ class CreateAccountForm(forms.ModelForm):
         required=False,
     )
 
-    dni_img = forms.ImageField(
+    dni_img = forms.FileField(
         widget=forms.FileInput(
             attrs={'class': 'form-control', 'type': 'file'}
         ),
@@ -205,7 +205,7 @@ class CreateAccountForm(forms.ModelForm):
     role = forms.ChoiceField(
         choices=Account.ROLES,
         widget=forms.Select(
-            attrs={'class': 'form-control', 'type': 'select'}
+            attrs={'class': 'form-select', }
         ),
         required=True,
     )
@@ -248,7 +248,7 @@ class CreateAccountForm(forms.ModelForm):
     vehicle_type = forms.ChoiceField(
         choices=Account.VEHICLES,
         widget=forms.Select(
-            attrs={'class': 'form-control', 'type': 'select'}
+            attrs={'class': 'form-select'}
         ),
         required=False)
 
@@ -265,6 +265,7 @@ class CreateAccountForm(forms.ModelForm):
             'email',
             'username',
             'profile_picture',
+            'role',
             'client',
             'first_name',
             'last_name',
@@ -273,7 +274,6 @@ class CreateAccountForm(forms.ModelForm):
             'dni',
             'address',
             'dni_img',
-            'role',
             'driver_license',
             'criminal_record',
             'vtv',
@@ -285,32 +285,264 @@ class CreateAccountForm(forms.ModelForm):
         )
 
     def clean_client(self):
-        client = self.cleaned_data.get('client')
-        role = self.cleaned_data.get('role')
-        if client is None and role == "client":
-            raise forms.ValidationError('Cliente no seleccionado')
+        client = self.cleaned_data.get('client', '')
+        role = self.cleaned_data.get('role', '')
+        print("Cleaning client. Role=", role, "client=", client)
+        if client in [None, ''] and role == "client":
+            raise forms.ValidationError(
+                ("Si el rol es 'cliente', tenés que seleccionar \
+                    un cliente de referencia."))
+        return client
 
-    # def save(self, commit=True):
-    #     """After saving the client, save the deposit"""
-    #     # get current ticket instance
-    #     client = self.instance
-    #     if commit:
-    #         # save the ticket
-    #         if self.user is not None:
-    #             client.crcreated_by = self.user
-    #             client.save()
 
-    #             print("aca estamos")
+class UpdateAccountForm(CreateAccountForm):
 
-    #             Deposit(
-    #                 client=client,
-    #                 name=self.cleaned_data['deposit_name'],
-    #                 address=self.cleaned_data['deposit_address'],
-    #                 zip_code=self.cleaned_data['deposit_zipcode'],
-    #                 town=self.cleaned_data['deposit_town'],
-    #                 phone=self.cleaned_data['deposit_phone'],
-    #                 email=self.cleaned_data['deposit_email'],
-    #                 created_by=self.user,
-    #             ).save()
-    #     # Return the client instance (just saved or previously saved)
-    #     return client
+    email = forms.EmailField(
+        widget=forms.EmailInput(
+            attrs={'class': 'form-control', 'type': 'email'}),
+        required=True,
+    )
+
+    username = forms.CharField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'type': 'text', 'maxlength': '40'}
+        ),
+        required=True,
+    )
+
+    profile_picture = forms.ImageField(
+        widget=forms.FileInput(
+            attrs={'class': 'form-control', 'type': 'file'}
+        ),
+        required=False,
+    )
+
+    client = forms.ModelChoiceField(
+        queryset=Client.objects.all(),
+        widget=forms.Select(
+            # attrs={'class': 'form-select', }
+        ),
+        required=False,
+    )
+
+    first_name = forms.CharField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'type': 'text', 'maxlength': '30'}
+        ),
+        required=True,
+    )
+
+    last_name = forms.CharField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'type': 'text', 'maxlength': '30'}
+        ),
+        required=True,
+    )
+
+    date_of_birth = forms.DateField(
+        widget=forms.DateInput(
+            attrs={'class': 'form-control', 'type': 'date'}
+        ),
+        required=True,
+    )
+
+    phone = forms.CharField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'type': 'text', 'maxlength': '20'}
+        ),
+        required=False,
+    )
+
+    dni = forms.CharField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'type': 'text', 'maxlength': '8'}
+        ),
+        required=False,
+    )
+
+    address = forms.CharField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'type': 'text', 'maxlength': '100'}
+        ),
+        required=False,
+    )
+
+    dni_img = forms.FileField(
+        widget=forms.FileInput(
+            attrs={'class': 'form-control', 'type': 'file'}
+        ),
+        required=False,
+    )
+
+    role = forms.ChoiceField(
+        choices=Account.ROLES,
+        widget=forms.Select(
+            attrs={'class': 'form-select', }
+        ),
+        required=True,
+    )
+
+    driver_license = forms.FileField(
+        widget=forms.FileInput(
+            attrs={'class': 'form-control', 'type': 'file'}
+        ),
+        required=False,
+    )
+
+    criminal_record = forms.FileField(
+        widget=forms.FileInput(
+            attrs={'class': 'form-control', 'type': 'file'}
+        ),
+        required=False,
+    )
+
+    vtv = forms.FileField(
+        widget=forms.FileInput(
+            attrs={'class': 'form-control', 'type': 'file'}
+        ),
+        required=False,
+    )
+
+    insurance = forms.FileField(
+        widget=forms.FileInput(
+            attrs={'class': 'form-control', 'type': 'file'}
+        ),
+        required=False,
+    )
+
+    cedula = forms.FileField(
+        widget=forms.FileInput(
+            attrs={'class': 'form-control', 'type': 'file'}
+        ),
+        required=False,
+    )
+
+    vehicle_type = forms.ChoiceField(
+        choices=Account.VEHICLES,
+        widget=forms.Select(
+            attrs={'class': 'form-select'}
+        ),
+        required=False)
+
+    vehicle_id = forms.CharField(
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'type': 'text', 'maxlength': '20'}
+        ),
+        required=False,
+    )
+
+    clean_previous_profile_picture = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={'class': 'form-check-input', }),
+        initial=False,
+    )
+
+    clean_previous_dni_img = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={'class': 'form-check-input', }),
+        initial=False,
+    )
+
+    clean_previous_driver_license = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={'class': 'form-check-input', }),
+        initial=False,
+    )
+
+    clean_previous_criminal_record = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={'class': 'form-check-input', }),
+        initial=False,
+    )
+
+    clean_previous_vtv = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={'class': 'form-check-input', }),
+        initial=False,
+    )
+
+    clean_previous_insurance = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={'class': 'form-check-input', }),
+        initial=False,
+    )
+
+    clean_previous_cedula = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={'class': 'form-check-input', }),
+        initial=False,
+    )
+
+    class Meta:
+        model = Account
+        fields = (
+            'email',
+            'username',
+            'profile_picture',
+            'role',
+            'client',
+            'first_name',
+            'last_name',
+            'date_of_birth',
+            'phone',
+            'dni',
+            'address',
+            'dni_img',
+            'driver_license',
+            'criminal_record',
+            'vtv',
+            'insurance',
+            'cedula',
+            'vehicle_type',
+            'vehicle_id',
+
+        )
+
+    def save(self, commit=True):
+        """Save the account"""
+        account = super(UpdateAccountForm, self).save(commit=False)
+        self.delete_files_if_needed()
+        if commit:
+            account.save()
+        return account
+
+    def clean_client(self):
+        client = self.cleaned_data.get('client', '')
+        role = self.cleaned_data.get('role', '')
+        print("Cleaning client. Role=", role, "client=", client)
+        if client in [None, ''] and role == "client":
+            raise forms.ValidationError(
+                ("Si el rol es 'cliente', tenés que seleccionar \
+                    un cliente de referencia."))
+        return client
+
+    def delete_files_if_needed(self):
+        """Delete the file if needed"""
+        profile_picture = self.cleaned_data['clean_previous_profile_picture']
+        if 'profile_picture' not in self.changed_data and profile_picture:
+            self.instance.profile_picture.delete(False)
+        dni_img = self.cleaned_data['clean_previous_dni_img']
+        if 'dni_img' not in self.changed_data and dni_img:
+            self.instance.dni_img.delete(False)
+        driver_license = self.cleaned_data['clean_previous_driver_license']
+        if 'driver_license' not in self.changed_data and driver_license:
+            self.instance.driver_license.delete(False)
+        criminal_record = self.cleaned_data['clean_previous_criminal_record']
+        if 'criminal_record' not in self.changed_data and criminal_record:
+            self.instance.criminal_record.delete(False)
+        vtv = self.cleaned_data['clean_previous_vtv']
+        if 'vtv' not in self.changed_data and vtv:
+            self.instance.vtv.delete(False)
+        insurance = self.cleaned_data['clean_previous_insurance']
+        if 'insurance' not in self.changed_data and insurance:
+            self.instance.insurance.delete(False)
+        cedula = self.cleaned_data['clean_previous_cedula']
+        if 'cedula' not in self.changed_data and cedula:
+            self.instance.cedula.delete(False)

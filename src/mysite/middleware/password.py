@@ -12,7 +12,12 @@ class HasToResetPasswordMiddleware:
     def __call__(self, request):
         # Code to be executed for each request before
         # the view (and later middleware) are called.
-        if request.path != reverse('reset-password'):
+        if (
+            request.path != reverse('reset-password')
+            and '/api/' not in request.path
+            and request.path != reverse('login')
+            and request.path != reverse('logout')
+        ):
             if request.user.is_authenticated:
                 if request.user.has_to_reset_password:
                     return redirect(reverse('reset-password'))

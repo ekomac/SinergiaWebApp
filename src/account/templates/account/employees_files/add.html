@@ -1,6 +1,6 @@
 {% extends 'base_system.html' %} {% block content %}
 
-<div class="col-12 col-md-10 col-lg-7 col-xl-6 col-xxl-5 d-flex-block">
+<div class="col-lg-10 col-xl-9 col-xxl-8 d-flex flex-wrap m-auto">
     <form method='POST' id="id_form" class="card flex-fill shadow-lg bg-white" name="form" target="_top"
         enctype="multipart/form-data">{% csrf_token %}
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -8,24 +8,27 @@
                 Nuevo empleado
             </div>
             <div>
-                <a href="{% url 'clients:list' %}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+                <a href="{% url 'account:employees-list' %}"><i class="bi bi-arrow-left-short"></i>Volver</a>
             </div>
         </div>
         <div class="card-body">
 
+            <h4>Información de usuario</h4>
             <div class="row g-3">
-                <!-- start MAIN DATA -->
-                <h4 class="card-title mt-3">Datos principales</h4>
 
                 <!-- start ROLE SELECT -->
-                <div class="mb-3">
+                <div class="col-md-6 col-xl-4">
                     <label for="id_role" class="form-label">Rol</label>
-                    <select id="id_role" name="role" class="form-select {% if form.role.errors %}is-invalid{% endif %}">
-                        <option selected>---------</option>
-                        <option value="admin">Administrador</option>
-                        <option value="client">Cliente</option>
-                        <option value="level_1">Nivel 1</option>
-                        <option value="level_2">Nivel 2</option>
+                    <select id="id_role" name="role" class="form-select {% if form.role.errors %}is-invalid{% endif %}"
+                        required>
+                        <option value="" {% if not form.role.value %}selected{% endif %}>---------</option>
+                        <option value="admin" {% if form.role.value == 'admin' %}selected{% endif %}>Administrador
+                        </option>
+                        <option value="client" {% if form.role.value == 'client' %}selected{% endif %}>Cliente</option>
+                        <option value="level_1" {% if form.role.value == 'level_1' %}selected{% endif %}>Distribuidor +
+                            repartidor</option>
+                        <option value="level_2" {% if form.role.value == 'level_2' %}selected{% endif %}>Motoquero /
+                            repartidor </option>
                     </select>
                     <div class="invalid-feedback">
                         {% for error in form.role.errors %}{{error}}<br>{% endfor %}
@@ -34,7 +37,7 @@
                 <!-- end ROLE SELECT -->
 
                 <!-- start EMAIL INPUT -->
-                <div class="col-12">
+                <div class="col-md-6 col-xl-4">
                     <label for="id_email" class="form-label">Email</label>
                     <input id="id_email" name="email" type="email" {% if form.email.value %}value="{{form.email.value}}"
                         {% endif %} class="form-control {% if form.email.errors %}is-invalid{% endif %}" required>
@@ -46,7 +49,7 @@
                 <!-- end NAME INPUT -->
 
                 <!-- start USERNAME INPUT -->
-                <div class="col-12">
+                <div class="col-md-6 col-xl-4">
                     <label for="id_username" class="form-label">Usuario</label>
                     <input id="id_username" name="username" type="text" maxlength="40"
                         {% if form.username.value %}value="{{form.username.value}}" {% endif %}
@@ -58,7 +61,7 @@
                 <!-- end USERNAME INPUT -->
 
                 <!-- start PROFILE PIC SELECT -->
-                <div class="mb-3">
+                <div class="col-md-6 col-xl-4">
                     <label for="id_profile_picture" class="form-label">Imagen de perfil</label>
                     <input class="form-control {% if form.profile_picture.errors %}is-invalid{% endif %}" type="file"
                         id="id_profile_picture" name="profile_picture">
@@ -68,23 +71,28 @@
                 </div>
                 <!-- end PROFILE PIC SELECT -->
 
-
                 <!-- start CLIENT SELECT -->
-                <div class="mb-3">
+                <div class="col-md-6 col-xl-4">
                     <label for="id_client" class="form-label">Cliente</label>
                     <select id="id_client" name="client"
                         class="form-select {% if form.client.errors %}is-invalid{% endif %}">
-                        <option selected>---------</option>
+                        <option value="" selected>---------</option>
                         {% for client in client_list %}
-                        <option id="option-{{client.id}}" value="{{client.id}}">{{client.name | title}}</option>
+                        <option id="option-{{client.id}}" value="{{client.id}}"
+                            {% if form.client.value == client.id %}selected{% endif %}>{{client.name | title}}</option>
                         {% endfor %}
                     </select>
                     <div class="invalid-feedback">
-                        {% for error in form.client.errors %}{{client}}<br>{% endfor %}
+                        {% for error in form.client.errors %}{{error}}<br>{% endfor %}
                     </div>
                 </div>
                 <!-- end CLIENT SELECT -->
+            </div>
 
+
+            <h4 class="mt-5">Datos personales</h4>
+
+            <div class="row g-3">
                 <!-- start FIRST NAME INPUT -->
                 <div class="col-md-6">
                     <label for="id_first_name" class="form-label">Nombre</label>
@@ -111,7 +119,7 @@
                 <!-- end LAST NAME INPUT -->
 
                 <!-- start date_of_birth INPUT -->
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="id_date_of_birth" class="form-label">Fecha de nacimiento</label>
                     <input id="id_date_of_birth" name="date_of_birth" type="date"
                         {% if form.date_of_birth.value %}value="{{form.date_of_birth.value}}" {% endif %}
@@ -123,7 +131,7 @@
                 <!-- end date_of_birth INPUT -->
 
                 <!-- start dni INPUT -->
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="id_dni" class="form-label">DNI</label>
                     <input id="id_dni" name="dni" type="text" maxlength="8"
                         {% if form.dni.value %}value="{{form.dni.value}}" {% endif %}
@@ -133,9 +141,8 @@
                     </div>
                 </div>
                 <!-- end dni INPUT -->
-
                 <!-- start phone INPUT -->
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label for="id_phone" class="form-label">Teléfono</label>
                     <input id="id_phone" name="phone" type="text" maxlength="20"
                         {% if form.phone.value %}value="{{form.phone.value}}" {% endif %}
@@ -147,7 +154,7 @@
                 <!-- end phone INPUT -->
 
                 <!-- start address INPUT -->
-                <div class="col-md-6">
+                <div class="col">
                     <label for="id_address" class="form-label">Dirección</label>
                     <input id="id_address" name="address" type="text" maxlength="100"
                         {% if form.address.value %}value="{{form.address.value}}" {% endif %}
@@ -157,29 +164,26 @@
                     </div>
                 </div>
                 <!-- end address INPUT -->
+            </div>
 
-                <!-- start dni_img SELECT -->
-                <div class="mb-3">
-                    <label for="id_dni_img" class="form-label">Foto del DNI</label>
-                    <input class="form-control {% if form.dni_img.errors %}is-invalid{% endif %}" type="file"
-                        id="id_dni_img" name="dni_img">
-                    <div class="invalid-feedback">
-                        {% for error in form.dni_img.errors %}{{error}}<br>{% endfor %}
-                    </div>
-                </div>
-                <!-- end dni_img SELECT -->
-
+            <h4 class="mt-5">Vehículo</h4>
+            <div class="row g-3">
                 <!-- start vehicle_type SELECT -->
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6 col-xl-5 col-xxl-4">
                     <label for="id_vehicle_type" class="form-label">Tipo de vehículo</label>
                     <select id="id_vehicle_type" name="vehicle_type"
                         class="form-select {% if form.vehicle_type.errors %}is-invalid{% endif %}">
-                        <option selected>---------</option>
-                        <option value="car">Automóvil</option>
-                        <option value="motorcycle">Motocicleta</option>
-                        <option value="truck">Camión</option>
-                        <option value="van">Camioneta</option>
-                        <option value="other">Otro</option>
+                        <option value="" {% if not form.vehicle_type.value %}selected{% endif %}>---------</option>
+                        <option value="car" {% if form.vehicle_type.value == 'car' %}selected{% endif %}>Automóvil
+                        </option>
+                        <option value="motorcycle" {% if form.vehicle_type.value == 'motorcycle' %}selected{% endif %}>
+                            Motocicleta</option>
+                        <option value="truck" {% if form.vehicle_type.value == 'truck' %}selected{% endif %}>Camión
+                        </option>
+                        <option value="van" {% if form.vehicle_type.value == 'van' %}selected{% endif %}>Camioneta
+                        </option>
+                        <option value="other" {% if form.vehicle_type.value == 'other' %}selected{% endif %}>Otro
+                        </option>
                     </select>
                     <div class="invalid-feedback">
                         {% for error in form.vehicle_type.errors %}{{error}}<br>{% endfor %}
@@ -188,7 +192,7 @@
                 <!-- end vehicle_type SELECT -->
 
                 <!-- start vehicle_id INPUT -->
-                <div class="col-md-6 mb-3">
+                <div class="col-md-6 col-xl-4 col-xxl-3">
                     <label for="id_vehicle_id" class="form-label">Patente</label>
                     <input id="id_vehicle_id" name="vehicle_id" type="text" maxlength="20"
                         {% if form.vehicle_id.value %}value="{{form.vehicle_id.value}}" {% endif %}
@@ -199,8 +203,24 @@
                 </div>
                 <!-- end vehicle_id INPUT -->
 
+            </div>
+
+            <h4 class="mt-5">Documentación</h4>
+
+            <div class="row g-3">
+                <!-- start dni_img SELECT -->
+                <div class="col-md-6">
+                    <label for="id_dni_img" class="form-label">DNI (foto, PDF)</label>
+                    <input class="form-control {% if form.dni_img.errors %}is-invalid{% endif %}" type="file"
+                        id="id_dni_img" name="dni_img">
+                    <div class="invalid-feedback">
+                        {% for error in form.dni_img.errors %}{{error}}<br>{% endfor %}
+                    </div>
+                </div>
+                <!-- end dni_img SELECT -->
+
                 <!-- start driver_license SELECT -->
-                <div class="mb-3">
+                <div class="col-md-6">
                     <label for="id_driver_license" class="form-label">Licencia de conducir</label>
                     <input class="form-control {% if form.driver_license.errors %}is-invalid{% endif %}" type="file"
                         id="id_driver_license" name="driver_license">
@@ -211,7 +231,7 @@
                 <!-- end driver_license SELECT -->
 
                 <!-- start criminal_record SELECT -->
-                <div class="mb-3">
+                <div class="col-md-6">
                     <label for="id_criminal_record" class="form-label">Antecedentes penales</label>
                     <input class="form-control {% if form.criminal_record.errors %}is-invalid{% endif %}" type="file"
                         id="id_criminal_record" name="criminal_record">
@@ -223,7 +243,7 @@
 
 
                 <!-- start vtv SELECT -->
-                <div class="mb-3">
+                <div class="col-md-6">
                     <label for="id_vtv" class="form-label">VTV</label>
                     <input class="form-control {% if form.vtv.errors %}is-invalid{% endif %}" type="file" id="id_vtv"
                         name="vtv">
@@ -234,7 +254,7 @@
                 <!-- end vtv SELECT -->
 
                 <!-- start insurance SELECT -->
-                <div class="mb-3">
+                <div class="col-md-6">
                     <label for="id_insurance" class="form-label">Seguro</label>
                     <input class="form-control {% if form.insurance.errors %}is-invalid{% endif %}" type="file"
                         id="id_insurance" name="insurance">
@@ -245,7 +265,7 @@
                 <!-- end insurance SELECT -->
 
                 <!-- start cedula SELECT -->
-                <div class="mb-3">
+                <div class="col-md-6">
                     <label for="id_cedula" class="form-label">Seguro</label>
                     <input class="form-control {% if form.cedula.errors %}is-invalid{% endif %}" type="file"
                         id="id_cedula" name="cedula">
@@ -254,14 +274,15 @@
                     </div>
                 </div>
                 <!-- end cedula SELECT -->
+            </div>
 
-                <!-- START SUMBIT BUTTON -->
+            <!-- START SUMBIT BUTTON -->
+            <div class="row mt-4">
                 <div class="d-grid gap-2 d-md-flex">
                     <input type="submit" value="Guardar" class="btn btn-primary">
                 </div>
-                <!-- END SUMBIT BUTTON -->
-
             </div>
+            <!-- END SUMBIT BUTTON -->
 
         </div>
     </form>
@@ -269,21 +290,7 @@
 </div>
 
 <script>
-    var places = JSON.parse('{{ places | escapejs }}');
-    $(document).ready(function () {
-        $('#id_deposit_town').find('option:not(:first)').remove();
-        $('#inputPartido').on('inputchange', function () {
-            var selectedPartidoId = this.value.toString();
-            var placesFromPartido = places.filter(function (place) {
-                return place.partido_id == selectedPartidoId;
-            });
-            $('#id_deposit_town').find('option:not(:first)').remove();
-            for (var element of placesFromPartido) {
-                $('#id_deposit_town').append('<option value="' + element.id + '">' + element.name +
-                    '</option>');
-            }
-        });
-    });
+
 </script>
 
 {% endblock %}

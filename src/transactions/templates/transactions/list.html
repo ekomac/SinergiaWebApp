@@ -40,7 +40,6 @@
     }
 </style>
 
-
 <div class="col-12 col-lg-8 d-flex flex-column">
     <div class="mb-2 fs-5 fw-bold d-flex align-items-center">
         Movimientos <a href="{% url 'transactions:add' %}" type="button"
@@ -48,7 +47,7 @@
     </div>
 
     <div class="row">
-        <div class="col-12 col-md-7">
+        <div class="col-12 col-md-8">
 
             <div class="card flex-fill shadow">
 
@@ -131,8 +130,7 @@
                     <div>
                         <p class="card-text">
                             Aún no se registraron movimientos. Hacé <a href="{% url 'transactions:add' %}">click acá</a>
-                            para
-                            crear uno.
+                            para crear uno.
                         </p>
                     </div>
 
@@ -143,19 +141,7 @@
             </div>
         </div>
 
-        <div class="col-12 col-md-5 ps-md-2 pt-2 pt-md-0">
 
-            {% for i in '0123456789'|make_list %}
-            <div class="card flex-fill mb-3 shadow">
-
-                <div class="card-body d-flex flex-column">
-
-                    Alguna info con algún gráfico
-
-                </div>
-            </div>
-            {% endfor %}
-        </div>
     </div>
 
 </div>

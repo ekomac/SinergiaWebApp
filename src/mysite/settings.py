@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'tickets',
     'tracking',
     'transactions',
+    'logger',
 
     # DJANGO
     'django.contrib.admin',
@@ -91,6 +92,7 @@ MIDDLEWARE = [
     'simple_history.middleware.HistoryRequestMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'mysite.middleware.password.HasToResetPasswordMiddleware',
+    'mysite.middleware.logging.LogMiddleware',
 ]
 
 

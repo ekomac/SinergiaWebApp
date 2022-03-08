@@ -1,9 +1,13 @@
 # Python
+from django.http import HttpResponse, JsonResponse
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import Group
 from datetime import datetime
 import unidecode
 from typing import List, Tuple
 
 # Django
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import login, authenticate, logout
@@ -12,13 +16,20 @@ from django.shortcuts import get_object_or_404, render, redirect
 
 # Project
 from account.decorators import allowed_users, allowed_users_in_class_view
-from account.forms import AccountAuthenticationForm, PasswordResetForm
+from account.forms import (
+    AccountAuthenticationForm,
+    CreateAccountForm,
+    PasswordResetForm,
+    UpdateAccountForm
+)
 from account.models import Account
 from clients.models import Client
 from envios.models import Envio
-from home.views import redirect_no_url
 from utils.alerts.alert import ToastAlert
-from utils.views import CompleteListView
+from utils.alerts.views import (
+    create_alert_and_redirect, update_alert_and_redirect)
+from utils.forms import CheckPasswordForm
+from utils.views import CompleteListView, DeleteObjectsUtil, truncate_start
 
 
 DEFAULT_RESULTS_PER_PAGE = 30
@@ -48,6 +59,9 @@ def login_view(request):
             password = request.POST['password']
             user = authenticate(
                 email=email, password=password)
+
+            if not user.is_active:
+                return HttpResponse("Usuario inactivo.")
 
             if user:
                 login(request, user)
@@ -82,12 +96,12 @@ class EmployeesListView(CompleteListView, LoginRequiredMixin):
     template_name = 'account/employees_files/list.html'
     model = Account
     decoders = (
-        {
-            'key': 'is_active',
-            'filter': 'is_active',
-            'function': lambda x: True if x == 'true' else False,
-            'context': lambda x: x,
-        },
+        # {
+        #     'key': 'is_active',
+        #     'filter': 'is_active',
+        #     'function': lambda x: True if x == 'true' else False,
+        #     'context': lambda x: x,
+        # },
         {
             'key': 'has_envios',
             'filter': 'envios_carried_by__isnull',
@@ -100,7 +114,7 @@ class EmployeesListView(CompleteListView, LoginRequiredMixin):
         'client__name__icontains', 'email__icontains', 'dni__icontains',
         'phone__icontains', 'address__icontains',)
 
-    selected_tab = 'files-tab'
+    selected_tab = 'accounts-tab'
 
     @allowed_users_in_class_view(roles=["Admins"])
     def get(self, request):
@@ -108,11 +122,11 @@ class EmployeesListView(CompleteListView, LoginRequiredMixin):
 
     def get_model_queryset(self):
         queryset = super().get_model_queryset()
-        filters = {
-            'groups__name__in': ['Admins', 'Level 1', 'Level 2'],
-            'is_active': True,
-        }
-        return queryset.filter(**filters)
+        # filters = {
+        #     # 'groups__name__in': ['Admins', 'Level 1', 'Level 2'],
+        #     'is_active': True,
+        # }
+        return queryset  # .filter(**filters)
 
     def queryset_map_callable(self, obj):
         envios_carried = Envio.objects.filter(
@@ -126,7 +140,7 @@ class EmployeesListView(CompleteListView, LoginRequiredMixin):
 
 
 def get_employees_queryset(
-        query: str = None, order_by_key: str = 'name',
+        query: str = None, order_by_key: str = 'last_name',
 ) -> List[Account]:
     """Get all employees that match provided query, if any. If none is given,
     returns all employees. Also, performs the query in the specified
@@ -149,7 +163,7 @@ def get_employees_queryset(
             Q(username__icontains=query) |
             Q(email__icontains=query) |
             Q(dni__icontains=query)
-        ).order_by(order_by_key).distinct())))
+        ).order_by('is_active', order_by_key).distinct())))
 
 
 def map_employees_to_tuple(account: Account) -> Tuple[Account, int]:
@@ -171,37 +185,199 @@ def map_employees_to_tuple(account: Account) -> Tuple[Account, int]:
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
-def employee_create_view(request):
+def create_user_view(request):
     context = {
-        'selected_tab': 'files-tab',
+        'selected_tab': 'accounts-tab',
         'client_list': Client.objects.all(),
     }
+    form = CreateAccountForm()
+    if request.method == 'POST':
+        form = CreateAccountForm(request.POST or None, request.FILES or None)
+        if form.is_valid():
+            account = form.save(commit=False)
+            account.set_password(settings.DEFAULT_RESET_PASSWORD)
+            account.save()
+            if account.role == "admin":
+                group = Group.objects.get(name='Admins')
+            if account.role == "client":
+                group = Group.objects.get(name='Clients')
+            if account.role == "level_1":
+                group = Group.objects.get(name='Level 1')
+            if account.role == "level_2":
+                group = Group.objects.get(name='Level 2')
+            account.groups.add(group)
+            account.save()
+            msg = 'El usuario "{}" se creó correctamente.'.format(
+                account.full_name.title()
+            )
+            return create_alert_and_redirect(
+                request, msg, 'account:employees-list')
+    context['form'] = form
     return render(request, 'account/employees_files/add.html', context)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def update_user_view(request, pk):
+    context = {
+        'selected_tab': 'accounts-tab',
+        'client_list': Client.objects.all(),
+    }
+    account = get_object_or_404(Account, pk=pk)
+    form = UpdateAccountForm(instance=account)
+
+    if account.profile_picture:
+        context['profile_picture'] = {
+            'url': account.profile_picture.url,
+            'text': truncate_start(account.profile_picture.url),
+        }
+    if account.dni_img:
+        context['dni_img'] = {
+            'url': account.dni_img.url,
+            'text': truncate_start(account.dni_img.url),
+        }
+    if account.driver_license:
+        context['driver_license'] = {
+            'url': account.driver_license.url,
+            'text': truncate_start(account.driver_license.url),
+        }
+    if account.criminal_record:
+        context['criminal_record'] = {
+            'url': account.criminal_record.url,
+            'text': truncate_start(account.criminal_record.url),
+        }
+    if account.vtv:
+        context['vtv'] = {
+            'url': account.vtv.url,
+            'text': truncate_start(account.vtv.url),
+        }
+    if account.insurance:
+        context['insurance'] = {
+            'url': account.insurance.url,
+            'text': truncate_start(account.insurance.url),
+        }
+    if account.cedula:
+        context['cedula'] = {
+            'url': account.cedula.url,
+            'text': truncate_start(account.cedula.url),
+        }
+
+    if request.method == 'POST':
+        form = UpdateAccountForm(request.POST or None,
+                                 request.FILES or None,
+                                 instance=account)
+        if form.is_valid():
+            account = form.save(commit=False)
+            account.save()
+            account.groups.clear()
+            if account.role == "admin":
+                group = Group.objects.get(name='Admins')
+            if account.role == "client":
+                group = Group.objects.get(name='Clients')
+            if account.role == "level_1":
+                group = Group.objects.get(name='Level 1')
+            if account.role == "level_2":
+                group = Group.objects.get(name='Level 2')
+            account.groups.add(group)
+            account.save()
+            msg = 'El usuario "{}" se actualizó correctamente.'.format(
+                account.full_name.title()
+            )
+            return update_alert_and_redirect(
+                request, msg, 'account:employees-list')
+    context['form'] = form
+    return render(request, 'account/employees_files/edit.html', context)
 
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
 def employee_detail_view(request, pk):
     context = {}
-    employee = get_object_or_404(Account, pk=pk)
-    context['employee'] = employee
-    context['selected_tab'] = 'files-tab'
+    account = get_object_or_404(Account, pk=pk)
+    context['account'] = account
+    context['selected_tab'] = 'accounts-tab'
     context['envios'] = Envio.objects.filter(
-        carrier__id=employee.pk, status__in=[Envio.STATUS_MOVING]
+        carrier__id=account.pk, status__in=[Envio.STATUS_MOVING]
     ).order_by('-date_created')
     return render(request, 'account/employees_files/detail.html', context)
 
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
-def employee_edit_view(request, pk):
-    return render(request, 'account/employees_files/edit.html', {})
+def employee_delete_view(request, pk):
+    return render(request, 'account/employees_files/delete.html', {})
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
+def account_delete_view(request, pk, **kwargs):
+
+    delete_utility = DeleteObjectsUtil(
+        model=Account,
+        model_ids=pk,
+        order_by='date_created',
+        request=request,
+        selected_tab='accounts-tab'
+    )
+
+    context = {}
+    if request.method == 'POST':
+        form = CheckPasswordForm(request.POST or None,
+                                 current_password=request.user.password)
+        if form.is_valid():
+            delete_utility.delete_objects()
+            delete_utility.create_alert()
+            return redirect('clients:list')
+    else:  # Meaning is a GET request
+        form = CheckPasswordForm()
+    context = delete_utility.get_context_data()
+    context['form'] = form
+    client = get_object_or_404(Client, pk=pk)
+    context['client'] = client
+    context['deposits'] = client.deposit_set.all()
+    context['discounts'] = client.discount_set.all()
+    return render(request, "clients/delete.html", context)
 
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
-def employee_delete_view(request, pk):
-    return render(request, 'account/employees_files/delete.html', {})
+def ajax_password_reset(request, pk):
+    account = get_object_or_404(Account, pk=pk)
+    account.set_password(settings.DEFAULT_RESET_PASSWORD)
+    token: Token = Token.objects.filter(user=account)
+    new_key = token[0].generate_key()
+    token.update(key=new_key)
+    account.has_to_reset_password = True
+    account.save()
+    return JsonResponse({'status': 'ok'})
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def enable_account_and_return_to_detail_view(request, pk):
+    account = get_object_or_404(Account, pk=pk)
+    account.set_password(settings.DEFAULT_RESET_PASSWORD)
+    account.is_active = True
+    token: Token = Token.objects.filter(user=account)
+    new_key = token[0].generate_key()
+    token.update(key=new_key)
+    account.has_to_reset_password = True
+    account.save()
+    return employee_detail_view(request, pk)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def disable_account_and_return_to_detail_view(request, pk):
+    account = get_object_or_404(Account, pk=pk)
+    account.set_password(settings.DEFAULT_RESET_PASSWORD)
+    account.is_active = False
+    token: Token = Token.objects.filter(user=account)
+    new_key = token[0].generate_key()
+    token.update(key=new_key)
+    account.has_to_reset_password = True
+    account.save()
+    return employee_detail_view(request, pk)
 
 
 @login_required(login_url='/login/')
@@ -223,6 +399,6 @@ def reset_password_view(request):
             alerts.append(alert.get_as_dict())
             # Set them back to request's session
             request.session['alerts'] = alerts
-            return redirect_no_url(request)
+            return login_view(request)
     context = {'form': form}
     return render(request, 'account/reset_password.html', context)
