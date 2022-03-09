@@ -2,14 +2,12 @@
 from django.db.models.signals import post_save
 import json
 from decimal import Decimal
-from typing import Any, Dict
+from typing import Any, Dict, List, Tuple
 
 # Django
 from django.conf import settings
 from django.db import models
 from django.dispatch import receiver
-# from django.db.models.signals import post_save
-# from django.dispatch import receiver
 
 # Project
 from envios.models import Envio
@@ -31,14 +29,40 @@ class Summary(models.Model):
     last_calculated_total = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name='Último total calculado',
         blank=True, null=True)
-    # envios = models.ManyToManyField(
-    #     Envio, verbose_name='Envíos', blank=True, null=True)
+
+    @property
+    def envios_queried(self):
+        return self.__get_envios()
 
     def __get_envios(self):
         return Envio.objects.filter(**self.get_envios_filters())
 
     def get_envios_filters(self) -> Dict[str, Any]:
         raise NotImplementedError("This method should be overrided.")
+
+    def process(self) -> Tuple[List[Dict[str, Any]], Decimal]:
+        total = 0
+        envios = []
+        for envio in self.__get_envios():
+            if envio.is_flex:
+                code = envio.town.flex_code
+                code_type = "Flex"
+            else:
+                code = envio.town.delivery_code
+                code_type = "Mensajería"
+            date = envio.date_delivered.strftime("%d/%m/%Y")
+            total += envio.price
+            as_dict = {
+                'id': envio.pk,
+                'destination': envio.full_address,
+                'price': str(envio.price),
+                'code': code.code,
+                'code_type': code_type,
+                'date_delivered': date,
+                'detail': envio.get_detail_readable(),
+            }
+            envios.append(as_dict)
+        return envios, round(total)
 
     def total_cost(self) -> Decimal:
         total = Decimal(0)

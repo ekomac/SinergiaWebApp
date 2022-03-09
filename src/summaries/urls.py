@@ -9,7 +9,8 @@ from .views import (
     employee_summary_detail_view,
     print_csv_summary,
     print_xls_summary,
-    print_pdf_summary,
+    print_pdf_client_summary,
+    print_pdf_employee_summary,
     ajax_get_client_summary_total_cost,
     ajax_get_employee_summary_total_cost,
 )
@@ -31,7 +32,7 @@ urlpatterns = [
         'clients/<int:pk>/print-xls/', print_xls_summary,
         name="client-print-excel"),
     path(
-        'clients/<int:pk>/print-pdf/', print_pdf_summary,
+        'clients/<int:pk>/print-pdf/', print_pdf_client_summary,
         name="client-print-pdf"),
     path(
         'employees/', EmployeeSummaryListView.as_view(),
@@ -48,7 +49,7 @@ urlpatterns = [
         'employees/<int:pk>/print-xls/', print_xls_summary,
         name="employee-print-excel"),
     path(
-        'employees/<int:pk>/print-pdf/', print_pdf_summary,
+        'employees/<int:pk>/print-pdf/', print_pdf_employee_summary,
         name="employee-print-pdf"),
     path(
         'employees/<int:pk>/total-cost/', ajax_get_employee_summary_total_cost,

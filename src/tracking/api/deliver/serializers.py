@@ -4,6 +4,7 @@ from django.conf import settings
 from rest_framework import serializers
 from envios.models import Envio
 from tracking.models import TrackingMovement
+from tracking.utils.delivery import delivery_attempt
 
 # from tracking.utils.delivery import delivery_attempt
 
@@ -138,24 +139,27 @@ class SuccessfulDeliverySerializer(serializers.ModelSerializer):
         author = self.validated_data['created_by']
         envio_tracking_id = self.validated_data['envio_tracking_id']
         receiver_doc_id = self.validated_data['receiver_doc_id']
-        movement = TrackingMovement(
-            created_by=author,
-            from_carrier=author,
-            action=TrackingMovement.ACTION_DELIVERY_ATTEMPT,
-            result=TrackingMovement.RESULT_DELIVERED,
-        )
-        movement.save()
+        return delivery_attempt(
+            author, TrackingMovement.RESULT_DELIVERED,
+            envio_tracking_id, receiver_doc_id)
 
-        envio = Envio.objects.filter(tracking_id=envio_tracking_id).first()
+# movement = TrackingMovement(
+#     created_by=author,
+#     from_carrier=author,
+#     action=TrackingMovement.ACTION_DELIVERY_ATTEMPT,
+#     result=TrackingMovement.RESULT_DELIVERED,
+# )
+# movement.save()
 
-        # Add envios to the movement
-        movement.envios.add(envio)
+# envio = Envio.objects.filter(tracking_id=envio_tracking_id).first()
 
-        envio.status = Envio.STATUS_DELIVERED
-        envio.carrier = None
-        envio.deposit = None
-        envio.date_delivered = movement.date_created
-        envio.updated_by = movement.created_by
-        envio.receiver_doc = receiver_doc_id
-        envio.save()
-        return movement, envio
+# # Add envios to the movement
+# movement.envios.add(envio)
+
+# envio.status = Envio.STATUS_DELIVERED
+# envio.carrier = None
+# envio.deposit = None
+# envio.date_delivered = movement.date_created
+# envio.updated_by = movement.created_by
+# envio.receiver_doc = receiver_doc_id
+# envio.save()

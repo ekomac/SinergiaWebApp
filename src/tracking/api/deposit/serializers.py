@@ -265,7 +265,6 @@ class EnviosToDepositFilteredRequestSerializer(serializers.ModelSerializer):
         envios_tracking_ids = self.validated_data.get(
             'envios_tracking_ids', None)
         if envios_tracking_ids is not None:
-            print("envios_tracking_ids", envios_tracking_ids)
             filters['tracking_id__in'] = envios_tracking_ids
         partidos_ids = self.validated_data.get('partidos_ids', None)
         if partidos_ids is not None:

@@ -189,11 +189,16 @@
         });
 
         $('#btnPrintPDF').click(function () {
-            if (true) {
+            /*if (true) {
                 alert("Proximamente...");
-            } else {
+            } else {*/
+            let type = "{{ type }}"
+            if (type == 'client') {
                 window.location.href = "{% url 'summaries:client-print-pdf' summary.pk %}";
+            } else {
+                window.location.href = "{% url 'summaries:employee-print-pdf' summary.pk %}";
             }
+            /*}*/
         });
 
         const url =

@@ -8,6 +8,7 @@ def delivery_attempt(
         author: Account,
         result_obtained: str,
         envio_tracking_id: int,
+        receiver_doc_id: str = None,
         proof_file=None,
         comment: str = ""
 ) -> Tuple[TrackingMovement, Envio]:
@@ -32,6 +33,7 @@ def delivery_attempt(
         created_by=author,
         from_carrier=author,
         action=TrackingMovement.ACTION_DELIVERY_ATTEMPT,
+        receiver_doc_id=receiver_doc_id,
         result=result_obtained,
         proof=proof_file,
         comment=comment,

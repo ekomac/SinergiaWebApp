@@ -1,8 +1,10 @@
 # Python
+from io import BytesIO
+from summaries.util.pdf import PDFSummaryReport
 import csv
 import os
 from datetime import datetime, timedelta
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
 # Django
 from django.conf import settings
@@ -177,6 +179,7 @@ def client_summary_detail_view(request, pk):
         'selected_tab': 'clients-summaries-tab',
         'envios': envios,
         'total_envios': len(envios),
+        'type': 'client',
     }
     return render(request, 'summaries/detail.html', ctx)
 
@@ -191,6 +194,7 @@ def employee_summary_detail_view(request, pk):
         'selected_tab': 'employees-summaries-tab',
         'envios': envios,
         'total_envios': len(envios),
+        'type': 'employee',
     }
     return render(request, 'summaries/detail.html', ctx)
 
@@ -292,10 +296,33 @@ def print_xls_summary(request, pk):
         data=data, output_filename=filename, worksheet_name='Reporte')
 
 
+def print_pdf_summary(
+    summary: Union[ClientSummary, EmployeeSummary]
+) -> HttpResponse:
+    pdf_name = "%s.pdf" % str(summary)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = (
+        'attachment; filename="%s.pdf"' % pdf_name)
+    buffer = BytesIO()
+    pdf = PDFSummaryReport(buffer, summary)
+    pdf.create()
+    response.write(buffer.getvalue())
+    buffer.close()
+    return response
+
+
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
-def print_pdf_summary(request, pk):
-    pass
+def print_pdf_client_summary(request, pk):
+    summary = get_object_or_404(ClientSummary, pk=pk)
+    return print_pdf_summary(summary)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def print_pdf_employee_summary(request, pk):
+    summary = get_object_or_404(EmployeeSummary, pk=pk)
+    return print_pdf_summary(summary)
 
 
 @login_required(login_url='/login/')

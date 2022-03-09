@@ -1,531 +1,190 @@
-# from reportlab.lib.units import inch, cm
-# import os
-# from typing import Any, Dict, List
-# from django.conf import settings
-
-# Reportlab
-from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_CENTER
-from reportlab.pdfgen.canvas import Canvas
-from reportlab.platypus import Paragraph, Frame, Table, TableStyle
+from django.conf import settings
+from datetime import datetime
+from decimal import Decimal
+from typing import Any, Dict, List, Tuple, Union
+from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
+from reportlab.platypus import (
+    BaseDocTemplate, Frame,  PageTemplate,
+    Paragraph, TableStyle)
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.enums import TA_LEFT
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus.doctemplate import SimpleDocTemplate
 from reportlab.platypus.flowables import Image
-from reportlab.platypus import Flowable
-from reportlab.graphics.barcode import qr
-from reportlab.graphics import renderPDF
-from reportlab.graphics.shapes import Drawing
 from reportlab.platypus.tables import LongTable
-
-
-# from envios.models import Envio
-
-
-# class PDFReport(object):
-
-#     LOGO_BASE_SCALAR = 0.68
-#     LOGO_BASE_WIDTH = 189.86
-#     LOGO_BASE_HEIGHT = 35.796
-
-#     def __init__(self, buffer, **kwargs):
-#         self.COLS = 12 if not kwargs.get("cols", None) else kwargs["cols"]
-#         self.ROWS = 16 if not kwargs.get("rows", None) else kwargs["rows"]
-#         self.MAX_WIDTH, self.MAX_HEIGHT = A4
-#         self.PADDING = 15 if not kwargs.get(
-#             "padding", None) else kwargs["padding"]
-#         available_width = int(self.MAX_WIDTH) - self.PADDING * 3
-#         available_height = int(self.MAX_HEIGHT) - self.PADDING * 3
-#         self.BASE_FRAME_WIDTH = available_width/2
-#         self.BASE_FRAME_HEIGHT = available_height/2
-#         self.TABLE_HIEGHT_UNIT = self.BASE_FRAME_HEIGHT/self.ROWS
-#         self.stylesheet = getSampleStyleSheet()
-#         self.canvas = Canvas(buffer)
-#         self.create_images()
-#         self.current_position = 1
-
-#     def create_images(self):
-#         self.logo = Image(os.path.join(
-#             settings.STATIC_ROOT, 'logo_color.png'),
-#             self.LOGO_BASE_WIDTH*self.LOGO_BASE_SCALAR,
-#             self.LOGO_BASE_HEIGHT*self.LOGO_BASE_SCALAR
-#         )
-
-#     def create(self, data: List[Dict[str, Any]]):
-#         for envio in data:
-#             self.create_frame(envio)
-#             self.update_position()
-#         return self.canvas.save()
-
-#     def update_position(self):
-#         if self.current_position < 4:
-#             self.current_position += 1
-#         else:
-#             self.current_position = 1
-#             self.canvas.showPage()
-
-#     def create_frame(self, envio: Envio) -> None:
-#         x = y = self.PADDING
-#         if self.current_position == 1:
-#             y = self.MAX_HEIGHT - self.PADDING - self.BASE_FRAME_HEIGHT
-#         if self.current_position == 2:
-#             x = self.MAX_WIDTH - self.PADDING - self.BASE_FRAME_WIDTH
-#             y = self.MAX_HEIGHT - self.PADDING - self.BASE_FRAME_HEIGHT
-#         if self.current_position == 4:
-#             x = self.MAX_WIDTH - self.PADDING - self.BASE_FRAME_WIDTH
-#         frame = Frame(x, y,
-#                       self.BASE_FRAME_WIDTH,
-#                       self.BASE_FRAME_HEIGHT,
-#                       showBoundary=1, topPadding=0)
-#         story = self.get_story_from_data(envio)
-#         frame.addFromList(story, self.canvas)
-
-#     def get_story_from_data(self, envio: Envio) -> List[Any]:
-#         envio_type = "Mercado Envíos Flex" if envio.is_flex else "Mensajería"
-#         header = self.get_table_header(envio.client.name, envio_type)
-#         qr_code = self.get_qr_code(
-#             envio.id, envio.client.id, envio.town.id)
-#         table_below_qr_code = self.get_table_below_qr_code(
-#             envio.id,
-#             envio.town.name,
-#             envio.town.partido.name)
-#         final_table = self.get_final_table(
-#             name=envio.name,
-#             address=envio.street,
-#             zip_code=envio.zipcode,
-#             entrances=envio.remarks,
-#             phone=envio.phone
-#         )
-#         return [header, qr_code, table_below_qr_code, final_table]
-
-#     def get_table_header(
-#         self,
-#         client_name: str = "",
-#         envio_type: str = ""
-#     ) -> Table:
-#         client_paragraph_style = self.stylesheet["Normal"]
-#         client_paragraph_style.alignment = 1
-#         client_paragraph_style.fontName = "Helvetica"
-#         client_paragraph = Paragraph(
-#             f"<strong>{client_name}<br/>{envio_type}</strong>",
-#             client_paragraph_style)
-#         header_data = [[self.logo, client_paragraph]]
-#         table_header_style = TableStyle([
-#             ('LINEBELOW', (0, 0), (-1, -1), 0.5, colors.black),
-#             ('INNERGRID', (0, 0), (-1, -1), 0.5, colors.black),
-#             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-#             ('ALIGN', (0, 0), (-1, -1), 'CENTRE'),
-#             ('TOPPADDING', (0, 0), (-1, -1), 10),
-#             ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
-#         ])
-#         table = Table(
-#             header_data, self.BASE_FRAME_WIDTH/2, self.TABLE_HIEGHT_UNIT*1.5)
-#         table.setStyle(table_header_style)
-#         return table
-
-#     def get_table_below_qr_code(
-#         self,
-#         envio_id: str = "",
-#         envio_town: str = "",
-#         envio_partido: str = ""
-#     ) -> Table:
-#         data = [
-#             [envio_id],
-#             [envio_town],
-#             [envio_partido],
-#             ["Destino"],
-#         ]
-#         table_style = TableStyle([
-#             ('TOPPADDING', (0, 0), (0, 0), 0),
-#             ('BOTTOMPADDING', (0, 2), (0, 2), 10),
-#             ('FONTNAME', (0, 0), (0, 2), "Helvetica-Bold"),
-#             ('FONTSIZE', (0, 0), (0, 2), 12),
-#             ('ALIGN', (0, 0), (0, 2), "CENTRE"),
-#             ('FONTNAME', (0, 3), (0, 3), "Helvetica-Bold"),
-#             ('FONTSIZE', (0, 3), (0, 3), 10),
-#             ('LINEABOVE', (0, 3), (0, 3), 0.5, colors.black),
-#             ('LINEBELOW', (0, 3), (0, 3), 0.5, colors.black),
-#             ('VALIGN', (0, 0), (0, 3), "MIDDLE"),
-#             ('LEFTPADDING', (-1, -1), (-1, -1), 10),
-#         ])
-#         table = Table(data, self.BASE_FRAME_WIDTH)
-#         table.setStyle(table_style)
-#         return table
-
-#     def get_final_table(
-#         self,
-#         **kwargs
-#     ) -> Table:
-#         """
-#         This are the kwargs for the data:
-#         name, address, zip_code, reference, phone.
-#         By default, they are initialized as 'No especificado'.
-#         """
-#         keys = ['name', 'address', 'zip_code', 'entrances', 'phone']
-#         for key in keys:
-#             kwargs[key] = kwargs[key] if kwargs[key] else 'No especificado'
-
-#         styleN = self.stylesheet["BodyText"]
-#         styleN.alignment = TA_LEFT
-#         data = []
-#         styles = [
-#             ('TOPPADDING', (0, 0), (1, 0), 6),
-#             ('LEFTPADDING', (0, 0), (0, -1), 10),
-#             ('ALIGN', (1, 0), (-1, -1), "LEFT"),
-#             ('VALIGN', (0, 0), (-1, -1), "TOP"),
-#         ]
-#         if kwargs['name'] != 'No especificado':
-#             data.append([self.person_image, Paragraph(kwargs['name'], styleN),
-#                         "", "", "", "", "", "", "", "", "", ""])
-#         data.append([self.maps_image, Paragraph(
-#             f"<b>{kwargs['address']}</b>", styleN),
-#             "", "", "", "", "", "", "", "", "", ""])
-#         if kwargs['zip_code'] != 'No especificado':
-#             data.append(["", Paragraph(
-#                 f"<b>CP:</b> {kwargs['zip_code']}", styleN),
-#                 "", "", "", "", "", "", "", "", "", ""])
-#         if kwargs['entrances'] != 'No especificado':
-#             data.append(["", Paragraph(
-#                 f"<b>Referencias:</b> {kwargs['entrances']}", styleN),
-#                 "", "", "", "", "", "", "", "", "", ""])
-#         if kwargs['phone'] != 'No especificado':
-#             data.append([self.phone_image, Paragraph(kwargs['phone'], styleN),
-#                         "", "", "", "", "", "", "", "", "", ""])
-
-#         for i in range(len(data)):
-#             styles.append(('SPAN', (1, i), (-1, i)))
-
-#         tstyle = TableStyle(styles)
-#         table = Table(data, self.BASE_FRAME_WIDTH/12, spaceBefore=6)
-#         table.setStyle(tstyle)
-#         return table
-
-
-# def main():
-#     stylesheet = getSampleStyleSheet()
-#     canvas = Canvas("ejemplo.pdf")
-#     story = []
-#     style = stylesheet["Normal"]
-#     style.alignment = 1
-#     style.fontName = "Helvetica"
-#     PADDING = 15
-#     MAX_WIDTH, MAX_HEIGHT = A4
-#     available_width = int(MAX_WIDTH) - (PADDING * 3)
-#     available_height = int(MAX_HEIGHT) - (PADDING * 3)
-
-#     logo = Image(
-#         'C:\\Users\\jcmac\\Projects\\eko-software\\sinergia\\SinergiaDjangoWebApp\\src\\static\\res\\images\\sinergia-logo-pdf.png',
-#         available_width, 130
-#     )
-#     story.append(logo)
-#     # bold_style = normal_style = stylesheet["Normal"]
-#     # bold_style.alignment, normal_style.alignment = 1, 1
-#     # bold_style.fontName, normal_style.fontName = "Helvetica", "Helvetica Bold"
-#     # bold_style = Paragraph(
-#     #     f"<strong>{client_name}<br/>{envio_type}</strong>", client_paragraph_style)
-#     data = [
-#         ['FECHA:', '10/1/2022'],
-#         ['PERÍODO:', '1/1/2022 al 10/1/2022'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         ['CLIENTE:', 'Bulonera Mitre S.A.',
-#             'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#         # ['CLIENTE:', 'Bulonera Mitre S.A.',
-#         #     'Bulonera Mitre S.A.', 'Bulonera Mitre S.A.'],
-#     ]
-
-#     info = Table(data, style=[
-#         ('FONTNAME', (0, 0), (0, 2), "Helvetica-Bold"),
-#         ('FONTSIZE', (0, 0), (0, 2), 12),
-#         ('FONTNAME', (1, 0), (-1, -1), "Helvetica"),
-#         ('FONTSIZE', (1, 0), (-1, -1), 12),
-#         ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-#     ], repeatRows=1)
-#     # BASE_FRAME_WIDTH/2 TABLE_HIEGHT_UNIT*1.5
-#     # table.setStyle(table_header_style)
-#     story.append(info)
-#     frame = Frame(
-#         x1=PADDING, y1=PADDING,
-#         width=MAX_WIDTH - (PADDING * 2),
-#         height=MAX_HEIGHT - (PADDING * 2),
-#         showBoundary=1, topPadding=0
-#     )
-#     frame.addFromList(story, canvas)
-#     canvas.showPage()
-#     canvas.save()
-
 from reportlab.lib.styles import ParagraphStyle
+from envios.utils import calculate_envio_price
+from summaries.models import ClientSummary, EmployeeSummary
 
 
-def main2():
-    elements = []
-    doc = SimpleDocTemplate("ejemplo2.pdf", pagesize=A4,
-                            rightMargin=0, leftMargin=0, topMargin=0,
-                            bottomMargin=0,)
-    styles = getSampleStyleSheet()
-    styleN = styles["BodyText"]
-    styleN.alignment = TA_LEFT
-    styleBH = styles["Normal"]
-    styleBH.fontName = "Helvetica"
-    styleBH.alignment = TA_CENTER
-    styleBH.fontSize = 300,
-    headers_style = ParagraphStyle('test')
-    headers_style.textColor = 'white'
-    headers_style.alignment = TA_CENTER
-    headers_style.backColor = 'black'
-    headers_style.fontSize = 7.5
+class PDFSummaryReport():
 
-    data = [
-        ['', '', '', ''],
-        [Paragraph('''<font color=white><b>FECHA</b></font>''', headers_style), Paragraph('''<font color=white><b>DOMICILIO</b></font>''', headers_style),
-         Paragraph('''<font color=white><b>DETALLE</b></font>''', headers_style), Paragraph('''<font color=white><b>VALOR</b></font>''', headers_style)],
-        [Paragraph('''31/12/2999''', styleN), Paragraph('''Av. Dr. Ricardo Balbín 123 entre Quirno y Munzón''', styleN),
-         Paragraph('''Un paquete de 5 kgs, 3 paquetes de miniflete''', styleN), Paragraph('''$489.456, 12''', styleN)],
-    ]
+    IMAGE_SIZE = 130
+    WIDTH, HEIGHT = A4
+    PADDING = 20
+    HORIZONTAL_PADDING = 10
+    TOP_PADDING = IMAGE_SIZE + PADDING
+    UNIT = (WIDTH-21.5)/14
+    COL_WIDTHS = [2 * UNIT, 5 * UNIT, 5 * UNIT, 2 * UNIT]
+    CELL_BACKGROUND_COLOR = "#d9d9d9"
+    LEFT_COLS_STYLE = ParagraphStyle("lcs", alignment=TA_CENTER)
+    CENTER_COLS_STYLE = ParagraphStyle("ccs", alignment=TA_LEFT)
+    RIGHT_COLS_STYLE = ParagraphStyle("rcs", alignment=TA_RIGHT)
 
-    w, h = A4
+    def __init__(
+        self,
+        filename: str,
+        summary: Union[ClientSummary, EmployeeSummary],
+    ) -> None:
+        self.styles = getSampleStyleSheet()
+        self.filename = filename
+        self.summary = summary
+        self.pdf = BaseDocTemplate(
+            filename, pagesize=A4, leftMargin=0,
+            rightMargin=0, topMargin=0, bottomMargin=0)
+        self.base_frame = Frame(
+            self.pdf.leftMargin, self.pdf.bottomMargin,
+            self.WIDTH, self.HEIGHT,
+            topPadding=self.TOP_PADDING,
+            leftPadding=self.HORIZONTAL_PADDING,
+            rightPadding=self.HORIZONTAL_PADDING,
+            id='normal')
+        self.template = PageTemplate(
+            id='all_pages', frames=self.base_frame, onPage=self.__header)
+        self.pdf.addPageTemplates([self.template])
+        self.from_date = summary.date_from.strftime('%d/%m/%Y')
+        self.to_date = summary.date_to.strftime('%d/%m/%Y')
+        if isinstance(summary, ClientSummary):
+            self.subject = summary.client.name
+            self.subj_type = 'CLIENTE'
+        if isinstance(summary, EmployeeSummary):
+            self.subject = summary.employee.full_name
+            self.subj_type = 'EMPLEADO'
+        self.data = self.__table_headers_data()
+        str(settings.BASE_DIR) + '/app/lib/reportlabs/fonts'
+        print(settings.BASE_DIR)
 
-    print("width: %s, height: %s" % (w, h))
-    unit = w/14 - 1.1
-    t = Table(data, colWidths=[2 * unit, 5 *
-                               unit, 5 * unit, 2 * unit], longTableOptimize=True,
-              repeatRows=1)
-    t.setStyle(TableStyle([
-        ('TEXTCOLOR', (0, 1), (-1, 1), colors.red),
-        ('BACKGROUND', (0, 0), (-1, 0), colors.black),
-        ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black),
-        ('BOX', (0, 0), (-1, -1), 0.25, colors.black),
-    ]))
-    logo = Image(
-        'C:\\Users\\jcmac\\Projects\\eko-software\\sinergia\\SinergiaDjangoWebApp\\src\\static\\res\\images\\sinergia-logo-pdf.png',
-        A4[0]-15, 130
-    )
-    elements.append(logo)
-    elements.append(t)
-    doc.build(elements)
+    def __table_headers_data(self):
+        HEADERS_STYLE = ParagraphStyle(
+            'header', fontSize=9, textColor='white', alignment=TA_CENTER)
+        return [
+            [
+                Paragraph('<b>FECHA</b>', HEADERS_STYLE),
+                Paragraph('<b>DOMICILIO</b>', HEADERS_STYLE),
+                Paragraph('<b>DETALLE</b>', HEADERS_STYLE),
+                Paragraph('<b>VALOR</b>', HEADERS_STYLE)
+            ],
+        ]
 
+    def __header(self, canvas, doc):
+        canvas.saveState()
+        image = Image(
+            str(settings.BASE_DIR) +
+            '\\static\\res\\images\\sinergia-logo-pdf.png',
+            self.WIDTH-self.PADDING, self.IMAGE_SIZE, hAlign='CENTRE')
+        image_width, image_height = image.wrap(doc.width, doc.topMargin)
+        padding = (doc.width-image_width) / 2
+        image.drawOn(canvas, doc.leftMargin+padding, doc.height +
+                     doc.bottomMargin + doc.topMargin - image_height-padding)
+        canvas.restoreState()
 
-if __name__ == "__main__":
-    # main()
-    main2()
+    def create(self):
+        self.__process()
+        self.pdf.build(
+            [
+                self.__info_date,
+                self.__info_date_range,
+                self.__info_subject,
+                self.__total_periodo,
+                self.__resumen_de_cuenta,
+                self.__table,
+            ])
+        return self.pdf
+
+    @property
+    def __info_date(self) -> Paragraph:
+        today = datetime.today().strftime('%d/%m/%Y')
+        return Paragraph(f'<b>FECHA:</b> {today}', self.__info_paragraph_style)
+
+    @property
+    def __info_date_range(self) -> Paragraph:
+        return Paragraph(
+            f'<b>PERÍODO:</b> {self.from_date} al {self.to_date}',
+            self.__info_paragraph_style)
+
+    @property
+    def __info_subject(self) -> Paragraph:
+        return Paragraph(
+            f'<b>{self.subj_type}:</b> {self.subject}',
+            self.__info_paragraph_style)
+
+    @property
+    def __total_periodo(self):
+        total = '{:,.2f}'.format(self.total)
+        style = ParagraphStyle(
+            'total_periodo',
+            fontSize=16,
+            leading=20,
+            spaceBefore=10
+        )
+        base_str = ('<font backColor="#dee9c9" \
+                    fontSize="16"><b>TOTAL PERÍODO:</b> ')
+        data = f'{self.envios_count} entregas por $ {total}</font>'
+        return Paragraph(base_str+data, style)
+
+    @property
+    def __info_paragraph_style(self) -> ParagraphStyle:
+        info_style = ParagraphStyle(
+            'info_style', spaceBefore=0, leftIndent=0, spaceAfter=2.5)
+        info_style.textColor = 'black'
+        info_style.alignment = TA_LEFT
+        return info_style
+
+    @property
+    def __resumen_de_cuenta(self):
+        return Paragraph(
+            '<b>RESUMEN DE CUENTA</b>',
+            ParagraphStyle('resumen_de_cuenta', fontSize=12,
+                           spaceBefore=10,
+                           alignment=TA_CENTER))
+
+    @property
+    def __table(self):
+        table = LongTable(self.data, colWidths=self.COL_WIDTHS,
+                          longTableOptimize=True, repeatRows=1, spaceBefore=5)
+        table.setStyle(TableStyle([
+            ('TEXTCOLOR', (0, 1), (-1, -1), colors.red),
+            ('ALIGN', (0, 0), (0, 0), 'RIGHT'),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.black),
+            ('INNERGRID', (0, 0), (-1, 0), 2, colors.white),
+            ('BACKGROUND', (0, 1), (-1, -1), self.CELL_BACKGROUND_COLOR),
+            ('LINEABOVE', (0, 1), (-1, -1), 2, colors.white),
+            ('VALIGN', (0, 0), (-1, 0), 'MIDDLE'),
+            ('VALIGN', (0, 1), (-1, -1), 'TOP'),
+        ]))
+        return table
+
+    def __process(
+        self,
+    ) -> Tuple[List[Dict[str, Any]], Decimal]:
+        total = 0
+        envios = []
+        for envio in self.summary.envios_queried:
+            envio_as_list, price = self.__parse_envios(envio)
+            self.data.append(envio_as_list)
+            envios.append(envio_as_list)
+            total += price
+        self.envios = envios
+        self.total = round(total)
+        self.envios_count = len(envios)
+        return True
+
+    def __parse_envios(self, envio) -> Tuple[List[Any], Decimal]:
+        date = envio.date_delivered.strftime("%d/%m/%Y")
+        price = calculate_envio_price(envio)
+        as_list = [
+            Paragraph(date, self.LEFT_COLS_STYLE),
+            Paragraph(envio.full_address, self.CENTER_COLS_STYLE),
+            Paragraph(envio.get_detail_readable(), self.CENTER_COLS_STYLE),
+            Paragraph('$ {:,.2f}'.format(price), self.RIGHT_COLS_STYLE),
+        ]
+        return as_list, price

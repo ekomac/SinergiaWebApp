@@ -118,6 +118,10 @@ class TrackingMovement(models.Model):
         null=True, on_delete=models.SET_NULL,
         verbose_name="El depósito que tiene el/los paquete/s (TO)")
 
+    receiver_doc_id = models.CharField(
+        verbose_name="Documento de quien recibió", max_length=12,
+        blank=True, null=True)
+
     def __str__(self):
         user = self.created_by.username if self.created_by else ""
         dt = ""
