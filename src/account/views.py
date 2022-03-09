@@ -100,12 +100,6 @@ class EmployeesListView(CompleteListView, LoginRequiredMixin):
     template_name = 'account/employees_files/list.html'
     model = Account
     decoders = (
-        # {
-        #     'key': 'is_active',
-        #     'filter': 'is_active',
-        #     'function': lambda x: True if x == 'true' else False,
-        #     'context': lambda x: x,
-        # },
         {
             'key': 'has_envios',
             'filter': 'envios_carried_by__isnull',
@@ -126,11 +120,7 @@ class EmployeesListView(CompleteListView, LoginRequiredMixin):
 
     def get_model_queryset(self):
         queryset = super().get_model_queryset()
-        # filters = {
-        #     # 'groups__name__in': ['Admins', 'Level 1', 'Level 2'],
-        #     'is_active': True,
-        # }
-        return queryset  # .filter(**filters)
+        return queryset
 
     def queryset_map_callable(self, obj):
         envios_carried = Envio.objects.filter(
