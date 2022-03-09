@@ -1,5 +1,6 @@
 # Python
 from django.http import HttpResponse, JsonResponse
+from django.urls import reverse
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import Group
 from datetime import datetime
@@ -69,8 +70,11 @@ def login_view(request):
                 next_url = 'admin-home'
                 if user.groups.exists():
                     if user.groups.filter(
-                            name__in=['Admins', 'Clients']).exists():
+                            name__in=['Admins', ]).exists():
                         next_url = 'admin-home'
+                    elif user.groups.filter(
+                            name__in=['Clients', ]).exists():
+                        return redirect(reverse('clients_only:index'))
                     else:
                         next_url = 'index'
                 spec_url = request.GET.get(

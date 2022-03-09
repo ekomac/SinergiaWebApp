@@ -1,0 +1,14 @@
+{% extends 'safe_confirm_cancel.html' %}
+
+{% load price_extras %}
+
+{% block deletion_specs %}
+<ul>
+    {% for envio in objects %}
+    <li class="mt-1">
+        Envío a "{{ envio.full_address }}" de {{ envio.client }}, modalidad
+        {% if envio.is_flex %}flex{% else %}mensajería{% endif %}.
+    </li>
+    {% endfor %}
+</ul>
+{% endblock deletion_specs %}

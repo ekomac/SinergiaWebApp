@@ -72,6 +72,9 @@ urlpatterns = [
          include('mobile.transfer.urls', 'mobile-transfer')),
     path('mobile/withdraw/',
          include('mobile.withdraw.urls', 'mobile-withdraw')),
+
+
+    path('clients/', include('clients_only.urls')),
     # path('mobile/account/', mobile_account_view, name="baseapp-account"),
     # path('mobile/')
     # path('app/account/change-password',

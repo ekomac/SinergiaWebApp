@@ -24,7 +24,7 @@
                 Detalle de envío
             </div>
             <div class="">
-                <a href="{% url 'envios:envio-list' %}">
+                <a href="{% url 'clients_only:index' %}">
                     <i class="bi bi-list"></i>Ver lista completa</a>
             </div>
         </div>
@@ -104,11 +104,11 @@
                         class="btn btn-outline-primary btn-sm me-1 mt-1"><i class="bi bi-printer me-1"></i>Imprimir
                         etiqueta</a>
                     {% if envio.status == 'N' %}
-                    <a href="{% url 'envios:envio-edit' pk=object.id %}" class="btn btn-secondary btn-sm me-1 mt-1"><i
-                            class="bi bi-pencil-square me-1"></i>Editar</a>
+                    <a href="{% url 'clients_only:envio-edit' pk=object.id %}"
+                        class="btn btn-secondary btn-sm me-1 mt-1"><i class="bi bi-pencil-square me-1"></i>Editar</a>
+                    <a href="{% url 'clients_only:envio-cancel' object.id %}" class="btn btn-danger btn-sm me-1 mt-1"><i
+                            class="bi bi-x-circle me-1"></i>Cancelar</a>
                     {% endif %}
-                    <a href="{% url 'envios:envio-delete' object.id %}" class="btn btn-danger btn-sm me-1 mt-1"><i
-                            class="bi bi-pencil-square me-1"></i>Eliminar</a>
                 </div>
                 <hr>
                 <table class="table table-bordered">
@@ -119,14 +119,7 @@
                                 ID Tracking</td>
                             <td class="w-100">{{ object.tracking_id }}</td>
                         </tr>
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
-                                    class="bi bi-shop-window"></i>
-                                Cliente</td>
-                            <td class="w-100"><a
-                                    href="{% url 'clients:detail' object.client.pk %}">{{ object.client.name }}</a>
-                            </td>
-                        </tr>
+
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-compass"></i>
@@ -138,14 +131,11 @@
 
                                 <!-- MOVING -->
                                 {% elif object.status == 'M' %}
-                                En manos de <a href="#" data-bs-toggle="tooltip" data-bs-html="true"
-                                    title="{{ object.carrier.full_name }}<em><br>{% if object.carrier.client != None %}&nbsp;({{ object.carrier.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ object.carrier.username }}</a>
+                                En viaje
 
                                 <!-- DELIVERED -->
                                 {% elif object.status == 'D' %}
-                                Entregado por <a href="#" data-bs-toggle="tooltip" data-bs-html="true"
-                                    title="{{ deliverer.full_name }}<em><br>{% if deliverer.client != None %}&nbsp;({{ deliverer.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ deliverer.username }}</a>
-                                el {{delivered_date}}
+                                Entregado el {{delivered_date}}
 
                                 {% endif %}
                             </td>
@@ -189,7 +179,7 @@
                                     {{ object.town.partido.name }}{% if object.remarks != None and object.remarks != '' %}<br>Observaciones:
                                     {{ object.remarks }}{% endif %}
                                 </div>'>
-                                    {{ object.full_address }}</a>
+                                    {{ object.full_address }} ({{ object.town.partido.name | title }})</a>
                             </td>
 
                         </tr>
@@ -244,7 +234,7 @@
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-currency-dollar"></i> Precio actual</td>
-                            <td class="w-100">$ {{ object.price }}</td>
+                            <td class="w-100">$ {{ actual_price }}</td>
                         </tr>
                     </tbody>
                 </table>

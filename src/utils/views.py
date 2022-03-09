@@ -102,15 +102,27 @@ class DeleteObjectsUtil(SuccessfulDeletionAlertMixin):
     def delete_objects(self):
         return self.objects.delete()
 
-    def create_alert(self):
+    def get_objects(self):
+        return self.objects
 
-        action_word = 'eliminó'
+    def create_alert(
+        self,
+        **kwargs
+    ) -> None:
+        if 'action_word' not in kwargs:
+            action_word = 'eliminó'
+        else:
+            action_word = kwargs['action_word']
         what = self.verbose_name.lower()
         repr_art = self.gender_repr
 
         # If we are talking plural
         if self.total_count > 1:
-            action_word = 'eliminaron'
+            if 'action_word_plural' not in kwargs:
+                action_word = 'eliminaron'
+            else:
+                action_word = kwargs['action_word_plural']
+
             what = self.verbose_name_plural.lower()
 
             # If the article at the sentence's beginning is male
@@ -181,6 +193,8 @@ class CompleteListView(View):
 
     include_add_button = True
 
+    base_filters = None
+
     def __init__(self, *args, **kwargs) -> None:
         """
         Initializes the view. Creates an empty context dictionary.
@@ -238,6 +252,9 @@ class CompleteListView(View):
         return render(request, self.template_name, self.get_context_data())
 
     def get_model_queryset(self):
+        if self.base_filters is not None:
+            if isinstance(self.base_filters, dict):
+                return self.model.objects.filter(**self.base_filters)
         return self.model.objects.all()
 
     def handle_query_param(self, request) -> None:

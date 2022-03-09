@@ -36,9 +36,11 @@ INSTALLED_APPS = [
     # OWN APPS
     'account',
     'clients',
+    'clients_only',
     'deposit',
     'envios',
     'home',
+    'logger',
     'mobile',
     'places',
     'prices',
@@ -47,7 +49,6 @@ INSTALLED_APPS = [
     'tickets',
     'tracking',
     'transactions',
-    'logger',
 
     # DJANGO
     'django.contrib.admin',

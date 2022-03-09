@@ -13,7 +13,8 @@ from django.db.models.aggregates import Count
 from django.db.models.query import QuerySet
 from django.http import Http404
 from django.http.response import HttpResponse, HttpResponseNotAllowed
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 
 # Project
 from account.decorators import allowed_users
@@ -31,7 +32,7 @@ def redirect_no_url(request):
         #         name__in=['Level 1', 'Level 2']).exists():
         #     return mobile_based_tracking_actions_view(request)
         elif request.user.groups.filter(name='Clients').exists():
-            return clients_index_view(request)
+            return redirect(reverse('clients_only:index'))
     return Http404()
 
 
@@ -94,12 +95,6 @@ def admin_home_screen_view(request):
         'carriers_with_envios': [],
     }
     return render(request, 'home.html', context)
-
-
-@login_required(login_url='/login/')
-@allowed_users(roles=["Clients"])
-def clients_index_view(request):
-    return "Hello"
 
 
 def get_clients_with_envios_queryset() -> QuerySet:

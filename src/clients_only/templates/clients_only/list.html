@@ -1,0 +1,439 @@
+{% extends 'base/base_list.html' %}
+
+
+{% block modal_content %}
+
+<div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="baseModal" tabindex="-1"
+    aria-labelledby="baseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filtersModalLabel">Elegí cómo querés filtrar los envíos.
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- start DATES FROM AND TO FILTER -->
+                <div class="row g-2 mt-2">
+                    <div class="col form-floating">
+                        <div class="input-group mb-3">
+
+                            <!-- start DATE FROM -->
+                            <input type="date" class="form-control datepicker" name="min_date_modal"
+                                id="id_min_date_modal" max="{{ max_selectable_date }}"
+                                value="{% if min_date %}{{ min_date }}{% endif %}" placeholder="Desde">
+                            <!-- end DATE FROM -->
+
+                            <span class="input-group-text">&nbsp;a&nbsp;</span>
+
+                            <!-- start DATE TO -->
+                            <input type="date" class="form-control datepicker" name="max_date_modal"
+                                id="id_max_date_modal" max="{{ max_selectable_date }}"
+                                value="{% if max_date %}{{ max_date }}{% endif %}" placeholder="Desde">
+                            <!-- end DATE TO -->
+
+                        </div>
+                    </div>
+                </div>
+                <!-- end DATES FROM AND TO FILTER -->
+
+                <!-- start SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_status_modal" class="form-label">Estado</label>
+
+                        <!-- start SHIPMENT STATUS -->
+                        <select id="id_status_modal" name="status_modal" class="form-select"
+                            aria-label="status selection">
+                            <option value="">---</option>
+                            <option value="N" {% if status == 'N' %}selected{% endif %}>Nuevo</option>
+                            <option value="S" {% if status == 'S' %}selected{% endif %}>En depósito</option>
+                            <option value="M" {% if status == 'M' %}selected{% endif %}>En viaje</option>
+                            <option value="D" {% if status == 'D' %}selected{% endif %}>Entregado</option>
+                        </select>
+                        <!-- end SHIPMENT STATUS -->
+
+                    </div>
+
+                    <div class="col">
+                        <label for="id_is_flex_modal" class="form-label">Tipo</label>
+
+                        <!-- start SHIPMENT TYPE SELECTION -->
+                        <select id="id_is_flex_modal" name="is_flex_modal" class="form-select"
+                            aria-label="shipment type selection">
+                            <option value="" {% if not is_flex %}selected{% endif %}>---</option>
+                            <option value="true" {% if is_flex == 'true' %}selected{% endif %}>Flex</option>
+                            <option value="false" {% if is_flex == 'false' %}selected{% endif %}>Mensajería</option>
+                            </option>
+                        </select>
+                        <!-- end SHIPMENT TYPE SELECTION -->
+
+                    </div>
+                </div>
+            </div>
+            <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    onclick="clearFilters()">Limpiar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                    onclick="applyFilters()">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end BASE MODAL DIALOG -->
+
+{% endblock modal_content %}
+
+
+
+
+{% block add_url_block %}href="{% url 'clients_only:envio-add' %}" {% endblock add_url_block %}
+
+
+{% block custom_add_block %}
+<a href="{% url 'clients_only:envio-bulk-add' %}" type="button" class="btn btn-success btn-sm ms-2 me-1 shadow"><i
+        class="bi bi-upload me-1"></i>Carga masiva</a>
+{% endblock custom_add_block %}
+
+{% block orderby_block %}
+<li>
+    <button onclick="orderByChanged('date_created_desc','id_order_by','list_form');" class="dropdown-item">
+        Carga&nbsp;más&nbsp;reciente
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('date_created','id_order_by','list_form');" class="dropdown-item">
+        Carga&nbsp;más&nbsp;antigua
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('is_flex_desc','id_order_by','list_form');" class="dropdown-item">
+        Flex&nbsp;primero
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('is_flex','id_order_by','list_form');" class="dropdown-item">
+        Mensajería&nbsp;primero
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('town__name','id_order_by','list_form');" class="dropdown-item">
+        Localidad&nbsp;A-Z
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('town__name_desc','id_order_by','list_form');" class="dropdown-item">
+        Localidad&nbsp;Z-A
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('client__name','id_order_by','list_form');" class="dropdown-item">
+        Cliente&nbsp;A-Z
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('client__name_desc','id_order_by','list_form');" class="dropdown-item">
+        Cliente&nbsp;Z-A
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('status','id_order_by','list_form');" class="dropdown-item">
+        Estado&nbsp;A-Z
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('status_desc','id_order_by','list_form');" class="dropdown-item">
+        Estado&nbsp;Z-A
+    </button>
+</li>
+{% endblock orderby_block %}
+
+
+
+{% block filters_block %}
+<input type="text" id='id_min_date' name="min_date" {% if min_date %}value="{{ min_date }}" {% endif %}>
+<input type="text" id='id_max_date' name="max_date" {% if max_date %}value="{{ max_date }}" {% endif %}>
+<input type="text" id='id_status' name="status" {% if status %}value="{{ status }}" {% endif %}>
+<input type="text" id='id_is_flex' name="is_flex" {% if is_flex %}value="{{ is_flex }}" {% endif %}>
+<input type="submit">
+{% endblock filters_block %}
+
+
+{% block actions_block %}
+<!-- start ACTIONS -->
+<div class="d-flex flex-wrap align-items-center">
+
+    <div class="d-none">
+        <form method="POST" id="example_form">{% csrf_token %}
+            <textarea type="text" id="id_ids" name="ids"></textarea>
+        </form>
+    </div>
+    <button type="button" id="printLabels" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2"
+        onclick="printSelectedItems()" disabled>
+        Imprimir etiquetas
+    </button>
+    <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{totalEnvios}} elementos seleccionados</div>
+    <div class="my-1 mx-xl-3">
+        <div id="clearSelectionDiv" class="hide-on-load">
+            <a id="clearSelection" type="button" class="ms-2 text-decoration-none" onclick="removeSelection()"
+                style="cursor: pointer;">Quitar selección
+                <i class="bi bi-x"></i></a>
+        </div>
+    </div>
+
+</div>
+<!-- end ACTIONS -->
+
+<hr>
+
+{% endblock actions_block %}
+
+
+
+{% block objects_table_head_block %}
+<th>
+    <div class="form-check">
+        <input class="form-check-input checkbox-select" type="checkbox" id="checkAll">
+    </div>
+</th>
+<th class="cell-centered">Fecha de carga</th>
+<th class="cell-centered">Estado</th>
+<th class="cell-centered">Tipo</th>
+<th>Destino</th>
+<th class="cell-centered">Depósito/Portador</th>
+<th class="cell-centered fw-bolder"><i class="bi bi-calendar-check"></i></th>
+<th class="cell-centered fw-bolder"><i class="bi bi-clock"></i></th>
+{% endblock objects_table_head_block %}
+
+
+{% block objects_table_body_block %}
+{% for envio in objects %}
+{% include 'clients_only/snippets/item.html' with obj=envio counter=forloop.counter%}
+{% endfor %}
+{% endblock objects_table_body_block %}
+
+
+{% block scripts_block %}
+<script>
+    const passedOrderBy = '{{ order_by }}';
+    var lastQuery = "{{ query_by }}";
+    var selectionModeEnabled = false;
+    var totalEnvios = parseInt('{{pagination_count}}');
+
+    $(document).ready(function () {
+        addingSelectedIdsAjaxConfig();
+        enableTooltips();
+        $('#list_form').submit(function (e) {
+            e.preventDefault();
+            [
+                'id_query_by',
+                'id_order_by',
+                'id_results_per_page',
+                'id_min_date',
+                'id_max_date',
+                'id_client_id',
+                'id_status',
+                'id_is_flex',
+            ].forEach(function (id) {
+                if ($('#' + id).val() == '') {
+                    $('#' + id).prop('disabled', true);
+                } else {
+                    $('#' + id).prop('disabled', false);
+                }
+            });
+            $(this).unbind('submit').submit();
+        });
+
+
+        $('#id_results_per_page').change(function () {
+            $('#list_form').submit();
+        });
+
+        $('#id_query_by').on('change paste keyup', function () {
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        });
+
+        if (lastQuery != '') {
+            $('#id_query_by').val(lastQuery);
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        }
+
+        $("#checkAll").click(function () {
+            $(".item-checker").prop('checked', this.checked);
+            countCheckedItems();
+        });
+
+        $(".item-checker").click(function (e) {
+            e.stopImmediatePropagation();
+            countCheckedItems();
+        });
+
+        $(".td-item-checker").click(function (e) {
+            var id = this.id.split("-")[1];
+            changeItemCheckerState('item-checker-' + id);
+            e.stopImmediatePropagation();
+            e.stopPropagation();
+            countCheckedItems();
+        });
+
+        $('#btnRadioRPP50').click(function () {
+            $('#id_results_per_page').val(50);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP100').click(function () {
+            $('#id_results_per_page').val(100);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP200').click(function () {
+            $('#id_results_per_page').val(200);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP500').click(function () {
+            $('#id_results_per_page').val(500);
+            $('#list_form').submit();
+        });
+
+
+    });
+
+    function clearSearch() {
+        $('#id_query_by').val('');
+        if (lastQuery != '' && lastQuery != null && lastQuery != undefined) {
+            $('#list_form').submit();
+        }
+        show('btnCleanQuery', false);
+    }
+
+
+    function applyFilters() {
+        $('#id_min_date').val($('#id_min_date_modal').val());
+        $('#id_max_date').val($('#id_max_date_modal').val());
+        $('#id_client_id').val($('#id_client_modal').val());
+        $('#id_status').val($('#id_status_modal').val());
+        $('#id_is_flex').val($('#id_is_flex_modal').val());
+        $('#list_form').submit();
+    }
+
+    function clearFilters() {
+        $('#id_min_date').val('');
+        $('#id_max_date').val('');
+        $('#id_client_id').val('');
+        $('#id_status').val('');
+        $('#id_is_flex').val('');
+        $('#list_form').submit();
+    }
+
+    function onItemClicked(id, url) {
+        if (selectionModeEnabled) {
+            $('#item-checker-' + id).prop('checked', !$('#item-checker-' + id).is(":checked"));
+        } else {
+            window.location.href = url;
+        }
+        countCheckedItems();
+    }
+
+    function countCheckedItems() {
+        // Get all checkboxes
+        var checkBoxes = Array.from(document.getElementsByClassName("item-checker"));
+        // Count total checkboxes
+        var totalCheckBoxes = checkBoxes.length;
+        // Count checked checkboxes
+        var checkedItemsCount = checkBoxes.filter(checkBox => checkBox.checked == true).length;
+        // If all checkboxes checked, check "checkAll" checkbox
+        $('#checkAll').prop('checked', checkedItemsCount == totalCheckBoxes);
+        // Update selected count
+        $('#selectedCount').text(checkedItemsCount + " de " + totalEnvios + " elementos seleccionados");
+
+        // Enable print labels btn if at least 1 checkbox is checked
+        isEnabled('printLabels', checkedItemsCount > 0);
+
+        // Enable bulk add task btn if at least 1 checkbox is checked
+        isEnabled('bulkAddTask', checkedItemsCount > 0);
+
+        // Enable selection mode if at least 1 checkbox checked
+        selectionModeEnabled = checkedItemsCount > 0;
+        // hide
+        show('clearSelectionDiv', selectionModeEnabled);
+    }
+
+    function changeItemCheckerState(id) {
+        $('#' + id).prop('checked', !$('#' + id).is(":checked"));
+    }
+
+    function isEnabled(id, enable = true) {
+        if (enable && $('#' + id).is(":disabled")) {
+            $('#' + id).removeAttr("disabled");
+        }
+        if (!enable && $('#' + id).is(":enabled")) {
+            $('#' + id).attr("disabled", true);
+        }
+    }
+
+    function itemClicked(id) {
+        if ($('#item-checker-' + id).is(":checked")) {
+            $('#item-checker-' + id).prop('checked', false);
+        } else if (selectionModeEnabled) {
+            $('#item-checker-' + id).prop('checked', true);
+        } else {
+            alert("launch detail item");
+        }
+
+    }
+
+    function removeSelection() {
+        $(".item-checker").prop('checked', false);
+        countCheckedItems();
+    }
+
+    function getSelectedIds() {
+        // Get all checked checkboxes
+        return Array.from(document.getElementsByClassName("item-checker"))
+            .filter(checkBox => checkBox.checked == true).map(function (checkbox) {
+                var id = checkbox.id;
+                return id.split("-checker-")[1];
+            }).join("-");
+    }
+
+    function printSelectedItems() {
+        $('#example_form').submit();
+    }
+
+    function addingSelectedIdsAjaxConfig() {
+        $("#example_form").submit(function (e) {
+            // preventing from page reload and default actions
+            e.preventDefault();
+            var csrftoken = getCookie('csrftoken');
+            var ids = getSelectedIds();
+            $("#id_ids").val(ids);
+            // serialize the data for sending the form data.
+            var serializedData = $(this).serialize();
+            // make POST ajax call
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'clients_only:post-selected-ids' %}",
+                data: serializedData,
+                success: function (response) {
+                    // on successfull creating object
+                    // clear the form.
+                    $("#example_form").trigger('reset');
+
+                    removeSelection();
+                    var ids = getSelectedIds();
+                    var url_mask = "{% url 'clients_only:envio-download-labels' %}";
+                    window.location.href = url_mask;
+                },
+                error: function (response) {
+                    // alert the error if any error occured
+                    alert(response["responseJSON"]["error"]);
+                }
+            })
+        });
+    }
+</script>
+{% endblock scripts_block %}

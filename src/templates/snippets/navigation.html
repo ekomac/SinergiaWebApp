@@ -1,52 +1,71 @@
 {% load static %}
+{% load main_extras %}
 <nav id="sidebarMenu" class="col-12 col-md-auto d-md-flex flex-column bg-dark sidebar collapse">
     <div class="vertical-scroll d-flex flex-column flex-grow-1 position-relative nav nav-pills p-3 overflow-auto">
         <!-- Menu items container -->
         <ul class="d-flex flex-column nav nav-pills">
 
             <!-- START Dashboard -->
+            {% if request.user|has_group:"Admins" %}
             <li class="nav-item {% if selected_tab == 'home-tab' %}activetab{% endif %} li-navigation">
                 <a id="home-tab" href="{% url 'admin-home' %}" class="nav-link tab" aria-current="page">
                     <i class="bi bi-house-door"></i> Inicio
                 </a>
             </li>
+            {% endif %}
             <!-- END Dashboard -->
 
+
             <!-- START Legajos -->
+            {% if request.user|has_group:"Admins" %}
             <li class="nav-item {% if selected_tab == 'accounts-tab' %}activetab{% endif %} li-navigation">
                 <a id="staff-tab" href="{% url 'account:employees-list' %}" class="nav-link tab">
                     <i class="bi bi-person-badge"></i> Usuarios
                 </a>
             </li>
+            {% endif %}
             <!-- END Legajos -->
 
 
             <!-- START Envíos -->
+            {% if request.user|has_group:"Admins" %}
             <li class="nav-item {% if selected_tab == 'shipments-tab' %}activetab{% endif %} li-navigation">
                 <a id="shipments-tab" href="{% url 'envios:envio-list' %}" class="nav-link tab">
                     <i class="bi bi-truck"></i> Envíos
                 </a>
             </li>
+            {% else %}
+            <li class="nav-item {% if selected_tab == 'shipments-tab' %}activetab{% endif %} li-navigation">
+                <a id="shipments-tab" href="{% url 'clients_only:index' %}" class="nav-link tab">
+                    <i class="bi bi-truck"></i> Envíos
+                </a>
+            </li>
+            {% endif %}
             <!-- END Envíos -->
 
             <!-- START Clientes -->
+            {% if request.user|has_group:"Admins" %}
             <li class="nav-item {% if selected_tab == 'clients-tab' %}activetab{% endif %} li-navigation">
                 <a id="clients-tab" href="{% url 'clients:list' %}" class="nav-link tab">
                     <i class="bi bi-people"></i> Clientes
                 </a>
             </li>
+            {% endif %}
             <!-- END Clientes -->
 
             <!-- START Depósitos -->
+            {% if request.user|has_group:"Admins" %}
             <li class="nav-item {% if selected_tab == 'deposits-tab' %}activetab{% endif %} li-navigation">
                 <a id="deposits-tab" {% if selected_tab != 'deposits-tab' %}href="{% url 'deposits:list' %}" {% endif %}
                     class="nav-link tab">
                     <i class="bi bi-shop"></i> Depósitos
                 </a>
             </li>
+            {% endif %}
             <!-- END Depósitos -->
 
             <!-- START Lugares -->
+            {% if request.user|has_group:"Admins" %}
             <li class="nav-item">
 
                 <!-- START OPTION 1: A places tab is selected-->
@@ -115,8 +134,10 @@
                 {% endif %}
                 <!-- END START OPTION 2: No price tab is selected -->
             </li>
+            {% endif %}
             <!-- END Lugares -->
 
+            {% if request.user|has_group:"Admins" %}
 
             <!-- START Precios -->
             <li class="nav-item">
@@ -175,15 +196,70 @@
             </li>
             <!-- END Precios -->
 
-            {% comment %}
-            <!-- START Summaries -->
-            <li class="nav-item {% if selected_tab == 'summaries-tab' %}activetab{% endif %} li-navigation">
-                <a id="billing-tab" href="{% url 'summaries:list' %}" class="nav-link tab">
-                    <i class="bi bi-list-check"></i> Resúmenes
+            {% else %}
+
+            <!-- START Precios -->
+            <li class="nav-item">
+
+                <!-- START OPTION 1: A price tab is selected-->
+                {% if selected_tab == 'dprices-tab' or selected_tab == 'fprices-tab' or selected_tab == 'prices-tab' %}
+                <a class="parent-nav nav-link align-items-center rounded tab mt-2" data-bs-toggle="collapse"
+                    data-bs-target="#prices-collapse" aria-expanded="true">
+                    Tarifas
                 </a>
-            </li> {% endcomment %}
+                <div class="collapse show" id="prices-collapse">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal" style="font-size: 13px;">
+                        <!-- START Precios Delivery -->
+                        <li class="nav-item {% if selected_tab == 'dprices-tab' %}activetab{% endif %} li-navigation">
+                            <a id="dprices-tab" href="{% url 'prices:dcode-list' %}" class="nav-link tab">
+                                <i class="bi bi-currency-dollar"></i> Generales
+                            </a>
+                        </li>
+                        <!-- END Precios Delivery -->
+                        <!-- START Precios Flex -->
+                        <li class="nav-item {% if selected_tab == 'fprices-tab' %}activetab{% endif %} li-navigation">
+                            <a id="fprices-tab" href="{% url 'prices:fcode-list' %}" class="nav-link tab">
+                                <i class="bi bi-currency-dollar"></i> Flex
+                            </a>
+                        </li>
+                        <!-- END Precios Flex -->
+                    </ul>
+                </div>
+                {% else %}
+                <!-- END OPTION 1: A price tab is selected-->
+                <!-- START OPTION 2: No price tab is selected -->
+                <a class="parent-nav nav-link align-items-center rounded tab collapsed mt-2" data-bs-toggle="collapse"
+                    data-bs-target="#prices-collapse" aria-expanded="false">
+                    Tarifas
+                </a>
+                <div class="collapse" id="prices-collapse">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal" style="font-size: 13px;">
+                        <!-- START Precios Delivery -->
+                        <li class="nav-item {% if selected_tab == 'dprices-tab' %}activetab{% endif %} li-navigation">
+                            <a id="prices-tab" href="{% url 'prices:dcode-list' %}" class="nav-link tab">
+                                <i class="bi bi-currency-dollar"></i> Generales
+                            </a>
+                        </li>
+                        <!-- END Precios Delivery -->
+                        <!-- START Precios Flex -->
+                        <li class="nav-item {% if selected_tab == 'fprices-tab' %}activetab{% endif %} li-navigation">
+                            <a id="prices-tab" href="{% url 'prices:fcode-list' %}" class="nav-link tab">
+                                <i class="bi bi-currency-dollar"></i> Flex
+                            </a>
+                        </li>
+                        <!-- END Precios Flex -->
+                    </ul>
+                </div>
+                {% endif %}
+                <!-- END START OPTION 2: No price tab is selected -->
+            </li>
+            <!-- END Precios -->
+
+            {% endif %}
+
 
             <!-- START Summaries -->
+            {% if request.user|has_group:"Admins" %}
             <li class="nav-item">
 
                 <!-- START OPTION 1: A summary tab is selected-->
@@ -243,25 +319,31 @@
                 {% endif %}
                 <!-- END START OPTION 2: No price tab is selected -->
             </li>
+            {% endif %}
             <!-- END Summaries -->
 
 
             <!-- START Contable -->
+            {% if request.user|has_group:"Admins" %}
             <li class="nav-item {% if selected_tab == 'transactions-tab' %}activetab{% endif %} li-navigation">
                 <a id="transactions-tab" href="{% url 'transactions:list' %}" class="nav-link tab">
                     <i class="bi bi-cash-coin"></i> Finanzas
                 </a>
             </li>
+            {% endif %}
             <!-- END Contable -->
 
             <!-- START Tickets -->
+            {% if request.user|has_group:"Admins" %}
             <li class="nav-item {% if selected_tab == 'tickets-tab' %}activetab{% endif %} li-navigation">
                 <a id="tickets-tab" href="{% url 'tickets:list' %}" class="nav-link tab">
                     <i class="bi bi-magic"></i> Tickets
                 </a>
             </li>
+            {% endif %}
             <!-- END Tickets -->
 
+            {% if request.user|has_group:"Admins" %}
             {% if request.user.is_superuser %}
             <!-- START Mobile App -->
             <li class="nav-item {% if selected_tab == 'scanner-tab' %}activetab{% endif %} li-navigation">
@@ -277,6 +359,7 @@
                     <i class="bi bi-person-check"></i> Superadmin
                 </a>
             </li>
+            {% endif %}
             {% endif %}
             <!-- END SUPERADMIN -->
 

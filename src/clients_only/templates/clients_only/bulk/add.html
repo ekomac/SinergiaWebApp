@@ -1,0 +1,142 @@
+{% extends 'base_system.html' %}
+
+{% block modal_content %}
+{% include 'envios/bulk/snippets/excel-helper-modal.html' %}
+{% endblock modal_content %}
+
+
+{% block content %}
+{% load static %}
+
+<style>
+    td {
+        vertical-align: middle;
+    }
+
+    .hola {
+        background-color: red;
+    }
+
+    div .hidden {
+        display: none;
+    }
+</style>
+
+<div class="col-md-12 col-lg-10 col-xl-8 col-xxl-6 d-flex-block">
+    <form method='POST' id="create_form" class="card flex-fill shadow-lg bg-white" name="create_form" target="_top"
+        enctype="multipart/form-data">{% csrf_token %}
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Carga masiva de envíos
+            </div>
+            <div>
+                <a href="{% url 'clients_only:index' %}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            <div class="alert alert-info" role="alert">
+                Solución inteligente para cargar envíos con PDFs y Excels de TiendaNube, MercadoLibre y hojas de cálculo
+                personalizadas (<a href="#" data-bs-toggle="modal" data-bs-target="#baseModal">click acá</a> para más
+                info).
+            </div>
+
+            {% if upload_in_progress %}
+            <div class="row mt-3 alert alert-danger mt-3 mb-3" role="alert">
+                Existe una carga en curso. Si cargás un nuevo archivo, la carga en curso se cancelará.
+            </div>
+            {% endif %}
+
+            <div class="row mt-3 mb-4">
+                <div class="col-12 col-xl-auto mt-2">
+                    <label for="id_file" class="form-label">Archivo con envíos (PDF MercadoLibre o
+                        TiendaNube, Excel)</label>
+                    <input class="form-control {% if upload_form.file.errors %}is-invalid{% endif %}" type="file"
+                        id="id_file" name="file" title="Elegir archivo" required />
+                    {% comment %} {{ upload_form.file }} {% endcomment %}
+                    <div class="invalid-feedback">
+                        {% for error in upload_form.file.errors %}
+                        {% if error == "File extension 'txt' is not allowed. Allowed extensions are: 'pdf, xlsx'." %}
+                        La extensión del archivo proporcionada no está permitida. Las extensiones permitidas son:
+                        'pdf, xlsx'.
+                        {% else %}
+                        {{error}}<br>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3 mb-4">
+                <div class="col-12 col-lg-5 mt-2 d-none">
+                    <label for="id_client" class="form-label">Cliente</label>
+                    {{upload_form.client}}
+                    <div class="invalid-feedback">
+                        {% for error in upload_form.client.errors %}{{error}}<br>{% endfor %}
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-7 mt-2">
+                    <label for="id_deposit" class="form-label">Depósito</label>
+                    {{upload_form.deposit}}
+                    <div class="invalid-feedback">
+                        {% for error in upload_form.client.errors %}{{error}}<br>{% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- START BUTTONS -->
+            <div class="row mt-3">
+                <div class="d-grid gap-2 d-md-flex">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-stars">&nbsp;Cargar envíos</i>
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
+                        data-bs-target="#baseModal">Ayuda sobre el excel</button>
+                </div>
+            </div>
+            <!-- END BUTTONS -->
+
+        </div>
+    </form>
+
+</div>
+<script src="{% static 'base/base_system.js' %}"></script>
+<script>
+    var initial_deposit_id = "{{initial_deposit_id}}";
+    var initial_client_id = "{{initial_client_id}}";
+    var deposits = JSON.parse('{{ deposits | escapejs }}');
+    $(document).ready(function () {
+        var initial_client_id = "{{initial_client_id}}";
+        //$('#id_client option[value=' + initial_client_id + ']').prop('selected', "selected");
+        $('#id_deposit').find('option:not(:first)').remove();
+        $('#id_client').on('inputchange', function () {
+            var selectedClientId = this.value.toString();
+            console.log(selectedClientId);
+            if (![null, undefined, ''].includes(selectedClientId)) {
+                var depositsFromClient = deposits.filter(function (deposit) {
+                    return deposit.client_id == selectedClientId;
+                });
+                console.log("depositsFromClient", depositsFromClient);
+                $('#id_deposit').find('option:not(:first)').remove();
+                for (var element of depositsFromClient) {
+                    $('#id_deposit').append('<option value="' + element.id + '">' + element.name +
+                        '</option>');
+                }
+                if (initial_deposit_id != '') {
+                    $('#id_deposit').val(initial_deposit_id).change();
+                }
+            } else {
+                $('#id_deposit').find('option:not(:first)').remove();
+            }
+        });
+        if (initial_client_id != '') {
+            $('#id_client').val(initial_client_id).change();
+            if (initial_deposit_id != '') {
+                $('#id_deposit').val(initial_deposit_id).change();
+            }
+        }
+    });
+</script>
+
+{% endblock content %}

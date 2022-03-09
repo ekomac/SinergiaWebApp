@@ -1,0 +1,69 @@
+{% extends 'base_system.html' %}
+
+{% block content %}
+<style>
+    h3 {
+        text-align: center;
+        margin-bottom: 10px;
+        margin-top: 20px;
+    }
+</style>
+<form id="safe_delete_form" method='POST' class="col-md-12 col-lg-8 col-xl-6 col-xxl-5 d-flex-block">{% csrf_token %}
+
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Eliminación
+            </div>
+            <div>
+                <a href="{{ request.META.HTTP_REFERER }}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <h3 class="card-title mt-3">¿Estás seguro/a?</h3>
+            <p class="card-text mt-3 mb-4 fs-6"> Estás a punto de cancelar {{ what_to_delete }}. ¿Estás seguro de querer
+                continuar con la operación? Se {% if total_count == 1 %}cancelará el siguiente
+                objeto{% else %}cancelarán los siguientes objetos{% endif %} y se alterarán (o cancelarán) todos los
+                objetos relacionados a {% if total_count == 1 %}él{% else %}ellos{% endif %}:
+            </p>
+
+            <!-- SHOULD INCLUDE INPUT BTN -->
+            {% block deletion_specs %}
+            {% endblock deletion_specs %}
+
+
+            <div class="col">
+                <label for="id_password" class="form-label">Ingresá tu contraseña actual</label>
+                <input type="password" name="password" id="id_password"
+                    class="form-control {% if form.password.errors %}is-invalid{% endif %}" placeholder="Contraseña"
+                    onkeyup="removeValidationErrors()" required>
+                <div id="passwordHelp" class="form-text">Esta operación requiere altos privilegios
+                    administrativos, por eso es requerida tu contraseña.</div>
+                <div class="invalid-feedback">
+                    {% for error in form.password.errors %}{{error}}<br>{% endfor %}
+                </div>
+            </div>
+
+
+            <div class="mt-4 d-grid gap-2 d-md-flex pt-4">
+                <input type='submit' value='Sí, cancelar' class="btn btn-danger" />
+                <a href="{{ request.META.HTTP_REFERER }}" class="btn btn-secondary">Cancelar</a>
+            </div>
+
+        </div>
+
+    </div>
+</form>
+<script>
+    function removeValidationErrors() {
+        const passwordInputElement = document.querySelector('#id_password');
+        const current_value = passwordInputElement.value;
+        const current_value_length = current_value.length;
+        if (current_value_length > 0 && passwordInputElement.classList.contains("is-invalid")) {
+            passwordInputElement.classList.remove("is-invalid");
+        }
+    }
+</script>
+
+
+{% endblock content %}

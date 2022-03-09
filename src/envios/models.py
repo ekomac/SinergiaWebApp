@@ -78,6 +78,8 @@ class Envio(Receiver):
     STATUS_DELIVERED_TEXT = 'Entregado'
     STATUS_RETURNED = 'R'
     STATUS_RETURNED_TEXT = 'Devuelto'
+    STATUS_CANCELED = 'C'
+    STATUS_CANCELED_TEXT = 'Cancelado'
 
     SCHEDULE_INDEX_7_10 = '07-10'
     SCHEDULE_PHRASE_7_10 = '7 a 10 h'
@@ -94,6 +96,7 @@ class Envio(Receiver):
         (STATUS_STILL, STATUS_STILL_TEXT),
         (STATUS_DELIVERED, STATUS_DELIVERED_TEXT),
         (STATUS_RETURNED, STATUS_RETURNED_TEXT),
+        (STATUS_CANCELED, STATUS_CANCELED_TEXT),
     ]
 
     SCHEDULES = [

@@ -12,9 +12,6 @@ class LogMiddleware:
         # Code to be executed for each request before
         # the view (and later middleware) are called.
 
-        from django.conf import settings
-        print(settings.BASE_DIR)
-
         try:
             if request.user.is_authenticated and request.user.is_superuser:
                 if '/superadmin/' in request.path:

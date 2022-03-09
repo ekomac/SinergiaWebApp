@@ -32,3 +32,8 @@ def bootstrap_color(value):
 def comma_to_point(value):
     """Converts a comma separated string to a point separated string"""
     return str(value).replace(',', '.')
+
+
+@register.filter(name='has_group')
+def has_group(user, group_name):
+    return user.groups.filter(name=group_name).exists()

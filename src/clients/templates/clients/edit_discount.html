@@ -84,8 +84,9 @@
                 <div class="col-12">
                     <div class="form-check">
                         <input type="checkbox"
-                            class="form-check-input {% if form.is_for_flex.errors %}is-invalid{% endif %}" value=""
-                            id="id_is_for_flex" name="is_for_flex" {% if form.is_for_flex.value %}checked{% endif %}>
+                            class="form-check-input {% if form.is_for_flex.errors %}is-invalid{% endif %}"
+                            value="{{ form.is_for_flex.value }}" id="id_is_for_flex" name="is_for_flex"
+                            {% if form.is_for_flex.value %}checked{% endif %}>
                         <label for="id_is_for_flex" class="form-check-label">Es para envío flex</label>
                         <div class="invalid-feedback">
                             {% for error in form.is_for_flex.errors %}

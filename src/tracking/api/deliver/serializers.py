@@ -140,8 +140,11 @@ class SuccessfulDeliverySerializer(serializers.ModelSerializer):
         envio_tracking_id = self.validated_data['envio_tracking_id']
         receiver_doc_id = self.validated_data['receiver_doc_id']
         return delivery_attempt(
-            author, TrackingMovement.RESULT_DELIVERED,
-            envio_tracking_id, receiver_doc_id)
+            author=author,
+            result_obtained=TrackingMovement.RESULT_DELIVERED,
+            envio_tracking_id=envio_tracking_id,
+            receiver_doc_id=receiver_doc_id
+        )
 
 # movement = TrackingMovement(
 #     created_by=author,

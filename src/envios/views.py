@@ -108,143 +108,143 @@ class EnvioListView(CompleteListView, LoginRequiredMixin):
 DEFAULT_ENVIOS_PER_PAGE = 50
 
 
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
-def envios_view(request):
-    context = {}
+# @login_required(login_url='/login/')
+# @allowed_users(roles=["Admins"])
+# def envios_view(request):
+#     context = {}
 
-    # Search
-    query = ""
-    if request.method == 'GET':
-        query = request.GET.get('query_by', None)
-        if query:
-            context['query_by'] = str(query)
+#     # Search
+#     query = ""
+#     if request.method == 'GET':
+#         query = request.GET.get('query_by', None)
+#         if query:
+#             context['query_by'] = str(query)
 
-        order_by = request.GET.get('order_by', '-date_created')
-        if order_by:
-            order_by = str(order_by)
-            context['order_by'] = order_by
-            if '_desc' in order_by:
-                order_by = "-" + order_by[:-5]
+#         order_by = request.GET.get('order_by', '-date_created')
+#         if order_by:
+#             order_by = str(order_by)
+#             context['order_by'] = order_by
+#             if '_desc' in order_by:
+#                 order_by = "-" + order_by[:-5]
 
-        results_per_page = request.GET.get(
-            'results_per_page', None)
-        if results_per_page is None:
-            results_per_page = DEFAULT_ENVIOS_PER_PAGE
-        context['results_per_page'] = str(results_per_page)
+#         results_per_page = request.GET.get(
+#             'results_per_page', None)
+#         if results_per_page is None:
+#             results_per_page = DEFAULT_ENVIOS_PER_PAGE
+#         context['results_per_page'] = str(results_per_page)
 
-        filters = {}
-        filter_by = request.GET.get('filter_by', "")
-        context['filters_count'] = 0
-        if filter_by:
-            filters, filter_count = decode_filters(filter_by)
-            context['filter_by'] = filter_by
-            context['filters_count'] = filter_count
+#         filters = {}
+#         filter_by = request.GET.get('filter_by', "")
+#         context['filters_count'] = 0
+#         if filter_by:
+#             filters, filter_count = decode_filters(filter_by)
+#             context['filter_by'] = filter_by
+#             context['filters_count'] = filter_count
 
-        envios = get_envio_queryset(
-            query, order_by, **filters)
+#         envios = get_envio_queryset(
+#             query, order_by, **filters)
 
-        # Pagination
-        page = request.GET.get('page', 1)
-        envios_paginator = Paginator(envios, results_per_page)
-        try:
-            envios = envios_paginator.page(page)
+#         # Pagination
+#         page = request.GET.get('page', 1)
+#         envios_paginator = Paginator(envios, results_per_page)
+#         try:
+#             envios = envios_paginator.page(page)
 
-            # How many envios in total
-            context['envios_count'] = envios_paginator.count
+#             # How many envios in total
+#             context['envios_count'] = envios_paginator.count
 
-            # Showing envio from
-            context['envios_from'] = (
-                envios.number - 1) * envios_paginator.per_page + 1
+#             # Showing envio from
+#             context['envios_from'] = (
+#                 envios.number - 1) * envios_paginator.per_page + 1
 
-            # Showing envio to
-            if envios_paginator.per_page > len(envios):
-                what_to_sum = len(envios)
-            else:
-                what_to_sum = envios_paginator.per_page
-            context['envios_to'] = context['envios_from'] + \
-                what_to_sum - 1
+#             # Showing envio to
+#             if envios_paginator.per_page > len(envios):
+#                 what_to_sum = len(envios)
+#             else:
+#                 what_to_sum = envios_paginator.per_page
+#             context['envios_to'] = context['envios_from'] + \
+#                 what_to_sum - 1
 
-        except PageNotAnInteger:
-            envios = envios_paginator.page(results_per_page)
-        except EmptyPage:
-            envios = envios_paginator.page(envios_paginator.num_pages)
+#         except PageNotAnInteger:
+#             envios = envios_paginator.page(results_per_page)
+#         except EmptyPage:
+#             envios = envios_paginator.page(envios_paginator.num_pages)
 
-        context['envios'] = envios
-        context['totalEnvios'] = len(envios)
-        context['selected_tab'] = 'shipments-tab'
-        context['clients'] = Client.objects.all()
+#         context['envios'] = envios
+#         context['totalEnvios'] = len(envios)
+#         context['selected_tab'] = 'shipments-tab'
+#         context['clients'] = Client.objects.all()
 
-    return render(request, "envios/envio/list.html", context)
-
-
-def decode_filters(s: str = '') -> Tuple[dict, int]:
-    str_filters = s.split('_')
-    filters = {}
-    for filter in str_filters:
-        key = filter[0]
-        value = filter[1:]
-        if value:
-            if key == 'f':  # The filter is about date created since
-                filters['date_created__gte'] = sanitize_date(value)
-
-            if key == 't':  # The filter is about date created until
-                filters['date_created__lte'] = sanitize_date(
-                    value) + timedelta(days=1)
-
-            if key == 'c':  # The filter is about the client
-                filters['client__id'] = int(value)
-
-            # The filter is about the type of shipment (flex or delivery)
-            # The database query is composed in the form of 'is_flex=[bool]',
-            # so we need a bool
-            if key == 's':
-                filters['is_flex'] = value == 'flex'
-
-            if key == 'u':
-                filters['status'] = value
-    return filters, len(filters)
+#     return render(request, "envios/envio/list.html", context)
 
 
-def get_envio_queryset(
-        query: str = None, order_by_key: str = '-date_created',
-        **filters) -> List[Envio]:
-    """Get all envios that match provided query, if any. If none is given,
-    returns all envios. Also, performs the query in the specified order_by_key.
-    Finally, it also filters the query by user driven params, such as, for
-    example, 'date_created__gt'.
+# def decode_filters(s: str = '') -> Tuple[dict, int]:
+#     str_filters = s.split('_')
+#     filters = {}
+#     for filter in str_filters:
+#         key = filter[0]
+#         value = filter[1:]
+#         if value:
+#             if key == 'f':  # The filter is about date created since
+#                 filters['date_created__gte'] = sanitize_date(value)
 
-    Args:
-        query (str, optional): words to match the query. Defaults to empyt str.
-        order_by_key (str, optional): to perform ordery by.
-        Defaults to 'date_created'.
-        **filters (Any): filter params to be passed to filter method.
+#             if key == 't':  # The filter is about date created until
+#                 filters['date_created__lte'] = sanitize_date(
+#                     value) + timedelta(days=1)
 
-    Returns:
-        List[Envio]: a list containing the envios which match at least
-        one query.
-    """
-    query = unidecode.unidecode(query) if query else ""
-    return list(Envio.objects
-                # User driven filters
-                .filter(**filters)
-                # Query filters
-                .filter(
-                    Q(updated_by__first_name__icontains=query) |
-                    Q(updated_by__last_name__icontains=query) |
-                    Q(name__icontains=query) |
-                    Q(doc__icontains=query) |
-                    Q(phone__icontains=query) |
-                    Q(street__icontains=query) |
-                    Q(remarks__icontains=query) |
-                    Q(town__name__icontains=query) |
-                    Q(zipcode__icontains=query) |
-                    Q(client__name__icontains=query) |
-                    Q(flex_id__icontains=query),
-                )
-                .order_by(order_by_key)
-                .distinct()
-                )
+#             if key == 'c':  # The filter is about the client
+#                 filters['client__id'] = int(value)
+
+#             # The filter is about the type of shipment (flex or delivery)
+#             # The database query is composed in the form of 'is_flex=[bool]',
+#             # so we need a bool
+#             if key == 's':
+#                 filters['is_flex'] = value == 'flex'
+
+#             if key == 'u':
+#                 filters['status'] = value
+#     return filters, len(filters)
+
+
+# def get_envio_queryset(
+#         query: str = None, order_by_key: str = '-date_created',
+#         **filters) -> List[Envio]:
+#     """Get all envios that match provided query, if any. If none is given,
+#     returns all envios. Also, performs the query in the specified order_by_key.
+#     Finally, it also filters the query by user driven params, such as, for
+#     example, 'date_created__gt'.
+
+#     Args:
+#         query (str, optional): words to match the query. Defaults to empyt str.
+#         order_by_key (str, optional): to perform ordery by.
+#         Defaults to 'date_created'.
+#         **filters (Any): filter params to be passed to filter method.
+
+#     Returns:
+#         List[Envio]: a list containing the envios which match at least
+#         one query.
+#     """
+#     query = unidecode.unidecode(query) if query else ""
+#     return list(Envio.objects
+#                 # User driven filters
+#                 .filter(**filters)
+#                 # Query filters
+#                 .filter(
+#                     Q(updated_by__first_name__icontains=query) |
+#                     Q(updated_by__last_name__icontains=query) |
+#                     Q(name__icontains=query) |
+#                     Q(doc__icontains=query) |
+#                     Q(phone__icontains=query) |
+#                     Q(street__icontains=query) |
+#                     Q(remarks__icontains=query) |
+#                     Q(town__name__icontains=query) |
+#                     Q(zipcode__icontains=query) |
+#                     Q(client__name__icontains=query) |
+#                     Q(flex_id__icontains=query),
+#                 )
+#                 .order_by(order_by_key)
+#                 .distinct()
+#                 )
 
 
 class EnvioContextMixin(LoginRequiredMixin, View):
@@ -260,7 +260,7 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
     model = Envio
     template_name = "envios/envio/detail.html"
 
-    @allow_only_client_in_class_view
+    @allowed_users_in_class_view(roles=["Admins", ])
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -269,6 +269,7 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
         envio = ctx['object']
         ctx['movements'] = envio.trackingmovement_set.all().order_by(
             '-date_created')
+        ctx['actual_price'] = '{:,.2f}'.format(envio.price)
         if envio.status == Envio.STATUS_DELIVERED:
             delivered_tracking_movement = envio.trackingmovement_set.filter(
                 result='success').first()
@@ -469,6 +470,7 @@ def handle_bulk_create_envios_view(request, pk):
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles=["Admins", "Clients"])
 def print_excel_file(request, pk):
     obj = BulkLoadEnvios.objects.get(id=pk)
     wb = create_xlsx_workbook(obj.csv_result, obj.cells_to_paint)
@@ -495,7 +497,7 @@ def map_deposit_to_dict(deposit):
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles="Admins")
+@allowed_users(roles=["Admins", "Clients"])
 def edit_envio_view(request, pk):
 
     envio = get_object_or_404(Envio, pk=pk)
@@ -510,7 +512,7 @@ def edit_envio_view(request, pk):
             obj = form.save()
             obj.updated_by = request.user
             obj.save()
-            msg = f'El envío "{obj.full_address()} de {obj.client}" '\
+            msg = f'El envío "{obj.full_address} de {obj.client}" '\
                 + 'se actualizó correctamente.'
             return update_alert_and_redirect(
                 request, msg, 'envios:envio-detail', obj.pk)
@@ -525,6 +527,13 @@ def edit_envio_view(request, pk):
         'previuoslySelectedPartidoId': envio.town.partido.id,
         'previuoslySelectedTownId': envio.town.id
     }
+    user = request.user
+    # Checks if the user is a client
+    is_client = (user.groups.exists()) and (
+        user.groups.filter(name__in=["Clients"]).exists()
+    ) and (user.client is not None)
+    # Sends it to template
+    context['is_client'] = is_client
 
     return render(request, "envios/envio/edit.html", context)
 
