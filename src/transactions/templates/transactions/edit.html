@@ -5,7 +5,7 @@
         enctype="multipart/form-data">{% csrf_token %}
         <div class="card-header d-flex justify-content-between align-items-center">
             <div class="fw-bold">
-                Nueva transacción
+                {% if edit_mode %}Editar transacción{% else %}Nueva transacción{% endif %}
             </div>
             <div>
                 <a href="{% url 'transactions:list' %}"><i class="bi bi-arrow-left-short"></i>Volver</a>

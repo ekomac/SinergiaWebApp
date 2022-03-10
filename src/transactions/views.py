@@ -1,22 +1,63 @@
-from datetime import datetime
+import csv
+from datetime import datetime, timedelta
+from io import BytesIO
+from typing import Any, Dict
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse, StreamingHttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
-from account.decorators import allowed_users
+from excel_response import ExcelResponse
+from account.decorators import allowed_users, allowed_users_in_class_view
 
 from transactions.forms import CreateTransactionForm, UpdateTransactionForm
 from transactions.models import Transaction
+from transactions.util.pdf import PDFTransactionsReport
+from transactions.util.xlsx import parse_transaction_to_list
 from utils.forms import CheckPasswordForm
-from utils.views import DeleteObjectsUtil, truncate_start
+from utils.views import (
+    CompleteListView,
+    DeleteObjectsUtil,
+    sanitize_date,
+    truncate_start
+)
 
 
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
-def transaction_list_view(request):
-    context = {}
-    context['selected_tab'] = "transactions-tab"
-    transactions = Transaction.objects.all()[:30:-1]
-    context['transactions'] = transactions
-    return render(request, "transactions/list.html", context)
+class TransactionsListView(CompleteListView, LoginRequiredMixin):
+
+    template_name = 'transactions/list.html'
+    model = Transaction
+    decoders = (
+        {
+            'key': 'min_date',
+            'filter': 'date__gte',
+            'function': sanitize_date,
+            'context': lambda x: x,
+        },
+        {
+            'key': 'max_date',
+            'filter': 'date__lte',
+            'function': lambda x: sanitize_date(x, True) + timedelta(days=1),
+            'context': lambda x: x,
+        },
+        {
+            'key': 'category',
+            'filter': lambda x: 'category__isnull' if (
+                x in [-1, '-1']) else 'category',
+            'function': lambda x: True if x in [-1, '-1'] else int(x),
+            'context': str,
+        },
+    )
+    query_keywords = ('description',)
+    selected_tab = 'transactions-tab'
+
+    @allowed_users_in_class_view(roles=["Admins"])
+    def get(self, request):
+        return super(TransactionsListView, self).get(request)
+
+    def get_context_data(self) -> Dict[str, Any]:
+        context = super().get_context_data()
+        context['categories'] = Transaction.CATEGORIES
+        return context
 
 
 @login_required(login_url='/login/')
@@ -34,6 +75,7 @@ def transaction_create_view(request):
             transaction.save()
             return redirect('transactions:list')
     context['form'] = form
+    context['edit_mode'] = False
 
     now = datetime.now()
     year = str(now.year).zfill(4)
@@ -73,6 +115,7 @@ def transaction_edit_view(request, pk):
             form.save()
             return redirect('transactions:list')
     context['form'] = form
+    context['edit_mode'] = True
     return render(request, "transactions/edit.html", context)
 
 
@@ -105,3 +148,77 @@ def transaction_delete_view(request, pk, **kwargs):
     # context['password_match'] = passwords_match
 
     return render(request, "transactions/delete.html", context)
+
+
+class Echo:
+    """An object that implements just the write method of the file-like
+    interface.
+    """
+
+    def write(self, value):
+        """Write the value by returning it, instead of storing in a buffer."""
+        return value
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def print_csv(request):
+    date_from = sanitize_date(request.GET.get('date_from'), True)
+    date_to = sanitize_date(request.GET.get('date_to'), True)
+    filename = "Transacciones desde %s hasta %s.pdf" % (
+        date_from.strftime('%Y-%m-%d'), date_to.strftime('%Y-%m-%d'))
+    transactions = list(Transaction.objects.filter(
+        date__gte=date_from,
+        date__lte=date_to
+    ))
+    rows = [['Fecha', 'Categoria', 'Descripcion', 'Importe']]
+    rows.extend([parse_transaction_to_list(transaction)
+                 for transaction in transactions])
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    response = StreamingHttpResponse((writer.writerow(row) for row in rows),
+                                     content_type="text/csv")
+    response['Content-Disposition'] = f'attachment; filename="{filename}.csv"'
+    return response
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def print_xlsx(request):
+    date_from = sanitize_date(request.GET.get('date_from'), True)
+    date_to = sanitize_date(request.GET.get('date_to'), True)
+    filename = "Transacciones desde %s hasta %s.pdf" % (
+        date_from.strftime('%Y-%m-%d'), date_to.strftime('%Y-%m-%d'))
+    transactions = list(Transaction.objects.filter(
+        date__gte=date_from,
+        date__lte=date_to
+    ))
+    data = [['Fecha', 'Categoria', 'Descripcion', 'Importe']]
+    rows = [parse_transaction_to_list(transaction)
+            for transaction in transactions]
+    data.extend(rows)
+    return ExcelResponse(
+        data=data, output_filename=filename, worksheet_name='Reporte')
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def print_pdf(request):
+    date_from = sanitize_date(request.GET.get('date_from'), True)
+    date_to = sanitize_date(request.GET.get('date_to'), True)
+    pdf_name = "Transacciones desde %s hasta %s.pdf" % (
+        date_from.strftime('%Y-%m-%d'), date_to.strftime('%Y-%m-%d'))
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = (
+        'attachment; filename="%s.pdf"' % pdf_name)
+    transactions = list(Transaction.objects.filter(
+        date__gte=date_from,
+        date__lte=date_to
+    ))
+    print(transactions)
+    buffer = BytesIO()
+    pdf = PDFTransactionsReport(buffer, transactions, date_from, date_to)
+    pdf.create()
+    response.write(buffer.getvalue())
+    buffer.close()
+    return response

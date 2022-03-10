@@ -20,7 +20,7 @@ class Transaction(models.Model):
         ('0', 'Administrativo'),
         ('1', 'Alquiler'),
         ('2', 'Compras'),
-        ('3', 'Facturación'),
+        ('3', 'Facturacion'),
         ('4', 'Impuestos'),
         ('5', 'Insumos'),
         ('6', 'Mantenimiento'),

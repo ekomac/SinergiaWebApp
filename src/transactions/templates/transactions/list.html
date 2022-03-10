@@ -1,152 +1,273 @@
-{% extends 'base_system.html' %}
+{% extends 'base/base_list.html' %}
 
 {% block modal_content %}
 
 <!-- start BASE MODAL DIALOG -->
-{% include 'tickets/snippets/filter_tickets_modal.html' %}
+<div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="baseModal" tabindex="-1"
+    aria-labelledby="baseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filtersModalLabel">Elegí cómo querés filtrar los depósitos.
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <!-- start DATES FROM AND TO FILTER -->
+                <div class="row g-2 mt-2">
+                    <div class="col ">
+
+                        <label for="id_min_date_modal" class="form-label">Fecha de creación</label>
+
+                        <div class="input-group mb-3">
+
+                            <!-- start DATE FROM -->
+                            <input type="date" class="form-control datepicker" name="min_date_modal"
+                                id="id_min_date_modal" max="{{ max_selectable_date }}"
+                                value="{% if min_date %}{{ min_date }}{% endif %}" placeholder="Desde">
+                            <!-- end DATE FROM -->
+
+                            <span class="input-group-text">&nbsp;a&nbsp;</span>
+
+                            <!-- start DATE TO -->
+                            <input type="date" class="form-control datepicker" name="max_date_modal"
+                                id="id_max_date_modal" max="{{ max_selectable_date }}"
+                                value="{% if max_date %}{{ max_date }}{% endif %}" placeholder="Desde">
+                            <!-- end DATE TO -->
+
+                        </div>
+                    </div>
+                </div>
+                <!-- end DATES FROM AND TO FILTER -->
+
+                <!-- start CLIENT TYPE SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_category_modal" class="form-label">Cliente</label>
+
+                        <!-- start CLIENT SELECTION -->
+                        <select id="id_category_modal" name="category_modal" class="form-select"
+                            aria-label="category selection">
+                            <option value="">---</option>
+                            {% for category in categories %}
+                            <option value="{{category.0}}" {% if category == category.0 %}selected{% endif %}>
+                                {{category.1}}</option>
+                            {% endfor %}
+                        </select>
+                        <!-- end CLIENT SELECTION -->
+
+                    </div>
+                </div>
+                <!-- end CLIENT SELECTION -->
+
+            </div>
+            <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    onclick="clearFilters()">Limpiar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                    onclick="applyFilters()">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- end BASE MODAL DIALOG -->
 
 {% endblock modal_content %}
 
-{% block content %}
-
-<style>
-    .cell-centered,
-    h5 {
-        text-align: center;
-    }
-
-    h5 {
-        margin-bottom: 10px;
-        margin-top: 20px;
-    }
-
-    .bool-div {
-        color: white;
-        padding: 1px;
-    }
-
-    .bool-div-true {
-        background-color: green;
-    }
-
-    .bool-div-false {
-        background-color: red;
-    }
-
-    td {
-        overflow: auto;
-        white-space: nowrap;
-    }
-</style>
-
-<div class="col-12 col-lg-8 d-flex flex-column">
-    <div class="mb-2 fs-5 fw-bold d-flex align-items-center">
-        Movimientos <a href="{% url 'transactions:add' %}" type="button"
-            class="btn btn-success btn-sm ms-2 me-1 shadow"><i class="bi bi-plus"></i>Nuevo</a>
-    </div>
-
-    <div class="row">
-        <div class="col-12 col-md-8">
-
-            <div class="card flex-fill shadow">
-
-                <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center row">
-                        <div class="d-inline-flex justify-content-start align-items-center col-12 col-xl-6">
-
-                            <i class="bi bi-arrow-repeat me-2"></i>Últimos movimientos
-                        </div>
-                        <!-- start SEARCH AND ORDERING FUNCTIONALITIES -->
-                        <form method="GET" class="col-12 col-xl-6 d-flex flex-row justify-content-end" id="list_form">
-
-                            <button type="button" id="btnCleanQuery"
-                                class="btn btn-outline-danger btn-sm shadow {% if query_by == '' or not query_by %}hide-on-load{% endif %}"
-                                onclick="clearSearch()">Limpiar</button>
-
-                            <button type="button" class="btn btn-primary btn-sm mx-3 position-relative shadow"
-                                data-bs-toggle="modal" data-bs-target="#baseModal">
-                                Filtros
-                                <span
-                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                                    {{ filters_count }}0
-                                    <span class="visually-hidden">applied filters</span>
-                                </span>
-                                <!--Filtros <span class="badge bg-danger">{{ filters_count }}</span>-->
-                            </button>
-
-                            <button class="btn btn-secondary btn-sm shadow dropdown-toggle" type="button"
-                                data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-sort-up"></i></button>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><button onclick="orderByChanged('date_created_desc');"
-                                        class="dropdown-item">Más&nbsp;recientes&nbsp;primero</button>
-                                </li>
-                                <li><button onclick="orderByChanged('date_created');"
-                                        class="dropdown-item">Más&nbsp;antiguas&nbsp;primero</button>
-                                </li>
-                                <li><button onclick="orderByChanged('subject');"
-                                        class="dropdown-item">Asunto&nbsp;A-Z</button>
-                                </li>
-                                <li><button onclick="orderByChanged('subject_desc');"
-                                        class="dropdown-item">Asunto&nbsp;Z-A</button>
-                                </li>
-                                <li><button onclick="orderByChanged('priority');"
-                                        class="dropdown-item">Prioridad&nbsp;alta&nbsp;primero</button>
-                                </li>
-                                <li><button onclick="orderByChanged('priority_desc');"
-                                        class="dropdown-item">Prioridad&nbsp;baja&nbsp;primero</button>
-                                </li>
-
-                            </ul>
-
-                            <input type="text" name="order_by" id="id_order_by" class="d-none" value="{{ order_by }}">
-                            <input type="text" name="results_per_page" id="id_results_per_page" class="d-none"
-                                value="{{ results_per_page }}">
-                            <input id='id_filter_by' type="text" name="filter_by" class="d-none"
-                                value="{% if filter_by %}{{ filter_by }}{% endif %}">
 
 
-                        </form>
-
-                    </div>
-                    <!-- end SEARCH AND ORDERING FUNCTIONALITIES -->
-
-                </div>
+{% block add_url_block %}href="{% url 'transactions:add' %}" {% endblock add_url_block %}
 
 
-                <div class="card-body d-flex flex-column">
-                    <!-- start MAIN CONTENT -->
-                    {% if transactions %}
 
-                    <ul class="list-group list-group-flush">
-                        {% for transaction in transactions %}
-                        {% include 'transactions/snippets/item.html' with transaction=transaction %}
-                        {% endfor %}
-                    </ul>
+{% block orderby_block %}
+<li>
+    <button onclick="orderByChanged('date_created_desc','id_order_by','list_form');" class="dropdown-item">
+        Más recientes primero
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('date_created','id_order_by','list_form');" class="dropdown-item">
+        Más antiguos primero
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('category','id_order_by','list_form',true);" class="dropdown-item">
+        Categoria A-Z
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('category_desc','id_order_by','list_form');" class="dropdown-item">
+        Categoria Z-A
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('amount','id_order_by','list_form',true);" class="dropdown-item">
+        Menor a mayor importe
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('amount_desc','id_order_by','list_form');" class="dropdown-item">
+        Mayor a menor importe
+    </button>
+</li>
+{% endblock orderby_block %}
 
 
-                    {% else %}
-
-                    <div>
-                        <p class="card-text">
-                            Aún no se registraron movimientos. Hacé <a href="{% url 'transactions:add' %}">click acá</a>
-                            para crear uno.
-                        </p>
-                    </div>
-
-                    {% endif %}
-                    <!-- end MAIN CONTENT -->
-
-                </div>
-            </div>
-        </div>
 
 
-    </div>
+{% block filters_block %}
+<input type="text" id='id_min_date' name="min_date" {% if min_date %}value="{{ min_date }}" {% endif %}>
+<input type="text" id='id_max_date' name="max_date" {% if max_date %}value="{{ max_date }}" {% endif %}>
+<input type="text" id='id_category' name="category" {% if category %}value="{{ category }}" {% endif %}>
+<input type="submit">
+{% endblock filters_block %}
+
+
+
+{% block actions_block %}
+<div class="d-flex flex-wrap align-items-center">
+
+    <button type="button" id="export" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2" onclick="exportCSV()">
+        Exportar a CSV
+    </button>
+    <button type="button" id="export" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2" onclick="exportXLSX()">
+        Exportar a Excel
+    </button>
+    <button type="button" id="export" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2" onclick="exportPDF()">
+        Exportar a PDF
+    </button>
 
 </div>
 
+<hr>
+{% endblock actions_block %}
 
-{% include 'tickets/snippets/list_js.html' %}
 
-{% endblock content %}
+
+
+{% block objects_table_head_block %}
+<th class="cell-centered">Fecha</th>
+<th class="cell-centered">Categoría</th>
+<th class="cell-centered">Descripción</th>
+<th class="cell-centered">Importe</th>
+{% endblock objects_table_head_block %}
+
+
+
+
+{% block objects_table_body_block %}
+{% for summary in objects %}
+{% include 'transactions/snippets/item.html' with obj=summary counter=forloop.counter %}
+{% endfor %}
+{% endblock objects_table_body_block %}
+
+
+
+
+{% block scripts_block %}
+<script>
+    const passedOrderBy = '{{ order_by }}';
+    var lastQuery = "{{ query_by }}";
+
+    $(document).ready(function () {
+        $('#list_form').submit(function (e) {
+            e.preventDefault();
+            [
+                'id_query_by',
+                'id_order_by',
+                'id_results_per_page',
+                'id_min_date',
+                'id_max_date',
+                'id_category',
+            ].forEach(function (id) {
+                if ($('#' + id).val() == '') {
+                    $('#' + id).prop('disabled', true);
+                } else {
+                    $('#' + id).prop('disabled', false);
+                }
+            });
+            $(this).unbind('submit').submit();
+        });
+
+        enableTooltips();
+
+        $('#id_results_per_page').change(function () {
+            $('#list_form').submit();
+        });
+
+        $('#id_query_by').on('change paste keyup', function () {
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        });
+
+        if (lastQuery != '') {
+            $('#id_query_by').val(lastQuery);
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        }
+
+        $('#btnRadioRPP50').click(function () {
+            $('#id_results_per_page').val(50);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP100').click(function () {
+            $('#id_results_per_page').val(100);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP200').click(function () {
+            $('#id_results_per_page').val(200);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP500').click(function () {
+            $('#id_results_per_page').val(500);
+            $('#list_form').submit();
+        });
+    });
+
+    function clearSearch() {
+        $('#id_query_by').val('');
+        if (lastQuery != '' && lastQuery != null && lastQuery != undefined) {
+            $('#list_form').submit();
+        }
+        show('btnCleanQuery', false);
+    }
+
+
+    function applyFilters() {
+        $('#id_min_date').val($('#id_min_date_modal').val());
+        $('#id_max_date').val($('#id_max_date_modal').val());
+        $('#id_category').val($('#id_category_modal').val());
+        $('#list_form').submit();
+    }
+
+    function clearFilters() {
+        $('#id_min_date').val('');
+        $('#id_max_date').val('');
+        $('#id_category').val('');
+        $('#list_form').submit();
+    }
+
+    function exportCSV() {
+        var dateFrom = $('#id_min_date').val() == '' ? '1971-01-01' : $('#id_min_date').val();
+        var dateTo = $('#id_max_date').val() == '' ? '2100-12-31' : $('#id_min_date').val();
+        window.location.href = "{% url 'transactions:print-csv' %}?" + "date_from=" + dateFrom + "&date_to=" + dateTo;
+    }
+
+    function exportXLSX() {
+        var dateFrom = $('#id_min_date').val() == '' ? '1971-01-01' : $('#id_min_date').val();
+        var dateTo = $('#id_max_date').val() == '' ? '2100-12-31' : $('#id_min_date').val();
+        window.location.href = "{% url 'transactions:print-xlsx' %}?" + "date_from=" + dateFrom + "&date_to=" + dateTo;
+    }
+
+    function exportPDF() {
+        var dateFrom = $('#id_min_date').val() == '' ? '1971-01-01' : $('#id_min_date').val();
+        var dateTo = $('#id_max_date').val() == '' ? '2100-12-31' : $('#id_min_date').val();
+        window.location.href = "{% url 'transactions:print-pdf' %}?" + "date_from=" + dateFrom + "&date_to=" + dateTo;
+    }
+</script>
+{% endblock scripts_block %}

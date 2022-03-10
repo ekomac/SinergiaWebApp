@@ -83,6 +83,13 @@ class CreateClientForm(forms.ModelForm):
 
 class EditClientForm(forms.ModelForm):
 
+    clean_previous_contract = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(
+            attrs={'class': 'form-check-input', }),
+        initial=False,
+    )
+
     class Meta:
         model = Client
         fields = ['name', 'contact_name',
@@ -97,15 +104,10 @@ class EditClientForm(forms.ModelForm):
         }
 
     def save(self, commit=True):
-        client = self.instance
-        client.name = self.cleaned_data['name']
-        client.contact_name = self.cleaned_data['contact_name']
-        client.contact_phone = self.cleaned_data['contact_phone']
-        client.contact_email = self.cleaned_data['contact_email']
-
-        if self.cleaned_data['contract']:
-            client.contract = self.cleaned_data['contract']
-
+        client = super(EditClientForm, self).save(commit=False)
+        contract_file = self.cleaned_data['clean_previous_contract']
+        if 'contract' not in self.changed_data and contract_file:
+            self.instance.contract.delete(False)
         if commit:
             client.save()
         return client

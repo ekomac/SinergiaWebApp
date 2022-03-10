@@ -5,18 +5,17 @@
         enctype="multipart/form-data">{% csrf_token %}
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
-                Editar objeto
+                Editar cliente
             </div>
             <div>
                 <a href="{% url 'clients:list' %}"><i class="bi bi-arrow-left-short"></i>Volver</a>
             </div>
         </div>
         <div class="card-body">
-            <h3 class="card-title text-center mt-3">EDITAR CLIENTE</h3>
 
             <div class="row g-3">
                 <!-- start MAIN DATA -->
-                <h4 class="card-title mt-3">Datos principales</h4>
+                <h4 class="card-title mt-3">Datos del ciente</h4>
 
                 <!-- start NAME INPUT -->
                 <div class="col-12">
@@ -73,16 +72,30 @@
                 <!-- end CONTACT EMAIL INPUT -->
 
 
-                <!-- start CONTRACT SELECT -->
-                <div class="mb-3">
-                    <label for="id_contract" class="form-label">Contrato</label>
+
+                <!-- start contract SELECT -->
+                {% if contract %}
+                <div class="col-12">
+                    <label for="id_clean_previous_contract" class="form-label">Contrato actual</label><br>
+                    <a href="{{ contract.url }}">{{ contract.text }}</a>
+                    <input class="form-check-input ms-3" type="checkbox" name="clean_previous_contract"
+                        id="id_clean_previous_contract">
+                    <label class="form-check-label" for="id_clean_previous_contract">
+                        Limpiar
+                    </label><br>
+                </div>
+                {% endif %}
+                <div class="col-12">
+                    <label for="id_contract" class="form-label">{% if contract %}Modificar
+                        contrato{% else %}Contrato{% endif %}</label>
                     <input class="form-control {% if form.contract.errors %}is-invalid{% endif %}" type="file"
                         id="id_contract" name="contract">
                     <div class="invalid-feedback">
                         {% for error in form.contract.errors %}{{error}}<br>{% endfor %}
                     </div>
                 </div>
-                <!-- end CONTRACT SELECT -->
+                <!-- end contract SELECT -->
+
                 <!-- end MAIN DATA -->
 
 

@@ -1,32 +1,32 @@
-<li class="list-group-item list-group-item-action shadow mt-1"
+{% comment %} <li class="list-group-item list-group-item-action shadow mt-1"
     onclick="window.location.href='{% url 'transactions:edit' transaction.pk %}';" style="cursor: pointer;">
     <div class="d-flex flex-row justify-content-between">
         <div class="d-flex justify-content-between flex-row">
             <div class="d-flex flex-column">
                 <div>
-                    {% if transaction.category == '0' %}
+                    {% if obj.category == '0' %}
                     <div class="badge" style="background-color: #ef5350;">Administrativo</div>
-                    {% elif transaction.category == '1' %}
+                    {% elif obj.category == '1' %}
                     <div class="badge" style="background-color: #ec407a;">Alquiler</div>
-                    {% elif transaction.category == '2' %}
+                    {% elif obj.category == '2' %}
                     <div class="badge" style="background-color: #ab47bc;">Compras</div>
-                    {% elif transaction.category == '3' %}
+                    {% elif obj.category == '3' %}
                     <div class="badge" style="background-color: #673ab7;">Facturación</div>
-                    {% elif transaction.category == '4' %}
+                    {% elif obj.category == '4' %}
                     <div class="badge" style="background-color: #3f51b5;">Impuestos</div>
-                    {% elif transaction.category == '5' %}
+                    {% elif obj.category == '5' %}
                     <div class="badge" style="background-color: #42a5f5;">Insumos</div>
-                    {% elif transaction.category == '6' %}
+                    {% elif obj.category == '6' %}
                     <div class="badge" style="background-color: #26C6DA;">Mantenimiento</div>
-                    {% elif transaction.category == '7' %}
+                    {% elif obj.category == '7' %}
                     <div class="badge" style="background-color: #26a69a;">Publicidad</div>
-                    {% elif transaction.category == '8' %}
+                    {% elif obj.category == '8' %}
                     <div class="badge" style="background-color: #66bb6a;">Seguros</div>
-                    {% elif transaction.category == '9' %}
+                    {% elif obj.category == '9' %}
                     <div class="badge" style="background-color: #9ccc65;">Servicios</div>
-                    {% elif transaction.category == '10' %}
+                    {% elif obj.category == '10' %}
                     <div class="badge" style="background-color: #ffee58;">Sueldos</div>
-                    {% elif transaction.category == '11' %}
+                    {% elif obj.category == '11' %}
                     <div class="badge" style="background-color: #ff7043;">Otros</div>
                     {% endif %}
                 </div>
@@ -50,3 +50,48 @@
     </div>
 
 </li>
+{% endcomment %}
+
+<style>
+    td {
+        overflow: auto;
+        white-space: nowrap;
+    }
+</style>
+<tr id="tr-{{obj.id}}" class="table-item highlight-row"
+    onclick="window.location.href='{% url 'transactions:edit' pk=obj.id %}'">
+    <td class="cell-centered">{{ obj.date_created|date:"d/m/Y H:i" }}</td>
+    <td class="cell-centered">
+        {% if obj.category == '0' %}
+        <div class="badge" style="background-color: #ef5350;">Administrativo</div>
+        {% elif obj.category == '1' %}
+        <div class="badge" style="background-color: #ec407a;">Alquiler</div>
+        {% elif obj.category == '2' %}
+        <div class="badge" style="background-color: #ab47bc;">Compras</div>
+        {% elif obj.category == '3' %}
+        <div class="badge" style="background-color: #673ab7;">Facturación</div>
+        {% elif obj.category == '4' %}
+        <div class="badge" style="background-color: #3f51b5;">Impuestos</div>
+        {% elif obj.category == '5' %}
+        <div class="badge" style="background-color: #42a5f5;">Insumos</div>
+        {% elif obj.category == '6' %}
+        <div class="badge" style="background-color: #26C6DA;">Mantenimiento</div>
+        {% elif obj.category == '7' %}
+        <div class="badge" style="background-color: #26a69a;">Publicidad</div>
+        {% elif obj.category == '8' %}
+        <div class="badge" style="background-color: #66bb6a;">Seguros</div>
+        {% elif obj.category == '9' %}
+        <div class="badge" style="background-color: #9ccc65;">Servicios</div>
+        {% elif obj.category == '10' %}
+        <div class="badge" style="background-color: #ffee58;">Sueldos</div>
+        {% elif obj.category == '11' %}
+        <div class="badge" style="background-color: #ff7043;">Otros</div>
+        {% endif %}
+    </td>
+    <td class="cell-centered">
+        {{ obj.description |truncatewords:8}}
+    </td>
+    <td class="fw-bold" style="{% if obj.amount < 0 %}color: red;{% else %}color: green;{% endif %}">
+        {{ obj.amount }}
+    </td>
+</tr>
