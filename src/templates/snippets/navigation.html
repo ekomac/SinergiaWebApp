@@ -64,6 +64,7 @@
             {% endif %}
             <!-- END Depósitos -->
 
+            {% comment %}
             <!-- START Lugares -->
             {% if request.user|has_group:"Admins" %}
             <li class="nav-item">
@@ -76,13 +77,6 @@
                 </a>
                 <div class="collapse show" id="places-collapse">
                     <ul class="btn-toggle-nav list-unstyled fw-normal" style="font-size: 13px;">
-                        <!-- START Places Town -->
-                        <li class="nav-item {% if selected_tab == 'town-tab' %}activetab{% endif %} li-navigation">
-                            <a id="town-tab" href="{% url 'places:town-list' %}" class="nav-link tab">
-                                <i class="bi bi-geo"></i> Localidades
-                            </a>
-                        </li>
-                        <!-- END Places Town -->
                         <!-- START Places Partidos -->
                         <li class="nav-item {% if selected_tab == 'partido-tab' %}activetab{% endif %} li-navigation">
                             <a id="partido-tab" href="{% url 'places:partido-list' %}" class="nav-link tab">
@@ -108,13 +102,6 @@
                 </a>
                 <div class="collapse" id="places-collapse">
                     <ul class="btn-toggle-nav list-unstyled fw-normal" style="font-size: 13px;">
-                        <!-- START Places Town -->
-                        <li class="nav-item {% if selected_tab == 'town-tab' %}activetab{% endif %} li-navigation">
-                            <a id="town-tab" href="{% url 'places:town-list' %}" class="nav-link tab">
-                                <i class="bi bi-geo"></i> Localidades
-                            </a>
-                        </li>
-                        <!-- END Places Town -->
                         <!-- START Places Partidos -->
                         <li class="nav-item {% if selected_tab == 'partido-tab' %}activetab{% endif %} li-navigation">
                             <a id="partido-tab" href="{% url 'places:partido-list' %}" class="nav-link tab">
@@ -135,7 +122,7 @@
                 <!-- END START OPTION 2: No price tab is selected -->
             </li>
             {% endif %}
-            <!-- END Lugares -->
+            <!-- END Lugares --> {% endcomment %}
 
             {% if request.user|has_group:"Admins" %}
 
@@ -143,27 +130,41 @@
             <li class="nav-item">
 
                 <!-- START OPTION 1: A price tab is selected-->
-                {% if selected_tab == 'dprices-tab' or selected_tab == 'fprices-tab' or selected_tab == 'prices-tab' %}
+                {% if selected_tab == 'dprices-tab' or selected_tab == 'fprices-tab' or selected_tab == 'prices-tab' or selected_tab == 'town-tab' or selected_tab == 'cotizador-tab' %}
                 <a class="parent-nav nav-link align-items-center rounded tab mt-2" data-bs-toggle="collapse"
                     data-bs-target="#prices-collapse" aria-expanded="true">
                     Tarifas
                 </a>
                 <div class="collapse show" id="prices-collapse">
                     <ul class="btn-toggle-nav list-unstyled fw-normal" style="font-size: 13px;">
+                        <!-- START Places Town -->
+                        <li class="nav-item {% if selected_tab == 'town-tab' %}activetab{% endif %} li-navigation">
+                            <a id="town-tab" href="{% url 'places:town-list' %}" class="nav-link tab">
+                                <i class="bi bi-geo"></i> Localidades
+                            </a>
+                        </li>
+                        <!-- END Places Town -->
                         <!-- START Precios Delivery -->
                         <li class="nav-item {% if selected_tab == 'dprices-tab' %}activetab{% endif %} li-navigation">
                             <a id="dprices-tab" href="{% url 'prices:dcode-list' %}" class="nav-link tab">
-                                <i class="bi bi-currency-dollar"></i> Generales
+                                <i class="bi bi-map"></i> Por zonas
                             </a>
                         </li>
                         <!-- END Precios Delivery -->
                         <!-- START Precios Flex -->
                         <li class="nav-item {% if selected_tab == 'fprices-tab' %}activetab{% endif %} li-navigation">
                             <a id="fprices-tab" href="{% url 'prices:fcode-list' %}" class="nav-link tab">
-                                <i class="bi bi-currency-dollar"></i> Flex
+                                <i class="bi bi-currency-dollar"></i> ML Envíos Flex
                             </a>
                         </li>
                         <!-- END Precios Flex -->
+                        <!-- START Cotizador -->
+                        <li class="nav-item {% if selected_tab == 'cotizador-tab' %}activetab{% endif %} li-navigation">
+                            <a id="prices-tab" href="{% url 'prices:fcode-list' %}" class="nav-link tab">
+                                <i class="bi bi-calculator"></i> Cotizador
+                            </a>
+                        </li>
+                        <!-- END Cotizador -->
                     </ul>
                 </div>
                 {% else %}
@@ -175,20 +176,34 @@
                 </a>
                 <div class="collapse" id="prices-collapse">
                     <ul class="btn-toggle-nav list-unstyled fw-normal" style="font-size: 13px;">
+                        <!-- START Places Town -->
+                        <li class="nav-item {% if selected_tab == 'town-tab' %}activetab{% endif %} li-navigation">
+                            <a id="town-tab" href="{% url 'places:town-list' %}" class="nav-link tab">
+                                <i class="bi bi-geo"></i> Localidades
+                            </a>
+                        </li>
+                        <!-- END Places Town -->
                         <!-- START Precios Delivery -->
                         <li class="nav-item {% if selected_tab == 'dprices-tab' %}activetab{% endif %} li-navigation">
                             <a id="prices-tab" href="{% url 'prices:dcode-list' %}" class="nav-link tab">
-                                <i class="bi bi-currency-dollar"></i> Generales
+                                <i class="bi bi-map"></i> Por zonas
                             </a>
                         </li>
                         <!-- END Precios Delivery -->
                         <!-- START Precios Flex -->
                         <li class="nav-item {% if selected_tab == 'fprices-tab' %}activetab{% endif %} li-navigation">
                             <a id="prices-tab" href="{% url 'prices:fcode-list' %}" class="nav-link tab">
-                                <i class="bi bi-currency-dollar"></i> Flex
+                                <i class="bi bi-currency-dollar"></i> ML Envíos Flex
                             </a>
                         </li>
                         <!-- END Precios Flex -->
+                        <!-- START Cotizador -->
+                        <li class="nav-item {% if selected_tab == 'cotizador-tab' %}activetab{% endif %} li-navigation">
+                            <a id="prices-tab" href="{% url 'prices:fcode-list' %}" class="nav-link tab">
+                                <i class="bi bi-calculator"></i> Cotizador
+                            </a>
+                        </li>
+                        <!-- END Cotizador -->
                     </ul>
                 </div>
                 {% endif %}

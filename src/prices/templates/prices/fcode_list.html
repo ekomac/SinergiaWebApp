@@ -1,0 +1,147 @@
+{% extends 'base/base_list.html' %}
+
+
+{% block orderby_block %}
+
+<li>
+    <button type="button" onclick="orderByChanged('code','id_order_by','list_form',true);" class="dropdown-item">
+        A-Z
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('code_desc','id_order_by','list_form');" class="dropdown-item">
+        Z-A
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('max_5k_price','id_order_by','list_form',true);"
+        class="dropdown-item">
+        Precio menor a mayor
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('max_5k_price_desc','id_order_by','list_form');"
+        class="dropdown-item">
+        Precio mayor a menor
+    </button>
+</li>
+{% endblock orderby_block %}
+
+
+
+{% block filters_block %}
+<input type="text" id='id_partido_id' name="partido_id" {% if partido_id %}value="{{ partido_id }}" {% endif %}>
+<input type="submit">
+{% endblock filters_block %}
+
+
+
+{% block objects_table_head_block %}
+{% load humanize %}
+<th>Nombre</th>
+<th>Precio</th>
+<th>Partidos</th>
+{% endblock objects_table_head_block %}
+
+
+
+{% block objects_table_body_block %}
+{% for obj in objects %}
+<tr id="tr-{{ obj.id }}" class="table-item highlight-row">
+    <td>{{ obj.code |title}}</td>
+    <td>
+        {% if obj.price %}${{ obj.price |floatformat:"2" }}{% else %}-{% endif %}
+    </td>
+    <td>
+        {% for partido in obj.partidos %}
+        {{ partido }}{% if not forloop.last %},{% endif %}
+        {% if forloop.counter|divisibleby:4 %}
+        <br>
+        {% endif %}
+        {% endfor %}
+    </td>
+
+</tr>
+{% endfor %}
+{% endblock objects_table_body_block %}
+
+
+{% block scripts_block %}
+<script>
+    const passedOrderBy = '{{ order_by }}';
+    var lastQuery = "{{ query_by }}";
+
+    $(document).ready(function () {
+
+        $('#list_form').submit(function (e) {
+            e.preventDefault();
+            [
+                'id_query_by',
+                'id_order_by',
+                'id_results_per_page',
+            ].forEach(function (id) {
+                if ($('#' + id).val() == '') {
+                    $('#' + id).prop('disabled', true);
+                } else {
+                    $('#' + id).prop('disabled', false);
+                }
+            });
+            $(this).unbind('submit').submit();
+        });
+
+        enableTooltips();
+
+        $('#id_results_per_page').change(function () {
+            $('#list_form').submit();
+        });
+
+        $('#id_query_by').on('change paste keyup', function () {
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        });
+
+        if (lastQuery != '') {
+            $('#id_query_by').val(lastQuery);
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        }
+
+        $('#btnRadioRPP50').click(function () {
+            $('#id_results_per_page').val(50);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP100').click(function () {
+            $('#id_results_per_page').val(100);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP200').click(function () {
+            $('#id_results_per_page').val(200);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP500').click(function () {
+            $('#id_results_per_page').val(500);
+            $('#list_form').submit();
+        });
+
+
+    });
+
+    function clearSearch() {
+        $('#id_query_by').val('');
+        if (lastQuery != '' && lastQuery != null && lastQuery != undefined) {
+            $('#list_form').submit();
+        }
+        show('btnCleanQuery', false);
+    }
+
+
+    function applyFilters() {
+        $('#list_form').submit();
+    }
+
+    function clearFilters() {
+        $('#list_form').submit();
+    }
+</script>
+
+{% endblock scripts_block %}

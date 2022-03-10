@@ -1,5 +1,4 @@
 # Basic Python
-from importlib.metadata import requires
 import json
 import unidecode
 from typing import Any, Dict, List
@@ -33,7 +32,6 @@ from places.forms import (
     BulkEditTownDeliveryForm,
     BulkEditTownFlexForm,
     UpdatePartidoForm,
-    AddZoneForm,
     UpdateTownForm,
     UpdateZoneForm
 )
@@ -83,6 +81,10 @@ class TownListView(CompleteListView, LoginRequiredMixin):
     @allowed_users_in_class_view(roles=["Admins"])
     def get(self, request):
         return super(TownListView, self).get(request)
+
+    def get_model_queryset(self):
+        queryset = super(TownListView, self).get_model_queryset()
+        return queryset.order_by('name')
 
     def get_context_data(self) -> Dict[str, Any]:
         context = super().get_context_data()

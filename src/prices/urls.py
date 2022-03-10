@@ -3,9 +3,10 @@ from django.urls import path
 from .views import (
 
     # ******** MENSAJERIA ********
+    DeliveryCodeListView,
     delivery_code_bulk_fixed_update,
     delivery_code_bulk_percentage_update,
-    delivery_codes_view,
+    #     delivery_codes_view,
     DeliveryCodeAddView,
     DeliveryCodeDetailView,
     DeliveryCodeUpdateView,
@@ -15,7 +16,8 @@ from .views import (
     # ******** MENSAJERIA ********
 
     # ********* FLEX *********
-    flex_codes_view,
+    FlexCodeListView,
+    # flex_codes_view,
     FlexCodeAddView,
     FlexCodeDetailView,
     FlexCodeUpdateView,
@@ -27,7 +29,8 @@ app_name = 'prices'
 urlpatterns = [
 
     # **************************** MENSAJERIA ****************************
-    path('delivery/', delivery_codes_view, name="dcode-list"),
+    #     path('delivery/', delivery_codes_view, name="dcode-list"),
+    path('delivery/', DeliveryCodeListView.as_view(), name="dcode-list"),
     path('delivery/add/', DeliveryCodeAddView.as_view(), name="dcode-add"),
     path('delivery/<int:pk>/', DeliveryCodeDetailView.as_view(),
          name="dcode-detail"),
@@ -44,7 +47,7 @@ urlpatterns = [
 
 
     # ****************************** FLEX ******************************
-    path('flex/', flex_codes_view, name='fcode-list'),
+    path('flex/', FlexCodeListView.as_view(), name='fcode-list'),
     path('flex/add/', FlexCodeAddView.as_view(), name="fcode-add"),
     path('flex/<int:pk>', FlexCodeDetailView.as_view(), name="fcode-detail"),
     path('flex/<int:pk>/edit/', FlexCodeUpdateView.as_view(),

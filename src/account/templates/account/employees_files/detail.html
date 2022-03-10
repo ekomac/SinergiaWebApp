@@ -57,7 +57,7 @@
 
                     {% endif %}
                     {% if account.is_active %}
-                    <h2>#{{ account.id }} | {{ account.full_name }}</h2>
+                    <h2>{{ account.full_name }}</h2>
                     {% else %}
                     <h2 style="color: red;">#{{ account.id }} | {{ account.full_name }}</h2>
                     <h5 style="color: red;">&nbsp;[inactivo/a]</h5>

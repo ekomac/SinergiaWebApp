@@ -3,6 +3,8 @@
 
 {% block modal_content %}
 
+{% load humanize %}
+
 <!-- start BASE MODAL DIALOG -->
 <div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="baseModal" tabindex="-1"
     aria-labelledby="baseModalLabel" aria-hidden="true">
@@ -78,6 +80,30 @@
         Partido Z-A
     </button>
 </li>
+<li>
+    <button type="button" onclick="orderByChanged('delivery_code__max_5k_price','id_order_by','list_form',true);"
+        class="dropdown-item">
+        Precio menor a mayor
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('delivery_code__max_5k_price_desc','id_order_by','list_form');"
+        class="dropdown-item">
+        Precio mayor a menor
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('flex_code__price','id_order_by','list_form',true);"
+        class="dropdown-item">
+        Precio de flex menor a mayor
+    </button>
+</li>
+<li>
+    <button type="button" onclick="orderByChanged('flex_code__price_desc','id_order_by','list_form');"
+        class="dropdown-item">
+        Precio de flex mayor a menor
+    </button>
+</li>
 {% endblock orderby_block %}
 
 
@@ -93,8 +119,12 @@
 <th>Nombre</th>
 <th>Partido</th>
 <th>Provincia</th>
-<th>Cód. Mensajería</th>
-<th>Cód. Flex</th>
+<th>MercadoEnvíos Flex</th>
+<th>Paquete &lt;= 5kg</th>
+<th>Bulto &lt;= 10kg</th>
+<th>Bulto &lt; 20kg</th>
+<th>Miniflete</th>
+<th>Trámite</th>
 {% endblock objects_table_head_block %}
 
 
@@ -106,8 +136,23 @@
     <td>{{ obj.name |title}}</td>
     <td>{{ obj.partido.name |title}}</td>
     <td>{{ obj.partido.get_province_display }}</td>
-    <td>{% if obj.delivery_code %}{{ obj.delivery_code }}{% else %}-{% endif %}</td>
-    <td>{% if obj.flex_code %}{{ obj.flex_code }}{% else %}-{% endif %}</td>
+    <td class="cell-centered">{% if obj.flex_code.price %}$
+        {{ obj.flex_code.price |floatformat:"2" }}{% else %}-{% endif %}</td>
+    <td class="cell-centered">
+        {% if obj.delivery_code.max_5k_price %}${{ obj.delivery_code.max_5k_price |floatformat:"2" }}{% else %}-{% endif %}
+    </td>
+    <td class="cell-centered">
+        {% if obj.delivery_code.bulto_max_10k_price %}${{ obj.delivery_code.bulto_max_10k_price |floatformat:"2" }}{% else %}-{% endif %}
+    </td>
+    <td class="cell-centered">
+        {% if obj.delivery_code.bulto_max_20k_price %}${{ obj.delivery_code.bulto_max_20k_price |floatformat:"2" }}{% else %}-{% endif %}
+    </td>
+    <td class="cell-centered">
+        {% if obj.delivery_code.miniflete_price %}${{ obj.delivery_code.miniflete_price |floatformat:"2" }}{% else %}-{% endif %}
+    </td>
+    <td class="cell-centered">
+        {% if obj.delivery_code.tramite_price %}${{ obj.delivery_code.tramite_price |floatformat:"2" }}{% else %}-{% endif %}
+    </td>
 
 </tr>
 {% endfor %}

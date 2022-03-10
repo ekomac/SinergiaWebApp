@@ -16,7 +16,7 @@ from account.models import Account
 
 
 from utils.forms import CheckPasswordForm
-from utils.views import DeleteObjectsUtil
+from utils.views import CompleteListView, DeleteObjectsUtil
 from utils.alerts.views import (
     SuccessfulCreationAlertMixin,
     SuccessfulUpdateAlertMixin,
@@ -32,7 +32,48 @@ from .forms import (
 )
 
 from .models import DeliveryCode, FlexCode
-from places.models import Town
+from places.models import Partido, Town
+
+
+class DeliveryCodeListView(CompleteListView, LoginRequiredMixin):
+    template_name = 'prices/dcode_list.html'
+    decoders = None
+    model = DeliveryCode
+    query_keywords = (
+        'code__icontains',)
+    selected_tab = 'dprices-tab'
+    include_add_button = False
+
+    @allowed_users_in_class_view(roles=["Admins", "Clients", ])
+    def get(self, request):
+        return super(DeliveryCodeListView, self).get(request)
+
+
+class FlexCodeListView(CompleteListView, LoginRequiredMixin):
+    template_name = 'prices/fcode_list.html'
+    decoders = None
+    model = FlexCode
+    query_keywords = (
+        'code__icontains',)
+    selected_tab = 'fprices-tab'
+    include_add_button = False
+
+    def queryset_map_callable(self, obj: FlexCode):
+        all_partidos = Partido.objects.filter(
+            town__in=obj.town_set.all())
+        sorted_partidos = all_partidos.order_by('name').distinct()
+        only_names = [val.title()
+                      for val in sorted_partidos.values_list(
+                          'name', flat=True)]
+        return {
+            'code': obj.code,
+            'price': '{:.2f}'.format(obj.price),
+            'partidos': set(only_names),
+        }
+
+    @allowed_users_in_class_view(roles=["Admins", "Clients", ])
+    def get(self, request):
+        return super(FlexCodeListView, self).get(request)
 
 
 # ****************** MENSAJERIA ******************
@@ -49,7 +90,7 @@ def delivery_codes_view(request, *args, **kwargs):
         context['totalCodes'] = len(dcodes)
         context['selected_tab'] = 'dprices-tab'
 
-    return render(request, "prices/dcode-list.html", context)
+    return render(request, "prices/dcode-list2.html", context)
 
 
 class DeliveryCodeAddView(
