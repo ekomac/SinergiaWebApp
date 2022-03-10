@@ -1,41 +1,50 @@
 # Basic Python
-import json
 import hashlib
-import unidecode
+import json
 from datetime import datetime, timedelta
-from django.http.response import HttpResponse
-from django.http import JsonResponse
+from typing import Any, Dict
+
+# Third-party
 from openpyxl.writer.excel import save_virtual_workbook
-from typing import Any, Dict, List, Tuple
+
 
 # Django
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models.query_utils import Q
+from django.http import JsonResponse
+from django.http.response import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
-from account.decorators import allowed_users, allowed_users_in_class_view
-
 
 # Project apps
-from envios.decorators import allow_only_client_in_class_view
+from account.decorators import allowed_users, allowed_users_in_class_view
 from account.models import Account
+from clients.models import Client
 from deposit.models import Deposit
 from envios.forms import (
-    BulkLoadEnviosForm, CreateEnvioForm, EnviosIdsSelection, UpdateEnvioForm)
+    BulkLoadEnviosForm,
+    CreateEnvioForm,
+    EnviosIdsSelection,
+    UpdateEnvioForm
+)
 from envios.models import BulkLoadEnvios, Envio
-from envios.utils import bulk_create_envios, create_xlsx_workbook
-from places.models import Partido
-from clients.models import Client
 from envios.reports import PDFReport
+from envios.utils import (
+    bulk_create_envios,
+    calculate_price,
+    create_xlsx_workbook,
+    get_detail_readable
+)
+from places.models import Partido
 from places.utils import get_localidades_as_JSON
 from tracking.models import TrackingMovement
 from utils.alerts.views import (
-    create_alert_and_redirect, update_alert_and_redirect)
+    create_alert_and_redirect,
+    update_alert_and_redirect
+)
 from utils.forms import CheckPasswordForm
 from utils.views import DeleteObjectsUtil, CompleteListView, sanitize_date
 
@@ -108,145 +117,6 @@ class EnvioListView(CompleteListView, LoginRequiredMixin):
 DEFAULT_ENVIOS_PER_PAGE = 50
 
 
-# @login_required(login_url='/login/')
-# @allowed_users(roles=["Admins"])
-# def envios_view(request):
-#     context = {}
-
-#     # Search
-#     query = ""
-#     if request.method == 'GET':
-#         query = request.GET.get('query_by', None)
-#         if query:
-#             context['query_by'] = str(query)
-
-#         order_by = request.GET.get('order_by', '-date_created')
-#         if order_by:
-#             order_by = str(order_by)
-#             context['order_by'] = order_by
-#             if '_desc' in order_by:
-#                 order_by = "-" + order_by[:-5]
-
-#         results_per_page = request.GET.get(
-#             'results_per_page', None)
-#         if results_per_page is None:
-#             results_per_page = DEFAULT_ENVIOS_PER_PAGE
-#         context['results_per_page'] = str(results_per_page)
-
-#         filters = {}
-#         filter_by = request.GET.get('filter_by', "")
-#         context['filters_count'] = 0
-#         if filter_by:
-#             filters, filter_count = decode_filters(filter_by)
-#             context['filter_by'] = filter_by
-#             context['filters_count'] = filter_count
-
-#         envios = get_envio_queryset(
-#             query, order_by, **filters)
-
-#         # Pagination
-#         page = request.GET.get('page', 1)
-#         envios_paginator = Paginator(envios, results_per_page)
-#         try:
-#             envios = envios_paginator.page(page)
-
-#             # How many envios in total
-#             context['envios_count'] = envios_paginator.count
-
-#             # Showing envio from
-#             context['envios_from'] = (
-#                 envios.number - 1) * envios_paginator.per_page + 1
-
-#             # Showing envio to
-#             if envios_paginator.per_page > len(envios):
-#                 what_to_sum = len(envios)
-#             else:
-#                 what_to_sum = envios_paginator.per_page
-#             context['envios_to'] = context['envios_from'] + \
-#                 what_to_sum - 1
-
-#         except PageNotAnInteger:
-#             envios = envios_paginator.page(results_per_page)
-#         except EmptyPage:
-#             envios = envios_paginator.page(envios_paginator.num_pages)
-
-#         context['envios'] = envios
-#         context['totalEnvios'] = len(envios)
-#         context['selected_tab'] = 'shipments-tab'
-#         context['clients'] = Client.objects.all()
-
-#     return render(request, "envios/envio/list.html", context)
-
-
-# def decode_filters(s: str = '') -> Tuple[dict, int]:
-#     str_filters = s.split('_')
-#     filters = {}
-#     for filter in str_filters:
-#         key = filter[0]
-#         value = filter[1:]
-#         if value:
-#             if key == 'f':  # The filter is about date created since
-#                 filters['date_created__gte'] = sanitize_date(value)
-
-#             if key == 't':  # The filter is about date created until
-#                 filters['date_created__lte'] = sanitize_date(
-#                     value) + timedelta(days=1)
-
-#             if key == 'c':  # The filter is about the client
-#                 filters['client__id'] = int(value)
-
-#             # The filter is about the type of shipment (flex or delivery)
-#             # The database query is composed in the form of 'is_flex=[bool]',
-#             # so we need a bool
-#             if key == 's':
-#                 filters['is_flex'] = value == 'flex'
-
-#             if key == 'u':
-#                 filters['status'] = value
-#     return filters, len(filters)
-
-
-# def get_envio_queryset(
-#         query: str = None, order_by_key: str = '-date_created',
-#         **filters) -> List[Envio]:
-#     """Get all envios that match provided query, if any. If none is given,
-#     returns all envios. Also, performs the query in the specified order_by_key.
-#     Finally, it also filters the query by user driven params, such as, for
-#     example, 'date_created__gt'.
-
-#     Args:
-#         query (str, optional): words to match the query. Defaults to empyt str.
-#         order_by_key (str, optional): to perform ordery by.
-#         Defaults to 'date_created'.
-#         **filters (Any): filter params to be passed to filter method.
-
-#     Returns:
-#         List[Envio]: a list containing the envios which match at least
-#         one query.
-#     """
-#     query = unidecode.unidecode(query) if query else ""
-#     return list(Envio.objects
-#                 # User driven filters
-#                 .filter(**filters)
-#                 # Query filters
-#                 .filter(
-#                     Q(updated_by__first_name__icontains=query) |
-#                     Q(updated_by__last_name__icontains=query) |
-#                     Q(name__icontains=query) |
-#                     Q(doc__icontains=query) |
-#                     Q(phone__icontains=query) |
-#                     Q(street__icontains=query) |
-#                     Q(remarks__icontains=query) |
-#                     Q(town__name__icontains=query) |
-#                     Q(zipcode__icontains=query) |
-#                     Q(client__name__icontains=query) |
-#                     Q(flex_id__icontains=query),
-#                 )
-#                 .order_by(order_by_key)
-#                 .distinct()
-#                 )
-
-
 class EnvioContextMixin(LoginRequiredMixin, View):
 
     def get_context_data(self, **kwargs):
@@ -269,7 +139,8 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
         envio = ctx['object']
         ctx['movements'] = envio.trackingmovement_set.all().order_by(
             '-date_created')
-        ctx['actual_price'] = '{:,.2f}'.format(envio.price)
+        ctx['actual_price'] = '{:,.2f}'.format(calculate_price(envio))
+        ctx['readable_detail'] = get_detail_readable(envio)
         if envio.status == Envio.STATUS_DELIVERED:
             delivered_tracking_movement = envio.trackingmovement_set.filter(
                 result='success').first()

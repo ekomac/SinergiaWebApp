@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import Any, Dict, List, Tuple
 
 import asyncio
-from envios.utils import calculate_envio_price
+from envios.utils import calculate_price
 from summaries.models import ClientSummary, EmployeeSummary
 
 
@@ -31,7 +31,7 @@ def process_for_pdf(
 
 async def parse_envios_async(envio) -> Tuple[List[Any], Decimal]:
     date = envio.date_delivered.strftime("%d/%m/%Y")
-    price = await calculate_envio_price(envio)
+    price = await calculate_price(envio)
     as_list = [date, envio.full_address,
                envio.get_detail_readable(), str(price), ]
     # as_dict = {

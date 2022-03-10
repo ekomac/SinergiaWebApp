@@ -159,7 +159,8 @@ Depósitos
                                     </tr>
 
                                     <!-- Urgent -->
-                                    <tr class="on-body">
+                                    {% comment %}
+                                    <!-- <tr class="on-body">
                                         <td>Urgente</td>
                                         <td>
                                             <input type="number" max="20" min="0" step="1" class="form-control"
@@ -172,17 +173,17 @@ Depósitos
                                                         class="bi bi-x"></i></button>
                                             </div>
                                         </td>
-                                    </tr>
+                                    </tr> -->{% endcomment %}
                                     <!-- Tramite -->
                                     <tr class="on-body">
                                         <td>Trámite</td>
                                         <td>
                                             <input type="number" max="20" min="0" step="1" class="form-control"
-                                                id="detailInput5" pattern="^\d+$"></input>
+                                                id="detailInput4" pattern="^\d+$"></input>
                                         </td>
                                         <td>
                                             <div id="clearRowTramite">
-                                                <button id="btnClear5" type="button"
+                                                <button id="btnClear4" type="button"
                                                     class="btn btn-danger clear-amount-button invisible"><i
                                                         class="bi bi-x"></i></button>
                                             </div>
@@ -401,8 +402,7 @@ Depósitos
         1: "max-10-package",
         2: "max-20-package",
         3: "miniflete",
-        4: "urgent",
-        5: "tramite",
+        4: "tramite",
     };
 
     function isNumeric(value) {
@@ -502,7 +502,7 @@ Depósitos
     }
 
     function setDetailsListeners() {
-        for (let i = 0; i < 6; i++) {
+        for (let i = 0; i < 5; i++) {
             $('#detailInput' + i).on('inputchange', function () {
                 var currentValue = this.value.toString();
                 if (currentValue != "" && currentValue != "0" && isNumeric(currentValue)) {

@@ -163,7 +163,7 @@
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-card-list"></i> Detalle
                             </td>
-                            <td class="w-100">{{ object.get_detail_readable }}</td>
+                            <td class="w-100">{{ object.readable_detail }}</td>
                         </tr>
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-geo"></i>
@@ -221,7 +221,7 @@
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-clock"></i>
                                 Horarios de entrega
                             </td>
-                            <td class="w-100">{{ object.delivery_schedule }} h</td>
+                            <td class="w-100">{{ object.delivery_schedule }}</td>
                         </tr>
                         {% endif %}
                         {% if object.charge != None and object.charge != '' and object.charge > 0 %}

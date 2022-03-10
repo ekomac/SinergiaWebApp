@@ -1,4 +1,6 @@
 # Basic Python
+from importlib.metadata import requires
+import json
 import unidecode
 from typing import Any, Dict, List
 
@@ -26,6 +28,7 @@ from utils.alerts.views import (
 from account.models import Account
 from places.models import Partido, Town, Zone
 from places.forms import (
+    AddZoneForm2,
     BulkEditPartidoForm,
     BulkEditTownDeliveryForm,
     BulkEditTownFlexForm,
@@ -467,30 +470,41 @@ def get_zone_queryset(query: str = None, reverse: bool = False) -> List[Zone]:
 @login_required(login_url='/login/')
 @allowed_users(roles="Admins")
 def add_zone_view(request):
+    form = AddZoneForm2()
     context = {
         'selected_tab': 'zone-tab',
         'partidos': Partido.objects.all(),
+        'towns': Town.objects.all(),
         'partidosTotal': Partido.objects.count(),
     }
-
-    form = AddZoneForm(request.POST or None)
-    ids = request.POST.get('selected_partidos_ids', None)
-    if form.is_valid():
-        # Save the object after asigning the user who is updating
-        obj = form.save(commit=False)
-        author = Account.objects.filter(email=request.user.email).first()
-        obj.updated_by = author
-        obj.save()
-        set_partido_ids(ids, obj, author)
-        form = AddZoneForm()
-        msg = f'La zona "{obj.name.title()}" se creó correctamente.'
-        return create_alert_and_redirect(
-            request, msg, 'places:zone-detail', obj.pk)
+    print(Town.objects.all().values('id', 'name', "partido__id"))
+    context['towns_JSON'] = dumped_towns()
+    # context['towns_JSON'] = json.dumps(
+    #     list(Town.objects.all().values('id', 'name', "partido__id")))
+    if request.method == 'POST':
+        form = AddZoneForm2(request.POST or None)
+        ids = request.POST.get('selected_partidos_ids', None)
+        context['partidos_ids'] = ids
+        if form.is_valid():
+            # Save the object after asigning the user who is updating
+            obj = form.save(commit=False)
+            author = Account.objects.filter(email=request.user.email).first()
+            obj.updated_by = author
+            obj.save()
+            set_partido_ids(ids, obj, author)
+            msg = f'La zona "{obj.name.title()}" se creó correctamente.'
+            return create_alert_and_redirect(
+                request, msg, 'places:zone-detail', obj.pk)
 
     context['form'] = form
-    context['partidos_ids'] = ids
 
     return render(request, "places/zone/add.html", context)
+
+
+def dumped_towns() -> List[Dict]:
+    towns = Town.objects.all().values('id', 'name', "partido__id")
+    towns = {town['id']: town for town in towns}
+    return json.dumps(towns)
 
 
 def set_partido_ids(ids: str, zone: Zone, author: Account) -> None:
@@ -522,13 +536,13 @@ class ZoneDetailView(LoginRequiredMixin, DetailView):
         context['partidos'] = self.object.partido_set.order_by('name').all()
         return context
 
-    @allowed_users_in_class_view(roles="Admins")
+    @ allowed_users_in_class_view(roles="Admins")
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
 
-@login_required(login_url='/login/')
-@allowed_users(roles="Admins")
+@ login_required(login_url='/login/')
+@ allowed_users(roles="Admins")
 def edit_zone_view(request, pk):
 
     zone = get_object_or_404(Zone, pk=pk)

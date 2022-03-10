@@ -297,12 +297,6 @@ def employee_detail_view(request, pk):
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
-def employee_delete_view(request, pk):
-    return render(request, 'account/employees_files/delete.html', {})
-
-
-@login_required(login_url='/login/')
 @allowed_users(roles="Admins")
 def account_delete_view(request, pk, **kwargs):
 

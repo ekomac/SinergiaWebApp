@@ -5,7 +5,6 @@ from .views import (
     create_user_view,
     update_user_view,
     employee_detail_view,
-    employee_delete_view,
     ajax_password_reset,
     enable_account_and_return_to_detail_view,
     disable_account_and_return_to_detail_view,
@@ -23,9 +22,6 @@ urlpatterns = [
          enable_account_and_return_to_detail_view, name="enable-account"),
     path('<int:pk>/disable/',
          disable_account_and_return_to_detail_view, name="disable-account"),
-    path('<int:pk>/delete/', employee_delete_view, name="employees-delete"),
-    path('<int:pk>/confirm-password-reset/', employee_delete_view,
-         name="employees-confirm-password-reset"),
     path('<int:pk>/post/password-reset/', ajax_password_reset,
          name="post-password-reset"),
 ]

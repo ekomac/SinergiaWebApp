@@ -1,4 +1,3 @@
-from envios.models import DETAIL_CODES
 from collections import Counter
 from decimal import Decimal
 from typing import Any, Callable, Dict, List, Tuple
@@ -306,44 +305,75 @@ def __cols_to_kwargs(
     return kwargs
 
 
-def calculate_envio_price(envio: Envio):
-    """
-        Performs de calculation for the price of the 'envio'.
-        It applies the discount if it is available.
-        The operations are made with Decimal to avoid the rounding errors.
+DETAIL_CODES = {
+    "0": 'max_5k_price',
+    "1":  'bulto_max_10k_price',
+    "2":  'bulto_max_20k_price',
+    "3": 'miniflete_price',
+    "4": 'tramite_price',
+}
 
-        Returns:
-            Decimal: The price of the 'envio'.
-        """
+VERBOSE_NAMES_FOR_DETAIL_CODES = {
+    "0": 'Paquete(s) hasta 5kg',
+    "1": 'Bulto(s) hasta 10kg',
+    "2": 'Bulto(s) hasta 20kg',
+    "3": 'miniflete(s)',
+    "4": 'trámite(s)',
+}
+
+
+def calculate_price(envio: Envio):
+    """
+    Performs de calculation for the price of the 'envio'.
+    It applies the discount if it is available.
+    The operations are made with Decimal to avoid the rounding errors.
+
+    Returns:
+        Decimal: The price of the 'envio'.
+    """
     # Get the town of recipient's address
     town = envio.town
+    print("TOWN", town)
 
-    #  Get the code. If 'envio' is from flex, return flex's code for
-    # given town, else the normal code.
-    code = town.flex_code if envio.is_flex else town.delivery_code
-
-    # Get the price for the given code
-    price = Decimal(str(code.price))
-
-    # Get the detail for the given envio
-    detail_codes = envio.detail.split(',')
+    # #  Get the code. If 'envio' is from flex, return flex's code for
+    # # given town, else the normal code.
+    # price_code = town.flex_code if envio.is_flex else town.delivery_code
 
     # Initialize total price to 0
     total_price = Decimal(0)
+    print("TOTAL PRICE", total_price)
 
-    # Get the price for each package detail
-    for detail_code in detail_codes:
-        # Unpack code and amount spliting by '-'
-        code, amount = detail_code.split('-')
-        # Get the package detail for the given code
-        detail_code = DETAIL_CODES[code]
-        # Get multiplier for the given package detail
-        multiplier = detail_code["multiplier"]
-        # Multiply the price by the multiplier for given package
-        # detail, times the amount of packages
-        result = Decimal(str(multiplier)) * price * Decimal(amount)
-        # Add the result to the total price
-        total_price += result
+    print("IS FLEX", envio.is_flex)
+    if envio.is_flex:
+        # Get the flex price
+        total_price = Decimal(str(town.flex_code.price))
+        print("TOTAL PRICE", total_price)
+    else:
+        delivery_code = town.delivery_code
+        print("DELIVERY CODE", delivery_code)
+        # Get the detail for the given envio
+        detail_codes = envio.detail.split(',')
+        print("DETAIL CODES", detail_codes)
+        # Get the price for each package detail
+        for detail_code in detail_codes:
+            print("DETAIL CODE", detail_code)
+            # Unpack code and amount spliting by '-'
+            code, amount = detail_code.split('-')
+            print("CODE", code)
+            print("AMOUNT", amount)
+            # Get multiplier for the given package detail
+            attr = DETAIL_CODES[code]
+            print("ATTR", attr)
+            multiplier = getattr(delivery_code, attr)
+            print("MULTIPLIER", multiplier)
+            # Multiply the price by the multiplier for given package
+            # detail, times the amount of packages
+            result = Decimal(str(multiplier)) * Decimal(amount)
+            print("RESULT", result)
+            # Add the result to the total price
+            total_price += result
+            print("TOTAL PRICE", total_price)
+    print("TOTAL PRICE", total_price)
 
     # Get single discount for envio's client and partido, if and
     # only if the envio and discount match the is_for_flex and
@@ -353,13 +383,34 @@ def calculate_envio_price(envio: Envio):
         is_for_flex=envio.is_flex,
         partidos__in=[envio.town.partido]
     ).first()
+    print("DISCOUNT", discount)
 
     # If discount exists, apply it to the total price
     if discount:
         discount = Decimal(discount.amount) / Decimal(100)
+        print("DISCOUNT", discount)
         total_discount = total_price * discount
+        print("TOTAL DISCOUNT", total_discount)
         result = total_price - total_discount
+        print("RESULT", result)
         return result
 
     # return the total price
     return total_price
+
+
+def get_detail_readable(envio: Envio):
+    if envio.is_flex and envio.flex_id is not None:
+        return f'Paquete Flex #{envio.flex_id}'
+    details = map(map_detail, envio.detail.split(","))
+    return ", ".join(details)
+
+
+def map_detail(detail):
+    parts = detail.split("-")
+    index = parts[0]
+    amount = parts[1]
+    if index in DETAIL_CODES.keys():
+        verbose_name = VERBOSE_NAMES_FOR_DETAIL_CODES[index]
+        return f'{amount}x {verbose_name}'.lower()
+    return ""

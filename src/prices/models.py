@@ -9,6 +9,20 @@ class DeliveryCode(models.Model):
         null=False, unique=True)
     price = models.DecimalField(
         verbose_name="Price", max_digits=20, decimal_places=2)
+    max_5k_price = models.DecimalField(
+        verbose_name="Precio hasta 5kg", max_digits=20, decimal_places=2)
+    bulto_max_10k_price = models.DecimalField(
+        verbose_name="Precio Bulto hasta 10kg",
+        max_digits=20, decimal_places=2)
+    bulto_max_20k_price = models.DecimalField(
+        verbose_name="Precio Bulto hasta 20kg",
+        max_digits=20, decimal_places=2)
+    miniflete_price = models.DecimalField(
+        verbose_name="Precio miniflete",
+        max_digits=20, decimal_places=2)
+    tramite_price = models.DecimalField(
+        verbose_name="Precio trámite",
+        max_digits=20, decimal_places=2)
     last_update = models.DateTimeField(
         verbose_name="Última actualización", auto_now=True)
     updated_by = models.ForeignKey(

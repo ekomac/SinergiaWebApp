@@ -12,7 +12,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus.flowables import Image
 from reportlab.platypus.tables import LongTable
 from reportlab.lib.styles import ParagraphStyle
-from envios.utils import calculate_envio_price
+from envios.utils import calculate_price
 from summaries.models import ClientSummary, EmployeeSummary
 
 
@@ -180,7 +180,7 @@ class PDFSummaryReport():
 
     def __parse_envios(self, envio) -> Tuple[List[Any], Decimal]:
         date = envio.date_delivered.strftime("%d/%m/%Y")
-        price = calculate_envio_price(envio)
+        price = calculate_price(envio)
         as_list = [
             Paragraph(date, self.LEFT_COLS_STYLE),
             Paragraph(envio.full_address, self.CENTER_COLS_STYLE),

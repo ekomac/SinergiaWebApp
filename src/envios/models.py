@@ -1,10 +1,10 @@
 from django.db.models.signals import post_save
-from decimal import Decimal
+# from decimal import Decimal
 from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
 from django.template.defaultfilters import truncatechars
-from clients.models import Client, Discount
+from clients.models import Client  # , Discount
 from deposit.models import Deposit
 from places.models import Town
 
@@ -218,64 +218,64 @@ class Envio(Receiver):
     def shimpent_type(self):
         return 'Flex' if self.is_flex else 'Mensajería'
 
-    @property
-    def price(self) -> Decimal:
-        """
-        Performs de calculation for the price of the 'envio'.
-        It applies the discount if it is available.
-        The operations are made with Decimal to avoid the rounding errors.
+    # @property
+    # def price(self) -> Decimal:
+    #     """
+    #     Performs de calculation for the price of the 'envio'.
+    #     It applies the discount if it is available.
+    #     The operations are made with Decimal to avoid the rounding errors.
 
-        Returns:
-            Decimal: The price of the 'envio'.
-        """
-        # Get the town of recipient's address
-        town = self.town
+    #     Returns:
+    #         Decimal: The price of the 'envio'.
+    #     """
+    #     # Get the town of recipient's address
+    #     town = self.town
 
-        #  Get the code. If 'envio' is from flex, return flex's code for
-        # given town, else the normal code.
-        code = town.flex_code if self.is_flex else town.delivery_code
+    #     #  Get the code. If 'envio' is from flex, return flex's code for
+    #     # given town, else the normal code.
+    #     code = town.flex_code if self.is_flex else town.delivery_code
 
-        # Get the price for the given code
-        price = Decimal(str(code.price))
+    #     # Get the price for the given code
+    #     price = Decimal(str(code.price))
 
-        # Get the detail for the given envio
-        detail_codes = self.detail.split(',')
+    #     # Get the detail for the given envio
+    #     detail_codes = self.detail.split(',')
 
-        # Initialize total price to 0
-        total_price = Decimal(0)
+    #     # Initialize total price to 0
+    #     total_price = Decimal(0)
 
-        # Get the price for each package detail
-        for detail_code in detail_codes:
-            # Unpack code and amount spliting by '-'
-            code, amount = detail_code.split('-')
-            # Get the package detail for the given code
-            detail_code = DETAIL_CODES[code]
-            # Get multiplier for the given package detail
-            multiplier = detail_code["multiplier"]
-            # Multiply the price by the multiplier for given package
-            # detail, times the amount of packages
-            result = Decimal(str(multiplier)) * price * Decimal(amount)
-            # Add the result to the total price
-            total_price += result
+    #     # Get the price for each package detail
+    #     for detail_code in detail_codes:
+    #         # Unpack code and amount spliting by '-'
+    #         code, amount = detail_code.split('-')
+    #         # Get the package detail for the given code
+    #         detail_code = DETAIL_CODES[code]
+    #         # Get multiplier for the given package detail
+    #         multiplier = detail_code["multiplier"]
+    #         # Multiply the price by the multiplier for given package
+    #         # detail, times the amount of packages
+    #         result = Decimal(str(multiplier)) * price * Decimal(amount)
+    #         # Add the result to the total price
+    #         total_price += result
 
-        # Get single discount for envio's client and partido, if and
-        # only if the envio and discount match the is_for_flex and
-        # is_flex flags
-        discount = Discount.objects.filter(
-            client=self.client,
-            is_for_flex=self.is_flex,
-            partidos__in=[self.town.partido]
-        ).first()
+    #     # Get single discount for envio's client and partido, if and
+    #     # only if the envio and discount match the is_for_flex and
+    #     # is_flex flags
+    #     discount = Discount.objects.filter(
+    #         client=self.client,
+    #         is_for_flex=self.is_flex,
+    #         partidos__in=[self.town.partido]
+    #     ).first()
 
-        # If discount exists, apply it to the total price
-        if discount:
-            discount = Decimal(discount.amount) / Decimal(100)
-            total_discount = total_price * discount
-            result = total_price - total_discount
-            return result
+    #     # If discount exists, apply it to the total price
+    #     if discount:
+    #         discount = Decimal(discount.amount) / Decimal(100)
+    #         total_discount = total_price * discount
+    #         result = total_price - total_discount
+    #         return result
 
-        # return the total price
-        return total_price
+    #     # return the total price
+    #     return total_price
 
 
 @receiver(post_save, sender=Envio)

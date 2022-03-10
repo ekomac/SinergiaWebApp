@@ -59,6 +59,7 @@
 
 
                 <!-- START PARTIDOS SELECT -->
+                <!-- 
                 <div class="col-12">
                     <label for="selectPartido" class="form-label">Seleccioná un partido de la lista y agregalo</label>
                     <div class="input-group">
@@ -76,7 +77,65 @@
                             onclick='addPartido()'>Agregar a la zona</button>
                     </div>
                 </div>
+                -->
                 <!-- END PARTIDOS SELECT -->
+
+                <div class="col-12">
+                    <label for="id_partidos" class="form-label">Partidos</label>
+                    {{ form.partidos}}
+                    <div class="invalid-feedback">
+                        {% for error in form.partidos.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    <div class="alert alert-danger  d-flex align-items-center px-2 py-1 mt-1 mb-1" role="alert">
+                        <svg class="bi flex-shrink-0 me-2" width="18" height="18" role="img" aria-label="Info:">
+                            <use xlink:href="#exclamation-triangle-fill" /></svg>
+                        <div style="font-size: 0.8em;">
+                            Tené en cuenta que los partidos seleccionados se quitarán de los descuentos previos.
+                        </div>
+                    </div>
+                    <div class="alert alert-primary d-flex align-items-center px-2 py-1 mt-1 mb-1" role="alert">
+                        <svg class="bi flex-shrink-0 me-2" width="18" height="18" role="img" aria-label="Info:">
+                            <use xlink:href="#info-fill" /></svg>
+                        <div style="font-size: 0.8em;">
+                            Mantené presionado "Control", o "Command" en un Mac, para seleccionar más de una opción.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <label for="id_towns" class="form-label">Localidades</label>
+                    {{ form.towns }}
+                    <div class="invalid-feedback">
+                        {% for error in form.town.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                    <div class="alert alert-danger  d-flex align-items-center px-2 py-1 mt-1 mb-1" role="alert">
+                        <svg class="bi flex-shrink-0 me-2" width="18" height="18" role="img" aria-label="Info:">
+                            <use xlink:href="#exclamation-triangle-fill" /></svg>
+                        <div style="font-size: 0.8em;">
+                            Tené en cuenta que las localidades seleccionadas se quitarán de las zonas previas.
+                        </div>
+                    </div>
+                    <div class="alert alert-danger  d-flex align-items-center px-2 py-1 mt-1 mb-1" role="alert">
+                        <svg class="bi flex-shrink-0 me-2" width="18" height="18" role="img" aria-label="Info:">
+                            <use xlink:href="#exclamation-triangle-fill" /></svg>
+                        <div style="font-size: 0.8em;">
+                            Tené en cuenta que las localidades seleccionadas se quitarán de las zonas previas.
+                        </div>
+                    </div>
+                    <div class="alert alert-primary d-flex align-items-center px-2 py-1 mt-1 mb-1" role="alert">
+                        <svg class="bi flex-shrink-0 me-2" width="18" height="18" role="img" aria-label="Info:">
+                            <use xlink:href="#info-fill" /></svg>
+                        <div style="font-size: 0.8em;">
+                            Mantené presionado "Control", o "Command" en un Mac, para seleccionar más de una opción.
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" onclick="moveSelectedTrends()">Hola</button>
 
 
                 <!-- START SUMBIT BUTTON -->
@@ -91,6 +150,83 @@
 
 </div>
 
-{% include 'places/zone/snippets/add_js.html' %}
+<script>
+    const townsJSON = JSON.parse("{{ towns_JSON | escapejs }}");
+
+    $(document).ready(function () {
+        $('#id_partidos').change(function () {
+            $("#id_partidos option").each(function (i) {
+                console.log($(this).val() + " - " + $(this).text());
+                var partidoID = $(this).val();
+                $("#id_towns option").each(function (j) {
+                    var townID = $(this).val();
+                    console.log(townID);
+                    var town = townsJSON[townID];
+                    var townsPartidoID = town['partido_id'];
+                    if (partidoID == townsPartidoID) {
+                        $(this).attr('selected', 'selected');
+                    }
+                    //console.log($(this).val() + " - " + $(this).text());
+                });
+            });
+            /*var partidoID = $(this).val();
+            console.log($(this).val() + " - " + $(this).text());
+            $("#id_towns option").each(function (j) {
+                var townID = $(this).val();
+                var town = townsJSON[townID];
+                var townsPartidoID = town['partido_id'];
+                if (partidoID == townsPartidoID) {
+                    $(this).attr('selected', 'selected');
+                }
+                //console.log($(this).val() + " - " + $(this).text());
+            });*/
+        });
+    });
+
+
+    function moveSelectedTrends() {
+        console.log('hola');
+        /*var selector = document.getElementById("partidos");
+        var i;
+        for (i = 1; i <= 5; i++) {
+            selector.options[i - 1] = new Option(i, i);
+        }*/
+
+        $("#id_partidos option").each(function (i) {
+            console.log($(this).val() + " - " + $(this).text());
+            var partidoID = $(this).val();
+            $("#id_towns option").each(function (j) {
+                var townID = $(this).val();
+                var town = townsJSON[townID];
+                var townsPartidoID = town['partido_id'];
+                if (partidoID == townsPartidoID) {
+                    $(this).attr('selected', 'selected');
+                }
+                //console.log($(this).val() + " - " + $(this).text());
+            });
+        });
+        /*var partidos = document.getElementById('partidos'),
+            partido, i;
+
+        for (i = 0; i < partidos.length; i++) {
+            partido = partidos[i];
+            if (partido.selected) {
+                console.log(partido.value);
+            }
+        }*/
+    }
+
+    function myFn() {
+        var myOptionIndex = document.getElementById('selectForm').selectedIndex;
+        var myOptionValue = document.getElementById('selectForm').options[myOptionIndex].value;
+        var myOption = document.getElementById('selectForm').options;
+        myOptionValue++;
+        document.getElementById('selectForm').options[myOptionIndex].value++;
+        document.getElementById('results').innerHTML = myOption[myOptionIndex].text +
+            " has been selected " + myOptionValue + " times";
+    }
+</script>
+
+{% comment %} {% include 'places/zone/snippets/add_js.html' %} {% endcomment %}
 
 {% endblock %}

@@ -112,6 +112,39 @@ class AddZoneForm(BaseZoneForm):
             'name', 'Ya existe una zona con ese nombre')
 
 
+class AddZoneForm2(BaseZoneForm):
+
+    partidos = forms.ModelMultipleChoiceField(
+        label="Partidos", required=False,
+        queryset=Partido.objects.all(),
+        widget=forms.SelectMultiple(attrs={
+            'class': ' form-select',
+            'size': 10,
+        }),
+    )
+
+    towns = forms.ModelMultipleChoiceField(
+        label="Localidades", required=False,
+        queryset=Town.objects.all(),
+        widget=forms.SelectMultiple(attrs={
+            'class': ' form-select',
+            'size': 10,
+        }),
+    )
+
+    def clean_name(self, *args, **kwargs):
+        return self.clean_unique_or_error(
+            'name', 'Ya existe una zona con ese nombre')
+
+    def save(self, commit=True):
+        zone = super().save(commit)
+        if self.cleaned_data['partidos']:
+            zone.partidos.add(*self.cleaned_data['partidos'])
+        print(self.cleaned_data['partidos'])
+        # zone.partidos.add(*self.cleaned_data['partidos'])
+        return zone
+
+
 class UpdateZoneForm(BaseZoneForm):
 
     def clean_name(self, *args, **kwargs):

@@ -3,7 +3,12 @@ from openpyxl.writer.excel import save_virtual_workbook
 import hashlib
 from django.http import HttpResponse, JsonResponse
 from envios.reports import PDFReport
-from envios.utils import bulk_create_envios, create_xlsx_workbook
+from envios.utils import (
+    bulk_create_envios,
+    calculate_price,
+    create_xlsx_workbook,
+    get_detail_readable
+)
 from django.views.generic.edit import CreateView
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
@@ -119,7 +124,8 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
         envio = ctx['object']
         ctx['movements'] = envio.trackingmovement_set.all().order_by(
             '-date_created')
-        ctx['actual_price'] = '{:,.2f}'.format(envio.price)
+        ctx['actual_price'] = '{:,.2f}'.format(calculate_price(envio))
+        ctx['readable_detail'] = get_detail_readable(envio)
         if envio.status == Envio.STATUS_DELIVERED:
             delivered_tracking_movement = envio.trackingmovement_set.filter(
                 result='success').first()
