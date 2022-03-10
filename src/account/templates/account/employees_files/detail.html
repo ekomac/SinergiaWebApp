@@ -109,6 +109,14 @@
                                 especificar{% endif %}</td>
                         </tr>
 
+                        {% if account.client %}
+                        <!-- row CLIENT -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-people me-1"></i>Cliente</td>
+                            <td class="w-100">{{ account.client.name }}</td>
+                        </tr>
+                        {% endif %}
 
                         <!-- row DNI -->
                         <tr>

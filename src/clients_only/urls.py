@@ -1,5 +1,12 @@
 from django.urls import path
 
+from places.views import TownListView
+from prices.views import (
+    DeliveryCodeListView,
+    FlexCodeListView,
+    calcular_cotizacion_view,
+    cotizador_view)
+
 from .views import (
     IndexEnvioListView,
     EnvioDetailView,
@@ -47,4 +54,11 @@ urlpatterns = [
          name="bulk-download-fix-excel"),
     # ******************************* BULK *******************************
 
+    path('towns/', TownListView.as_view(), name="town-list"),
+
+    path('cotizador/', cotizador_view, name='cotizador'),
+    path('cotizador/calculate/', calcular_cotizacion_view,
+         name='calcular-cotizacion'),
+    path('delivery/', DeliveryCodeListView.as_view(), name="dcode-list"),
+    path('flex/', FlexCodeListView.as_view(), name='fcode-list'),
 ]

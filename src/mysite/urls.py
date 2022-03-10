@@ -56,6 +56,7 @@ urlpatterns = [
     path('admin/summaries/', include('summaries.urls')),
     path('admin/tickets/', include('tickets.urls')),
     path('admin/transactions/', include('transactions.urls')),
+    path('admin/tracking/', include('tracking.urls')),
     path('admin/change-password/',
          auth_views.PasswordChangeView.as_view(
              template_name='registration/password_change.html'),

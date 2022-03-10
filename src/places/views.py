@@ -78,7 +78,7 @@ class TownListView(CompleteListView, LoginRequiredMixin):
     selected_tab = 'town-tab'
     include_add_button = False
 
-    @allowed_users_in_class_view(roles=["Admins"])
+    @allowed_users_in_class_view(roles=["Admins", "Clients"])
     def get(self, request):
         return super(TownListView, self).get(request)
 

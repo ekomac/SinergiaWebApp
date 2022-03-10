@@ -196,9 +196,11 @@ class Envio(Receiver):
         self.get_detail_readable()
 
     def get_detail_readable(self):
-        if self.is_flex is not None and self.flex_id is not None:
+        print("get_Detail")
+        if self.is_flex and self.flex_id is not None:
             return f'Paquete Flex {self.flex_id}'
         details = map(self.map_detail, self.detail.split(","))
+        print(details)
         return ",".join(details)
 
     def map_detail(self, detail):

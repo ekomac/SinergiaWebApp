@@ -14,6 +14,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 # Project
 from account.decorators import allowed_users, allowed_users_in_class_view
 from account.models import Account
+from clients.models import Discount
 from places.utils import get_localidades_as_JSON
 
 
@@ -37,6 +38,8 @@ from .models import DeliveryCode, FlexCode
 from places.models import Partido, Town
 
 
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins", "Clients", ])
 def cotizador_view(request):
     if request.method == 'GET':
         context = {}
@@ -47,6 +50,8 @@ def cotizador_view(request):
     return Http404()
 
 
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins", "Clients", ])
 def calcular_cotizacion_view(request):
     if request.method == 'GET':
         town_id = request.GET.get('town_id')
@@ -62,6 +67,23 @@ def calcular_cotizacion_view(request):
         result += town.delivery_code.bulto_max_20k_price * max20kg_amount
         result += town.delivery_code.miniflete_price * miniflete_amount
         result += town.delivery_code.tramite_price * tramite_amount
+
+        if request.user.groups.filter(name='Clients').exists():
+            print("es cliente")
+            discount = Discount.objects.filter(
+                client=request.user.client,
+                is_for_flex=False,
+                partidos__in=[town.partido]
+            ).first()
+            print(discount)
+
+            # If discount exists, apply it to the total price
+            if discount:
+                discount = Decimal(discount.amount) / Decimal(100)
+                total_discount = result * discount
+                result = result - total_discount
+                result = str(result) + " con el descuento de " + \
+                    str(discount * 100) + "%"
         return JsonResponse({'result': result})
     return Http404()
 

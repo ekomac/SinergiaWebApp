@@ -122,7 +122,8 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         ctx = super(EnvioDetailView, self).get_context_data(**kwargs)
         envio = ctx['object']
-        ctx['movements'] = envio.trackingmovement_set.all().order_by(
+        ctx['movements'] = envio.trackingmovement_set.exclude(
+            result=TrackingMovement.RESULT_TRANSFERED).order_by(
             '-date_created')
         ctx['actual_price'] = '{:,.2f}'.format(calculate_price(envio))
         ctx['readable_detail'] = get_detail_readable(envio)
