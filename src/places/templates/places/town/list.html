@@ -131,8 +131,7 @@
 
 {% block objects_table_body_block %}
 {% for obj in objects %}
-<tr id="tr-{{ obj.id }}" class="table-item highlight-row"
-    onclick="window.location.href='{% url 'places:town-detail' pk=obj.id %}'">
+<tr id="tr-{{ obj.id }}" class="table-item highlight-row">
     <td>{{ obj.name |title}}</td>
     <td>{{ obj.partido.name |title}}</td>
     <td>{{ obj.partido.get_province_display }}</td>

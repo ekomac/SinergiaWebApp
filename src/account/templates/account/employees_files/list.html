@@ -91,14 +91,13 @@
 <th>DNI</th>
 <th>Teléfono</th>
 <th>Email</th>
-<th class="text-center">Envíos</th>
 {% endblock objects_table_head_block %}
 
 
 
 {% block objects_table_body_block %}
-{% for employee, envios in objects %}
-{% include 'account/employees_files/snippets/item.html' with obj=employee counter=forloop.counter envios=envios %}
+{% for employee in objects %}
+{% include 'account/employees_files/snippets/item.html' with obj=employee counter=forloop.counter %}
 {% endfor %}
 {% endblock objects_table_body_block %}
 

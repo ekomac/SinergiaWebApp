@@ -16,6 +16,10 @@
 
     }
 
+    .cell-centered {
+        text-align: center;
+    }
+
     @keyframes "blink" {
 
         from,
@@ -80,26 +84,11 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
 
 <div class="w-100 d-flex flex-column">
-    {% comment %} {{carriers_with_envios}} {% endcomment %}
     {% include 'snippets/main_stats.html' %}
     {% include 'snippets/at_origin/table.html' %}
-    {% comment %} {% include 'snippets/at_deposit/table.html' %} {% endcomment %}
-    {% comment %} {% include 'snippets/moving/list.html' with carriers_with_envios=carriers_with_envios %}
-    {% endcomment %}
-    <div class="row m-0 mt-3 mb-2 w-100">
-        {% comment %} style="background-color: grey; border-radius: 2.5px; outline: 1px solid red; background-color:
-        yellow;"> {% endcomment %}
-        <h5 class="card-title font-monospace top-card mx-1"><i class="bi bi-truck" style="color: grey;"></i>
-            VIAJANDO - Repartidores con envíos</h5>
-        <div class="col d-inline-flex align-items-start flex-wrap">
-            {% for _, data in carriers_with_envios.items %}
-            {% include 'snippets/moving/item.html' with carrier=data.carrier envios=data.envios towns=data.towns delivered=data.left %}
-            {% endfor %}
-        </div>
-    </div>
-    <div style="outline: 1px solid red; background-color: yellow;">
-        Something
-    </div>
+    {% if carriers_with_envios %}
+    {% include 'snippets/moving/table.html' %}
+    {% endif %}
 
 </div>
 

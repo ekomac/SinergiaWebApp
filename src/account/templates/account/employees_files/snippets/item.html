@@ -8,11 +8,13 @@
 
 <tr scope="row" id="tr-{{ obj.id }}" class="table-item highlight-row"
     onclick="window.location.href='{% url 'account:employees-detail' pk=obj.id %}'">
-    <th id="td-{{ obj.id }}" class="td-item-checker">{{ counter }}</th>
-    <td>{{ obj.get_role_display }}</td>
-    <td>{{ obj.full_name_formal }}</td>
-    <td>{% if obj.dni %}{{ obj.dni }}{% else %}-{% endif %}</td>
-    <td>{% if obj.phone %}{{ obj.phone }}{% else %}-{% endif %}</td>
-    <td>{{ obj.email }}</td>
-    <td class="text-center">{{ envios }}</td>
+    <th {% if not obj.is_active %}class="text-danger" {% endif %} id="td-{{ obj.id }}" class="td-item-checker">
+        {{ counter }}</th>
+    <td {% if not obj.is_active %}class="text-danger" {% endif %}>{{ obj.get_role_display }}</td>
+    <td {% if not obj.is_active %}class="text-danger" {% endif %}>{{ obj.full_name_formal }}</td>
+    <td {% if not obj.is_active %}class="text-danger" {% endif %}>{% if obj.dni %}{{ obj.dni }}{% else %}-{% endif %}
+    </td>
+    <td {% if not obj.is_active %}class="text-danger" {% endif %}>
+        {% if obj.phone %}{{ obj.phone }}{% else %}-{% endif %}</td>
+    <td {% if not obj.is_active %}class="text-danger" {% endif %}>{{ obj.email }}</td>
 </tr>

@@ -23,10 +23,17 @@ from .views import (
     FlexCodeUpdateView,
     flex_code_delete,
     # ********* FLEX *********
+
+    cotizador_view,
+    calcular_cotizacion_view,
 )
 
 app_name = 'prices'
 urlpatterns = [
+
+    path('cotizador/', cotizador_view, name='cotizador'),
+    path('cotizador/calculate/', calcular_cotizacion_view,
+         name='calcular-cotizacion'),
 
     # **************************** MENSAJERIA ****************************
     #     path('delivery/', delivery_codes_view, name="dcode-list"),

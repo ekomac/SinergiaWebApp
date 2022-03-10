@@ -118,19 +118,12 @@ class EmployeesListView(CompleteListView, LoginRequiredMixin):
     def get(self, request):
         return super(EmployeesListView, self).get(request)
 
-    def get_model_queryset(self):
-        queryset = super().get_model_queryset()
-        return queryset
-
-    def queryset_map_callable(self, obj):
-        envios_carried = Envio.objects.filter(
-            carrier=obj,
-            status=Envio.STATUS_MOVING
-        ).count()
-        return (obj, envios_carried)
-
     def get_verbose_name_plural(self):
         return "Usuarios"
+
+    def get_model_queryset(self):
+        objects = super(EmployeesListView, self).get_model_queryset()
+        return objects.order_by("last_name")
 
 
 def get_employees_queryset(

@@ -1,4 +1,4 @@
-{% load static %}
+{% comment %} {% load static %}
 
 
 <div class="card mx-1 mb-1 position-relative" style="height: 14rem; width: 16rem;">
@@ -20,4 +20,18 @@
         <p class="card-text">Localidades: {{ towns }}</p>
         <p class="card-text">{{delivered }}</p>
     </div>
-</div>
+</div> {% endcomment %}
+
+<style>
+    td {
+        overflow: auto;
+        white-space: nowrap;
+    }
+</style>
+<tr id="tr-{{obj.id}}" class="table-item" onclick="onItemClicked({{ obj.id }});">
+    <td>{{ obj.deposit__name }}</td>
+    <td>{{ obj.name }}</td>
+    <td>{{ obj.envio_count }}</td>
+    <td>{{ obj.priorities }}</td>
+    <td>{{ obj.has_special_delivery_schedule_time }}</td>
+</tr>

@@ -1,0 +1,355 @@
+{% extends 'base_system.html' %}
+
+{% block content %}
+
+
+{% load static %}
+{% load url_extras %}
+
+<style>
+    .table thead th {
+        border-bottom: 2px solid #C556FF;
+    }
+
+
+    .no-wrap-td {
+        overflow: auto;
+        white-space: nowrap;
+    }
+</style>
+<div class="col-md-12 col-xl-7 col-xxl-6 d-flex-block">
+
+
+    <!-- start CARD DETAIL -->
+    <div class="card flex-fill shadow-lg">
+
+        <!-- start CARD HEADER -->
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Cotización
+            </div>
+        </div>
+        <!-- end CARD HEADER -->
+
+        <!-- start CARD BODY -->
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <div class="col-md-6">
+                    <label for="id_partido" class="form-label">Partido</label>
+                    <select id="id_partido" name="partido" class=" form-select">
+                        <option value="" selected>---------</option>
+                        {% for partido in partidos %}
+                        <option id="option-{{partido.id}}" value="{{partido.id}}">{{ partido.name | title }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="id_town" class="form-label">Localidad</label>
+                    <select id="id_town" name="town" class=" form-select">
+                        <option value="" selected>---------</option>
+                    </select>
+                </div>
+
+                <!-- START CUSTOM DETAIL TABLE -->
+                <div class="col-12 form-group mt-3" id="detailDiv">
+                    <div class="row d-flex justify-content-center">
+                        <div>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th style="min-width: 50px;">Cantidad</th>
+                                        <th style="width: 25px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    <!-- Max 5 kg package -->
+                                    <tr class="on-body">
+                                        <td>Paquete / commerce hasta 5 kg</td>
+                                        <td>
+                                            <input type="number" max="20" min="0" step="1" class="form-control"
+                                                id="detailInput0" pattern="^\d+$"></input>
+                                            <div class="invalid-feedback">
+                                                Obligatorio.
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div id="clearRowMax5">
+                                                <button id="btnClear0" type="button"
+                                                    class="btn btn-danger clear-amount-button invisible"><i
+                                                        class="bi bi-x"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- Max 10 kg package -->
+                                    <tr class="on-body">
+                                        <td>Bulto hasta 10 kg</td>
+                                        <td>
+                                            <input type="number" max="20" min="0" step="1" class="form-control"
+                                                id="detailInput1" pattern="^\d+$"></input>
+                                            <div class="invalid-feedback">
+                                                Obligatorio.
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div id="clearRowMax10">
+                                                <button id="btnClear1" type="button"
+                                                    class="btn btn-danger clear-amount-button invisible"><i
+                                                        class="bi bi-x"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Max 20 kg package -->
+                                    <tr class="on-body">
+                                        <td>Bulto hasta 20 kg</td>
+                                        <td>
+                                            <input type="number" max="20" min="0" step="1" class="form-control"
+                                                id="detailInput2" pattern="^\d+$"></input>
+                                            <div class="invalid-feedback">
+                                                Obligatorio.
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div id="clearRowMax20">
+                                                <button id="btnClear2" type="button"
+                                                    class="btn btn-danger clear-amount-button invisible"><i
+                                                        class="bi bi-x"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Miniflete -->
+                                    <tr class="on-body">
+                                        <td>Miniflete</td>
+                                        <td>
+                                            <input type="number" max="20" min="0" step="1" class="form-control"
+                                                id="detailInput3" pattern="^\d+$"></input>
+                                        </td>
+                                        <td>
+                                            <div id="clearRowMiniflete">
+                                                <button id="btnClear3" type="button"
+                                                    class="btn btn-danger clear-amount-button invisible"><i
+                                                        class="bi bi-x"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Tramite -->
+                                    <tr class="on-body">
+                                        <td>Trámite</td>
+                                        <td>
+                                            <input type="number" max="20" min="0" step="1" class="form-control"
+                                                id="detailInput4" pattern="^\d+$"></input>
+                                        </td>
+                                        <td>
+                                            <div id="clearRowTramite">
+                                                <button id="btnClear4" type="button"
+                                                    class="btn btn-danger clear-amount-button invisible"><i
+                                                        class="bi bi-x"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- END CUSTOM DETAIL TABLE -->
+
+
+                <!-- START SUMBIT BUTTON -->
+                <div class="d-grid gap-2 d-flex align-items-center">
+                    <button type="button" id="calculateButton" class="btn btn-primary">Calcular</button>
+                    <div id="loading" class="spinner-border d-none" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+
+                </div>
+                <!-- END SUMBIT BUTTON -->
+                <div class="d-grid gap-2 d-flex align-items-center">
+                    <div id="result_alert_success" class=" alert alert-primary d-none" role="alert">
+                    </div>
+                    <div id="result_alert_failure" class="alert alert-danger d-none" role="alert">
+                        Ocurrió un error inesperado.
+                    </div>
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+    <!-- end CARD DETAIL -->
+
+
+
+</div>
+<!-- end CARD BODY -->
+
+
+<script>
+    var places = JSON.parse('{{ places | escapejs }}');
+
+    const detailInputs = {
+        0: "max-5-package",
+        1: "max-10-package",
+        2: "max-20-package",
+        3: "miniflete",
+        4: "tramite",
+    };
+
+    function isNumeric(value) {
+        return /^\d+$/.test(value);
+    }
+
+    $(document).ready(function () {
+
+        $("#calculateButton").on('click', function (e) {
+            const townID = $("#id_town").val();
+            if (townID == "") {
+                alert("Seleccione una ciudad");
+                return;
+            }
+
+
+            var csrftoken = getCookie('csrftoken');
+            // serialize the data for sending the form data.
+            var serializedData = $(this).serialize();
+            // make POST ajax call
+            const max5kg = $("#detailInput0").val() == '' ? '' : '&max5kg=' + $("#detailInput0").val();
+            const max10kg = $("#detailInput1").val() == '' ? '' : '&max10kg=' + $("#detailInput1")
+                .val();
+            const max20kg = $("#detailInput2").val() == '' ? '' : '&max20kg=' + $("#detailInput2")
+                .val();
+            const miniflete = $("#detailInput3").val() == '' ? '' : '&miniflete=' + $("#detailInput3")
+                .val();
+            const tramite = $("#detailInput4").val() == '' ? '' : '&tramite=' + $("#detailInput4")
+                .val();
+            const URL = "{% url 'prices:calcular-cotizacion' %}?town_id=" + townID + max5kg + max10kg +
+                max20kg + miniflete + tramite
+            document.getElementById("loading").classList.remove("d-none");
+            document.getElementById("result_alert_success").classList.add("d-none");
+            document.getElementById("result_alert_failure").classList.add("d-none");
+            document.getElementById("calculateButton").disabled = true;
+            $.ajax({
+                type: 'GET',
+                url: URL,
+                data: serializedData,
+                success: function (response) {
+                    document.getElementById("calculateButton").disabled = false;
+                    document.getElementById("result_alert_success").classList.remove(
+                        "d-none");
+                    document.getElementById("result_alert_failure").classList.add(
+                        "d-none");
+                    document.getElementById("loading").classList.add("d-none");
+                    document.getElementById("result_alert_success").innerHTML =
+                        "El valor será $ " + response
+                        .result
+
+                },
+                error: function (response) {
+                    document.getElementById("calculateButton").disabled = false;
+                    document.getElementById("result_alert_success").classList.add("d-none");
+                    document.getElementById("result_alert_failure").classList.remove(
+                        "d-none");
+                    document.getElementById("loading").classList.add("d-none");
+                }
+            });
+        });
+
+        $("#detailNotVisible").hide();
+
+        $('#id_town').find('option:not(:first)').remove();
+
+        $('#create_form').submit(function (event) {
+            event.preventDefault(); //this will prevent the default submit
+            updateDetails();
+            $(this).unbind('submit').submit(); // continue the submit unbind preventDefault
+        });
+
+
+
+        $('#simpleEditorCheckDiv').hide(200);
+        $("#defaultDetailCheckbox").click(function () {
+            var isDefaultSelected = $(this).is(":checked");
+            if (isDefaultSelected) {
+                document.getElementById("id_detail").value = "0-1";
+                $('#detailDiv').hide(200);
+            } else {
+                $('#detailDiv').show(200);
+                $('#detailDiv').removeClass("hidden");
+            }
+        });
+
+        $("#id_is_flex").click(function () {
+            var isFlex = $(this).is(":checked");
+            if (isFlex) {
+                $('#id_flex_id').removeAttr('disabled');
+            } else {
+                $('#id_flex_id').attr('disabled', 'disabled');
+            }
+        });
+
+        setPartidoListener();
+        setDetailsListeners();
+    });
+
+    function setPartidoListener() {
+        $('#id_partido').on('inputchange', function () {
+            var selectedPartidoId = this.value.toString();
+            var placesFromPartido = places.filter(function (place) {
+                return place.partido_id == selectedPartidoId;
+            });
+            $('#id_town').find('option:not(:first)').remove();
+            for (var element of placesFromPartido) {
+                $('#id_town').append('<option value="' + element.id + '">' + element.name +
+                    '</option>');
+            }
+        });
+    }
+
+    function setDetailsListeners() {
+        for (let i = 0; i < 5; i++) {
+            $('#detailInput' + i).on('inputchange', function () {
+                var
+                    currentValue = this.value.toString();
+                if (currentValue != "" && currentValue != "0" && isNumeric(currentValue)) {
+                    $('#btnClear' + i).removeClass("invisible");
+                }
+                if (currentValue == "" || currentValue == "0" ||
+                    !isNumeric(currentValue)) {
+                    $('#btnClear' + i).addClass("invisible");
+                }
+            });
+            $('#btnClear' + i).on('click',
+                function () {
+                    $('#detailInput' + i).val("0");
+                });
+        }
+    }
+
+    function updateDetails() {
+        try {
+            var detailsArray = [];
+            for (var i = 0; i < 6; i++) {
+                var amount = $("#detailInput" + i).val();
+                if (isNumeric(amount) && amount != "0") {
+                    detailsArray.push(i.toString() + "-" + amount.toString());
+                }
+            }
+            var details = detailsArray.join(",");
+            details = details == "" ? "0-1" : details;
+            document.getElementById("id_detail").value = details
+        } catch (e) {
+            alert(e);
+        }
+    }
+</script>
+
+{% endblock content %}

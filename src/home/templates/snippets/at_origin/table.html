@@ -11,14 +11,26 @@
                                 <tr>
                                     <th>Depósito</th>
                                     <th>Cliente</th>
-                                    <th>Cantidad</th>
-                                    <th>Prioritarios</th>
-                                    <th>Horarios particulares</th>
+                                    <th class="cell-centered">Cantidad</th>
+                                    <th class="cell-centered">Prioritarios</th>
+                                    <th class="cell-centered">Horarios especiales</th>
                                 </tr>
                             </thead>
                             <tbody id="overrided-1" class="overrided-tbody">
-                                {% for client in clients_with_envios %}
-                                {% include 'snippets/at_origin/item.html' with obj=client counter=forloop.counter%}
+                                <style>
+                                    td {
+                                        overflow: auto;
+                                        white-space: nowrap;
+                                    }
+                                </style>
+                                {% for obj in clients_with_envios %}
+                                <tr id="tr-{{obj.id}}" class="table-item" onclick="onItemClicked({{ obj.id }});">
+                                    <td>{{ obj.name }}</td>
+                                    <td>{{ obj.client__name }}</td>
+                                    <td class="cell-centered">{{ obj.envio_count }} envíos</td>
+                                    <td class="cell-centered">{{ obj.priorities }} envíos</td>
+                                    <td class="cell-centered">{{ obj.has_special_delivery_schedule_time }} envíos</td>
+                                </tr>
                                 {% endfor %}
                             </tbody>
                         </table>

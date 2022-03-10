@@ -18,7 +18,8 @@ from django.urls import reverse
 
 # Project
 from account.decorators import allowed_users
-from clients.models import Client
+from account.models import Account
+from deposit.models import Deposit
 from envios.models import Envio
 from tracking.models import TrackingMovement
 
@@ -74,8 +75,9 @@ def app_account_change_password_view(request) -> HttpResponse:
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
 def admin_home_screen_view(request):
-    clients_with_envios = get_clients_with_envios_queryset()
+    clients_with_envios = get_deposits_with_envios_queryset()
     envios_at_deposit = get_envios_at_deposit()
+    carriers_with_envios = get_carriers_with_envios()
     # carriers_with_envios = get_carriers_with_envios_queryset()
     main_stats = {
         'at_origin': Envio.objects.filter(
@@ -92,16 +94,16 @@ def admin_home_screen_view(request):
         'main_stats': main_stats,
         'clients_with_envios': clients_with_envios,
         'envios_at_deposit': envios_at_deposit,
-        'carriers_with_envios': [],
+        'carriers_with_envios': carriers_with_envios,
     }
     return render(request, 'home.html', context)
 
 
-def get_clients_with_envios_queryset() -> QuerySet:
+def get_deposits_with_envios_queryset() -> QuerySet:
     today = datetime(datetime.now().year,
                      datetime.now().month, datetime.now().day, 23, 59, 59, 99)
-    return Client.objects.values(
-        'id', 'name', 'deposit__name'
+    return Deposit.objects.values(
+        'id', 'name', 'client__name'
     ).annotate(
         envio_count=Count(
             'envio', filter=Q(
@@ -127,6 +129,17 @@ def get_envios_at_deposit() -> QuerySet:
     ).annotate(
         client_count=Count(
             'client__name'
+        ),
+    ).order_by()
+
+
+def get_carriers_with_envios() -> QuerySet:
+    return Account.objects.filter(
+        envios_carried_by__status=Envio.STATUS_MOVING,
+        envios_carried_by__isnull=False,
+    ).annotate(
+        envio_count=Count(
+            'envios_carried_by'
         ),
     ).order_by()
 

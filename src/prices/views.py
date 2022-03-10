@@ -1,6 +1,7 @@
 # Python
 import re
 from decimal import Decimal
+from django.http import Http404, JsonResponse
 
 # Django
 from django.shortcuts import get_object_or_404, render, redirect
@@ -13,6 +14,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 # Project
 from account.decorators import allowed_users, allowed_users_in_class_view
 from account.models import Account
+from places.utils import get_localidades_as_JSON
 
 
 from utils.forms import CheckPasswordForm
@@ -33,6 +35,35 @@ from .forms import (
 
 from .models import DeliveryCode, FlexCode
 from places.models import Partido, Town
+
+
+def cotizador_view(request):
+    if request.method == 'GET':
+        context = {}
+        context['selected_tab'] = 'cotizador-tab'
+        context['partidos'] = Partido.objects.all().order_by("name")
+        context['places'] = get_localidades_as_JSON()
+        return render(request, 'prices/cotizador.html', context)
+    return Http404()
+
+
+def calcular_cotizacion_view(request):
+    if request.method == 'GET':
+        town_id = request.GET.get('town_id')
+        town = get_object_or_404(Town, id=town_id)
+        max5kg_amount = int(request.GET.get('max5kg', 0))
+        max10kg_amount = int(request.GET.get('max10kg', 0))
+        max20kg_amount = int(request.GET.get('max20kg', 0))
+        miniflete_amount = int(request.GET.get('miniflete', 0))
+        tramite_amount = int(request.GET.get('tramite', 0))
+        result = 0
+        result += town.delivery_code.max_5k_price * max5kg_amount
+        result += town.delivery_code.bulto_max_10k_price * max10kg_amount
+        result += town.delivery_code.bulto_max_20k_price * max20kg_amount
+        result += town.delivery_code.miniflete_price * miniflete_amount
+        result += town.delivery_code.tramite_price * tramite_amount
+        return JsonResponse({'result': result})
+    return Http404()
 
 
 class DeliveryCodeListView(CompleteListView, LoginRequiredMixin):
