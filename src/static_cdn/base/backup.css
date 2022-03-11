@@ -1,0 +1,61 @@
+html,
+body {
+    margin: 0;
+    background-color: rgb(230, 230, 230);
+    overflow-Y: hidden;
+    display: flex;
+    justify-content: center;
+}
+
+main {
+    height: calc(100vh - 50px);
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+#pre-card {
+    padding: 25px;
+}
+
+#card-holder-app {
+    height: calc(100vh - 50px);
+    box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.3),
+        0 6px 20px 0 rgba(0, 0, 0, 0.3);
+
+}
+
+.fragment {
+    overflow-y: auto;
+}
+
+@media (max-width: 991px) {
+
+    html,
+    body {
+        margin: 0;
+        background-color: rgb(230, 230, 230);
+        overflow-Y: hidden;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    main {
+        height: 100vh;
+    }
+
+    #pre-card {
+        /* padding: 25px; */
+    }
+
+    #card-holder-app {
+        height: 100vh;
+        box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.3),
+            0 6px 20px 0 rgba(0, 0, 0, 0.3);
+
+    }
+
+    .fragment {
+        overflow-y: auto;
+    }
+}
