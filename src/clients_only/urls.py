@@ -8,6 +8,7 @@ from prices.views import (
     cotizador_view)
 
 from .views import (
+    CustomPasswordChangeView,
     IndexEnvioListView,
     EnvioDetailView,
     EnvioCreate,
@@ -61,4 +62,7 @@ urlpatterns = [
          name='calcular-cotizacion'),
     path('delivery/', DeliveryCodeListView.as_view(), name="dcode-list"),
     path('flex/', FlexCodeListView.as_view(), name='fcode-list'),
+    path('account/edit-password/', CustomPasswordChangeView.as_view(
+        template_name='registration/password_change.html'),
+        name='edit-password'),
 ]

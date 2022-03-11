@@ -1,3 +1,4 @@
+from django.contrib.auth import views as auth_views
 import json
 from openpyxl.writer.excel import save_virtual_workbook
 import hashlib
@@ -424,3 +425,8 @@ def map_deposit_to_dict(deposit):
         'name': deposit.full_name().title(),
         'client_id': deposit.client.id if deposit.client else 0,
     }
+
+
+class CustomPasswordChangeView(auth_views.PasswordChangeView):
+    def get_success_url(self):
+        return reverse('logout')

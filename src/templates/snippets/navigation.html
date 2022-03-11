@@ -461,7 +461,11 @@
             <ul class="dropdown-menu dropdown-menu-dark text-small shadow" aria-labelledby="dropdownUser1">
 
                 <!-- Seguridad -->
-                <li><a class="dropdown-item" href="{% url 'account:edit' %}">Cuenta</a></li>
+                {% if request.user|has_group:"Admins" %}
+                <li><a class="dropdown-item" href="{% url 'account:edit' %}">Cambiar contraseña</a></li>
+                {% else %}
+                <li><a class="dropdown-item" href="{% url 'clients_only:edit-password' %}">Cambiar contraseña</a></li>
+                {% endif %}
 
                 <!-- Divider -->
                 <li>

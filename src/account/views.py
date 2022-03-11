@@ -38,7 +38,7 @@ DEFAULT_RESULTS_PER_PAGE = 30
 
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    return redirect(reverse('login'))
 
 
 def login_view(request):
@@ -380,6 +380,6 @@ def reset_password_view(request):
             alerts.append(alert.get_as_dict())
             # Set them back to request's session
             request.session['alerts'] = alerts
-            return login_view(request)
+            return logout_view(request)
     context = {'form': form}
     return render(request, 'account/reset_password.html', context)
