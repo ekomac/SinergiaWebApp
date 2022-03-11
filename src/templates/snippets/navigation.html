@@ -406,11 +406,11 @@
             {% if request.user|has_group:"Admins" %}
             {% if request.user.is_superuser %}
             <!-- START Mobile App -->
-            <li class="nav-item {% if selected_tab == 'scanner-tab' %}activetab{% endif %} li-navigation">
+            {% comment %} <li class="nav-item {% if selected_tab == 'scanner-tab' %}activetab{% endif %} li-navigation">
                 <a id="scanner-tab" href="{% url 'mobile:index' %}" class="nav-link tab" aria-current="page">
                     <i class="bi bi-box-arrow-up-right"></i></i> App
                 </a>
-            </li>
+            </li> {% endcomment %}
             <!-- END Mobile App -->
 
             <!-- START SUPERADMIN -->
