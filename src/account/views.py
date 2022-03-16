@@ -123,7 +123,7 @@ class EmployeesListView(CompleteListView, LoginRequiredMixin):
 
     def get_model_queryset(self):
         objects = super(EmployeesListView, self).get_model_queryset()
-        return objects.order_by("last_name")
+        return objects.filter(is_superuser=False).order_by("last_name")
 
 
 def get_employees_queryset(
@@ -281,6 +281,8 @@ def update_user_view(request, pk):
 def employee_detail_view(request, pk):
     context = {}
     account = get_object_or_404(Account, pk=pk)
+    if account.is_superuser:
+        return redirect('account:employees-list')
     context['account'] = account
     context['selected_tab'] = 'accounts-tab'
     context['envios'] = Envio.objects.filter(
