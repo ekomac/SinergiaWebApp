@@ -145,3 +145,8 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 src/staff/migrations/__pycache__/__init__.cpython-39.pyc
+docs/screenshots/Screenshot-Home.png
+docs/screenshots/Screenshot-Usuarios-BlanqueoClave-Exito.png
+docs/screenshots/Screenshot-Usuarios-Lista.png
+docs/screenshots/Screenshot-Usuarios-BlanqueoClave-Alerta.png
+docs/screenshots/Screenshot-Usuarios-Detalle.png
