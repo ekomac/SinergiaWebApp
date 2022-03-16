@@ -159,11 +159,15 @@ def truncate_start(s: str, max_length=30) -> str:
     Returns:
         str: the truncated string.
     """
+    result = ''
     if '/' in s:
-        return ".../" + s[s.rfind('/') + 1:]
+        result = ".../" + s[s.rfind('/') + 1:]
     elif len(s) > max_length:
-        return "..." + s[-max_length:]
-    return s
+        result = "..." + s[-max_length:]
+    if '?' in result:
+        index = result.rfind('?')
+        result = result[:index]
+    return result
 
 
 class CompleteListView(View):

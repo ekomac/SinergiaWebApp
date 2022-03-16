@@ -259,6 +259,12 @@ def main(*args):
 
     return True
 
+# def set_flex_to_towns():
+#     flex = Flex.objects.filter(name='Flex 1').first()
+#     for town in Town.objects.all():
+#         flex.towns.add(town)
+#     flex.save()
+
 
 if __name__ == '__main__':
     main()
