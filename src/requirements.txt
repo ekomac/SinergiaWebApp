@@ -24,7 +24,6 @@ djangorestframework==3.12.4
 et-xmlfile==1.1.0
 flake8==3.9.2
 future==0.18.2
-google-api-python-client==2.39.0
 grpcio==1.44.0
 grpcio-status==1.44.0
 html5lib==1.1

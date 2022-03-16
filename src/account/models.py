@@ -156,7 +156,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         verbose_name="Seguro", upload_to=insurance_upload_location, blank=True,
         null=True)
     cedula = models.FileField(
-        verbose_name="Cédula", upload_to=insurance_upload_location, blank=True,
+        verbose_name="Cédula", upload_to=cedula_upload_location, blank=True,
         null=True)
     vehicle_type = models.CharField(
         verbose_name="Tipo de vehículo", max_length=10, blank=True, null=True,

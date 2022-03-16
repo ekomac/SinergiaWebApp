@@ -227,6 +227,15 @@
                                 cargó{% endif %}
                             </td>
                         </tr>
+
+                        <!-- row CEDULA -->
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-shield-check me-1"></i>Cedula Azul/Verde</td>
+                            <td class="w-100 text-break">{% if account.cedula %}<a
+                                    href="{{ account.cedula.url }}">{{ account.cedula.url | truncate_start}}</a>{% else %}No se cargó{% endif %}
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
 
