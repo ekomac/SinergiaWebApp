@@ -91,6 +91,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'mysite.middleware.timezones.TimezoneMiddleware',
     'mysite.middleware.password.HasToResetPasswordMiddleware',
     'mysite.middleware.logging.LogMiddleware',
 ]

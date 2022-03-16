@@ -57,15 +57,18 @@ class DepositByEnviosTrackingIdsSerializer(BaseDepositSerializer):
         child=serializers.CharField(max_length=50),
         write_only=True, allow_empty=False)
 
+    overflow_enabled = serializers.BooleanField(default=False)
+
     class Meta:
         model = TrackingMovement
         fields = ('created_by', 'from_carrier',
-                  'to_deposit', 'envios_tracking_ids',)
+                  'to_deposit', 'envios_tracking_ids', 'overflow_enabled')
         extra_kwargs = {
             'created_by': {'required': True, },
             'from_carrier': {'required': True, },
             'to_deposit': {'required': True, },
             'envios_tracking_ids': {'required': True, },
+            'overflow_enabled': {'required': False, },
         }
 
     def extra_validation_check(self, data):
@@ -75,19 +78,25 @@ class DepositByEnviosTrackingIdsSerializer(BaseDepositSerializer):
             status=self.status
         ).values_list('pk', flat=True)
         envios_with_carrier_count = len(envios_with_carrier)
-        envios_tracking_ids = data['envios_ids']
+        envios_tracking_ids = data['envios_tracking_ids']
         if len(envios_tracking_ids) == 0:
             msg = "'envios_tracking_ids' can't be empty."
             raise serializers.ValidationError({"response": msg})
-        if len(envios_tracking_ids) > envios_with_carrier_count:
-            msg = "There are only %s Envíos with the Carrier with id=%s." % (
-                envios_with_carrier_count, pk)
-            raise serializers.ValidationError({"response": msg})
-        if set(envios_tracking_ids).issubset(envios_with_carrier):
-            msg = (
-                "Some of the Envíos with ids %s don't exist "
-                "or aren't carried by the Account with id=%s."
-            ) % (envios_tracking_ids, pk)
+        overflow_enabled = data['overflow_enabled']
+        if not overflow_enabled:
+            if len(envios_tracking_ids) > envios_with_carrier_count:
+                s1 = "There are only % s Envíos with" % (
+                    envios_with_carrier_count)
+                s2 = " the Carrier with id=%s. " % pk
+                s3 = "You've sent %s" % (len(envios_tracking_ids))
+                full_msg = s1 + s2 + s3
+                raise serializers.ValidationError({"response": full_msg})
+            if set(envios_tracking_ids).issubset(envios_with_carrier):
+                msg = (
+                    "Some of the Envíos with ids %s don't exist "
+                    "or aren't carried by the Account with id=%s."
+                ) % (envios_tracking_ids, pk)
+                raise serializers.ValidationError({"response": msg})
 
     def save(self):
         author = self.validated_data['created_by']

@@ -265,6 +265,9 @@
                 <thead>
                     <tr class="bg-dark text-white fw-bold">
                         <th>Fecha</th>
+                        {% if request.user.role == 'admin' %}
+                        <th>Autor</th>
+                        {% endif %}
                         <th>Movimiento</th>
                     </tr>
                 </thead>
@@ -273,7 +276,13 @@
                     <tr class="spaced-tr p-2">
                         <td class="text-nowrap fw-bold fst-italic" style=" color: #C556FF;">
                             {{movement.date_created | date:"d/m/Y H:i"}}</td>
-                        <td class="w-100"><b>{{movement.admin_display.0}}</b>: {{ movement.admin_display.1}}</td>
+                        {% if request.user.role == 'admin' %}
+                        <td>{% if movement.created_by %} <a
+                                href="{% url 'account:employees-detail' pk=movement.created_by.pk %}">@{{ movement.created_by.username}}</a>{% else %}Sin
+                            datos{% endif %}</td>
+                        {% endif %}
+                        <td class="w-100">{% if request.user.role == 'client' %}<b>{{movement.client_display.0}}</b>:
+                            {{ movement.client_display.1}}{% else %}{{movement.admin_display}}{% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

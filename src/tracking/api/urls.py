@@ -68,7 +68,7 @@ urlpatterns = [
     path('deposit/all/', api_deposit_all_view,
          name="api-deposit-all"),
 
-    path('deposit/by-envios-ids/', api_deposit_by_envios_ids_view,
+    path('deposit/by-tracking-envios-ids/', api_deposit_by_envios_ids_view,
          name="api-deposit-ids"),
 
     path('deposit/by-towns-ids/', api_deposit_by_towns_ids_view,
@@ -88,7 +88,7 @@ urlpatterns = [
     path('devolver/all/', api_devolver_all_view,
          name="api-devolver-all"),
 
-    path('devolver/by-envios-ids/', api_devolver_by_envios_ids_view,
+    path('devolver/by-tracking-envios-ids/', api_devolver_by_envios_ids_view,
          name="api-devolver-ids"),
 
     path('devolver/by-towns-ids/', api_devolver_by_towns_ids_view,
@@ -104,7 +104,7 @@ urlpatterns = [
     path('transfer/all/', api_transfer_all_view,
          name="api-transfer-all"),
 
-    path('transfer/by-envios-ids/', api_transfer_by_envios_ids_view,
+    path('transfer/by-tracking-envios-ids/', api_transfer_by_envios_ids_view,
          name="api-transfer-ids"),
 
     path('transfer/by-towns-ids/', api_transfer_by_towns_ids_view,

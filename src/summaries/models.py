@@ -11,6 +11,7 @@ from django.dispatch import receiver
 
 # Project
 from envios.models import Envio
+from envios.utils import calculate_price
 
 
 class Summary(models.Model):
@@ -55,7 +56,7 @@ class Summary(models.Model):
             as_dict = {
                 'id': envio.pk,
                 'destination': envio.full_address,
-                'price': str(envio.price),
+                'price': calculate_price(envio),
                 'code': code.code,
                 'code_type': code_type,
                 'date_delivered': date,
@@ -66,7 +67,7 @@ class Summary(models.Model):
 
     def total_cost(self) -> Decimal:
         total = Decimal(0)
-        total = sum([envio.price for envio in self.__get_envios()])
+        total = sum([calculate_price(envio) for envio in self.__get_envios()])
         return round(total)
 
     def total_envios(self) -> int:
@@ -85,7 +86,7 @@ class Summary(models.Model):
             as_dict = {
                 'id': envio.pk,
                 'destination': envio.full_address,
-                'price': str(envio.price),
+                'price': str(calculate_price(envio)),
                 'code': code.code,
                 'code_type': code_type,
                 'date_delivered': date,

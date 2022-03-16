@@ -9,6 +9,7 @@ class Log(models.Model):
         null=True)
     url = models.CharField(max_length=255)
     error = models.TextField(blank=True, null=True)
+    data = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f'{self.user} - {self.url} @ {self.timestamp}'

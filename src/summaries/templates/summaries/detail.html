@@ -214,6 +214,8 @@
             },
             error: function (response) {
                 console.log(response)
+                alert("No se pudo procesar la información. Intente nuevamente.");
+                $('#cost_loading').addClass("d-none");
             }
         })
     });
