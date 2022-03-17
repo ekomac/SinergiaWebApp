@@ -93,9 +93,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'mysite.middleware.forwarder.XForwardedForMiddleware',
     'mysite.middleware.timezones.TimezoneMiddleware',
     'mysite.middleware.password.HasToResetPasswordMiddleware',
-    'mysite.middleware.logging.LogMiddleware',
 ]
 
 REQUEST_BASE_URL = 'http://localhost:8000'
