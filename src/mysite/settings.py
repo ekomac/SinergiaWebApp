@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'django_extensions',
     'django_cleanup.apps.CleanupConfig',
+    'request',
 ]
 
 AUTH_USER_MODEL = 'account.Account'
@@ -88,6 +89,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'request.middleware.RequestMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -96,6 +98,7 @@ MIDDLEWARE = [
     'mysite.middleware.logging.LogMiddleware',
 ]
 
+REQUEST_BASE_URL = 'http://localhost:8000'
 
 ROOT_URLCONF = 'mysite.urls'
 
