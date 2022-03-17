@@ -244,6 +244,27 @@ def create_xlsx_workbook(
     return wb
 
 
+def create_empty_xlsx_workbook() -> Workbook:
+    # Create an excel workbook
+    wb = Workbook()
+    # Get first sheet (1 is created when wb created)
+    sheet = wb.active
+    # Change title to 'Datos'
+    sheet.title = 'Datos'
+    # Get the sheet recently changed
+    sheet = wb.get_sheet_by_name('Datos')
+    # The default amount of columns
+    COLUMNS = 10
+    col_names = [
+        "ID FLEX", "DOMICILIO", "ENTRECALLES", "CODIGO POSTAL",
+        "LOCALIDAD", "PARTIDO", "DESTINATARIO", "DNI DESTINATARIO",
+        "TELEFONO DESTINATARIO", "DETALLE DEL ENVIO"]
+    for i in range(COLUMNS):
+        cell = sheet.cell(row=1, column=i+1)
+        cell.value = col_names[i]
+    return wb
+
+
 def bulk_create_envios(
     bulk_load_envios: BulkLoadEnvios
 ) -> List[Envio]:

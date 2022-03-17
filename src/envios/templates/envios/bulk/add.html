@@ -37,10 +37,15 @@
 
         <div class="card-body">
 
-            <div class="alert alert-info" role="alert">
+            {% comment %} <div class="alert alert-info" role="alert">
                 Solución inteligente para cargar envíos con PDFs y Excels de TiendaNube, MercadoLibre y hojas de cálculo
                 personalizadas (<a href="#" data-bs-toggle="modal" data-bs-target="#baseModal">click acá</a> para más
                 info).
+            </div> {% endcomment %}
+
+            <div class="alert alert-info" role="alert">
+                Solución inteligente para cargar envíos con PDFs y Excels de TiendaNube, MercadoLibre y hojas de cálculo
+                personalizadas (<a href="{% url 'envios:print-empty-xlsx' %}">click acá</a> para descargar modelo).
             </div>
 
             {% if upload_in_progress %}
@@ -91,8 +96,8 @@
                 <div class="d-grid gap-2 d-md-flex">
                     <button type="submit" class="btn btn-primary"><i class="bi bi-stars">&nbsp;Cargar envíos</i>
                     </button>
-                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
-                        data-bs-target="#baseModal">Ayuda sobre el excel</button>
+                    {% comment %} <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
+                        data-bs-target="#baseModal">Descargar excel</button> {% endcomment %}
                 </div>
             </div>
             <!-- END BUTTONS -->

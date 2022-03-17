@@ -35,6 +35,7 @@ from envios.reports import PDFReport
 from envios.utils import (
     bulk_create_envios,
     calculate_price,
+    create_empty_xlsx_workbook,
     create_xlsx_workbook,
     get_detail_readable
 )
@@ -348,6 +349,16 @@ def print_excel_file(request, pk):
     response = HttpResponse(
         save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = 'attachment; filename=result.xlsx'
+    return response
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins", "Clients"])
+def print_empty_excel_file(request):
+    wb = create_empty_xlsx_workbook()
+    response = HttpResponse(
+        save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = 'attachment; filename=modelo.xlsx'
     return response
 
 
