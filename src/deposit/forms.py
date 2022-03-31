@@ -7,7 +7,8 @@ class CreateDepositForm(forms.ModelForm):
     class Meta:
         model = Deposit
         fields = ['client', 'name', 'address', 'zip_code',
-                  'town', 'phone', 'email', 'is_sinergia', 'is_central']
+                  'town', 'phone', 'email', 'is_sinergia',
+                  'is_central', 'is_active']
         widgets = {
             'client': forms.Select(attrs={'class': 'form-select'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -21,4 +22,5 @@ class CreateDepositForm(forms.ModelForm):
             'is_sinergia': forms.CheckboxInput(
                 attrs={'class': 'form-control'}),
             'is_central': forms.CheckboxInput(attrs={'class': 'form-control'}),
+            'is_active': forms.CheckboxInput(attrs={'class': 'form-control'}),
         }
