@@ -131,10 +131,11 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
         if envio.status == Envio.STATUS_DELIVERED:
             delivered_tracking_movement = envio.trackingmovement_set.filter(
                 result='success').first()
-            delivered_date = delivered_tracking_movement.date_created
-            ctx['delivered_date'] = delivered_date
-            deliverer = delivered_tracking_movement.created_by
-            ctx['deliverer'] = deliverer
+            if delivered_tracking_movement:
+                delivered_date = delivered_tracking_movement.date_created
+                ctx['delivered_date'] = delivered_date
+                deliverer = delivered_tracking_movement.created_by
+                ctx['deliverer'] = deliverer
         return ctx
 
 
@@ -281,6 +282,13 @@ def cancel_envio_view(request, pk, **kwargs):
                                  current_password=request.user.password)
         if form.is_valid():
             delete_utility.objects.update(status=Envio.STATUS_CANCELED)
+            movement = TrackingMovement(
+                created_by=request.user,
+                action=TrackingMovement.ACTION_CANCELLATION,
+                result=TrackingMovement.RESULT_CANCELED,
+            )
+            movement.save()
+            movement.envios.add(*delete_utility.objects)
             delete_utility.create_alert(alert_word="canceló")
             return redirect('clients_only:index')
     else:  # Meaning is a GET request

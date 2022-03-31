@@ -19,6 +19,7 @@ class TrackingMovement(models.Model):
     ACTION_DELIVERY_ATTEMPT = 'DA'
     ACTION_TRANSFER = 'TR'
     ACTION_RETURN = "RE"
+    ACTION_CANCELLATION = "C"
     ACTIONS = [
         (ACTION_ADDED_TO_SYSTEM, "Carga en sistema"),
         (ACTION_COLLECTION, "Recolección"),
@@ -26,6 +27,7 @@ class TrackingMovement(models.Model):
         (ACTION_DELIVERY_ATTEMPT, "Intento de entrega"),
         (ACTION_TRANSFER, "Transferencia"),
         (ACTION_RETURN, "Devolución"),
+        (ACTION_CANCELLATION, "Cancelación"),
     ]
 
     RESULT_ADDED_TO_SYSTEM = '_new'
@@ -38,6 +40,7 @@ class TrackingMovement(models.Model):
     RESULT_NO_ANSWER = 'not-respond'
     RESULT_OTHER = 'custom'
     RESULT_RETURNED = "returned"
+    RESULT_CANCELED = "canceled"
     RESULTS = [
         (RESULT_ADDED_TO_SYSTEM, 'Agregado al sistema'),
         (RESULT_IN_DEPOSIT, 'En depósito'),
@@ -49,6 +52,7 @@ class TrackingMovement(models.Model):
         (RESULT_COLLECTED, 'Recolectado'),
         (RESULT_OTHER, 'Otro'),
         (RESULT_RETURNED, 'Devuelto'),
+        (RESULT_CANCELED, 'Cancelado'),
     ]
 
     LABEL_ALL = 'all'
@@ -161,81 +165,13 @@ class TrackingMovement(models.Model):
             return f'No responde a {_to}'
         elif self.result == self.RESULT_OTHER:
             comment = ": " + self.comment if self.comment else ""
-            return f'Otro{comment}'
+            return f'Otro{comment} por {_from}'
         elif self.result == self.RESULT_RETURNED:
             return f'Devuelto por {_from} en {_to}'
+        elif self.result == self.RESULT_CANCELED:
+            return f'Cancelado por {user}'
         else:
             return "No se encontró el resultado"
-
-    # added = (self.action == self.ACTION_ADDED_TO_SYSTEM and
-    #          self.result == self.RESULT_ADDED_TO_SYSTEM)
-    # withdraw_from_origin = (self.action == self.ACTION_COLLECTION and
-    #                         self.result == self.RESULT_COLLECTED and
-    #                         self.from_deposit is not None and
-    #                         self.from_deposit.client is not None and
-    #                         not self.from_deposit.is_sinergia)
-    # deposit = (self.action == self.ACTION_DEPOSIT and
-    #            self.result == self.RESULT_IN_DEPOSIT and
-    #            self.to_deposit is not None)
-    # deposit_at_central = (self.action == self.ACTION_DEPOSIT and
-    #                       self.result == self.RESULT_IN_DEPOSIT and
-    #                       self.to_deposit is not None and
-    #                       self.to_deposit.is_sinergia)
-    # withdraw_from_deposit = (self.action == self.ACTION_COLLECTION and
-    #                          self.result == self.RESULT_COLLECTED and
-    #                          self.to_deposit is None and
-    #                          self.from_deposit is not None and
-    #                          self.from_deposit.client is None and
-    #                          self.from_deposit.is_sinergia)
-    # transfered = (self.action == self.ACTION_TRANSFER and
-    #               self.result == self.RESULT_TRANSFERED and
-    #               self.to_carrier is not None and
-    #               self.from_carrier is not None)
-    # delivered = (self.action == self.ACTION_DELIVERY_ATTEMPT and
-    #              self.result == self.RESULT_DELIVERED)
-    # rejected = (self.action == self.ACTION_DELIVERY_ATTEMPT and
-    #             self.result == self.RESULT_REJECTED_AT_DESTINATION)
-    # reprogramed = (self.action == self.ACTION_DELIVERY_ATTEMPT and
-    #                self.result == self.RESULT_REPROGRAMED)
-    # no_answer = (self.action == self.ACTION_DELIVERY_ATTEMPT and
-    #              self.result == self.RESULT_NO_ANSWER)
-    # other = (self.action == self.ACTION_DELIVERY_ATTEMPT and
-    #          self.result == self.RESULT_OTHER)
-
-    # if added:
-    #     return ('Nuevo', 'agregado al sistema.')
-    # elif withdraw_from_origin:
-    #     return ('En nuestras manos',
-    #             ("retirado del depósito de origen e ingresó"
-    #              " al circuito de distribución."))
-    # elif deposit:
-    #     return ('En depósito',
-    #             ("ingresó al depósito '%s'." % self.to_deposit.name))
-    # elif deposit_at_central:
-    #     return ('En depósito',
-    #             ("ingresó en nuestro depósito '%s' y está"
-    #              " listo para su distribución." % self.to_deposit.name))
-    # elif withdraw_from_deposit:
-    #     return ('Salida de depósito',
-    #             'en camino al domicilio del desinatario.')
-    # elif transfered:
-    #     return ('En camino',
-    #             ("retirado del circuito de distribución y"
-    #              " en camino al destinatario."))
-    # elif delivered:
-    #     return ('Entregado', 'se entregó con éxito.')
-    # elif rejected:
-    #     return ('Intento de entrega', 'el envío fue rechazado en destino.')
-    # elif reprogramed:
-    #     return ('Intento de entrega', 'se reprogramó la entrega.')
-    # elif no_answer:
-    #     return ('Intento de entrega',
-    #             ("no pudimos entregar el envío porque nadie "
-    #              "respondió en el domicilio de destino."))
-    # elif other:
-    #     return ('Intento de entrega', 'otra causa.')
-    # return ('Error',
-    #         'Ocurrió un error y no pudimos procesar la información.')
 
     def client_display(self):
         added = (self.action == self.ACTION_ADDED_TO_SYSTEM and
@@ -262,6 +198,10 @@ class TrackingMovement(models.Model):
                       self.result == self.RESULT_TRANSFERED and
                       self.to_carrier is not None and
                       self.from_carrier is not None)
+        returned = (self.action == self.ACTION_RETURN and
+                    self.result == self.RESULT_RETURNED)
+        canceled = (self.action == self.ACTION_CANCELLATION and
+                    self.result == self.RESULT_CANCELED)
         delivered = (self.action == self.ACTION_DELIVERY_ATTEMPT and
                      self.result == self.RESULT_DELIVERED)
         rejected = (self.action == self.ACTION_DELIVERY_ATTEMPT and
@@ -292,6 +232,10 @@ class TrackingMovement(models.Model):
             return ('En camino',
                     ("retirado del circuito de distribución y"
                      " en camino al destinatario."))
+        elif returned:
+            return ('Devuelto', 'se devolvió el envío.')
+        elif canceled:
+            return ('Cancelado', 'el envío se canceló.')
         elif delivered:
             return ('Entregado', 'se entregó con éxito.')
         elif rejected:
