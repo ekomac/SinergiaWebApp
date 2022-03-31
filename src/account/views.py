@@ -183,6 +183,7 @@ def create_user_view(request):
         if form.is_valid():
             account = form.save(commit=False)
             account.set_password(settings.DEFAULT_RESET_PASSWORD)
+            account.has_to_reset_password = True
             account.save()
             if account.role == "admin":
                 group = Group.objects.get(name='Admins')
