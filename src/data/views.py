@@ -10,5 +10,4 @@ from .models import Data
 def download_apk(request):
     url = get_object_or_404(
         Data, key='apk_download_url').value
-    print("url:", url)
     return HttpResponseRedirect(url)

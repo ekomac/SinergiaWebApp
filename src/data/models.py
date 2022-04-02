@@ -18,3 +18,8 @@ class Data(models.Model):
 
     def __str__(self):
         return self.description
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Data'
+        verbose_name_plural = 'Data'
