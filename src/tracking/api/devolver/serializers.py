@@ -74,7 +74,7 @@ class DevolverByEnviosTrackingIdsSerializer(BaseDevolverSerializer):
             status=self.status
         ).values_list('pk', flat=True)
         envios_with_carrier_count = len(envios_with_carrier)
-        envios_tracking_ids = data['envios_ids']
+        envios_tracking_ids = data['envios_tracking_ids']
         if len(envios_tracking_ids) == 0:
             msg = "'envios_tracking_ids' can't be empty."
             raise serializers.ValidationError({"response": msg})
