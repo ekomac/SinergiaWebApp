@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'deposit',
     'envios',
     'home',
-    'logger',
+    # 'logger',
     # 'mobile',
     'places',
     'prices',
