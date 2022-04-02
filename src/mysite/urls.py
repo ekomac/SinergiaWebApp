@@ -47,6 +47,7 @@ urlpatterns = [
     # ADMIN SITE
     path('admin/', admin_home_screen_view, name='admin-home'),
     path('admin/home', admin_home_screen_view, name='admin-home'),
+    path('admin/data/', include('data.urls'), name='admin-data'),
     path('admin/account/', include('account.urls')),
     path('admin/clients/', include('clients.urls')),
     path('admin/deposits/', include('deposit.urls')),

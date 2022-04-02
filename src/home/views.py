@@ -13,12 +13,13 @@ from django.db.models.aggregates import Count
 from django.db.models.query import QuerySet
 from django.http import Http404
 from django.http.response import HttpResponse, HttpResponseNotAllowed
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 # Project
 from account.decorators import allowed_users
 from account.models import Account
+from data.models import Data
 from deposit.models import Deposit
 from envios.models import Envio
 from tracking.models import TrackingMovement
@@ -95,6 +96,8 @@ def admin_home_screen_view(request):
         'clients_with_envios': clients_with_envios,
         'envios_at_deposit': envios_at_deposit,
         'carriers_with_envios': carriers_with_envios,
+        'apk_download_url': get_object_or_404(
+            Data, key='apk_download_url').value,
     }
     return render(request, 'home.html', context)
 

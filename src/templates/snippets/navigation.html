@@ -403,6 +403,16 @@
             {% endif %}
             <!-- END Tickets -->
 
+            <!-- START APK url -->
+            {% if request.user|has_group:"Admins" %}
+            <li class="nav-item li-navigation">
+                <a href="{% url 'data:download_apk' %}" class="nav-link tab">
+                    <i class="bi bi-cloud-download"></i> Descargar APK
+                </a>
+            </li>
+            {% endif %}
+            <!-- END APK url -->
+
             {% if request.user|has_group:"Admins" %}
             {% if request.user.is_superuser %}
             <!-- START Mobile App -->
