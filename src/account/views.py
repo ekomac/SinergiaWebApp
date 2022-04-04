@@ -76,7 +76,7 @@ def login_view(request):
                             name__in=['Clients', ]).exists():
                         return redirect(reverse('clients_only:index'))
                     else:
-                        next_url = 'index'
+                        next_url = ''
                 spec_url = request.GET.get(
                     'next', None)
                 if spec_url:
