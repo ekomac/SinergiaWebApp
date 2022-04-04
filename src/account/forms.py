@@ -40,7 +40,7 @@ class AccountAuthenticationForm(forms.ModelForm):
         email_ok = email is not None
         pass_ok = password is not None
         if email_ok and pass_ok and not authenticate(
-                email=email, password=password):
+                email=email.lower(), password=password):
             raise forms.ValidationError('Credenciales inválidas.')
 
 
@@ -72,7 +72,7 @@ class PasswordResetForm(forms.Form):
     )
 
     def clean_email(self):
-        email = self.cleaned_data['email']
+        email = self.cleaned_data['email'].lower()
         if not Account.objects.filter(email=email).exists():
             raise forms.ValidationError(ERROR_INVALID_EMAIL)
         return email
@@ -294,6 +294,13 @@ class CreateAccountForm(forms.ModelForm):
                     un cliente de referencia."))
         return client
 
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '')
+        if email in [None, '']:
+            raise forms.ValidationError(
+                ("El email no puede ser nulo."))
+        return email.lower()
+
 
 class UpdateAccountForm(CreateAccountForm):
 
@@ -479,6 +486,10 @@ class UpdateAccountForm(CreateAccountForm):
             attrs={'class': 'form-check-input', }),
         initial=False,
     )
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '')
+        return email.lower()
 
     class Meta:
         model = Account

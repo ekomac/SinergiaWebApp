@@ -59,7 +59,7 @@ def login_view(request):
             email = request.POST['email']
             password = request.POST['password']
             user = authenticate(
-                email=email, password=password)
+                email=email.lower(), password=password)
 
             if not user.is_active:
                 return HttpResponse("Usuario inactivo.")
