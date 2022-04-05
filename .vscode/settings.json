@@ -80,7 +80,7 @@
     ],
     "[python]": {},
     "python.terminal.activateEnvInCurrentTerminal": true,
-    "python.testing.pytestEnabled": true,
+    "python.testing.pytestEnabled": false,
     "python.venvFolders": [
         "/Scripts"
     ],
@@ -134,4 +134,12 @@
     "python.linting.pycodestyleArgs": [
         "--max-line-length=79"
     ],
+    "python.testing.unittestArgs": [
+        "-v",
+        "-s",
+        "./src",
+        "-p",
+        "test_*.py"
+    ],
+    "python.testing.unittestEnabled": true,
 }

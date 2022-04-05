@@ -6,7 +6,7 @@ from .exceptions import UnsupportedExtensionError
 from .pdf_module import PDFModule
 from .excel_module import ExcelModule
 from .shipment import Shipment
-from typing import List, Tuple
+from typing import Any, Dict, List
 
 
 class AddressNotFound(Exception):
@@ -28,7 +28,7 @@ class Extractor:
 
     def get_shipments(
             self, in_mem_file: InMemoryUploadedFile
-    ) -> Tuple[str, int]:
+    ) -> Dict[str, Any]:
         self.file = in_mem_file
         self.file_name = self.file.name
         shipments = self.__do_extraction()
@@ -75,7 +75,6 @@ class Extractor:
             self.needs_manual_fix = True
         if not shipment.codigo_postal and not shipment.localidad \
                 and not shipment.partido:
-            print("its the case")
             self.cells_to_paint.append(f"{index+1},3")
             self.cells_to_paint.append(f"{index+1},4")
             self.cells_to_paint.append(f"{index+1},5")
@@ -102,7 +101,6 @@ class Extractor:
             self.cells_to_paint.append(f"{index+1},4")
             try:
                 self.cells_to_paint.append(f"{index+1},4")
-                print("suggestion available")
                 result, reason = town_resolver(town_name, partido, postal_code)
                 self.errors.append(
                     f'En la fila {index+1}, columna 5, no se encontró ' +
@@ -114,7 +112,6 @@ class Extractor:
                     self.errors.append(
                         f"En la fila {index+1}, columna 5, no se " +
                         'proporcionó una localidad')
-                    print("no suggestion available")
                 else:
                     self.errors.append(
                         f'En la fila {index+1}, columna 5, no se encontró ' +

@@ -119,7 +119,6 @@ class ExcelModule(ShipmentExractorModule):
             col = i + 1
             # Update column header real index
             columns_order[value] = col
-            print(value)
             # Removes item from defaults columns list
             columns.remove(value)
 

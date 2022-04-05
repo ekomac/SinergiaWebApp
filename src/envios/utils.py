@@ -4,6 +4,7 @@ from typing import Any, Callable, Dict, List, Tuple
 
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
+import unidecode
 from clients.models import Discount
 from envios.models import BulkLoadEnvios, Envio
 from tracking.models import TrackingMovement
@@ -87,6 +88,18 @@ class TownSuggestionResolver:
             Town.objects.filter(name__contains=self.town_name,
                                 partido__name=self.partido_name)
         )
+        return (towns, self.__query_unidecoded_town_name)
+
+    def __query_unidecoded_town_name(self) -> Tuple[List[Town], Callable]:
+        self.__update_reason("con el nombre limpio, sin comas, puntos, etc.")
+        self.town_name = unidecode.unidecode(self.town_name).upper()
+        towns = list(Town.objects.filter(name=self.town_name))
+        return (towns, self.__query_no_enie_town_name)
+
+    def __query_no_enie_town_name(self) -> Tuple[List[Town], Callable]:
+        self.__update_reason("con el nombre limpio, sin comas, puntos, etc.")
+        self.town_name = self.town_name.upper().replace("Ñ", "N")
+        towns = list(Town.objects.filter(name=self.town_name))
         return (towns, self.__query_cleaned_town_name)
 
     def __query_cleaned_town_name(self) -> Tuple[List[Town], Callable]:
@@ -283,10 +296,7 @@ def bulk_create_envios(
         envio.deposit = bulk_load_envios.deposit
         envio.save()
         envios.append(envio)
-    # envios = Envio.objects.bulk_create(envios)
-    # for envio in envios:
-    #     # For every envio, create a tracking movement
-    #     base_create_tracking(envio)
+
     author = envios[0].updated_by
     tm = TrackingMovement(
         created_by=author,
