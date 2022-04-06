@@ -137,7 +137,8 @@ class Envio(Receiver):
         verbose_name="Fecha máxima de entrega", blank=True, null=True)
     is_flex = models.BooleanField(verbose_name="Es Flex", default=False)
     flex_id = models.CharField(
-        verbose_name="ID de Flex", max_length=50, blank=True, null=True)
+        verbose_name="ID de Flex", max_length=50,
+        blank=True, null=True, unique=True)
     delivery_schedule = models.CharField(
         verbose_name='Horario de entrega', choices=SCHEDULES,
         max_length=5, blank=True, null=True, default=None)
@@ -152,8 +153,8 @@ class Envio(Receiver):
         default=None, on_delete=models.SET_NULL)
     tracked = models.BooleanField(default=False)
     tracking_id = models.CharField(
-        verbose_name="Tracking ID", blank=True, null=True, default=None,
-        max_length=50, unique=True)
+        verbose_name="Tracking ID", blank=True, null=True,
+        default=None, max_length=50, unique=True)
     receiver_doc = models.CharField(
         verbose_name="DNI del destinatario", max_length=20,
         blank=True, null=True)
@@ -350,6 +351,9 @@ class BulkLoadEnvios(models.Model):
         verbose_name="Hashed file",
         max_length=100, blank=True, null=True)
     envios_were_created = models.BooleanField(default=False)
+    unused_flex_ids = models.TextField(
+        verbose_name="IDs de Flex no usados",
+        blank=True, null=True, default=None)
 
     @property
     def short_errors_display(self):

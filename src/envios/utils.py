@@ -280,18 +280,28 @@ def create_empty_xlsx_workbook() -> Workbook:
 
 def bulk_create_envios(
     bulk_load_envios: BulkLoadEnvios
-) -> List[Envio]:
+) -> Tuple[List[Envio], List[str]]:
     """
     Create envios from the csv file and return them.
     Ids are returned just because PostgreSQL supports it.
     """
     # Get the csv file
     envios = []
+    unused_flex_ids = []
     for i, row in enumerate(bulk_load_envios.csv_result.split("\n")):
         if i == 0 or "traking_id" in row:
             continue
         cols = row.split(",")
         kwargs = __cols_to_kwargs(cols, bulk_load_envios)
+        if 'is_flex' in kwargs and kwargs['is_flex'] and kwargs['flex_id']:
+            if Envio.objects.filter(flex_id=kwargs['flex_id']).exists():
+                unused_shipment = "{fid}: {street}, {town}".format(
+                    fid=kwargs['flex_id'],
+                    street=kwargs['street'],
+                    town=kwargs['town']
+                )
+                unused_flex_ids.append(unused_shipment)
+                continue
         envio = Envio(**kwargs)
         envio.deposit = bulk_load_envios.deposit
         envio.save()
@@ -306,7 +316,7 @@ def bulk_create_envios(
     )
     tm.save()
     tm.envios.add(*envios)
-    return envios
+    return (envios, unused_flex_ids)
 
 
 def __cols_to_kwargs(

@@ -336,12 +336,18 @@ def success_bulk_create_envios_view(request, pk):
     if bulk_load.envios_were_created:
         envios = Envio.objects.filter(bulk_upload=bulk_load)
     else:
-        envios = bulk_create_envios(bulk_load)
+        envios, unused_flex_ids = bulk_create_envios(bulk_load)
+        bulk_load.unused_flex_ids = ", ".join(unused_flex_ids)
         bulk_load.envios_were_created = True
     bulk_load.load_status = BulkLoadEnvios.LOADING_STATUS_FINISHED
     bulk_load.save()
     ids = "-".join([str(envio.id) for envio in envios])
-    context = {'selected_tab': 'shipments-tab', 'ids': ids, 'envios': envios}
+    context = {
+        'selected_tab': 'shipments-tab',
+        'ids': ids,
+        'envios': envios,
+        'unused_flex_ids': bulk_load.unused_flex_ids
+    }
     return render(request, 'clients_only/bulk/success.html', context)
 
 

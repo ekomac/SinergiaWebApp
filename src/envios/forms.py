@@ -254,6 +254,7 @@ class CreateEnvioForm(forms.ModelForm):
                     flex_id=self.cleaned_data['flex_id']).exists():
                 raise forms.ValidationError(
                     f'Ya existe un envío con el Tracking ID Flex #{flex_id}')
+        return flex_id
 
     class Meta:
         model = Envio

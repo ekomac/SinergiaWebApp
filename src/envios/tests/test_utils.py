@@ -107,7 +107,7 @@ class TestUtils2(HowToGetData, TestCase):
         self.bulk_load = BulkLoadEnvios.objects.create(
             client=self._client, deposit=self.deposit,
             csv_result="\n".join([",".join(row) for row in self.csv_result]))
-        envios = bulk_create_envios(self.bulk_load)
+        envios, _ = bulk_create_envios(self.bulk_load)
         for envio in envios:
             self.assertEqual(envio.town.partido.name, 'SAN MIGUEL')
             self.assertIn(envio.town.name, [
