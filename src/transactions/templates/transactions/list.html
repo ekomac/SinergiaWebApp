@@ -44,14 +44,14 @@
                 <!-- start CLIENT TYPE SELECTION -->
                 <div class="row g-2 mt-2">
                     <div class="col">
-                        <label for="id_category_modal" class="form-label">Categoria</label>
+                        <label for="id_category_id_modal" class="form-label">Categoria</label>
 
                         <!-- start CLIENT SELECTION -->
-                        <select id="id_category_modal" name="category_modal" class="form-select"
+                        <select id="id_category_id_modal" name="category_id_modal" class="form-select"
                             aria-label="category selection">
                             <option value="">---</option>
                             {% for category in categories %}
-                            <option value="{{category.0}}" {% if category == category.0 %}selected{% endif %}>
+                            <option value="{{category.0}}" {% if category_id == category.0 %}selected{% endif %}>
                                 {{category.1}}</option>
                             {% endfor %}
                         </select>
@@ -123,7 +123,7 @@
 {% block filters_block %}
 <input type="text" id='id_min_date' name="min_date" {% if min_date %}value="{{ min_date }}" {% endif %}>
 <input type="text" id='id_max_date' name="max_date" {% if max_date %}value="{{ max_date }}" {% endif %}>
-<input type="text" id='id_category' name="category" {% if category %}value="{{ category }}" {% endif %}>
+<input type="text" id='id_category_id' name="category_id" {% if category_id %}value="{{ category_id }}" {% endif %}>
 <input type="submit">
 {% endblock filters_block %}
 
@@ -183,7 +183,7 @@
                 'id_results_per_page',
                 'id_min_date',
                 'id_max_date',
-                'id_category',
+                'id_category_id',
             ].forEach(function (id) {
                 if ($('#' + id).val() == '') {
                     $('#' + id).prop('disabled', true);
@@ -241,14 +241,14 @@
     function applyFilters() {
         $('#id_min_date').val($('#id_min_date_modal').val());
         $('#id_max_date').val($('#id_max_date_modal').val());
-        $('#id_category').val($('#id_category_modal').val());
+        $('#id_category_id').val($('#id_category_id_modal').val());
         $('#list_form').submit();
     }
 
     function clearFilters() {
         $('#id_min_date').val('');
         $('#id_max_date').val('');
-        $('#id_category').val('');
+        $('#id_category_id').val('');
         $('#list_form').submit();
     }
 

@@ -40,7 +40,7 @@ class TransactionsListView(CompleteListView, LoginRequiredMixin):
             'context': lambda x: x,
         },
         {
-            'key': 'category',
+            'key': 'category_id',
             'filter': lambda x: 'category__isnull' if (
                 x in [-1, '-1']) else 'category',
             'function': lambda x: True if x in [-1, '-1'] else int(x),
