@@ -64,7 +64,7 @@ Depósitos
                 <div class="col-12">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="defaultDetailCheckbox" checked>
-                        <label for="defaultDetailCheckbox" class="form-check-label">
+                        <label for="defaultDetailCheckbox" class="form-check-label disable-select">
                             Es un paquete de menos de 5 kg.
                         </label>
                     </div>
@@ -220,18 +220,29 @@ Depósitos
                 <div class="col-12">
                     <div class="form-check">
                         {{form.is_flex}}
-                        <label for="{{form.is_flex.id_for_label}}" class="form-check-label">
+                        <label for="{{form.is_flex.id_for_label}}" class="form-check-label disable-select">
                             Es envío de Flex (Mercado Libre Envíos)
                         </label>
                     </div>
                 </div>
                 <!-- END FLEX CHECKBOX -->
 
+                <div id="flexWarning" class="d-none mb-0">
+                    <div class="alert alert-warning" role="alert">
+                        Si el envío es de Flex y no se proporciona el <strong>Tracking ID correcto</strong>, el sistema
+                        no podrá reconocer el QR de la etiqueta de MercadoLibre.
+                    </div>
+                </div>
 
                 <!-- START FLEX ID -->
                 <div id="flexIdDiv" class="col-lg-7 col-xl-6 col-xxl-5">
                     <label for="{{form.flex_id.id_for_label}}" class="form-label">Tracking ID Flex</label>
-                    {{ form.flex_id}}
+                    <input id="id_flex_id" name="flex_id" type="text"
+                        class="form-control {% if form.flex_id.errors %}is-invalid{% endif %}" placeholder='N° de ID'
+                        {% if not form.is_flex.value %}disabled{% endif %}>
+                    <div class="invalid-feedback">
+                        {% for error in form.flex_id.errors %}{{error}}<br>{% endfor %}
+                    </div>
                 </div>
                 <!-- END FLEX ID -->
 
@@ -323,7 +334,7 @@ Depósitos
                 <!-- END DETAIL IS NOT VISIBLE -->
 
                 <div class="col-12">
-                    {% for error in form.errors %}
+                    {% for error in form.non_field_errors %}
                     <p style="color: red;">{{error}}</p>
                     {% endfor %}
                 </div>
@@ -476,10 +487,13 @@ Depósitos
 
         $("#id_is_flex").click(function () {
             var isFlex = $(this).is(":checked");
+            $('#flexWarning').toggleClass("d-none");
             if (isFlex) {
                 $('#id_flex_id').removeAttr('disabled');
+                $('#id_flex_id').prop('required', true);
             } else {
                 $('#id_flex_id').attr('disabled', 'disabled');
+                $('#id_flex_id').prop('required', false);
             }
         });
 

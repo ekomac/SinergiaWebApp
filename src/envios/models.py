@@ -290,6 +290,13 @@ def create_tracking_id(sender, instance, created, **kwargs):
             else:
                 instance.tracking_id = "SN%s" % instance.pk
         instance.save()
+    else:
+        if instance.is_flex and instance.flex_id is not None:
+            tracking_id = "ML%s" % instance.flex_id
+        else:
+            tracking_id = "SN%s" % instance.pk
+        Envio.objects.filter(pk=instance.pk).update(
+            tracking_id=tracking_id)
 
 
 def bulk_file_upload_path(instance, filename):

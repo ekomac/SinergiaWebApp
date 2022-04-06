@@ -407,7 +407,8 @@ def edit_envio_view(request, pk):
         'partidos': Partido.objects.all().order_by("name"),
         'towns': get_localidades_as_JSON(),
         'previuoslySelectedPartidoId': envio.town.partido.id,
-        'previuoslySelectedTownId': envio.town.id
+        'previuoslySelectedTownId': envio.town.id,
+        'is_flex': envio.is_flex
     }
     user = request.user
     # Checks if the user is a client

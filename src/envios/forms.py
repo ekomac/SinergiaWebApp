@@ -244,6 +244,17 @@ class CreateEnvioForm(forms.ModelForm):
                 raise forms.ValidationError(
                     'El campo Tracking ID de Flex es obligatorio')
 
+    def clean_flex_id(self):
+        flex_id = self.cleaned_data['flex_id']
+        if self.cleaned_data['is_flex']:
+            if not flex_id or len(flex_id) == 0:
+                raise forms.ValidationError(
+                    'El campo Tracking ID de Flex es obligatorio.')
+            elif Envio.objects.filter(
+                    flex_id=self.cleaned_data['flex_id']).exists():
+                raise forms.ValidationError(
+                    f'Ya existe un envío con el Tracking ID Flex #{flex_id}')
+
     class Meta:
         model = Envio
         fields = [
@@ -402,6 +413,23 @@ class UpdateEnvioForm(forms.ModelForm):
             'class': 'form-select',
         }),
     )
+
+    def clean_flex_id(self):
+        print("Comprobando")
+        flex_id = self.cleaned_data['flex_id']
+        if self.instance:
+            if self.instance.is_flex:
+                if not flex_id or len(flex_id) == 0:
+                    raise forms.ValidationError(
+                        'El campo Tracking ID de Flex es obligatorio.')
+                envios_with_id = Envio.objects.filter(
+                    flex_id=self.cleaned_data['flex_id']
+                ).exclude(pk=self.instance.pk)
+                if envios_with_id.exists():
+                    id_flex = 'Tracking ID Flex  #{}'.format(flex_id)
+                    msg = f'Ya existe un envío con el {id_flex}'
+                    raise forms.ValidationError(msg)
+        return flex_id
 
     class Meta:
         model = Envio

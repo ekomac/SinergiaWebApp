@@ -56,7 +56,7 @@
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" id="defaultDetailCheckbox"
                             {% if form.detail.value == '0-1' %}checked{% endif %}>
-                        <label for="defaultDetailCheckbox" class="form-check-label">
+                        <label for="defaultDetailCheckbox" class="form-check-label disable-select">
                             Es un paquete de menos de 5 kg.
                         </label>
                     </div>
@@ -206,7 +206,41 @@
                 </div>
                 <!-- END DELIVERY SCHEDULE -->
 
+                {% if form.is_flex.value %}
+                <!-- START FLEX CHECKBOX -->
+                <div class="col-12">
+                    <div class="form-check">
+                        <input type="checkbox" name="is_flex" class="form-check-input" id="id_is_flex"
+                            {% if form.is_flex.value %}checked{% endif %} disabled>
+                        <label for="{{form.is_flex.id_for_label}}" class="form-check-label disable-select">
+                            Es envío de Flex (Mercado Libre Envíos)
+                        </label>
+                    </div>
+                </div>
+                <!-- END FLEX CHECKBOX -->
 
+                <div id="flexWarning" class="mb-0">
+                    <div class="alert alert-warning" role="alert">
+                        Si el envío es de Flex y no se proporciona el <strong>Tracking ID correcto</strong>, el sistema
+                        no podrá reconocer el QR de la etiqueta de MercadoLibre.
+                    </div>
+                </div>
+
+                <!-- START FLEX ID -->
+                <div id="flexIdDiv" class="col-lg-7 col-xl-6 col-xxl-5">
+                    <label for="{{form.flex_id.id_for_label}}" class="form-label">Tracking ID Flex</label>
+                    <input id="id_flex_id" name="flex_id" type="text"
+                        {% if not form.flex_id.value == None %}value="{{ form.flex_id.value }}" {% endif %}
+                        class="form-control {% if form.flex_id.errors %}is-invalid{% endif %}" placeholder='N° de ID'
+                        {% if not form.is_flex.value %}disabled{% endif %}>
+                    <div class="invalid-feedback">
+                        {% for error in form.flex_id.errors %}{{error}}<br>{% endfor %}
+                    </div>
+                </div>
+                <!-- END FLEX ID -->
+                {% endif %}
+
+                {% comment %}
                 <!-- START FLEX CHECKBOX -->
                 <div class="col-12">
                     <div class="form-check">
@@ -224,7 +258,7 @@
                     <label for="{{ form.flex_id.id_for_label }}" class="form-label">Tracking ID Flex</label>
                     {{ form.flex_id }}
                 </div>
-                <!-- END FLEX ID -->
+                <!-- END FLEX ID --> {% endcomment %}
 
 
                 <!-- START DESTINATION DATA TITLE -->
@@ -316,7 +350,7 @@
                 <!-- END DETAIL IS NOT VISIBLE -->
 
                 <div class="col-12">
-                    {% for error in form.errors %}
+                    {% for error in form.non_field_errors %}
                     <p style="color: red;">{{error}}</p>
                     {% endfor %}
                 </div>
@@ -391,6 +425,7 @@
         $('#create_form').submit(function (event) {
             event.preventDefault(); //this will prevent the default submit
             updateDetails();
+            $('#id_is_flex').removeAttr("disabled");
             $(this).unbind('submit').submit(); // continue the submit unbind preventDefault
         });
 
@@ -414,12 +449,23 @@
     });
 
     function toggleBlockFlexId() {
-        var isFlex = $("#id_is_flex").is(":checked");
+        /*var isFlex = $("#id_is_flex").is(":checked");
         if (isFlex) {
             $('#id_flex_id').removeAttr('disabled');
         } else {
             $('#id_flex_id').attr('disabled', 'disabled');
-        }
+        }*/
+        $("#id_is_flex").click(function () {
+            var isFlex = $(this).is(":checked");
+            $('#flexWarning').toggleClass("d-none");
+            if (isFlex) {
+                $('#id_flex_id').removeAttr('disabled');
+                $('#id_flex_id').prop('required', true);
+            } else {
+                $('#id_flex_id').attr('disabled', 'disabled');
+                $('#id_flex_id').prop('required', false);
+            }
+        });
     }
 
     function setPartidoListener() {
