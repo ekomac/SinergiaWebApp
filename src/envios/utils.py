@@ -295,7 +295,7 @@ def bulk_create_envios(
         kwargs = __cols_to_kwargs(cols, bulk_load_envios)
         if 'is_flex' in kwargs and kwargs['is_flex'] and kwargs['flex_id']:
             if Envio.objects.filter(flex_id=kwargs['flex_id']).exists():
-                unused_shipment = "{fid}: {street}, {town}".format(
+                unused_shipment = "'{fid}: {street}, {town}'".format(
                     fid=kwargs['flex_id'],
                     street=kwargs['street'],
                     town=kwargs['town']
