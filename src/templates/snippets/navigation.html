@@ -413,6 +413,16 @@
             {% endif %}
             <!-- END APK url -->
 
+            <!-- START changes -->
+            {% if request.user|has_group:"Admins" %}
+            <li class="nav-item li-navigation">
+                <a href="{% url 'changes:list' %}" class="nav-link tab">
+                    <i class="bi bi-newspaper"></i> Novedades
+                </a>
+            </li>
+            {% endif %}
+            <!-- END changes -->
+
             {% if request.user|has_group:"Admins" %}
             {% if request.user.is_superuser %}
             <!-- START Mobile App -->

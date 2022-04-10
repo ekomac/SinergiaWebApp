@@ -1,0 +1,83 @@
+{% extends 'base_system.html' %}
+
+{% block content %}
+
+
+{% load static %}
+{% load main_extras %}
+{% load url_extras %}
+
+<style>
+    .table thead th {
+        border-bottom: 2px solid #C556FF;
+    }
+
+
+    .no-wrap-td {
+        overflow: auto;
+        white-space: nowrap;
+    }
+</style>
+<div class="col-md-12 col-xl-7 col-xxl-6 d-flex-block">
+
+
+    <!-- start CARD DETAIL -->
+    <div class="card flex-fill shadow-lg">
+
+        <!-- start CARD HEADER -->
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Detalle de novedad
+            </div>
+            <div class="">
+                <a href="{% url 'changes:list' %}">
+                    <i class="bi bi-list"></i>Ver lista completa</a>
+            </div>
+        </div>
+        <!-- end CARD HEADER -->
+
+        <!-- start CARD BODY -->
+        <div class="card-body">
+
+            <!-- start TITLE -->
+            <h3>
+
+                <div class="card-title d-flex flex-wrap align-content-center">
+                    {% if obj.label == 'IM' %}
+                    <span class="badge rounded-pill bg-primary">{{obj.get_label_display}}</span>
+                    {% elif obj.label == 'BF' %}
+                    <span class="badge rounded-pill bg-success">{{obj.get_label_display}}</span>
+                    {% elif obj.label == 'UP' %}
+                    <span class="badge rounded-pill bg-primary">{{obj.get_label_display}}</span>
+                    {% elif obj.label == 'MC' %}
+                    <span class="badge rounded-pill bg-secondary">{{obj.get_label_display}}</span>
+                    {% else %}
+                    <span class="badge rounded-pill bg-danger">{{obj.get_label_display}}</span>
+                    {% endif %}
+                    &nbsp;{{ obj.name }}
+
+                </div>
+            </h3>
+            <!-- end TITLE -->
+
+            <!-- start DATE INFO -->
+            <div class="mt-1 mb-2 d-flex aling-items-center">
+                <i class="bi bi-clock-history"></i>&nbsp;Creada el {{ obj.date_created|date:"d/m/Y" }} a las
+                {{ obj.date_created|date:"H:i" }}
+            </div>
+            <!-- end DATE INFO -->
+
+            <hr>
+
+            <!-- start DESCRIPTION -->
+            <div class="card-text bg-white">{{ obj.description | safe}}</div>
+            <!-- end DESCRIPTION -->
+
+        </div>
+    </div>
+    <!-- end CARD DETAIL -->
+
+</div>
+<!-- end CARD BODY -->
+
+{% endblock content %}

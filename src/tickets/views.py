@@ -52,6 +52,9 @@ def list_tickets_view(request):
             context['filter_by'] = filter_by
             context['filters_count'] = filter_count
 
+        if not request.user.is_superuser:
+            filters['created_by'] = request.user
+
         # Filter tickets
         tickets = get_tickets_queryset(query, order_by, **filters)
 
@@ -189,8 +192,9 @@ class CreateTicketView(LoginRequiredMixin, CreateView):
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "Level 1"])
 def ticket_detail_view(request, pk):
-    if not request.user.ticket_set.filter(pk=pk).exists():
-        return redirect('tickets:list')
+    if not request.user.is_superuser:
+        if not request.user.ticket_set.filter(pk=pk).exists():
+            return redirect('tickets:list')
     ticket = get_object_or_404(Ticket, pk=pk)
     attachments = Attachment.objects.filter(ticket__id=ticket.id)
     attachments_count = attachments.count()

@@ -53,12 +53,13 @@
                 <table class="table table-bordered">
                     <tbody id="overrided-1" class="overrided-tbody">
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-tag me-1"></i>
-                                Asunto</td>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-tag me-1"></i>Asunto
+                            </td>
                             <td>{{ ticket.subject }}</td>
                         </tr>
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-chat-left-text me-1"></i>
                                 Mensaje</td>
                             <td>
@@ -66,7 +67,8 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-bell me-1"></i>Prioridad
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-bell me-1"></i>Prioridad
                             </td>
                             <td>
                                 {% if ticket.priority == '1' %}
@@ -81,12 +83,12 @@
                             </td>
                         </tr>
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-broadcast me-1"></i>Estado
                             </td>
                             <td>
-                                <span class="badge" style="background-color:
-            {% if ticket.status == '1' %}#C0BCAE{% elif ticket.status == '2' %}#817D6F{% else %}#212529;{% endif %};">
+                                <span class="badge"
+                                    style="background-color:{% if ticket.status == '1' %}#C0BCAE{% elif ticket.status == '2' %}#817D6F{% else %}#212529;{% endif %};">
                                     {{ ticket.get_status_display }}
                                 </span>
                             </td>
@@ -94,16 +96,14 @@
 
                         {% if ticket.status == '3' %}
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i class="bi bi-x-lg me-1"></i>Motivo
-                                de cierre
-                            </td>
-                            <td>
-                                {{ ticket.get_closed_reason_display }}
-                            </td>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                    class="bi bi-x-lg me-1"></i>Motivo de
+                                cierre</td>
+                            <td>{{ ticket.get_closed_reason_display }}</td>
                         </tr>
 
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-chat-left-text me-1"></i>Mensaje de cierre
                             </td>
                             <td>
@@ -116,7 +116,7 @@
 
                         {% if attachments_count > 0 %}
                         <tr>
-                            <td class="bg-dark fw-bolder" style="color: white;"><i
+                            <td class="bg-dark fw-bolder w-auto" style="color: white;"><i
                                     class="bi bi-paperclip me-1"></i>Adjuntos
                             </td>
                             <td>

@@ -4,6 +4,7 @@
 
 
 {% load static %}
+{% load main_extras %}
 {% load url_extras %}
 
 <style>
@@ -153,6 +154,7 @@
                         </tr>
 
                         <!-- row VEHICLE TYPE -->
+                        {% if not account|has_group:"Clients" %}
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-truck me-1"></i>Vehículo</td>
@@ -161,9 +163,10 @@
                                 especificar{% endif %}
                             </td>
                         </tr>
-
+                        {% endif %}
 
                         <!-- row VEHICLE PLATE -->
+                        {% if not account|has_group:"Clients" %}
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-123 me-1"></i>Patente</td>
@@ -172,6 +175,7 @@
                                 especificar{% endif %}
                             </td>
                         </tr>
+                        {% endif %}
 
                         <!-- row DNI IMG -->
                         <tr>
@@ -185,6 +189,7 @@
                         </tr>
 
                         <!-- row DRIVER LICENCE -->
+                        {% if not account|has_group:"Clients" %}
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-credit-card me-1"></i>Licencia de conducir</td>
@@ -194,8 +199,10 @@
                                 cargó{% endif %}
                             </td>
                         </tr>
+                        {% endif %}
 
                         <!-- row CRIMINAL RECORD -->
+                        {% if not account|has_group:"Clients" %}
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-shield-check me-1"></i>Antecedentes penales</td>
@@ -205,8 +212,10 @@
                                 cargó{% endif %}
                             </td>
                         </tr>
+                        {% endif %}
 
                         <!-- row VTV -->
+                        {% if not account|has_group:"Clients" %}
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-file-text me-1"></i>VTV</td>
@@ -216,8 +225,10 @@
                                 cargó{% endif %}
                             </td>
                         </tr>
+                        {% endif %}
 
                         <!-- row INSURANCE -->
+                        {% if not account|has_group:"Clients" %}
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-shield-check me-1"></i>Seguro</td>
@@ -227,15 +238,19 @@
                                 cargó{% endif %}
                             </td>
                         </tr>
+                        {% endif %}
 
                         <!-- row CEDULA -->
+                        {% if not account|has_group:"Clients" %}
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-shield-check me-1"></i>Cedula Azul/Verde</td>
                             <td class="w-100 text-break">{% if account.cedula %}<a
-                                    href="{{ account.cedula.url }}">{{ account.cedula.url | truncate_start}}</a>{% else %}No se cargó{% endif %}
+                                    href="{{ account.cedula.url }}">{{ account.cedula.url | truncate_start}}</a>{% else %}No
+                                se cargó{% endif %}
                             </td>
                         </tr>
+                        {% endif %}
                     </tbody>
                 </table>
 

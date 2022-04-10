@@ -35,6 +35,7 @@ INSTALLED_APPS = [
 
     # OWN APPS
     'account',
+    'changes',
     'clients',
     'clients_only',
     'data',
@@ -211,3 +212,13 @@ DEFAULT_RESULTS_PER_PAGE = 50
 
 
 DEFAULT_RESET_PASSWORD = "Cambiar123"
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'jcmacielhenning@gmail.com'
+EMAIL_HOST_PASSWORD = 'bkwivgnwbouskjer'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+noreply = '<noreply@sinergiamensajeria.com>'
+DEFAULT_FROM_EMAIL = f'Administración de SinergiaSoftware {noreply}'

@@ -1,7 +1,11 @@
 from django.conf import settings
+from django.core.mail import send_mail
 from django.db import models
-from django.db.models.signals import pre_delete
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
+from django.urls import reverse
+
+from account.models import Account
 
 
 def upload_location(instance, filename):
@@ -98,3 +102,51 @@ def ticket_delete(sender, instance, **kwargs):
     """
     for file in instance.attachment_set.all():
         file.delete(False)
+
+
+HTML_BODY = """<h1>Se ha creado un <a href='{url}'>nuevo ticket</a> en el sistema.</h1>
+<h3>Ticket #{pk}: {subject} con prioridad {prioridad}</h3>
+<p><b>Mensaje</b>: {msg}</p>
+<p><b>Autor</b>: <a href='{user_url}'>{author} ({author_name})</a></p>
+"""
+
+
+@receiver(post_save, sender=Ticket)
+def notify_superusers(sender, instance, created, **kwargs):
+    if created:
+        subject = 'Nuevo ticket en el sistema'
+        msg = """Se ha creado un nuevo ticket en el sistema.\n\n
+Ticket #{pk}: {subject} con prioridad {prioridad}\n
+Mensaje: {msg}\n\n
+Autor: {created_by}\n\n""".format(
+            pk=instance.pk,
+            subject=instance.subject,
+            prioridad=instance.get_priority_display(),
+            msg=instance.msg,
+            created_by=instance.created_by.full_name
+        )
+        url = reverse('tickets:detail', kwargs={'pk': instance.pk})
+        base_url = 'https://www.sinergiasoftware.xyz'
+        url = base_url + url
+        user_url = reverse('account:employees-detail', kwargs={
+                           'pk': instance.created_by.pk})
+        user_url = base_url + user_url
+        html_msg = HTML_BODY.format(
+            url=url,
+            pk=instance.pk,
+            subject=instance.subject,
+            prioridad=instance.get_priority_display(),
+            msg=instance.msg,
+            user_url=user_url,
+            author=instance.created_by.username,
+            author_name=instance.created_by.full_name
+        )
+        recipient_list = Account.objects.filter(
+            is_superuser=True).values_list('email', flat=True)
+        send_mail(
+            subject=subject,
+            message=msg,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=recipient_list,
+            html_message=html_msg
+        )
