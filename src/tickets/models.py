@@ -182,6 +182,59 @@ Autor: {created_by}\n\n""".format(
         )
 
 
+CLOSED_TICKET_HTML_BODY = """
+<h1>Se cerró un <a href='{url}'>ticket</a> creado por vos.</h1>
+<h3>Ticket #{pk}: {subject} con prioridad {prioridad}</h3>
+<p><b>Motivo</b>: {closed_reason}</p>
+<p><b>Mensaje</b>: {closed_message}</p>
+<p><b>Autor</b>: <a href='{user_url}'>{author} ({author_name})</a></p>
+"""
+
+
+@receiver(post_save, sender=Ticket)
+def notify_ticket_closed_to_author(sender, instance, **kwargs):
+    if instance.status == '3':
+        subject = 'Se cerró un ticket'
+        msg = """Se cerró un nuevo ticket creado por vos.\n\n
+Ticket #{pk}: {subject} con prioridad {prioridad}\n
+Motivo: {closed_reason}\n\n
+Mensaje: {closed_message}\n\n
+Autor: {created_by}\n\n""".format(
+            pk=instance.pk,
+            subject=instance.subject,
+            prioridad=instance.get_priority_display(),
+            closed_reason=instance.closed_reason,
+            closed_message=instance.closed_msg,
+            created_by=instance.created_by.full_name
+        )
+        url = reverse('tickets:detail', kwargs={'pk': instance.pk})
+        base_url = 'https://www.sinergiasoftware.xyz'
+        url = base_url + url
+        user_url = reverse('account:employees-detail', kwargs={
+                           'pk': instance.created_by.pk})
+        user_url = base_url + user_url
+        html_msg = CLOSED_TICKET_HTML_BODY.format(
+            url=url,
+            pk=instance.pk,
+            subject=instance.subject,
+            prioridad=instance.get_priority_display(),
+            closed_reason=instance.closed_reason,
+            closed_message=instance.closed_msg,
+            user_url=user_url,
+            author=instance.created_by.username,
+            author_name=instance.created_by.full_name
+        )
+        recipient_list = Account.objects.filter(
+            is_superuser=True).values_list('email', flat=True)
+        send_mail(
+            subject=subject,
+            message=msg,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=recipient_list,
+            html_message=html_msg
+        )
+
+
 @receiver(post_save, sender=Ticket)
 def add_message_to_chat(sender, instance, created, **kwargs):
     if created:
@@ -244,11 +297,10 @@ def notify_new_message_in_ticket(sender, instance, created, **kwargs):
         else:
             recipient_list = [instance.ticket.created_by.email]
         print("recipient_list", recipient_list)
-        result = send_mail(
+        send_mail(
             subject=subject,
             message=msg,
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=recipient_list,
             html_message=html_msg
         )
-        print(result)

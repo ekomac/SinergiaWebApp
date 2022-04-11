@@ -29,6 +29,7 @@ class Transaction(models.Model):
         ('9', 'Servicios'),
         ('10', 'Sueldos'),
         ('11', 'Otros'),
+        ('12', 'Cobro por cuenta y orden de terceros'),
     )
 
     date_created = models.DateTimeField(
