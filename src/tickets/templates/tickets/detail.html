@@ -33,8 +33,8 @@
             </div>
             <div class="modal-body">
 
-                <form action="tickets:close-ticket" method='POST' id="close_ticket_form" name="close_ticket_form"
-                    target="_top" enctype="multipart/form-data">
+                <form method='POST' id="close_ticket_form" name="close_ticket_form" target="_top"
+                    enctype="multipart/form-data">
                     {% csrf_token %}
 
                     <div class="row g-2 mt-2">
@@ -250,11 +250,12 @@
                             <div class="text-muted">&nbsp;dijo:</div>
                         </div>
 
-                        <div class="text-muted">El {{ chat.date_created|date:"d/m/Y" }} a
-                            las {{ chat.date_created|date:"H:i" }}</div>
+                        <div class="text-muted">
+                            El {{ chat.date_created|date:"d/m/Y" }} a las {{ chat.date_created|date:"H:i" }}
+                        </div>
                     </div>
                     <div class="card-body p-2">
-                        {{ chat.msg }}
+                        {{ chat.msg | safe }}
                     </div>
                 </div>
                 {% endfor %}
@@ -271,8 +272,8 @@
                         uno:
                     </div>
                 </h5>
-                <form action="tickets:post-message" method='POST' id="new_msg_form" name="new_msg_form" target="_top"
-                    enctype="multipart/form-data">{% csrf_token %}
+                <form method='POST' id="new_msg_form" name="new_msg_form" target="_top" enctype="multipart/form-data">
+                    {% csrf_token %}
                     <div class="mb-1">
                         <textarea class="form-control" id="post-msg" name="post-msg" rows="3"></textarea>
                     </div>
