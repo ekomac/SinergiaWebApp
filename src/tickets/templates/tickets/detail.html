@@ -95,12 +95,27 @@
                 <div class="me-2 w-100 align-content-center">
                     <h2>Ticket #{{ ticket.id }}</h2>
                 </div>
-                <div class="mt-1 d-flex aling-items-center">
+                <div class="mt-1 mb-2 d-flex aling-items-center">
                     <i class="bi bi-clock-history"></i>&nbsp;Creado el {{ ticket.date_created|date:"d/m/Y" }} a las
                     {{ ticket.date_created|date:"H:i" }}
                 </div>
 
                 <div>
+
+                    {% if ticket.status == '1' or ticket.status == '2'%}
+                    {% if ticket.created_by.email == request.user.email %}
+                    <button type="button" onclick="cancelTicket();" class="btn btn-danger btn-sm me-1"><i
+                            class="bi bi-x me-1"></i>Cancelar</button>
+                    {% endif %}
+                    {% endif %}
+
+                    {% if ticket.status == '1' or ticket.status == '2'%}
+                    {% if ticket.created_by.email == request.user.email%}
+                    <button type="button" onclick="markResolvedTicket();" class="btn btn-success btn-sm me-1"><i
+                            class="bi bi-check-circle me-1"></i>Marcar como resuelto</button>
+                    {% endif %}
+                    {% endif %}
+
                     {% if ticket.status == '1' and request.user.is_superuser %}
                     <a href="{% url 'tickets:open-ticket' ticket.pk %}" class="btn btn-primary btn-sm me-1"><i
                             class="bi bi-plus"></i>Abrir</a>
@@ -112,10 +127,12 @@
                             class="bi bi-x me-1"></i>Cerrar</a>
                     {% endif %}
 
-                    {% if ticket.status != '3' %}
+
+                    {% if ticket.status != '3' and request.user.is_superuser %}
                     <a href="{% url 'tickets:delete' ticket.id %}" class="btn btn-danger btn-sm me-1"><i
                             class="bi bi-trash me-1"></i>Eliminar</a>
                     {% endif %}
+
                 </div>
 
             </div>
@@ -255,8 +272,7 @@
                     </div>
                 </h5>
                 <form action="tickets:post-message" method='POST' id="new_msg_form" name="new_msg_form" target="_top"
-                    enctype="multipart/form-data">
-                    {% csrf_token %}
+                    enctype="multipart/form-data">{% csrf_token %}
                     <div class="mb-1">
                         <textarea class="form-control" id="post-msg" name="post-msg" rows="3"></textarea>
                     </div>
@@ -295,6 +311,8 @@
         });
         $('#close_ticket_form').submit(function (e) {
             e.preventDefault();
+            const data = $('#close_ticket_form').serialize();
+            console.log(data);
             closeTicket();
         });
     });
@@ -303,13 +321,16 @@
         $.ajax({
             url: "{% url 'tickets:close-ticket' pk=ticket.id %}", // the endpoint
             type: "POST", // http method
-            headers: {
+            /*headers: {
                 "X-CSRFToken": getCookie("csrftoken")
-            },
-            data: {
+            },*/
+
+            data: $('#close_ticket_form').serialize(), // data sent with the post request
+
+            /*data: {
                 closed_reason: $('#closed_reason').val(),
                 closed_msg: $('#closed_message').val(),
-            }, // data sent with the post request
+            }, // data sent with the post request*/
 
             // handle a successful response
             success: function (json) {
@@ -332,12 +353,14 @@
         $.ajax({
             url: "{% url 'tickets:post-message' ticket_pk=ticket.id user_pk=request.user.pk %}", // the endpoint
             type: "POST", // http method
-            headers: {
+            /*headers: {
                 "X-CSRFToken": getCookie("csrftoken")
             },
             data: {
                 msg: $('#post-msg').val()
-            }, // data sent with the post request
+            }, // data sent with the post request*/
+
+            data: $('#new_msg_form').serialize(),
 
             // handle a successful response
             success: function (json) {
@@ -374,6 +397,18 @@
         });
         document.body.scrollBottom = 0; // For Safari
         document.documentElement.scrollBottom = 0; // For Chrome, Firefox, IE and Opera
+    }
+
+    function cancelTicket() {
+        if (window.confirm("¿Estás seguro de que quieres cancelar este ticket?")) {
+            window.location.href = "{% url 'tickets:cancel-ticket' pk=ticket.id %}";
+        }
+    }
+
+    function markResolvedTicket() {
+        if (window.confirm("¿Estás seguro de que este ticket se encuentra resuelto?")) {
+            window.location.href = "{% url 'tickets:mark-resolve-ticket' pk=ticket.id %}";
+        }
     }
 </script>
 

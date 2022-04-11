@@ -8,7 +8,7 @@ class AttachmentInline(admin.TabularInline):
 
 
 class TicketAdmin(admin.ModelAdmin):
-    list_display = ('priority', 'subject', 'msg', 'status', 'closed_reason',)
+    list_display = ('subject', 'priority', 'msg', 'status', 'closed_reason',)
     search_fields = ('priority', 'subject', 'msg', 'status', 'closed_reason',)
     inlines = [AttachmentInline, ]
     filter_horizontal = ()

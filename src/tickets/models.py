@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 
 from account.models import Account
+from .mailing import messages
 
 
 def upload_location(instance, filename):
@@ -71,7 +72,8 @@ class Ticket(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         verbose_name="Autor",
-        blank=True, null=True, default=None)
+        blank=True, null=True, default=None,
+        related_name="tickets_created")
     priority = models.CharField(
         max_length=1, choices=PRIORITY_CHOICES, default='2',
         blank=False, null=False, verbose_name="Prioridad")
@@ -86,6 +88,12 @@ class Ticket(models.Model):
         blank=True, null=True, verbose_name="Razón de cierre")
     closed_msg = models.TextField(
         blank=True, null=True, verbose_name="Mensaje de cierre")
+    closed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name="Cerrado por",
+        blank=True, null=True, default=None,
+        related_name="tickets_closed")
 
     def __str__(self):
         return 'Ticket #{pk}: {subject} con prioridad {prioridad}'.format(
@@ -134,169 +142,106 @@ def ticket_delete(sender, instance, **kwargs):
         file.delete(False)
 
 
-NEW_TICKET_HTML_BODY = """<h1>Se ha creado un <a href='{url}'>nuevo ticket</a> en el sistema.</h1>
-<h3>Ticket #{pk}: {subject} con prioridad {prioridad}</h3>
-<p><b>Mensaje</b>: {msg}</p>
-<p><b>Autor</b>: <a href='{user_url}'>{author} ({author_name})</a></p>
-"""
-
-
 @receiver(post_save, sender=Ticket)
-def notify_new_ticket_to_superusers(sender, instance, created, **kwargs):
+def send_notifications_for_ticket(sender, instance, created, **kwargs):
     if created:
-        subject = 'Nuevo ticket en el sistema'
-        msg = """Se ha creado un nuevo ticket en el sistema.\n\n
-Ticket #{pk}: {subject} con prioridad {prioridad}\n
-Mensaje: {msg}\n\n
-Autor: {created_by}\n\n""".format(
-            pk=instance.pk,
-            subject=instance.subject,
-            prioridad=instance.get_priority_display(),
-            msg=instance.msg,
-            created_by=instance.created_by.full_name
-        )
-        url = reverse('tickets:detail', kwargs={'pk': instance.pk})
-        base_url = 'https://www.sinergiasoftware.xyz'
-        url = base_url + url
-        user_url = reverse('account:employees-detail', kwargs={
-                           'pk': instance.created_by.pk})
-        user_url = base_url + user_url
-        html_msg = NEW_TICKET_HTML_BODY.format(
-            url=url,
-            pk=instance.pk,
-            subject=instance.subject,
-            prioridad=instance.get_priority_display(),
-            msg=instance.msg,
-            user_url=user_url,
-            author=instance.created_by.username,
-            author_name=instance.created_by.full_name
-        )
-        recipient_list = Account.objects.filter(
-            is_superuser=True).values_list('email', flat=True)
-        send_mail(
-            subject=subject,
-            message=msg,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=recipient_list,
-            html_message=html_msg
-        )
+        send_mail_to_superusers_new_ticket_created(instance)
+        add_first_message_to_chat(instance)
+    else:
+        # Was closed by superuser
+        if instance.status == '3':
+            if instance.closed_by.is_superuser:
+                send_mail_to_users_ticket_closed(instance)
+            else:
+                send_mail_to_superusers_ticket_closed(instance)
 
 
-CLOSED_TICKET_HTML_BODY = """
-<h1>Se cerró un <a href='{url}'>ticket</a> creado por vos.</h1>
-<h3>Ticket #{pk}: {subject} con prioridad {prioridad}</h3>
-<p><b>Motivo</b>: {closed_reason}</p>
-<p><b>Mensaje</b>: {closed_message}</p>
-<p><b>Autor</b>: <a href='{user_url}'>{author} ({author_name})</a></p>
-"""
-
-
-@receiver(post_save, sender=Ticket)
-def notify_ticket_closed_to_author(sender, instance, **kwargs):
-    if instance.status == '3':
-        subject = 'Se cerró un ticket'
-        msg = """Se cerró un nuevo ticket creado por vos.\n\n
-Ticket #{pk}: {subject} con prioridad {prioridad}\n
-Motivo: {closed_reason}\n\n
-Mensaje: {closed_message}\n\n
-Autor: {created_by}\n\n""".format(
-            pk=instance.pk,
-            subject=instance.subject,
-            prioridad=instance.get_priority_display(),
-            closed_reason=instance.closed_reason,
-            closed_message=instance.closed_msg,
-            created_by=instance.created_by.full_name
-        )
-        url = reverse('tickets:detail', kwargs={'pk': instance.pk})
-        base_url = 'https://www.sinergiasoftware.xyz'
-        url = base_url + url
-        user_url = reverse('account:employees-detail', kwargs={
-                           'pk': instance.created_by.pk})
-        user_url = base_url + user_url
-        html_msg = CLOSED_TICKET_HTML_BODY.format(
-            url=url,
-            pk=instance.pk,
-            subject=instance.subject,
-            prioridad=instance.get_priority_display(),
-            closed_reason=instance.closed_reason,
-            closed_message=instance.closed_msg,
-            user_url=user_url,
-            author=instance.created_by.username,
-            author_name=instance.created_by.full_name
-        )
-        recipient_list = Account.objects.filter(
-            is_superuser=True).values_list('email', flat=True)
-        send_mail(
-            subject=subject,
-            message=msg,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=recipient_list,
-            html_message=html_msg
-        )
-
-
-@receiver(post_save, sender=Ticket)
-def add_message_to_chat(sender, instance, created, **kwargs):
-    if created:
-        ticket_message = TicketMessage(
-            created_by=instance.created_by,
-            msg=instance.msg,
-            ticket=instance
-        )
-        ticket_message.save()
-
-
-NEW_MESSAGE_IN_TICKET = (
-    'Se ha registrado un nuevo mensaje en el ticket "{ticket}".\n\n'
-    '{user} escribió:\n'
-    '"{msg}"\n\n'
-    '{date}\n\n'
-)
-
-NEW_MESSAGE_IN_TICKET_HTML_BODY = (
-    '<h1>Se ha registrado un nuevo mensaje en el ticket '
-    '<a href="{ticket_url}">{ticket_subject}</a>.</h1>'
-    '<div style="border: 1px solid grey; padding: 1rem; margin: auto;">'
-    '<p><a href="{author_url}">@{author_username}</a> escribió:</p>'
-    '<p>"{msg}"</p>'
-    '<p>El {date} a las {time}</p>'
-    '</div>'
-)
+def add_first_message_to_chat(ticket: Ticket):
+    ticket_message = TicketMessage(
+        created_by=ticket.created_by,
+        msg=ticket.msg,
+        ticket=ticket
+    )
+    ticket_message.save()
 
 
 @receiver(post_save, sender=TicketMessage)
 def notify_new_message_in_ticket(sender, instance, created, **kwargs):
     if created:
-        subject = "Nuevo mensaje de ticket"
-        msg = NEW_MESSAGE_IN_TICKET.format(
-            ticket=instance.ticket.subject,
-            user=instance.created_by,
-            msg=instance.msg,
-            date=instance.date_created
+        send_mail_new_message_to_counterpart(instance)
+
+
+def send_mail_to_superusers_new_ticket_created(ticket: Ticket):
+    subject = 'Nuevo ticket en el sistema'
+    msg = messages['PLAIN_TICKET_CREATED'].format(
+        pk=ticket.pk,
+        subject=ticket.subject,
+        prioridad=ticket.get_priority_display(),
+        msg=ticket.msg,
+        created_by=ticket.created_by.full_name
+    )
+    url = reverse('tickets:detail', kwargs={'pk': ticket.pk})
+    base_url = 'https://www.sinergiasoftware.xyz'
+    url = base_url + url
+    user_url = reverse('account:employees-detail', kwargs={
+        'pk': ticket.created_by.pk})
+    user_url = base_url + user_url
+    html_msg = messages['HTML_TICKET_CREATED'].format(
+        url=url,
+        pk=ticket.pk,
+        subject=ticket.subject,
+        prioridad=ticket.get_priority_display(),
+        msg=ticket.msg,
+        user_url=user_url,
+        author=ticket.created_by.username,
+        author_name=ticket.created_by.full_name
+    )
+    recipient_list = Account.objects.filter(
+        is_superuser=True).values_list('email', flat=True)
+    send_mail(
+        subject=subject,
+        message=msg,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=recipient_list,
+        html_message=html_msg
+    )
+
+
+def send_mail_to_superusers_ticket_closed(ticket: Ticket):
+    if ticket.closed_reason in ['1', '4']:
+        action = ticket.closed_reason == '1' and \
+            'canceló' or 'marcó como resuelto'
+        subject = f'Se {action} un ticket'
+        msg = messages['PLAIN_TICKET_CLOSED_FOR_SUPERUSER'].format(
+            action=action,
+            pk=ticket.pk,
+            subject=ticket.subject,
+            prioridad=ticket.get_priority_display(),
+            closed_reason=ticket.get_closed_reason_display(),
+            closed_message=ticket.closed_msg,
+            created_by=ticket.created_by.full_name
         )
-        url = reverse('tickets:detail', kwargs={'pk': instance.ticket.pk})
+        url = reverse('tickets:detail', kwargs={'pk': ticket.pk})
         base_url = 'https://www.sinergiasoftware.xyz'
         url = base_url + url
         user_url = reverse('account:employees-detail', kwargs={
-                           'pk': instance.created_by.pk})
+                           'pk': ticket.created_by.pk})
         user_url = base_url + user_url
-        html_msg = NEW_MESSAGE_IN_TICKET_HTML_BODY.format(
-            ticket_url=base_url,
-            ticket_subject=instance.ticket.subject,
-            author_url=user_url,
-            author_username=instance.created_by.username,
-            msg=instance.msg,
-            date=instance.date_created.strftime('%d/%m/%Y'),
-            time=instance.date_created.strftime('%H:%M:%S'),
+        html_msg = messages['HTML_TICKET_CLOSED_FOR_SUPERUSER'].format(
+            author1=ticket.created_by.full_name,
+            action=action,
+            url=url,
+            pk=ticket.pk,
+            subject=ticket.subject,
+            prioridad=ticket.get_priority_display(),
+            closed_reason=ticket.get_closed_reason_display(),
+            closed_message=ticket.closed_msg,
+            user_url=user_url,
+            author2=ticket.created_by.username,
+            author_name=ticket.created_by.full_name
         )
-        print("Quien creo el mensaje", instance.created_by)
-        print("Quien creo el ticket", instance.ticket.created_by)
-        if instance.created_by.pk == instance.ticket.created_by.pk:
-            recipient_list = Account.objects.filter(
-                is_superuser=True).values_list('email', flat=True)
-        else:
-            recipient_list = [instance.ticket.created_by.email]
-        print("recipient_list", recipient_list)
+        recipient_list = Account.objects.filter(
+            is_superuser=True).values_list('email', flat=True)
         send_mail(
             subject=subject,
             message=msg,
@@ -304,3 +249,77 @@ def notify_new_message_in_ticket(sender, instance, created, **kwargs):
             recipient_list=recipient_list,
             html_message=html_msg
         )
+
+
+def send_mail_to_users_ticket_closed(ticket: Ticket):
+    subject = 'Se cerró un ticket'
+    msg = messages['PLAIN_TICKET_CLOSED_FOR_USER'].format(
+        pk=ticket.pk,
+        subject=ticket.subject,
+        prioridad=ticket.get_priority_display(),
+        closed_reason=ticket.get_closed_reason_display(),
+        closed_message=ticket.closed_msg,
+        created_by=ticket.created_by.full_name
+    )
+    url = reverse('tickets:detail', kwargs={'pk': ticket.pk})
+    base_url = 'https://www.sinergiasoftware.xyz'
+    url = base_url + url
+    user_url = reverse('account:employees-detail', kwargs={
+        'pk': ticket.created_by.pk})
+    user_url = base_url + user_url
+    html_msg = messages['HTML_TICKET_CLOSED_FOR_USER'].format(
+        url=url,
+        pk=ticket.pk,
+        subject=ticket.subject,
+        prioridad=ticket.get_priority_display(),
+        closed_reason=ticket.get_closed_reason_display(),
+        closed_message=ticket.closed_msg,
+        user_url=user_url,
+        author=ticket.created_by.username,
+        author_name=ticket.created_by.full_name
+    )
+    recipient_list = [ticket.created_by.email]
+    send_mail(
+        subject=subject,
+        message=msg,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=recipient_list,
+        html_message=html_msg
+    )
+
+
+def send_mail_new_message_to_counterpart(message: TicketMessage):
+    subject = "Nuevo mensaje de ticket"
+    msg = messages['PLAIN_NEW_MESSAGE_IN_TICKET'].format(
+        ticket=message.ticket.subject,
+        user=message.created_by,
+        msg=message.msg,
+        date=message.date_created
+    )
+    url = reverse('tickets:detail', kwargs={'pk': message.ticket.pk})
+    base_url = 'https://www.sinergiasoftware.xyz'
+    url = base_url + url
+    user_url = reverse('account:employees-detail', kwargs={
+                       'pk': message.created_by.pk})
+    user_url = base_url + user_url
+    html_msg = messages['HTML_NEW_MESSAGE_IN_TICKET'].format(
+        ticket_url=base_url,
+        ticket_subject=message.ticket.subject,
+        author_url=user_url,
+        author_username=message.created_by.username,
+        msg=message.msg,
+        date=message.date_created.strftime('%d/%m/%Y'),
+        time=message.date_created.strftime('%H:%M:%S'),
+    )
+    if message.created_by.pk == message.ticket.created_by.pk:
+        recipient_list = Account.objects.filter(
+            is_superuser=True).values_list('email', flat=True)
+    else:
+        recipient_list = [message.ticket.created_by.email]
+    send_mail(
+        subject=subject,
+        message=msg,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=recipient_list,
+        html_message=html_msg
+    )

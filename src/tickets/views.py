@@ -199,7 +199,7 @@ class CreateTicketView(LoginRequiredMixin, CreateView):
 @allowed_users(roles=["Admins", "Level 1"])
 def ticket_detail_view(request, pk):
     if not request.user.is_superuser:
-        if not request.user.ticket_set.filter(pk=pk).exists():
+        if not request.user.tickets_created.filter(pk=pk).exists():
             return redirect('tickets:list')
     ticket = get_object_or_404(Ticket, pk=pk)
     attachments = Attachment.objects.filter(ticket__id=ticket.id)
@@ -263,10 +263,28 @@ def ajax_close_ticket_view(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk)
     if request.method == 'POST':
         closed_reason = request.POST.get('closed_reason', '')
+        closed_msg = request.POST.get('closed_message', '')
+        ticket.status = '3'
+        ticket.closed_reason = closed_reason
+        ticket.closed_msg = closed_msg
+        ticket.closed_by = request.user
+        ticket.save()
+        return JsonResponse({'status': 'ok'})
+    else:
+        return JsonResponse({"nothing to see": "this isn't happening"})
+
+
+@login_required(login_url='/login/')
+@only_superusers_allowed()
+def ajax_cancel_ticket_view(request, pk):
+    ticket = get_object_or_404(Ticket, pk=pk)
+    if request.method == 'POST':
+        closed_reason = request.POST.get('closed_reason', '')
         closed_msg = request.POST.get('closed_msg', '')
         ticket.status = '3'
         ticket.closed_reason = closed_reason
         ticket.closed_msg = closed_msg
+        ticket.closed_by = request.user
         ticket.save()
         return JsonResponse({'status': 'ok'})
     else:
@@ -288,13 +306,13 @@ AJAX_POST_SUCCESS_CHAT_ITEM = """
 
 
 @login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
+@allowed_users(roles=["Admins", ])
 def ajax_post_message(request, ticket_pk, user_pk, ):
     ticket = get_object_or_404(Ticket, pk=ticket_pk)
     user = get_object_or_404(Account, pk=user_pk)
     if request.method == 'POST':
         msg = TicketMessage(ticket=ticket, created_by=user,
-                            msg=request.POST.get('msg', ''))
+                            msg=request.POST.get('post-msg', ''))
         msg.save()
         return JsonResponse({'newItem': AJAX_POST_SUCCESS_CHAT_ITEM.format(
             author_detail_url=reverse(
@@ -306,3 +324,27 @@ def ajax_post_message(request, ticket_pk, user_pk, ):
         )})
     else:
         return JsonResponse({"nothing to see": "this isn't happening"})
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins", ])
+def cancel_ticket_view(request, pk):
+    ticket = get_object_or_404(Ticket, pk=pk)
+    ticket.status = '3'
+    ticket.closed_reason = '1'
+    ticket.closed_msg = 'Cancelado por usuario autor del ticket'
+    ticket.closed_by = request.user
+    ticket.save()
+    return redirect('tickets:detail', pk=ticket.pk)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins", ])
+def mark_resolved_ticket_view(request, pk):
+    ticket = get_object_or_404(Ticket, pk=pk)
+    ticket.status = '3'
+    ticket.closed_reason = '4'
+    ticket.closed_msg = 'Marcado como resuelto por usuario autor del ticket'
+    ticket.closed_by = request.user
+    ticket.save()
+    return redirect('tickets:detail', pk=ticket.pk)

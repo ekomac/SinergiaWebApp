@@ -8,6 +8,8 @@ from .views import (
     ajax_post_message,
     open_ticket_view,
     ajax_close_ticket_view,
+    cancel_ticket_view,
+    mark_resolved_ticket_view,
 )
 
 app_name = 'tickets'
@@ -18,9 +20,12 @@ urlpatterns = [
     path('add/', CreateTicketView.as_view(), name="add"),
     path('<int:pk>/', ticket_detail_view, name="detail"),
     path('<int:pk>/delete/', ticket_delete_view, name="delete"),
-    path('post-message/ticket/<int:ticket_pk>/user/<int:user_pk>/add',
+    path('<int:ticket_pk>/post-message/user/<int:user_pk>/add',
          ajax_post_message, name="post-message"),
-    path('open-ticket/<int:pk>/', open_ticket_view, name="open-ticket"),
-    path('close-ticket/<int:pk>/', ajax_close_ticket_view,
+    path('<int:pk>/open/', open_ticket_view, name="open-ticket"),
+    path('<int:pk>/close/', ajax_close_ticket_view,
          name="close-ticket"),
+    path('<int:pk>/cancel/', cancel_ticket_view, name="cancel-ticket"),
+    path('<int:pk>/mark-as-resolve/', mark_resolved_ticket_view,
+         name="mark-resolve-ticket"),
 ]
