@@ -58,7 +58,6 @@ function dismissAlert(post_url) {
 function getCookie(c_name) {
     /* If it has a cookie */
     if (document.cookie.length > 0) {
-        console.log(document.cookie);
         // Get the cookie for provided c_name
         c_start = document.cookie.indexOf(c_name + "=");
         // If cookie exists

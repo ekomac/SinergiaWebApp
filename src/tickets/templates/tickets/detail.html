@@ -39,10 +39,23 @@
                     <i class="bi bi-clock-history"></i>&nbsp;Creado el {{ ticket.date_created|date:"d/m/Y" }} a las
                     {{ ticket.date_created|date:"H:i" }}
                 </div>
-                {% if ticket.status != '3' %}
-                <a href="{% url 'tickets:delete' ticket.id %}" class="btn btn-danger btn-sm me-1"><i
-                        class="bi bi-trash me-1"></i>Eliminar</a>
-                {% endif %}
+
+                <div>
+                    {% if ticket.status == '1' and request.user.is_superuser %}
+                    <a href="{% url 'tickets:open-ticket' ticket.pk %}" class="btn btn-primary btn-sm me-1"><i
+                            class="bi bi-plus"></i>Abrir</a>
+                    {% endif %}
+
+                    {% if ticket.status == '2' and request.user.is_superuser %}
+                    <a href="{% url 'tickets:open-ticket' ticket.id %}" class="btn btn-secondary btn-sm me-1"><i
+                            class="bi bi-x me-1"></i>Cerrar</a>
+                    {% endif %}
+
+                    {% if ticket.status != '3' %}
+                    <a href="{% url 'tickets:delete' ticket.id %}" class="btn btn-danger btn-sm me-1"><i
+                            class="bi bi-trash me-1"></i>Eliminar</a>
+                    {% endif %}
+                </div>
 
             </div>
 
@@ -56,21 +69,19 @@
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-tag me-1"></i>Asunto
                             </td>
-                            <td>{{ ticket.subject }}</td>
+                            <td class="w-100">{{ ticket.subject }}</td>
                         </tr>
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-chat-left-text me-1"></i>
                                 Mensaje</td>
-                            <td>
-                                {{ ticket.msg }}
-                            </td>
+                            <td class="w-100">{{ ticket.msg }}</td>
                         </tr>
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-bell me-1"></i>Prioridad
                             </td>
-                            <td>
+                            <td class="w-100">
                                 {% if ticket.priority == '1' %}
                                 <span class="badge rounded-pill bg-danger fw-5">{{ ticket.get_priority_display }}</span>
                                 {% elif ticket.priority == '2' %}
@@ -86,7 +97,7 @@
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-broadcast me-1"></i>Estado
                             </td>
-                            <td>
+                            <td class="w-100">
                                 <span class="badge"
                                     style="background-color:{% if ticket.status == '1' %}#C0BCAE{% elif ticket.status == '2' %}#817D6F{% else %}#212529;{% endif %};">
                                     {{ ticket.get_status_display }}
@@ -99,16 +110,14 @@
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-x-lg me-1"></i>Motivo de
                                 cierre</td>
-                            <td>{{ ticket.get_closed_reason_display }}</td>
+                            <td class="w-100">{{ ticket.get_closed_reason_display }}</td>
                         </tr>
 
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-chat-left-text me-1"></i>Mensaje de cierre
                             </td>
-                            <td>
-                                {{ ticket.closed_msg }}
-                            </td>
+                            <td class="w-100">{{ ticket.closed_msg }}</td>
                         </tr>
                         {% endif %}
 
@@ -119,7 +128,7 @@
                             <td class="bg-dark fw-bolder w-auto" style="color: white;"><i
                                     class="bi bi-paperclip me-1"></i>Adjuntos
                             </td>
-                            <td>
+                            <td class="w-100">
                                 {% for url, name in attachments %}
                                 <a href="{{ url }}">{{ name }}</a><br>
                                 {% endfor %}
@@ -136,6 +145,137 @@
         </div>
     </div>
 
+    {% if ticket.status == '2' or ticket.status == '3'%}
+
+    <!-- start CHAT -->
+    <div class="card flex-fill shadow-lg mt-3">
+        <!-- start CARD HEADER -->
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                <i class="bi bi-chat-dots me-1"></i>Mensajes
+            </div>
+        </div>
+        <!-- end CARD HEADER -->
+
+
+        <div class="card-body px-2 pt-0 pb-3">
+            <div id="messages-list">
+
+                {% if chats %}
+                {% for chat in chats %}
+                <div class="card mt-3">
+                    <div class="card-header px-2 py-1 d-flex justify-content-between">
+                        <div class="d-flex flex-row">
+                            <div><a
+                                    href="{% url 'account:employees-detail' pk=chat.created_by.pk %}">{{ chat.created_by.full_name }}</a>
+                            </div>
+                            <div class="text-muted">&nbsp;dijo:</div>
+                        </div>
+
+                        <div class="text-muted">El {{ chat.date_created|date:"d/m/Y" }} a
+                            las {{ chat.date_created|date:"H:i" }}</div>
+                    </div>
+                    <div class="card-body p-2">
+                        {{ chat.msg }}
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+
+            </div>
+            <h5 id="messageInputTitleHeader" class="{% if chats %}mt-4{% else %}mt-2{% endif %}">
+                <div id="titleResponder" class="{% if not chats %}d-none{% endif %}">Responder:</div>
+                <div id="titleSinMensajes" class="{% if chats %}d-none{% endif %}">Sin mensajes todavía. Escribe uno:
+                </div>
+            </h5>
+            <form action="tickets:post-message" method='POST' id="new_msg_form" name="new_msg_form" target="_top"
+                enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-1">
+                    <textarea class="form-control" id="post-msg" name="post-msg" rows="3"></textarea>
+                </div>
+                <div class="mt-2">
+
+                    <button id="loadingButton" class="btn btn-primary d-none" type="submit" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Enviando...
+                    </button>
+
+                    <button id="sendMessageButton" class="btn btn-primary" type="submit">Enviar</button>
+
+                    <div id="errorQueue"></div>
+                </div>
+            </form>
+            <div id="results"></div>
+        </div>
+    </div>
+    <!-- end CHAT -->
+
+    {% endif %}
+
 </div>
+
+<script>
+    const ticket_id = parseInt("{{ticket.id}}", 10);
+    $(document).ready(function () {
+        $('#new_msg_form').submit(function (e) {
+            $('#msgNotSent').remove();
+            e.preventDefault();
+            create_message();
+        });
+    });
+
+    function create_message() {
+        console.log("Create post is working!");
+        var msg = $('#post-msg').val();
+        $('#sendMessageButton').toggleClass('d-none');
+        $('#loadingButton').toggleClass('d-none');
+        $.ajax({
+            url: "{% url 'tickets:post-message' ticket_pk=ticket.id user_pk=request.user.pk %}", // the endpoint
+            type: "POST", // http method
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            data: {
+                msg: $('#post-msg').val()
+            }, // data sent with the post request
+
+            // handle a successful response
+            success: function (json) {
+                $('#post-msg').val(''); // remove the value from the input
+                $('#messages-list').append(json.newItem);
+                $("#titleResponder").removeClass('d-none');
+                $('#messageInputTitleHeader').removeClass('mt-2');
+                $('#messageInputTitleHeader').addClass('mt-4');
+                $("#titleSinMensajes").addClass('d-none');
+                sendingMessage(true);
+            },
+
+            // handle a non-successful response
+            error: function (xhr, errmsg, err) {
+                $('#msgNotSent').remove();
+                const errorHtml = `
+                <div id="msgNotSent" class="mt-2 mb-0 alert alert-danger alert-dismissible fade show" role="alert">
+                    Ocurrió un error inesperado.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                `;
+                $('#errorQueue').append(errorHtml);
+                sendingMessage(false);
+            }
+        });
+    }
+
+    function sendingMessage(sending = true) {
+        $('#sendMessageButton').toggleClass('d-none');
+        $('#loadingButton').toggleClass('d-none');
+        document.getElementById("not-header").scrollTo({
+            bottom: 0,
+            behavior: 'smooth'
+        });
+        document.body.scrollBottom = 0; // For Safari
+        document.documentElement.scrollBottom = 0; // For Chrome, Firefox, IE and Opera
+    }
+</script>
 
 {% endblock content %}

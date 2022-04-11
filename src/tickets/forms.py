@@ -1,5 +1,5 @@
 from django import forms
-from .models import Attachment, Ticket
+from .models import Attachment, Ticket, TicketMessage
 
 
 class CreateTicketForm(forms.ModelForm):
@@ -32,3 +32,27 @@ class CreateTicketForm(forms.ModelForm):
                 Attachment(file=file, ticket=ticket).save()
         # Return the ticket instance (just saved or previously saved)
         return ticket
+
+
+class CreateMessageForm(forms.ModelForm):
+
+    class Meta:
+        model = TicketMessage
+        fields = ['created_by', 'msg', 'ticket']
+        widgets = {
+            'msg': forms.TextInput(attrs={
+                'id': 'post-msg',
+                'required': True,
+                'placeholder': 'Escribí tu mensaje...'
+            }),
+        }
+
+
+class CloseTicketForm(forms.ModelForm):
+
+    class Meta:
+        model = Ticket
+        fields = ['status']
+        widgets = {
+            'status': forms.Select(attrs={'class': 'form-select'}),
+        }

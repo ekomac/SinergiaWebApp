@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from tickets.models import Attachment, Ticket
+from tickets.models import Attachment, Ticket, TicketMessage
 
 
 class AttachmentInline(admin.TabularInline):
@@ -16,4 +16,10 @@ class TicketAdmin(admin.ModelAdmin):
     fieldsets = ()
 
 
+class TicketMessageAdmin(admin.ModelAdmin):
+    list_display = ('date_created', 'created_by', 'msg', 'ticket',)
+    search_fields = ('msg',)
+
+
 admin.site.register(Ticket, TicketAdmin)
+admin.site.register(TicketMessage, TicketMessageAdmin)

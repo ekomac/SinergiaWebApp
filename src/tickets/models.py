@@ -95,6 +95,36 @@ class Ticket(models.Model):
         )
 
 
+class TicketMessage(models.Model):
+
+    date_created = models.DateTimeField(
+        auto_now_add=True, verbose_name="Creación")
+    created_by = models.ForeignKey(
+        'account.Account',
+        on_delete=models.SET_NULL,
+        verbose_name="Autor",
+        blank=True, null=True, default=None)
+    msg = models.TextField(blank=False, null=False, verbose_name="Mensaje")
+    ticket = models.ForeignKey(
+        'tickets.Ticket',
+        blank=False,
+        null=False,
+        verbose_name="Ticket",
+        on_delete=models.CASCADE
+    )
+
+    def __str__(self):
+        return 'Mensaje de {user} en {ticket}'.format(
+            user=self.created_by.username,
+            ticket=self.ticket.subject
+        )
+
+    class Meta:
+        ordering = ['date_created']
+        verbose_name = "Mensaje"
+        verbose_name_plural = "Mensajes"
+
+
 @receiver(pre_delete, sender=Ticket)
 def ticket_delete(sender, instance, **kwargs):
     """
@@ -104,7 +134,7 @@ def ticket_delete(sender, instance, **kwargs):
         file.delete(False)
 
 
-HTML_BODY = """<h1>Se ha creado un <a href='{url}'>nuevo ticket</a> en el sistema.</h1>
+NEW_TICKET_HTML_BODY = """<h1>Se ha creado un <a href='{url}'>nuevo ticket</a> en el sistema.</h1>
 <h3>Ticket #{pk}: {subject} con prioridad {prioridad}</h3>
 <p><b>Mensaje</b>: {msg}</p>
 <p><b>Autor</b>: <a href='{user_url}'>{author} ({author_name})</a></p>
@@ -112,7 +142,7 @@ HTML_BODY = """<h1>Se ha creado un <a href='{url}'>nuevo ticket</a> en el sistem
 
 
 @receiver(post_save, sender=Ticket)
-def notify_superusers(sender, instance, created, **kwargs):
+def notify_new_ticket_to_superusers(sender, instance, created, **kwargs):
     if created:
         subject = 'Nuevo ticket en el sistema'
         msg = """Se ha creado un nuevo ticket en el sistema.\n\n
@@ -131,7 +161,7 @@ Autor: {created_by}\n\n""".format(
         user_url = reverse('account:employees-detail', kwargs={
                            'pk': instance.created_by.pk})
         user_url = base_url + user_url
-        html_msg = HTML_BODY.format(
+        html_msg = NEW_TICKET_HTML_BODY.format(
             url=url,
             pk=instance.pk,
             subject=instance.subject,
@@ -150,3 +180,75 @@ Autor: {created_by}\n\n""".format(
             recipient_list=recipient_list,
             html_message=html_msg
         )
+
+
+@receiver(post_save, sender=Ticket)
+def add_message_to_chat(sender, instance, created, **kwargs):
+    if created:
+        ticket_message = TicketMessage(
+            created_by=instance.created_by,
+            msg=instance.msg,
+            ticket=instance
+        )
+        ticket_message.save()
+
+
+NEW_MESSAGE_IN_TICKET = (
+    'Se ha registrado un nuevo mensaje en el ticket "{ticket}".\n\n'
+    '{user} escribió:\n'
+    '"{msg}"\n\n'
+    '{date}\n\n'
+)
+
+NEW_MESSAGE_IN_TICKET_HTML_BODY = (
+    '<h1>Se ha registrado un nuevo mensaje en el ticket '
+    '<a href="{ticket_url}">{ticket_subject}</a>.</h1>'
+    '<div style="border: 1px solid grey; padding: 1rem; margin: auto;">'
+    '<p><a href="{author_url}">@{author_username}</a> escribió:</p>'
+    '<p>"{msg}"</p>'
+    '<p>El {date} a las {time}</p>'
+    '</div>'
+)
+
+
+@receiver(post_save, sender=TicketMessage)
+def notify_new_message_in_ticket(sender, instance, created, **kwargs):
+    if created:
+        subject = "Nuevo mensaje de ticket"
+        msg = NEW_MESSAGE_IN_TICKET.format(
+            ticket=instance.ticket.subject,
+            user=instance.created_by,
+            msg=instance.msg,
+            date=instance.date_created
+        )
+        url = reverse('tickets:detail', kwargs={'pk': instance.ticket.pk})
+        base_url = 'https://www.sinergiasoftware.xyz'
+        url = base_url + url
+        user_url = reverse('account:employees-detail', kwargs={
+                           'pk': instance.created_by.pk})
+        user_url = base_url + user_url
+        html_msg = NEW_MESSAGE_IN_TICKET_HTML_BODY.format(
+            ticket_url=base_url,
+            ticket_subject=instance.ticket.subject,
+            author_url=user_url,
+            author_username=instance.created_by.username,
+            msg=instance.msg,
+            date=instance.date_created.strftime('%d/%m/%Y'),
+            time=instance.date_created.strftime('%H:%M:%S'),
+        )
+        print("Quien creo el mensaje", instance.created_by)
+        print("Quien creo el ticket", instance.ticket.created_by)
+        if instance.created_by.pk == instance.ticket.created_by.pk:
+            recipient_list = Account.objects.filter(
+                is_superuser=True).values_list('email', flat=True)
+        else:
+            recipient_list = [instance.ticket.created_by.email]
+        print("recipient_list", recipient_list)
+        result = send_mail(
+            subject=subject,
+            message=msg,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=recipient_list,
+            html_message=html_msg
+        )
+        print(result)

@@ -1,6 +1,7 @@
 # Basic Python
 from typing import List, Tuple
 from datetime import datetime, timedelta
+from django.http import JsonResponse
 import unidecode
 
 # Django
@@ -13,9 +14,14 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView
 
 # Project
-from account.decorators import allowed_users, allowed_users_in_class_view
-from tickets.forms import CreateTicketForm
-from tickets.models import Attachment, Ticket
+from account.decorators import (
+    allowed_users,
+    allowed_users_in_class_view,
+    only_superusers_allowed
+)
+from account.models import Account
+from tickets.forms import CloseTicketForm, CreateTicketForm
+from tickets.models import Attachment, Ticket, TicketMessage
 from utils.alerts.views import delete_alert_and_redirect
 
 
@@ -198,6 +204,7 @@ def ticket_detail_view(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk)
     attachments = Attachment.objects.filter(ticket__id=ticket.id)
     attachments_count = attachments.count()
+    chats = TicketMessage.objects.filter(ticket__id=ticket.id)
     context = {
         'ticket': ticket,
         'selected_tab': 'tickets-tab',
@@ -205,6 +212,7 @@ def ticket_detail_view(request, pk):
         'attachments': [(
             attachment.file.url, truncate_start(attachment.file.url)
         ) for attachment in attachments],
+        'chats': chats
     }
     return render(request, 'tickets/detail.html', context)
 
@@ -238,3 +246,64 @@ def ticket_delete_view(request, pk):
         'selected_tab': 'tickets-tab'
     }
     return render(request, 'tickets/delete.html', context)
+
+
+@login_required(login_url='/login/')
+@only_superusers_allowed()
+def open_ticket_view(request, pk):
+    ticket = get_object_or_404(Ticket, pk=pk)
+    ticket.status = '2'
+    ticket.save()
+    return redirect('tickets:detail', pk=ticket.pk)
+
+
+@login_required(login_url='/login/')
+@only_superusers_allowed()
+def close_ticket_view(request, pk):
+    context = {}
+    ticket = get_object_or_404(Ticket, pk=pk)
+    form = CloseTicketForm(instance=ticket)
+    if request.method == 'POST':
+        form = CloseTicketForm(request.POST, instance=ticket)
+        if form.is_valid():
+            ticket.status = '3'
+            ticket.save()
+            # Acá hay que enviar la notif verde de create success, ponele
+            return redirect('tickets:detail', pk=ticket.pk)
+    context['form'] = CloseTicketForm(instance=ticket)
+    return render(request, 'tickets/close.html', context)
+
+
+AJAX_POST_SUCCESS_CHAT_ITEM = """
+<div class="card mt-3">
+    <div class="card-header px-2 py-1 d-flex justify-content-between">
+        <div class="d-flex flex-row">
+            <div><a href="{author_detail_url}">{author_full_name}</a></div>
+            <div class="text-muted">&nbsp;dijo:</div>
+        </div>
+        <div class="text-muted">El {date_created} a las {hour_created}</div>
+    </div>
+    <div class="card-body p-2">{msg}</div>
+</div>
+"""
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def ajax_post_message(request, ticket_pk, user_pk, ):
+    ticket = get_object_or_404(Ticket, pk=ticket_pk)
+    user = get_object_or_404(Account, pk=user_pk)
+    if request.method == 'POST':
+        msg = TicketMessage(ticket=ticket, created_by=user,
+                            msg=request.POST.get('msg', ''))
+        msg.save()
+        return JsonResponse({'newItem': AJAX_POST_SUCCESS_CHAT_ITEM.format(
+            author_detail_url=reverse(
+                'account:employees-detail', kwargs={'pk': user.pk}),
+            author_full_name=user.full_name,
+            date_created=msg.date_created.strftime('%d/%m/%Y'),
+            hour_created=msg.date_created.strftime('%H:%M'),
+            msg=msg.msg
+        )})
+    else:
+        return JsonResponse({"nothing to see": "this isn't happening"})

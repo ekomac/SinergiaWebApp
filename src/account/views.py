@@ -282,8 +282,6 @@ def update_user_view(request, pk):
 def employee_detail_view(request, pk):
     context = {}
     account = get_object_or_404(Account, pk=pk)
-    if account.is_superuser:
-        return redirect('account:employees-list')
     context['account'] = account
     context['selected_tab'] = 'accounts-tab'
     context['envios'] = Envio.objects.filter(

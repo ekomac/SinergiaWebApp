@@ -25,3 +25,13 @@ def allowed_users_in_class_view(roles=[]):
             raise PermissionDenied("No estás autorizado")
         return wrapper_func
     return decorator
+
+
+def only_superusers_allowed():
+    def decorator(view_func):
+        def wrapper_func(request, *args, **kwargs):
+            if request.user.is_superuser:
+                return view_func(request, *args, **kwargs)
+            raise PermissionDenied("No estás autorizado")
+        return wrapper_func
+    return decorator
