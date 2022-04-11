@@ -270,7 +270,6 @@ def success_bulk_create_envios_view(request, pk):
     else:
         envios, unused_flex_ids = bulk_create_envios(bulk_load)
         bulk_load.unused_flex_ids = ", ".join(unused_flex_ids)
-        print("unused_flex_ids", bulk_load.unused_flex_ids)
         bulk_load.envios_were_created = True
     bulk_load.load_status = BulkLoadEnvios.LOADING_STATUS_FINISHED
     bulk_load.save()
