@@ -183,6 +183,8 @@
                 {% endif %}
 
             </div>
+
+            {% if ticket.status != '3' %}
             <h5 id="messageInputTitleHeader" class="{% if chats %}mt-4{% else %}mt-2{% endif %}">
                 <div id="titleResponder" class="{% if not chats %}d-none{% endif %}">Responder:</div>
                 <div id="titleSinMensajes" class="{% if chats %}d-none{% endif %}">Sin mensajes todavía. Escribe uno:
@@ -207,6 +209,7 @@
                 </div>
             </form>
             <div id="results"></div>
+            {% endif %}
         </div>
     </div>
     <!-- end CHAT -->
