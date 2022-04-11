@@ -30,6 +30,6 @@
             {% endif %}
         </span>
     </td>
-    <td>{{ obj.subject }}</td>
+    <td>{{ obj.subject | truncatechars:50 }}</td>
     <td>{{ obj.msg | truncatechars:50 }}</td>
 </tr>
