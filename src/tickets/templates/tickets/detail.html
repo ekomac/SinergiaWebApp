@@ -255,7 +255,11 @@
                         </div>
                     </div>
                     <div class="card-body p-2">
+                        {% if chat.created_by.is_superuser %}
                         {{ chat.msg | safe }}
+                        {% else %}
+                        {{ chat.msg }}
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
