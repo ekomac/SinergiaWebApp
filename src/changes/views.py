@@ -49,4 +49,8 @@ class ChangeListView(CompleteListView, LoginRequiredMixin):
 def detail_view(request, pk):
     if request.method == 'GET':
         change = get_object_or_404(Change, pk=pk)
-        return render(request, 'changes/detail.html', {'obj': change})
+        context = {
+            'obj': change,
+            'selected_tab': 'changes-tab',
+        }
+        return render(request, 'changes/detail.html', context)

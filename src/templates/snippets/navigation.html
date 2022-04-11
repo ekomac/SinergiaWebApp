@@ -406,7 +406,7 @@
 
             <!-- START changes -->
             {% if request.user|has_group:"Admins" %}
-            <li class="nav-item li-navigation">
+            <li class="nav-item {% if selected_tab == 'changes-tab' %}activetab{% endif %}  li-navigation">
                 <a href="{% url 'changes:list' %}" class="nav-link tab">
                     <i class="bi bi-newspaper"></i> Novedades
                 </a>
