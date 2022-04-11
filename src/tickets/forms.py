@@ -46,13 +46,3 @@ class CreateMessageForm(forms.ModelForm):
                 'placeholder': 'Escribí tu mensaje...'
             }),
         }
-
-
-class CloseTicketForm(forms.ModelForm):
-
-    class Meta:
-        model = Ticket
-        fields = ['status']
-        widgets = {
-            'status': forms.Select(attrs={'class': 'form-select'}),
-        }

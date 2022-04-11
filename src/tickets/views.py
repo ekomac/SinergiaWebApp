@@ -20,7 +20,7 @@ from account.decorators import (
     only_superusers_allowed
 )
 from account.models import Account
-from tickets.forms import CloseTicketForm, CreateTicketForm
+from tickets.forms import CreateTicketForm
 from tickets.models import Attachment, Ticket, TicketMessage
 from utils.alerts.views import delete_alert_and_redirect
 
@@ -259,19 +259,18 @@ def open_ticket_view(request, pk):
 
 @login_required(login_url='/login/')
 @only_superusers_allowed()
-def close_ticket_view(request, pk):
-    context = {}
+def ajax_close_ticket_view(request, pk):
     ticket = get_object_or_404(Ticket, pk=pk)
-    form = CloseTicketForm(instance=ticket)
     if request.method == 'POST':
-        form = CloseTicketForm(request.POST, instance=ticket)
-        if form.is_valid():
-            ticket.status = '3'
-            ticket.save()
-            # Acá hay que enviar la notif verde de create success, ponele
-            return redirect('tickets:detail', pk=ticket.pk)
-    context['form'] = CloseTicketForm(instance=ticket)
-    return render(request, 'tickets/close.html', context)
+        closed_reason = request.POST.get('closed_reason', '')
+        closed_msg = request.POST.get('closed_msg', '')
+        ticket.status = '3'
+        ticket.closed_reason = closed_reason
+        ticket.closed_msg = closed_msg
+        ticket.save()
+        return JsonResponse({'status': 'ok'})
+    else:
+        return JsonResponse({"nothing to see": "this isn't happening"})
 
 
 AJAX_POST_SUCCESS_CHAT_ITEM = """

@@ -17,6 +17,66 @@
         color: red;
     }
 </style>
+
+
+
+
+{% if request.user.is_superuser %}
+{% block modal_content %}
+<div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="baseModal" tabindex="-1"
+    aria-labelledby="baseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filtersModalLabel">Cancelar el envío</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form action="tickets:close-ticket" method='POST' id="close_ticket_form" name="close_ticket_form"
+                    target="_top" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="row g-2 mt-2">
+                        <div class="col">
+                            <label for="closed_reason" class="form-label">Motivo de cierre</label>
+                            <select id="closed_reason" name="closed_reason" class="form-select"
+                                aria-label="status selection" required>
+                                <option value="">---</option>
+                                <option value="1">Cancelado</option>
+                                <option value="2">Irrelevante</option>
+                                <option value="3">Innecesario</option>
+                                <option value="4">Resuelto</option>
+                                <option value="5">Existe otro ticket similar</option>
+                                <option value="6">No se pudo resolver</option>
+                            </select>
+
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mt-2">
+                        <div class="col">
+                            <label for="closed_message" class="form-label">Mensaje de cierre</label>
+                            <textarea class="form-control" id="closed_message" name="closed_message" rows="5"
+                                required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mt-2">
+                        <button id="closeTicketButton" class="btn btn-primary" type="submit">Cerrar ticket</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock modal_content %}
+{% endif %}
+
+
+
+
 <div class="col-md-12 col-xl-7 col-xxl-6 d-flex-block">
     <div class="card flex-fill shadow-lg">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -47,7 +107,8 @@
                     {% endif %}
 
                     {% if ticket.status == '2' and request.user.is_superuser %}
-                    <a href="{% url 'tickets:open-ticket' ticket.id %}" class="btn btn-secondary btn-sm me-1"><i
+                    <a id="closeTicketButtonToggleModal" href="{% url 'tickets:open-ticket' ticket.id %}"
+                        class="btn btn-secondary btn-sm me-1" data-bs-toggle="modal" data-bs-target="#baseModal"><i
                             class="bi bi-x me-1"></i>Cerrar</a>
                     {% endif %}
 
@@ -145,7 +206,7 @@
         </div>
     </div>
 
-    {% if ticket.status == '2' or ticket.status == '3'%}
+    {% if ticket.status == '2' or ticket.status == '3' and chats%}
 
     <!-- start CHAT -->
     <div class="card flex-fill shadow-lg mt-3">
@@ -185,31 +246,37 @@
             </div>
 
             {% if ticket.status != '3' %}
-            <h5 id="messageInputTitleHeader" class="{% if chats %}mt-4{% else %}mt-2{% endif %}">
-                <div id="titleResponder" class="{% if not chats %}d-none{% endif %}">Responder:</div>
-                <div id="titleSinMensajes" class="{% if chats %}d-none{% endif %}">Sin mensajes todavía. Escribe uno:
-                </div>
-            </h5>
-            <form action="tickets:post-message" method='POST' id="new_msg_form" name="new_msg_form" target="_top"
-                enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="mb-1">
-                    <textarea class="form-control" id="post-msg" name="post-msg" rows="3"></textarea>
-                </div>
-                <div class="mt-2">
+            <div id="sengindMessageDiv">
 
-                    <button id="loadingButton" class="btn btn-primary d-none" type="submit" disabled>
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        Enviando...
-                    </button>
+                <h5 id="messageInputTitleHeader" class="{% if chats %}mt-4{% else %}mt-2{% endif %}">
+                    <div id="titleResponder" class="{% if not chats %}d-none{% endif %}">Responder:</div>
+                    <div id="titleSinMensajes" class="{% if chats %}d-none{% endif %}">Sin mensajes todavía. Escribe
+                        uno:
+                    </div>
+                </h5>
+                <form action="tickets:post-message" method='POST' id="new_msg_form" name="new_msg_form" target="_top"
+                    enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-1">
+                        <textarea class="form-control" id="post-msg" name="post-msg" rows="3"></textarea>
+                    </div>
+                    <div class="mt-2">
 
-                    <button id="sendMessageButton" class="btn btn-primary" type="submit">Enviar</button>
+                        <button id="loadingButton" class="btn btn-primary d-none" type="submit" disabled>
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Enviando...
+                        </button>
 
-                    <div id="errorQueue"></div>
-                </div>
-            </form>
-            <div id="results"></div>
+                        <button id="sendMessageButton" class="btn btn-primary" type="submit">Enviar</button>
+
+                        <div id="errorQueue"></div>
+                    </div>
+                </form>
+                <div id="results"></div>
+
+            </div>
             {% endif %}
+
         </div>
     </div>
     <!-- end CHAT -->
@@ -226,10 +293,39 @@
             e.preventDefault();
             create_message();
         });
+        $('#close_ticket_form').submit(function (e) {
+            e.preventDefault();
+            closeTicket();
+        });
     });
 
+    function closeTicket() {
+        $.ajax({
+            url: "{% url 'tickets:close-ticket' pk=ticket.id %}", // the endpoint
+            type: "POST", // http method
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            data: {
+                closed_reason: $('#closed_reason').val(),
+                closed_msg: $('#closed_message').val(),
+            }, // data sent with the post request
+
+            // handle a successful response
+            success: function (json) {
+                $('#closeTicketButtonToggleModal').addClass('d-none');
+                $('#sengindMessageDiv').addClass('d-none');
+                window.location.href = "{% url 'tickets:detail' pk=ticket.id %}";
+            },
+
+            // handle a non-successful response
+            error: function (xhr, errmsg, err) {
+                alert("Ocurrió un error : " + error + ". Message: " + errmsg);
+            }
+        });
+    }
+
     function create_message() {
-        console.log("Create post is working!");
         var msg = $('#post-msg').val();
         $('#sendMessageButton').toggleClass('d-none');
         $('#loadingButton').toggleClass('d-none');

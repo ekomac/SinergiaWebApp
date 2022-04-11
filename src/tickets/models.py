@@ -82,7 +82,7 @@ class Ticket(models.Model):
         max_length=1, choices=STATUS_CHOICES, default='1',
         blank=False, null=False, verbose_name="Estado")
     closed_reason = models.CharField(
-        max_length=1, choices=CLOSED_REASONS, default='6',
+        max_length=1, choices=CLOSED_REASONS,
         blank=True, null=True, verbose_name="Razón de cierre")
     closed_msg = models.TextField(
         blank=True, null=True, verbose_name="Mensaje de cierre")
