@@ -134,7 +134,7 @@
                             <td class="w-100">
                                 <!-- NEW OR STILL -->
                                 {% if object.status == 'N' or object.status == 'S' %}
-                                En depósito {{ object.deposit.name }} ({{ object.deposit.client.name }})
+                                En depósito "{{ object.deposit.name }}" en <i>{{ object.deposit.full_address }}</i> {% if object.deposit.client %}de {{ object.deposit.client.name }}{% endif %}
 
                                 <!-- MOVING -->
                                 {% elif object.status == 'M' %}
