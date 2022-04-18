@@ -26,5 +26,6 @@ class Change(models.Model):
         return self.name
 
     class Meta:
+        ordering = ['-date_created']
         verbose_name = 'Cambio'
         verbose_name_plural = 'Cambios'
