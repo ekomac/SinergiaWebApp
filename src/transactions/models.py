@@ -19,17 +19,19 @@ class Transaction(models.Model):
     CATEGORIES = (
         ('0', 'Administrativo'),
         ('1', 'Alquiler'),
+        ('12', 'Cobro por cuenta y orden de terceros'),
         ('2', 'Compras'),
         ('3', 'Facturacion'),
         ('4', 'Impuestos'),
         ('5', 'Insumos'),
         ('6', 'Mantenimiento'),
+        ('14', 'Pagos'),
         ('7', 'Publicidad'),
+        ('13', 'Retiros de caja en efectivo'),
         ('8', 'Seguros'),
         ('9', 'Servicios'),
         ('10', 'Sueldos'),
         ('11', 'Otros'),
-        ('12', 'Cobro por cuenta y orden de terceros'),
     )
 
     date_created = models.DateTimeField(
