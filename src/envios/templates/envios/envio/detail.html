@@ -1,5 +1,8 @@
 {% extends 'base_system.html' %}
 
+{% block modal_content %}
+{% endblock modal_content %}
+
 {% block content %}
 <style>
     .table thead th {
@@ -113,21 +116,43 @@
                     <!-- start CHANGE STATE ACTIONS -->
 
                     {% if envio.status == 'N' %}
-                    <a href="{% url 'envios:envio-change-state' pk=object.id action='M' %}"
+                    <a href="{% url 'envios:envio-withdraw' pk=object.id %}"
                         class="btn btn-outline-warning btn-sm me-1 mt-1"><i class="bi bi-truck me-1"></i>Retirar</a>
                     {% endif %}
 
                     {% if envio.status == 'S' %}
-                    <a href="{% url 'envios:envio-change-state' pk=object.id action='M' %}"
+                    <a href="{% url 'envios:envio-withdraw' pk=object.id %}"
                         class="btn btn-outline-warning btn-sm me-1 mt-1"><i class="bi bi-truck me-1"></i>Retirar</a>
                     {% endif %}
 
                     {% if envio.status == 'M' %}
-                    <a href="{% url 'envios:envio-change-state' pk=object.id action='D' %}"
-                        class="btn btn-outline-success btn-sm me-1 mt-1"><i class="bi bi-check2 me-1"></i>Entregar</a>
-                    <a href="{% url 'envios:envio-change-state' pk=object.id action='S' %}"
-                        class="btn btn-outline-success btn-sm me-1 mt-1"><i
-                            class="bi bi-truck-flatbed me-1"></i>Depositar</a>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary btn-sm dropdown-toggle me-1 mt-1" type="button"
+                            id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                            Acciones disponibles
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                            <li><a href="{% url 'envios:envio-deposit' pk=object.id %}" class="dropdown-item"><i
+                                        class="bi bi-truck-flatbed me-1"></i>Depositar</a></li>
+                            <li>
+                                <a href="{% url 'envios:envio-transfer' pk=object.id %}" class="dropdown-item"><i
+                                        class="bi bi-arrow-left-right me-1"></i>Transferir</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'envios:envio-devolver' pk=object.id %}" class="dropdown-item"><i
+                                        class="bi bi-arrow-return-left me-1"></i>Devolver</a>
+                            </li>
+                            <li class="dropdown-divider"></li>
+                            <li>
+                                <a href="{% url 'envios:envio-delivery-attempt' pk=object.id %}"
+                                    class="dropdown-item"><i class="bi bi-x me-1"></i>No se puedo entregar</a>
+                            </li>
+                            <li>
+                                <a href="{% url 'envios:envio-successful-delivery' pk=object.id %}"
+                                    class="dropdown-item"><i class="bi bi-check2 me-1"></i>Entregado</a>
+                            </li>
+                        </ul>
+                    </div>
                     {% endif %}
 
                     <!-- end CHANGE STATE ACTIONS -->
@@ -195,7 +220,8 @@
                         {% endif %}
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
-                                    class="bi bi-card-list"></i> Detalle
+                                    class="bi bi-card-list"></i>
+                                Detalle
                             </td>
                             <td class="w-100">{{ readable_detail }}</td>
                         </tr>
@@ -236,7 +262,8 @@
                         {% if object.phone != None and object.phone != '' %}
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
-                                    class="bi bi-telephone"></i> Teléfono
+                                    class="bi bi-telephone"></i>
+                                Teléfono
                             </td>
                             <td class="w-100">{{ object.receiver.phone }}</td>
                         </tr>

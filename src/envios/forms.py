@@ -1,5 +1,8 @@
+from django.core.files.storage import FileSystemStorage
 import hashlib
+import os
 from django import forms
+from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from account.models import Account
 from deposit.models import Deposit
@@ -9,6 +12,12 @@ from envios.bulkutil.extractor import Extractor
 from envios.models import BulkLoadEnvios, Envio
 from clients.models import Client
 from places.models import Town
+from tracking.models import TrackingMovement
+from tracking.utils.delivery import delivery_attempt
+from tracking.utils.deposit import deposit_by_envios_tracking_ids
+from tracking.utils.devolver import devolver_by_envios_tracking_ids
+from tracking.utils.transfer import transfer_by_envios_tracking_ids
+from tracking.utils.withdraw import withdraw_by_envios_tracking_ids
 
 
 class BulkLoadEnviosForm(forms.ModelForm):
@@ -475,21 +484,65 @@ class EnviosIdsSelection(forms.Form):
 
 class BaseActionForm(forms.Form):
 
-    def __init__(self, envio: Envio, *args, **kwargs):
+    accept_risks = forms.BooleanField(
+        label='Acepto los riesgos que implica esta operación',
+        widget=forms.CheckboxInput(
+            attrs={
+                'class': 'form-check-input',
+                'type': 'checkbox',
+            })
+    )
+
+    def clean_accept_risks(self):
+        print("validando...")
+        accept_risks = self.cleaned_data['accept_risks']
+        print(accept_risks, "accept_risks")
+        if accept_risks is False:
+            raise forms.ValidationError(
+                'Tenés que aceptar los riesgos para continuar.')
+        return accept_risks
+
+    def __init__(self, user: Account, envio: Envio, *args, **kwargs):
+        self.user = user
         self.envio = envio
         super(BaseActionForm, self).__init__(*args, **kwargs)
+
+    def perform_action(self) -> TrackingMovement:
+        """Returns the tracking movement created by the action.
+
+        Raises:
+            NotImplementedError: If the action is not implemented.
+
+        Returns:
+            TrackingMovement: The tracking movement created by the action.
+        """
+        raise NotImplementedError("Subclass must implement perform_action()")
+
+
+class CarrierModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return obj.full_name_formal
 
 
 class ActionWithdrawForm(BaseActionForm):
 
-    to_carrier = forms.ModelChoiceField(
-        label="Transportista", required=True,
+    to_carrier = CarrierModelChoiceField(
+        label="Quién lo recibió", required=True,
         queryset=Account.objects.filter(
-            groups__name__in=['Admins', 'Level 1', 'Level 2']),
+            groups__name__in=['Admins', 'Level 1', 'Level 2']
+        ).order_by('last_name'),
         widget=forms.Select(attrs={
             'class': 'form-select',
         }),
     )
+
+    def perform_action(self) -> TrackingMovement:
+        print("HOla")
+        return withdraw_by_envios_tracking_ids(
+            self.user,
+            self.envio.deposit,
+            self.cleaned_data['to_carrier'],
+            self.envio.tracking_id)
 
 
 class ActionDepositForm(BaseActionForm):
@@ -502,20 +555,35 @@ class ActionDepositForm(BaseActionForm):
         }),
     )
 
+    def perform_action(self) -> TrackingMovement:
+        return deposit_by_envios_tracking_ids(
+            self.user,
+            self.envio.carrier,
+            self.cleaned_data['to_deposit'],
+            self.envio.tracking_id)
+
 
 class ActionTransferForm(BaseActionForm):
 
-    to_carrier = forms.ModelChoiceField(
-        label="Transportista", required=True,
+    to_carrier = CarrierModelChoiceField(
+        label="Quién lo recibió", required=True,
         queryset=Account.objects.filter(
-            groups__name__in=['Admins', 'Level 1', 'Level 2']),
+            groups__name__in=['Admins', 'Level 1', 'Level 2']
+        ).order_by('last_name'),
         widget=forms.Select(attrs={
             'class': 'form-select',
         }),
     )
 
+    def perform_action(self) -> TrackingMovement:
+        return transfer_by_envios_tracking_ids(
+            self.user,
+            self.envio.carrier,
+            self.cleaned_data['to_carrier'],
+            self.envio.tracking_id)
 
-class ActionReturnForm(BaseActionForm):
+
+class ActionDevolverForm(BaseActionForm):
 
     to_deposit = forms.ModelChoiceField(
         label="Deposit", required=True,
@@ -526,10 +594,82 @@ class ActionReturnForm(BaseActionForm):
         }),
     )
 
+    def perform_action(self) -> TrackingMovement:
+        return devolver_by_envios_tracking_ids(
+            self.user,
+            self.envio.carrier,
+            self.cleaned_data['to_deposit'],
+            self.envio.tracking_id)
+
 
 class ActionDeliveryAttemptForm(BaseActionForm):
 
-    recipient_DNI = forms.CharField(
+    result = forms.ChoiceField(
+        label='Motivo de no entrega', required=False,
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+        }),
+    )
+
+    comment = forms.CharField(
+        label='Comentarios', required=False,
+        widget=forms.Textarea(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': 'Motivo de no entrega',
+            })
+    )
+
+    proof = forms.FileField(
+        label='Comprobante de entrega', required=False,
+        widget=forms.FileInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'file',
+            })
+    )
+
+    def perform_action(self) -> TrackingMovement:
+        author = self.user
+        result = self.cleaned_data['result']
+        envio_tracking_id = self.envio.tracking_id
+        proof = self.cleaned_data.get('proof', None)
+        comment = self.cleaned_data.get('comment', "")
+        movement = TrackingMovement(
+            created_by=author,
+            from_carrier=author,
+            action=TrackingMovement.ACTION_DELIVERY_ATTEMPT,
+            result=result,
+            proof=proof,
+            comment=comment,
+        )
+        movement.save()
+
+        if proof is not None:
+            movement.proof = proof
+
+            url = os.path.join(settings.TEMP, str(proof))
+            storage = FileSystemStorage(location=url)
+
+            with storage.open('', 'wb+') as destination:
+                for chunk in proof.chunks():
+                    destination.write(chunk)
+                destination.close()
+
+            os.remove(url)
+            movement.save()
+
+        envio = Envio.objects.filter(tracking_id=envio_tracking_id).first()
+
+        # Add envios to the movement
+        movement.envios.add(envio)
+        return movement
+
+
+class ActionSuccessfulDeliveryForm(BaseActionForm):
+
+    receiver_doc_id = forms.CharField(
         label='DNI del destinatario', required=False,
         widget=forms.TextInput(
             attrs={
@@ -540,19 +680,10 @@ class ActionDeliveryAttemptForm(BaseActionForm):
             })
     )
 
-    not_delivered_reason = forms.ChoiceField(
-        label='Motivo de no entrega', required=False,
-        widget=forms.Select(attrs={
-            'class': 'form-select',
-        }),
-    )
-
-    not_delivered_other_comments = forms.CharField(
-        label='Comentarios', required=False,
-        widget=forms.Textarea(
-            attrs={
-                'class': 'form-control',
-                'type': 'text',
-                'placeholder': 'Motivo de no entrega',
-            })
-    )
+    def perform_action(self) -> TrackingMovement:
+        return delivery_attempt(
+            author=self.user,
+            result_obtained=TrackingMovement.RESULT_DELIVERED,
+            envio_tracking_id=self.envio.tracking_id,
+            receiver_doc_id=self.validated_data['receiver_doc_id']
+        )

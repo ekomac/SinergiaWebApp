@@ -16,6 +16,12 @@ from .views import (
     # update_envio,
     edit_envio_view,
     delete_envio_view,
+    withdraw_envio_view,
+    deposit_envio_view,
+    transfer_envio_view,
+    devolver_envio_view,
+    delivery_attempt_envio_view,
+    successful_delivery_envio_view,
 )
 
 app_name = 'envios'
@@ -28,8 +34,14 @@ urlpatterns = [
     path('add/', EnvioCreate.as_view(), name="envio-add"),
     path('<int:pk>/edit/', edit_envio_view, name="envio-edit"),
     path('<int:pk>/delete/', delete_envio_view, name="envio-delete"),
-    path('<int:pk>/change-state/<str:action>',
-         delete_envio_view, name="envio-change-state"),
+    path('<int:pk>/withdraw/', withdraw_envio_view, name="envio-withdraw"),
+    path('<int:pk>/deposit/', deposit_envio_view, name="envio-deposit"),
+    path('<int:pk>/transfer/', transfer_envio_view, name="envio-transfer"),
+    path('<int:pk>/devolver/', devolver_envio_view, name="envio-devolver"),
+    path('<int:pk>/delivery-attempt/', delivery_attempt_envio_view,
+         name="envio-delivery-attempt"),
+    path('<int:pk>/successful-delivery/', successful_delivery_envio_view,
+         name="envio-successful-delivery"),
     # ******************************* ENVIOS *******************************
 
 

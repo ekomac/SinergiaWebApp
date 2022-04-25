@@ -2,7 +2,6 @@
 import hashlib
 import json
 from datetime import datetime, timedelta
-from multiprocessing import context
 from typing import Any, Dict
 
 # Third-party
@@ -26,6 +25,12 @@ from account.models import Account
 from clients.models import Client
 from deposit.models import Deposit
 from envios.forms import (
+    ActionDeliveryAttemptForm,
+    ActionDepositForm,
+    ActionDevolverForm,
+    ActionSuccessfulDeliveryForm,
+    ActionTransferForm,
+    ActionWithdrawForm,
     BulkLoadEnviosForm,
     CreateEnvioForm,
     EnviosIdsSelection,
@@ -455,9 +460,129 @@ def delete_envio_view(request, pk, **kwargs):
     return render(request, "envios/envio/delete.html", context)
 
 
-def change_envio_state_view(request, pk: int, action: str):
+def withdraw_envio_view(request, pk: int):
     envio = get_object_or_404(Envio, pk=pk)
-    context = {}
-    print('action', action)
+    form = ActionWithdrawForm(user=request.user, envio=envio)
+    if request.method == 'POST':
+        form = ActionWithdrawForm(
+            data=request.POST, user=request.user, envio=envio)
+        if form.is_valid():
+            movement = form.perform_action()
+            print(movement)
+            msg = f'El envío "{envio.full_address} de {envio.client}" '\
+                + 'se retiró correctamente.'
+            return update_alert_and_redirect(
+                request, msg, 'envios:envio-detail', envio.pk)
+    context = {
+        'form': form,
+        'envio': envio,
+        'selected_tab': 'shipments-tab',
+    }
+    return render(request, "envios/envio/actions/withdraw.html", context)
 
-    return render(request, "envios/envio/change_state.html", context)
+
+def deposit_envio_view(request, pk: int):
+    envio = get_object_or_404(Envio, pk=pk)
+    form = ActionDepositForm(user=request.user, envio=envio)
+    if request.method == 'POST':
+        form = ActionDepositForm(
+            data=request.POST, user=request.user, envio=envio)
+        if form.is_valid():
+            movement = form.perform_action()
+            print(movement)
+            msg = f'El envío "{envio.full_address} de {envio.client}" '\
+                + 'se depositó correctamente.'
+            return update_alert_and_redirect(
+                request, msg, 'envios:envio-detail', envio.pk)
+    context = {
+        'form': form,
+        'envio': envio,
+        'selected_tab': 'shipments-tab',
+    }
+    return render(request, "envios/envio/actions/deposit.html", context)
+
+
+def transfer_envio_view(request, pk: int):
+    envio = get_object_or_404(Envio, pk=pk)
+    form = ActionTransferForm(user=request.user, envio=envio)
+    if request.method == 'POST':
+        form = ActionTransferForm(
+            data=request.POST, user=request.user, envio=envio)
+        if form.is_valid():
+            movement = form.perform_action()
+            print(movement)
+            msg = f'El envío "{envio.full_address} de {envio.client}" '\
+                + 'se transferió correctamente.'
+            return update_alert_and_redirect(
+                request, msg, 'envios:envio-detail', envio.pk)
+    context = {
+        'form': form,
+        'envio': envio,
+        'selected_tab': 'shipments-tab',
+    }
+    return render(request, "envios/envio/actions/transfer.html", context)
+
+
+def devolver_envio_view(request, pk: int):
+    envio = get_object_or_404(Envio, pk=pk)
+    form = ActionDevolverForm(user=request.user, envio=envio)
+    if request.method == 'POST':
+        form = ActionDevolverForm(
+            data=request.POST, user=request.user, envio=envio)
+        if form.is_valid():
+            movement = form.perform_action()
+            print(movement)
+            msg = f'El envío "{envio.full_address} de {envio.client}" '\
+                + 'se devolvió correctamente.'
+            return update_alert_and_redirect(
+                request, msg, 'envios:envio-detail', envio.pk)
+    context = {
+        'form': form,
+        'envio': envio,
+        'selected_tab': 'shipments-tab',
+    }
+    return render(request, "envios/envio/actions/devolver.html", context)
+
+
+def delivery_attempt_envio_view(request, pk: int):
+    envio = get_object_or_404(Envio, pk=pk)
+    form = ActionDeliveryAttemptForm(user=request.user, envio=envio)
+    if request.method == 'POST':
+        form = ActionDeliveryAttemptForm(
+            data=request.POST, user=request.user, envio=envio)
+        if form.is_valid():
+            movement = form.perform_action()
+            print(movement)
+            msg = f'El envío "{envio.full_address} de {envio.client}" '\
+                + 'se intentó entregar correctamente.'
+            return update_alert_and_redirect(
+                request, msg, 'envios:envio-detail', envio.pk)
+    context = {
+        'form': form,
+        'envio': envio,
+        'selected_tab': 'shipments-tab',
+    }
+    return render(
+        request, "envios/envio/actions/delivery_attempt.html", context)
+
+
+def successful_delivery_envio_view(request, pk: int):
+    envio = get_object_or_404(Envio, pk=pk)
+    form = ActionSuccessfulDeliveryForm(user=request.user, envio=envio)
+    if request.method == 'POST':
+        form = ActionSuccessfulDeliveryForm(
+            data=request.POST, user=request.user, envio=envio)
+        if form.is_valid():
+            movement = form.perform_action()
+            print(movement)
+            msg = f'El envío "{envio.full_address} de {envio.client}" '\
+                + 'se entregó correctamente.'
+            return update_alert_and_redirect(
+                request, msg, 'envios:envio-detail', envio.pk)
+    context = {
+        'form': form,
+        'envio': envio,
+        'selected_tab': 'shipments-tab',
+    }
+    return render(
+        request, "envios/envio/actions/successful_delivery.html", context)

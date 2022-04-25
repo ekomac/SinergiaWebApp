@@ -1,0 +1,105 @@
+{% extends 'base_system.html' %}
+
+{% block subtitle %}
+Envíos
+{% endblock subtitle %}
+
+{% block content %}
+
+{% load static %}
+{% load places_extras %}
+
+<style>
+    td {
+        vertical-align: middle;
+    }
+
+    .hola {
+        background-color: red;
+    }
+
+    div .hidden {
+        display: none;
+    }
+</style>
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+        <path
+            d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+    </symbol>
+</svg>
+<div class="col-md-12 col-xl-7 d-flex-block">
+    <form method='POST' id="form" class="card flex-fill shadow-lg bg-white" name="form" target="_top"
+        enctype="multipart/form-data">{% csrf_token %}
+
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+                Depositar envío
+            </div>
+            <div>
+                <a href="{% url 'envios:envio-detail' pk=form.envio.pk %}"><i
+                        class="bi bi-arrow-left-short"></i>Cancelar</a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="alert alert-danger d-flex align-items-center alert-dismissible fade show" role="alert">
+                <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
+                    <use xlink:href="#exclamation-triangle-fill" /></svg>
+                <div>
+                    <strong>¡Atención!</strong> Esta acción altera el correcto fluir de la lógica de negocio. Proceder
+                    con precuación.
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div>
+                <strong>Envío:</strong> {{ form.envio.full_address }}<br>
+                <strong>Portado por:</strong> {{ form.envio.carrier }}<br>
+                <strong>Cliente:</strong> {{ form.envio.client }}<br>
+            </div>
+
+            <div class="row g-3 mt-1">
+
+                <!-- START CLIENTE INPUT -->
+                <div class="col-md-12 col-lg-6 col-xl-5 {% if is_client %}d-none{% endif %}">
+                    <label for="{{form.to_deposit.id_for_label}}" class="form-label">Dónde se depositó</label>
+                    {{ form.to_deposit}}
+                </div>
+                <!-- END CLIENT INPUT -->
+
+                <!-- START ACCEPT RISKS -->
+                <div class="col-12">
+                    <div class="form-check">
+                        <label for="id_accept_risks">Acepto los riesgos que implica esta operación:</label>
+                        <input type="checkbox" name="accept_risks"
+                            class="form-check-input  {% if form.accept_risks.errors %}is-invalid{% endif %}" required
+                            id="id_accept_risks">
+                        <div class="invalid-feedback">
+                            {{ form.accept_risks.errors }}
+                        </div>
+                    </div>
+                </div>
+                <!-- END ACCEPT RISKS -->
+
+                <div class="col-12">
+                    {% for error in form.non_field_errors %}
+                    <p style="color: red;">{{error}}</p>
+                    {% endfor %}
+                </div>
+
+
+                <!-- START SUMBIT BUTTON -->
+                <div class="d-grid gap-2 d-md-flex">
+                    <input type="submit" value="Depositar envío" class="btn btn-primary">
+                </div>
+                <!-- END SUMBIT BUTTON -->
+            </div>
+        </div>
+
+    </form>
+
+</div>
+
+
+{% endblock %}
