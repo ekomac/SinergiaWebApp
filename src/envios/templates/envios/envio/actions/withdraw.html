@@ -47,23 +47,27 @@ Envíos
                 <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
                     <use xlink:href="#exclamation-triangle-fill" /></svg>
                 <div>
-                    <strong>¡Atención!</strong> Esta acción altera el correcto fluir de la lógica de negocio. Proceder
-                    con precuación.
+                    <strong>¡Atención!</strong> Proceder con precuación, esta acción altera el correcto fluir de la
+                    lógica de negocio.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </div>
 
             <div>
                 <strong>Envío:</strong> {{ form.envio.full_address }}<br>
-                <strong>En:</strong> {{ form.envio.deposit }}<br>
-                <strong>Cliente:</strong> {{ form.envio.client }}<br>
+                <strong>En:</strong> <a
+                    href="{% url 'deposits:detail' pk=form.envio.deposit.pk %}">{{ form.envio.deposit.name }}</a> en
+                <i>{{ form.envio.deposit.full_address }}</i>{% if form.envio.deposit.client %}de
+                {{ form.envio.deposit.client.name }}{% endif %}<br>
+                <strong>Cliente:</strong> <a
+                    href="{% url 'clients:detail' pk=form.envio.client.pk %}">{{ form.envio.client }}</a><br>
             </div>
 
             <div class="row g-3 mt-1">
 
                 <!-- START CLIENTE INPUT -->
                 <div class="col-md-12 col-lg-6 col-xl-5 {% if is_client %}d-none{% endif %}">
-                    <label for="{{form.to_carrier.id_for_label}}" class="form-label">Quién retiró</label>
+                    <label for="{{form.to_carrier.id_for_label}}" class="form-label">Quién lo retiró</label>
                     {{ form.to_carrier}}
                 </div>
                 <!-- END CLIENT INPUT -->
@@ -100,6 +104,14 @@ Envíos
     </form>
 
 </div>
+<script>
+    $(document).ready(function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+</script>
 
 
 {% endblock %}

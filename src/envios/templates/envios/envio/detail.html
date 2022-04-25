@@ -333,7 +333,7 @@
                             datos{% endif %}</td>
                         {% endif %}
                         <td class="w-100">{% if request.user.role == 'client' %}<b>{{movement.client_display.0}}</b>:
-                            {{ movement.client_display.1}}{% else %}{{movement.admin_display}}{% endif %}</td>
+                            {{ movement.client_display.1 }}{% else %}{{movement.admin_display | safe}}{% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

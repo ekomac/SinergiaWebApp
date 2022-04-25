@@ -34,7 +34,7 @@ Envíos
 
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
-                Transferir envío
+                Registrar intento de envío
             </div>
             <div>
                 <a href="{% url 'envios:envio-detail' pk=form.envio.pk %}"><i
@@ -47,8 +47,8 @@ Envíos
                 <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
                     <use xlink:href="#exclamation-triangle-fill" /></svg>
                 <div>
-                    <strong>¡Atención!</strong> Esta acción altera el correcto fluir de la lógica de negocio. Proceder
-                    con precuación.
+                    <strong>¡Atención!</strong> Proceder con precuación, esta acción altera el correcto fluir de la
+                    lógica de negocio.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </div>
@@ -59,14 +59,46 @@ Envíos
                 <strong>Cliente:</strong> {{ form.envio.client }}<br>
             </div>
 
-            <div class="row g-3 mt-1">
+            <div class="row g-3 mt-1 d-flex flex-column">
 
-                <!-- START CLIENTE INPUT -->
-                <div class="col-md-12 col-lg-6 col-xl-5 {% if is_client %}d-none{% endif %}">
-                    <label for="{{form.to_carrier.id_for_label}}" class="form-label">A quién se le transfirió</label>
-                    {{ form.to_carrier}}
+                <div class=" {% if is_client %}d-none{% endif %}">
+                    <label for="id_result" class="form-label">Por qué no se pudo entregar</label>
+                    <select id="id_result" name="result"
+                        class="form-select {% if form.result.errors %}is-invalid{% endif %}"
+                        aria-label=".form-select-lg example" required>
+                        <option value="" selected>----------</option>
+                        {% for result, label in result_choices %}
+                        <option value="{{ result }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="invalid-feedback">
+                        {% for error in form.result.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
                 </div>
-                <!-- END CLIENT INPUT -->
+
+                <div class="col {% if is_client %}d-none{% endif %}">
+                    <label for="id_comment" class="form-label">Comentarios</label>
+                    <textarea id="id_comment" name="comment"
+                        class="form-control {% if form.comment.errors %}{% endif %}" rows="5"></textarea>
+                    <div class="invalid-feedback">
+                        {% for error in form.comment.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="col">
+                    <label for="id_proof" class="form-label">Archivo de prueba</label>
+                    <input class="form-control {% if form.proof.errors %}is-invalid{% endif %}" type="file"
+                        id="id_proof" name="proof">
+                    <div class="invalid-feedback">
+                        {% for error in form.proof.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+                </div>
 
                 <!-- START ACCEPT RISKS -->
                 <div class="col-12">
@@ -91,7 +123,7 @@ Envíos
 
                 <!-- START SUMBIT BUTTON -->
                 <div class="d-grid gap-2 d-md-flex">
-                    <input type="submit" value="Transferir envío" class="btn btn-primary">
+                    <input type="submit" value="Registrar intento de entrega" class="btn btn-primary">
                 </div>
                 <!-- END SUMBIT BUTTON -->
             </div>

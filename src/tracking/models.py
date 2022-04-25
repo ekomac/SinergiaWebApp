@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
+from django.urls import resolve, reverse
 from deposit.models import Deposit
 
 
@@ -136,40 +137,165 @@ class TrackingMovement(models.Model):
         return f'{dt}_{user}_{action}_to_{result}'
 
     def admin_display(self):
-        user = self.created_by.username if self.created_by else ""
-        _from = ""
-        if self.from_deposit:
-            _from = self.from_deposit.name
-        elif self.from_carrier:
-            _from = self.from_carrier.username
-        _to = ""
-        if self.to_deposit:
-            _to = self.to_deposit.name
-        elif self.to_carrier:
-            _to = self.to_carrier.username
         if self.result == self.RESULT_ADDED_TO_SYSTEM:
-            return f'Agregado al sistema por {user}'
+            return ('Agregado al sistema por <a href="{user_url}" '
+                    'data-bs-toggle="tooltip"'
+                    ' data-bs-html="true" title="{user_full_name}'
+                    '">{username}</a>').format(
+                user_url=reverse('account:employees-detail',
+                                 kwargs={'pk': self.created_by.pk}),
+                user_full_name=self.created_by.full_name,
+                username=self.created_by.username if self.created_by else ""
+            )
         elif self.result == self.RESULT_COLLECTED:
-            return f'Recolectado de {_from} por {_to}'
+            return (
+                'Recolectado de <a href="{deposit_url}">{deposit_name}</a>'
+                ' por <a href="{to_carrier_url}" data-bs-toggle="tooltip" '
+                'data-bs-html="true" title="{to_carrier_full_name}">'
+                '{to_carrier_username}</a>'
+            ).format(
+                deposit_url=reverse(
+                    'deposits:detail', kwargs={'pk': self.from_deposit.pk}),
+                deposit_name=self.from_deposit.name,
+                to_carrier_url=reverse('account:employees-detail',
+                                       kwargs={'pk': self.to_carrier.pk}),
+                to_carrier_full_name=self.to_carrier.full_name,
+                to_carrier_username=self.to_carrier.username,
+            )
         elif self.result == self.RESULT_TRANSFERED:
-            return f'Transferido de {_from} a {_to}'
+            return (
+                'Transferido de <a href="{from_carrier_url}" '
+                'data-bs-toggle="tooltip" data-bs-html="true" '
+                'title="{from_carrier_full_name}">'
+                '{from_carrier_username}</a> a '
+                '<a href="{to_carrier_url}" data-bs-toggle="tooltip"'
+                ' data-bs-html="true" title="{to_carrier_full_name}">'
+                '{to_carrier_username}</a>'
+            ).format(
+                from_carrier_url=reverse(
+                    'account:employees-detail',
+                    kwargs={'pk': self.from_carrier.pk}),
+                from_carrier_full_name=self.from_carrier.full_name,
+                from_carrier_username=self.from_carrier.username,
+                to_carrier_url=reverse(
+                    'account:employees-detail',
+                    kwargs={'pk': self.to_carrier.pk}),
+                to_carrier_full_name=self.to_carrier.full_name,
+                to_carrier_username=self.to_carrier.username,
+            )
         elif self.result == self.RESULT_IN_DEPOSIT:
-            return f'Depositado en {_to} por {_from}'
+            return (
+                'Depositado en <a href="{deposit_url}">{deposit_name}</a> '
+                'por <a href="{from_carrier_url}" data-bs-toggle="tooltip"'
+                ' data-bs-html="true" title="{from_carrier_full_name}">'
+                '{from_carrier_username}</a>'
+            ).format(
+                deposit_url=reverse(
+                    'deposits:detail', kwargs={'pk': self.to_deposit.pk}),
+                deposit_name=self.to_deposit.name,
+                from_carrier_url=reverse(
+                    'account:employees-detail',
+                    kwargs={'pk': self.from_carrier.pk}),
+                from_carrier_full_name=self.from_carrier.full_name,
+                from_carrier_username=self.from_carrier.username,
+            )
         elif self.result == self.RESULT_DELIVERED:
-            return f'Entregado por {_from}'
+            return (
+                'Entregado por <a href="{from_carrier_url}" '
+                'data-bs-toggle="tooltip"'
+                ' data-bs-html="true" title="{from_carrier_full_name}">'
+                '{from_carrier_username}</a>'
+            ).format(
+                from_carrier_url=reverse(
+                    'account:employees-detail',
+                    kwargs={'pk': self.from_carrier.pk}),
+                from_carrier_full_name=self.from_carrier.full_name,
+                from_carrier_username=self.from_carrier.username,
+            )
         elif self.result == self.RESULT_REJECTED_AT_DESTINATION:
-            return f'Rechazado en destino a {_to}'
+            return (
+                'Rechazado en destino a <a href="{from_carrier_url}" '
+                'data-bs-toggle="tooltip"'
+                ' data-bs-html="true" title="{from_carrier_full_name}">'
+                '{from_carrier_username}</a>'
+            ).format(
+                from_carrier_url=reverse(
+                    'account:employees-detail',
+                    kwargs={'pk': self.from_carrier.pk}),
+                from_carrier_full_name=self.from_carrier.full_name,
+                from_carrier_username=self.from_carrier.username,
+            )
         elif self.result == self.RESULT_REPROGRAMED:
-            return f'Reprogramado a {_to}'
+            return (
+                'Reprogramado a <a href="{from_carrier_url}" '
+                'data-bs-toggle="tooltip"'
+                ' data-bs-html="true" title="{from_carrier_full_name}">'
+                '{from_carrier_username}</a>'
+            ).format(
+                from_carrier_url=reverse(
+                    'account:employees-detail',
+                    kwargs={'pk': self.from_carrier.pk}),
+                from_carrier_full_name=self.from_carrier.full_name,
+                from_carrier_username=self.from_carrier.username,
+            )
         elif self.result == self.RESULT_NO_ANSWER:
-            return f'No responde a {_to}'
+            return (
+                'No responde a <a href="{from_carrier_url}" '
+                'data-bs-toggle="tooltip"'
+                ' data-bs-html="true" title="{from_carrier_full_name}">'
+                '{from_carrier_username}</a>'
+            ).format(
+                from_carrier_url=reverse(
+                    'account:employees-detail',
+                    kwargs={'pk': self.from_carrier.pk}),
+                from_carrier_full_name=self.from_carrier.full_name,
+                from_carrier_username=self.from_carrier.username,
+            )
         elif self.result == self.RESULT_OTHER:
-            comment = ": " + self.comment if self.comment else ""
-            return f'Otro{comment} por {_from}'
+            return (
+                'No se pudo entregar: "{comment}" por '
+                '<a href="{from_carrier_url}" '
+                'data-bs-toggle="tooltip"'
+                ' data-bs-html="true" title="{from_carrier_full_name}">'
+                '{from_carrier_username}</a>'
+            ).format(
+                comment=self.comment if self.comment else "sin comentario",
+                from_carrier_url=reverse(
+                    'account:employees-detail',
+                    kwargs={'pk': self.from_carrier.pk}),
+                from_carrier_full_name=self.from_carrier.full_name,
+                from_carrier_username=self.from_carrier.username,
+            )
         elif self.result == self.RESULT_RETURNED:
-            return f'Devuelto por {_from} en {_to}'
+            return (
+                'Devuelto por <a href="{from_carrier_url}" '
+                'data-bs-toggle="tooltip"'
+                ' data-bs-html="true" title="{from_carrier_full_name}">'
+                '{from_carrier_username}</a> en '
+                '<a href="{deposit_url}">{deposit_name}</a>'
+            ).format(
+                from_carrier_url=reverse(
+                    'account:employees-detail',
+                    kwargs={'pk': self.from_carrier.pk}),
+                from_carrier_full_name=self.from_carrier.full_name,
+                from_carrier_username=self.from_carrier.username,
+                deposit_url=reverse(
+                    'deposits:detail', kwargs={'pk': self.to_deposit.pk}),
+                deposit_name=self.to_deposit.name,
+            )
         elif self.result == self.RESULT_CANCELED:
-            return f'Cancelado por {user}'
+            return (
+                'Cancelado por <a href="{user_url}" '
+                'data-bs-toggle="tooltip"'
+                ' data-bs-html="true" title="{user_full_name}">'
+                '{user_username}</a>'
+            ).format(
+                user_url=reverse(
+                    'account:employees-detail',
+                    kwargs={'pk': self.created_by.pk}),
+                user_full_name=self.created_by.full_name,
+                user_username=self.created_by.username,
+            )
         else:
             return "No se encontró el resultado"
 
@@ -259,6 +385,6 @@ class TrackingMovement(models.Model):
         verbose_name_plural = 'Movimientos'
 
 
-@receiver(post_delete, sender=TrackingMovement)
+@ receiver(post_delete, sender=TrackingMovement)
 def submission_delete(sender, instance, **kwargs):
     instance.proof.delete(False)

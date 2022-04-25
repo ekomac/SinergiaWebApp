@@ -47,16 +47,18 @@ Envíos
                 <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:">
                     <use xlink:href="#exclamation-triangle-fill" /></svg>
                 <div>
-                    <strong>¡Atención!</strong> Esta acción altera el correcto fluir de la lógica de negocio. Proceder
-                    con precuación.
+                    <strong>¡Atención!</strong> Proceder con precuación, esta acción altera el correcto fluir de la
+                    lógica de negocio.
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             </div>
 
             <div>
                 <strong>Envío:</strong> {{ form.envio.full_address }}<br>
-                <strong>Portado por:</strong> {{ form.envio.carrier }}<br>
-                <strong>Cliente:</strong> {{ form.envio.client }}<br>
+                <strong>Portado por:</strong> <a href="#" data-bs-toggle="tooltip" data-bs-html="true"
+                    title="{{ form.envio.carrier.full_name }}<em><br>{% if form.envio.carrier.client != None %}&nbsp;({{ form.envio.carrier.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ form.envio.carrier.username }}</a><br>
+                <strong>Cliente:</strong> <a
+                    href="{% url 'clients:detail' pk=form.envio.client.pk %}">{{ form.envio.client }}</a><br>
             </div>
 
             <div class="row g-3 mt-1">
@@ -100,6 +102,13 @@ Envíos
     </form>
 
 </div>
-
+<script>
+    $(document).ready(function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+</script>
 
 {% endblock %}

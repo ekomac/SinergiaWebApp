@@ -494,9 +494,7 @@ class BaseActionForm(forms.Form):
     )
 
     def clean_accept_risks(self):
-        print("validando...")
         accept_risks = self.cleaned_data['accept_risks']
-        print(accept_risks, "accept_risks")
         if accept_risks is False:
             raise forms.ValidationError(
                 'Tenés que aceptar los riesgos para continuar.')
@@ -537,7 +535,6 @@ class ActionWithdrawForm(BaseActionForm):
     )
 
     def perform_action(self) -> TrackingMovement:
-        print("HOla")
         return withdraw_by_envios_tracking_ids(
             self.user,
             self.envio.deposit,
@@ -549,7 +546,7 @@ class ActionDepositForm(BaseActionForm):
 
     to_deposit = forms.ModelChoiceField(
         label="Deposit", required=True,
-        queryset=Deposit.objects.filter(is_sinergia=True),
+        queryset=Deposit.objects.filter(client__isnull=True),
         widget=forms.Select(attrs={
             'class': 'form-select',
         }),
@@ -587,12 +584,16 @@ class ActionDevolverForm(BaseActionForm):
 
     to_deposit = forms.ModelChoiceField(
         label="Deposit", required=True,
-        queryset=Deposit.objects.filter(
-            is_sinergia=False, client__isnull=False),
+        queryset=Deposit.objects.none(),
         widget=forms.Select(attrs={
             'class': 'form-select',
         }),
     )
+
+    def __init__(self, user: Account, envio: Envio, *args, **kwargs):
+        super().__init__(user, envio, *args, **kwargs)
+        self.fields['to_deposit'].queryset = Deposit.objects.filter(
+            client=self.envio.client)
 
     def perform_action(self) -> TrackingMovement:
         return devolver_by_envios_tracking_ids(
@@ -605,10 +606,17 @@ class ActionDevolverForm(BaseActionForm):
 class ActionDeliveryAttemptForm(BaseActionForm):
 
     result = forms.ChoiceField(
-        label='Motivo de no entrega', required=False,
+        label='Motivo de no entrega', required=True,
         widget=forms.Select(attrs={
             'class': 'form-select',
         }),
+        choices=(
+            (TrackingMovement.RESULT_REJECTED_AT_DESTINATION,
+             'Rechazado en lugar de destino'),
+            (TrackingMovement.RESULT_REPROGRAMED, 'Reprogramado'),
+            (TrackingMovement.RESULT_NO_ANSWER, 'Sin respuesta'),
+            (TrackingMovement.RESULT_OTHER, 'Otro'),
+        )
     )
 
     comment = forms.CharField(

@@ -557,10 +557,25 @@ def delivery_attempt_envio_view(request, pk: int):
                 + 'se intentó entregar correctamente.'
             return update_alert_and_redirect(
                 request, msg, 'envios:envio-detail', envio.pk)
+        else:
+            for error in form.errors:
+                print(error)
+            for error in form.non_field_errors():
+                print(error)
+            # for field in form.fields:
+            #     for error in field.errors:
+            #         print(error)
     context = {
         'form': form,
         'envio': envio,
         'selected_tab': 'shipments-tab',
+        'result_choices': [
+            (TrackingMovement.RESULT_REJECTED_AT_DESTINATION,
+             'Rechazado en lugar de destino'),
+            (TrackingMovement.RESULT_REPROGRAMED, 'Reprogramado'),
+            (TrackingMovement.RESULT_NO_ANSWER, 'Sin respuesta'),
+            (TrackingMovement.RESULT_OTHER, 'Otro'),
+        ],
     }
     return render(
         request, "envios/envio/actions/delivery_attempt.html", context)
