@@ -2,6 +2,7 @@
 import hashlib
 import json
 from datetime import datetime, timedelta
+from multiprocessing import context
 from typing import Any, Dict
 
 # Third-party
@@ -452,3 +453,11 @@ def delete_envio_view(request, pk, **kwargs):
     # context['password_match'] = passwords_match
 
     return render(request, "envios/envio/delete.html", context)
+
+
+def change_envio_state_view(request, pk: int, action: str):
+    envio = get_object_or_404(Envio, pk=pk)
+    context = {}
+    print('action', action)
+
+    return render(request, "envios/envio/change_state.html", context)

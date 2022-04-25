@@ -1,6 +1,7 @@
 import hashlib
 from django import forms
 from django.core.validators import FileExtensionValidator
+from account.models import Account
 from deposit.models import Deposit
 from envios.bulkutil.exceptions import (
     InvalidExcelFileError, InvalidPdfFileError)
@@ -468,5 +469,90 @@ class EnviosIdsSelection(forms.Form):
                 'class': 'form-control',
                 'type': 'text',
                 'placeholder': '1,2,3,4,5',
+            })
+    )
+
+
+class BaseActionForm(forms.Form):
+
+    def __init__(self, envio: Envio, *args, **kwargs):
+        self.envio = envio
+        super(BaseActionForm, self).__init__(*args, **kwargs)
+
+
+class ActionWithdrawForm(BaseActionForm):
+
+    to_carrier = forms.ModelChoiceField(
+        label="Transportista", required=True,
+        queryset=Account.objects.filter(
+            groups__name__in=['Admins', 'Level 1', 'Level 2']),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+        }),
+    )
+
+
+class ActionDepositForm(BaseActionForm):
+
+    to_deposit = forms.ModelChoiceField(
+        label="Deposit", required=True,
+        queryset=Deposit.objects.filter(is_sinergia=True),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+        }),
+    )
+
+
+class ActionTransferForm(BaseActionForm):
+
+    to_carrier = forms.ModelChoiceField(
+        label="Transportista", required=True,
+        queryset=Account.objects.filter(
+            groups__name__in=['Admins', 'Level 1', 'Level 2']),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+        }),
+    )
+
+
+class ActionReturnForm(BaseActionForm):
+
+    to_deposit = forms.ModelChoiceField(
+        label="Deposit", required=True,
+        queryset=Deposit.objects.filter(
+            is_sinergia=False, client__isnull=False),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+        }),
+    )
+
+
+class ActionDeliveryAttemptForm(BaseActionForm):
+
+    recipient_DNI = forms.CharField(
+        label='DNI del destinatario', required=False,
+        widget=forms.TextInput(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': '12345678',
+                'pattern': r'^\d{8}$'
+            })
+    )
+
+    not_delivered_reason = forms.ChoiceField(
+        label='Motivo de no entrega', required=False,
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+        }),
+    )
+
+    not_delivered_other_comments = forms.CharField(
+        label='Comentarios', required=False,
+        widget=forms.Textarea(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': 'Motivo de no entrega',
             })
     )

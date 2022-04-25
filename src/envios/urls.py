@@ -28,6 +28,8 @@ urlpatterns = [
     path('add/', EnvioCreate.as_view(), name="envio-add"),
     path('<int:pk>/edit/', edit_envio_view, name="envio-edit"),
     path('<int:pk>/delete/', delete_envio_view, name="envio-delete"),
+    path('<int:pk>/change-state/<str:action>',
+         delete_envio_view, name="envio-change-state"),
     # ******************************* ENVIOS *******************************
 
 
