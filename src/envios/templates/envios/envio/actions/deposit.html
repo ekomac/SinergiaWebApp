@@ -37,8 +37,7 @@ Envíos
                 Depositar envío
             </div>
             <div>
-                <a href="{% url 'envios:envio-detail' pk=form.envio.pk %}"><i
-                        class="bi bi-arrow-left-short"></i>Cancelar</a>
+                <a href="{% url 'envios:envio-detail' pk=form.envio.pk %}"><i class="bi bi-x"></i>Cancelar</a>
             </div>
         </div>
 
@@ -73,7 +72,7 @@ Envíos
                 <!-- START ACCEPT RISKS -->
                 <div class="col-12">
                     <div class="form-check">
-                        <label for="id_accept_risks">Acepto los riesgos que implica esta operación:</label>
+                        <label for="id_accept_risks">Acepto los riesgos que implica esta operación</label>
                         <input type="checkbox" name="accept_risks"
                             class="form-check-input  {% if form.accept_risks.errors %}is-invalid{% endif %}" required
                             id="id_accept_risks">

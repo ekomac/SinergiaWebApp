@@ -37,8 +37,7 @@ Envíos
                 Registrar intento de envío
             </div>
             <div>
-                <a href="{% url 'envios:envio-detail' pk=form.envio.pk %}"><i
-                        class="bi bi-arrow-left-short"></i>Cancelar</a>
+                <a href="{% url 'envios:envio-detail' pk=form.envio.pk %}"><i class="bi bi-x"></i>Cancelar</a>
             </div>
         </div>
 
@@ -55,8 +54,10 @@ Envíos
 
             <div>
                 <strong>Envío:</strong> {{ form.envio.full_address }}<br>
-                <strong>Portado por:</strong> {{ form.envio.carrier }}<br>
-                <strong>Cliente:</strong> {{ form.envio.client }}<br>
+                <strong>Portado por:</strong> <a href="#" data-bs-toggle="tooltip" data-bs-html="true"
+                    title="{{ form.envio.carrier.full_name }}<em><br>{% if form.envio.carrier.client != None %}&nbsp;({{ form.envio.carrier.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ form.envio.carrier.username }}</a><br>
+                <strong>Cliente:</strong> <a
+                    href="{% url 'clients:detail' pk=form.envio.client.pk %}">{{ form.envio.client }}</a><br>
             </div>
 
             <div class="row g-3 mt-1 d-flex flex-column">
@@ -90,7 +91,7 @@ Envíos
                 </div>
 
                 <div class="col">
-                    <label for="id_proof" class="form-label">Archivo de prueba</label>
+                    <label for="id_proof" class="form-label">Imagen de prueba</label>
                     <input class="form-control {% if form.proof.errors %}is-invalid{% endif %}" type="file"
                         id="id_proof" name="proof">
                     <div class="invalid-feedback">
@@ -103,7 +104,7 @@ Envíos
                 <!-- START ACCEPT RISKS -->
                 <div class="col-12">
                     <div class="form-check">
-                        <label for="id_accept_risks">Acepto los riesgos que implica esta operación:</label>
+                        <label for="id_accept_risks">Acepto los riesgos que implica esta operación</label>
                         <input type="checkbox" name="accept_risks"
                             class="form-check-input  {% if form.accept_risks.errors %}is-invalid{% endif %}" required
                             id="id_accept_risks">

@@ -1,14 +1,15 @@
+from typing import Union
 from django.db import models
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
-from django.urls import resolve, reverse
+from django.urls import reverse
 from deposit.models import Deposit
 
 
 def upload_location(instance, filename):
     date = instance.date_created.strftime('%Y-%m-%d')
-    file_path = 'movements/{movement_id}-{date}-{filename}'.format(
-        movement_id=instance.pk, date=date, filename=filename)
+    file_path = 'movements/{date}-{filename}'.format(
+        date=date, filename=filename)
     return file_path
 
 
@@ -136,6 +137,13 @@ class TrackingMovement(models.Model):
         result = self.get_result_display()
         return f'{dt}_{user}_{action}_to_{result}'
 
+    @property
+    def get_proof_url(self) -> Union[str, None]:
+        if self.proof and hasattr(self.proof, 'url'):
+            return self.proof.url
+        else:
+            return None
+
     def admin_display(self):
         if self.result == self.RESULT_ADDED_TO_SYSTEM:
             return ('Agregado al sistema por <a href="{user_url}" '
@@ -213,17 +221,24 @@ class TrackingMovement(models.Model):
                 from_carrier_username=self.from_carrier.username,
             )
         elif self.result == self.RESULT_REJECTED_AT_DESTINATION:
+            proof = ""
+            if self.proof is not None:  # and hasattr(self.proof, 'url'):
+                print("proof", self.get_proof_url)
+                # url = self.proof.url
+                # name = self.proof.url.split('/')[-1]
+                # proof = f' (Prueba: <a href="{url}">{name}</a>)'
             return (
                 'Rechazado en destino a <a href="{from_carrier_url}" '
                 'data-bs-toggle="tooltip"'
                 ' data-bs-html="true" title="{from_carrier_full_name}">'
-                '{from_carrier_username}</a>'
+                '{from_carrier_username}</a>{proof}'
             ).format(
                 from_carrier_url=reverse(
                     'account:employees-detail',
                     kwargs={'pk': self.from_carrier.pk}),
                 from_carrier_full_name=self.from_carrier.full_name,
                 from_carrier_username=self.from_carrier.username,
+                proof=proof
             )
         elif self.result == self.RESULT_REPROGRAMED:
             return (

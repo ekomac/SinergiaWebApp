@@ -1,8 +1,5 @@
-from django.core.files.storage import FileSystemStorage
 import hashlib
-import os
 from django import forms
-from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from account.models import Account
 from deposit.models import Deposit
@@ -629,7 +626,7 @@ class ActionDeliveryAttemptForm(BaseActionForm):
             })
     )
 
-    proof = forms.FileField(
+    proof = forms.ImageField(
         label='Comprobante de entrega', required=False,
         widget=forms.FileInput(
             attrs={
@@ -654,20 +651,6 @@ class ActionDeliveryAttemptForm(BaseActionForm):
         )
         movement.save()
 
-        if proof is not None:
-            movement.proof = proof
-
-            url = os.path.join(settings.TEMP, str(proof))
-            storage = FileSystemStorage(location=url)
-
-            with storage.open('', 'wb+') as destination:
-                for chunk in proof.chunks():
-                    destination.write(chunk)
-                destination.close()
-
-            os.remove(url)
-            movement.save()
-
         envio = Envio.objects.filter(tracking_id=envio_tracking_id).first()
 
         # Add envios to the movement
@@ -688,10 +671,24 @@ class ActionSuccessfulDeliveryForm(BaseActionForm):
             })
     )
 
+    comment = forms.CharField(
+        label='Comentarios', required=False,
+        widget=forms.Textarea(
+            attrs={
+                'class': 'form-control',
+                'type': 'text',
+                'placeholder': 'Motivo de no entrega',
+            })
+    )
+
     def perform_action(self) -> TrackingMovement:
-        return delivery_attempt(
+        movement, _ = delivery_attempt(
             author=self.user,
             result_obtained=TrackingMovement.RESULT_DELIVERED,
             envio_tracking_id=self.envio.tracking_id,
-            receiver_doc_id=self.validated_data['receiver_doc_id']
+            receiver_doc_id=self.cleaned_data['receiver_doc_id']
         )
+        if comment := self.cleaned_data.get('comment', None):
+            movement.comment = comment
+            movement.save()
+        return movement

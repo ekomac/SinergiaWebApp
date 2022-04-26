@@ -332,18 +332,90 @@
                                 href="{% url 'account:employees-detail' pk=movement.created_by.pk %}">@{{ movement.created_by.username}}</a>{% else %}Sin
                             datos{% endif %}</td>
                         {% endif %}
-                        <td class="w-100">{% if request.user.role == 'client' %}<b>{{movement.client_display.0}}</b>:
-                            {{ movement.client_display.1 }}{% else %}{{movement.admin_display | safe}}{% endif %}</td>
+                        {% if request.user.role == 'client' %}
+                        <td class="w-100">
+                            <b>{{movement.client_display.0}}</b>: {{ movement.client_display.1 }}
+                        </td>
+                        {% else %}
+                        <td class="w-100">
+                            {% if movement.result == '_new' %}
+                            Agregado al sistema por <a
+                                href="{% url 'account:employees-detail' pk=movement.created_by.pk %}"
+                                data-bs-toggle="tooltip" data-bs-toggle="tooltip" data-bs-html="true"
+                                title="{{movement.created_by.full_name}}">{{movement.created_by.username}}</a>
+
+                            {% elif movement.result == 'collected' %}
+                            Recolectado de <a
+                                href="{% url 'deposits:detail' pk=movement.from_deposit.pk%}">{{movement.from_deposit.name}}</a>
+                            por <a href="{% url 'account:employees-detail' pk=movement.to_carrier.pk %}"
+                                data-bs-toggle="tooltip" data-bs-html="true"
+                                title="{{ movement.to_carrier.full_name }}">{{ movement.to_carrier.username }}</a>
+
+                            {% elif movement.result == 'transfered' %}
+                            Transferido de <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk%}"
+                                data-bs-toggle="tooltip" data-bs-html="true"
+                                title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a> a <a
+                                href="{% url 'account:employees-detail' pk=movement.to_carrier.pk %}"
+                                data-bs-toggle="tooltip" data-bs-html="true" title="{{movement.to_carrier.full_name}}">
+                                {{movement.to_carrier.username}}</a>
+
+                            {% elif movement.result == 'in_deposit' %}
+                            Depositado en <a
+                                href="{% url 'deposits:detail' pk=movement.to_deposit.pk %}">{{movement.to_deposit.name}}</a>
+                            por <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
+                                data-bs-toggle="tooltip" data-bs-html="true"
+                                title="{{movement.from_carrier.full_name}}"> {{movement.from_carrier.username}}</a>
+
+                            {% elif movement.result == 'success' %}
+                            Entregado por <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
+                                data-bs-toggle="tooltip" data-bs-html="true"
+                                title="{{ movement.from_carrier.full_name }}">{{movement.from_carrier.username}}</a>
+
+                            {% elif movement.result == 'rejected' %}
+                            Rechazado en destino a <a
+                                href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
+                                data-bs-toggle="tooltip" data-bs-html="true"
+                                title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% if movement.comment %}.
+                            Comentario: "{{ movement.comment }}"{% endif %}{% if movement.proof %}. Se adjuntó <a
+                                href="{{ movement.proof.url }}">esta imagen</a>.{% endif %}
+
+
+                            {% elif movement.result == 'reprogram' %}
+                            Reprogramado en destino a <a
+                                href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
+                                data-bs-toggle="tooltip" data-bs-html="true"
+                                title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% if movement.comment %}.
+                            Comentario: "{{ movement.comment }}"{% endif %}{% if movement.proof %}. Se adjuntó <a
+                                href="{{ movement.proof.url }}">esta imagen</a>.{% endif %}
+
+                            {% elif movement.result == 'not-respond' %}
+                            Sin respuesta en destino a <a
+                                href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
+                                data-bs-toggle="tooltip" data-bs-html="true"
+                                title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% if movement.comment %}.
+                            Comentario: "{{ movement.comment }}"{% endif %}{% if movement.proof %}. Se adjuntó <a
+                                href="{{ movement.proof.url }}">esta imagen</a>.{% endif %}
+
+                            {% elif movement.result == 'custom' %}
+                            <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
+                                data-bs-toggle="tooltip" data-bs-html="true"
+                                title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a> no
+                            pudo entregar en destino: {% if movement.comment %}"{{ movement.comment }}"{% else %}sin
+                            comentario{% endif %}{% if movement.proof %}. Se adjuntó <a
+                                href="{{ movement.proof.url }}">esta imagen</a>{% endif %}.
+
+                            {% else %}
+                            Sin información del movimiento.
+                            {% endif %}
+                        </td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-
         </div>
     </div>
-
 </div>
-
 <script>
     $(document).ready(function () {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))

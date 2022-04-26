@@ -549,7 +549,7 @@ def delivery_attempt_envio_view(request, pk: int):
     form = ActionDeliveryAttemptForm(user=request.user, envio=envio)
     if request.method == 'POST':
         form = ActionDeliveryAttemptForm(
-            data=request.POST, user=request.user, envio=envio)
+            request.user, envio, request.POST, request.FILES)
         if form.is_valid():
             movement = form.perform_action()
             print(movement)
