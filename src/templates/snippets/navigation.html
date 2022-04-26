@@ -424,7 +424,14 @@
             {% endif %}
             <!-- END APK url -->
 
-            {% if request.user|has_group:"Admins" %}
+            <!-- START AYUDA -->
+            {% if request.user|has_group:"Clients" %}
+            <li id="call_help" class="nav-item li-navigation">
+                <a href="#" class="nav-link tab"><i class="bi bi-question-circle"></i> Solicitar ayuda</a>
+            </li>
+            {% endif %}
+            <!-- END AYUDA -->
+
             {% if request.user.is_superuser %}
             <!-- START Mobile App -->
             {% comment %} <li class="nav-item {% if selected_tab == 'scanner-tab' %}activetab{% endif %} li-navigation">
@@ -440,7 +447,6 @@
                     <i class="bi bi-person-check"></i> Superadmin
                 </a>
             </li>
-            {% endif %}
             {% endif %}
             <!-- END SUPERADMIN -->
 
@@ -508,6 +514,18 @@
 
     $(document).ready(function () {
         togglePricesTopMenu();
+        $("#call_help").click(function () {
+            try {
+                var msg = prompt(
+                    "Escriba su mensaje en el siguiente cuadro de texto y presione 'Enter'",
+                    "");
+                msg = msg.replace(' ', '+');
+                window.location.href = "https://api.whatsapp.com/send/?phone=541127458276&text=" + msg +
+                    "&app_absent=0";
+            } catch (e) {
+                console.log("No se pudo abrir el chat: " + e);
+            }
+        });
     });
 
     function togglePricesTopMenu() {
@@ -519,5 +537,9 @@
             $('#openPrices').show();
         }
         pricesAreOpened = !pricesAreOpened;
+    }
+
+    function callHelp() {
+
     }
 </script>

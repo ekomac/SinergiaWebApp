@@ -21,8 +21,6 @@ from django.contrib.auth import views as auth_views
 
 
 from home.views import (
-    # mobile_account_view,
-    # mobile_based_tracking_actions_view,
     admin_home_screen_view,
     delete_alert_from_session,
     redirect_no_url,
