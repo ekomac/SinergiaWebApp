@@ -56,7 +56,7 @@ Envíos
                 <strong>Envío:</strong> {{ form.envio.full_address }}<br>
                 <strong>En:</strong> <a
                     href="{% url 'deposits:detail' pk=form.envio.deposit.pk %}">{{ form.envio.deposit.name }}</a> en
-                <i>{{ form.envio.deposit.full_address }}</i>{% if form.envio.deposit.client %}de
+                <i>{{ form.envio.deposit.full_address }}</i>{% if form.envio.deposit.client %} de
                 {{ form.envio.deposit.client.name }}{% endif %}<br>
                 <strong>Cliente:</strong> <a
                     href="{% url 'clients:detail' pk=form.envio.client.pk %}">{{ form.envio.client }}</a><br>

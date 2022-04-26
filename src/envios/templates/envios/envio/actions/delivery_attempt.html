@@ -34,7 +34,7 @@ Envíos
 
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
-                Registrar intento de envío
+                Registrar intento de entrega del envío
             </div>
             <div>
                 <a href="{% url 'envios:envio-detail' pk=form.envio.pk %}"><i class="bi bi-x"></i>Cancelar</a>
@@ -54,7 +54,8 @@ Envíos
 
             <div>
                 <strong>Envío:</strong> {{ form.envio.full_address }}<br>
-                <strong>Portado por:</strong> <a href="#" data-bs-toggle="tooltip" data-bs-html="true"
+                <strong>Portado por:</strong> <a href="{% url 'account:employees-detail' pk=form.envio.carrier.pk %}"
+                    data-bs-toggle="tooltip" data-bs-html="true"
                     title="{{ form.envio.carrier.full_name }}<em><br>{% if form.envio.carrier.client != None %}&nbsp;({{ form.envio.carrier.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ form.envio.carrier.username }}</a><br>
                 <strong>Cliente:</strong> <a
                     href="{% url 'clients:detail' pk=form.envio.client.pk %}">{{ form.envio.client }}</a><br>
@@ -134,5 +135,13 @@ Envíos
 
 </div>
 
+<script>
+    $(document).ready(function () {
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    });
+</script>
 
 {% endblock %}
