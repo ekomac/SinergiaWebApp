@@ -216,6 +216,16 @@ main {
     cursor: pointer;
 }
 
+.table-hover tbody tr:hover a,
+.table-hover tbody tr:hover a {
+    color: red;
+}
+
+.table-hover tbody tr:hover a:hover,
+.table-hover tbody tr:hover a:hover {
+    color: white;
+}
+
 .table-scrollable {
     overflow-x: auto;
     max-width: 600px;

@@ -3,12 +3,13 @@
 
 {% block modal_content %}
 
+<!-- start BASE MODAL DIALOG -->
 <div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="baseModal" tabindex="-1"
     aria-labelledby="baseModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="filtersModalLabel">Elegí cómo querés filtrar los envíos.
+                <h5 class="modal-title" id="filtersModalLabel">Elegí cómo querés filtrar los movimientos.
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -38,456 +39,364 @@
                 </div>
                 <!-- end DATES FROM AND TO FILTER -->
 
-                <!-- start from_deposit TYPE SELECTION -->
+                <!-- start RESULT SELECTION -->
                 <div class="row g-2 mt-2">
                     <div class="col">
-                        <label for="id_from_deposit_modal" class="form-label">Cliente</label>
+                        <label for="id_result_modal" class="form-label">Resultado</label>
 
-                        <!-- start from_deposit SELECTION -->
-                        <select id="id_from_deposit_modal" name="from_deposit_modal" class="form-select"
-                            aria-label="from_deposit selection">
+                        <select id="id_result_modal" name="result_modal" class="form-select"
+                            aria-label="result selection">
                             <option value="">---</option>
-                            {% for from_deposit in deposits %}
-                            <option value="{{deposit.id}}"
-                                {% if from_deposit_id == deposit.id|stringformat:"i" %}selected{% endif %}>
-                                {{deposit.name}}</option>
+                            {% for code, result_name in results %}
+                            <option value="{{ code }}" {% if result == code %}selected{% endif %}>{{ result_name }}
+                            </option>
                             {% endfor %}
                         </select>
-                        <!-- end from_deposit SELECTION -->
 
                     </div>
                 </div>
-                <!-- end from_deposit SELECTION -->
+                <!-- end RESULT SELECTION -->
 
-                <!-- start to_deposit_id TYPE SELECTION -->
+                <!-- start FROM DEPOSIT SELECTION -->
                 <div class="row g-2 mt-2">
                     <div class="col">
-                        <label for="id_to_deposit_modal" class="form-label">Cliente</label>
+                        <label for="id_from_deposit_modal" class="form-label">Depósito emisor</label>
 
-                        <!-- start to_deposit_id SELECTION -->
+                        <select id="id_from_deposit_modal" name="from_deposit_modal" class="form-select"
+                            aria-label="from_deposit selection">
+                            <option value="">---</option>
+                            {% for deposit in deposits %}
+                            <option value="{{ deposit.id }}"
+                                {% if from_deposit == deposit.id|stringformat:"i" %}selected{% endif %}>
+                                {{ deposit.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
+                </div>
+                <!-- end FROM DEPOSIT SELECTION -->
+
+                <!-- start TO DEPOSIT SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_to_deposit_modal" class="form-label">Depósito receptor</label>
+
                         <select id="id_to_deposit_modal" name="to_deposit_modal" class="form-select"
                             aria-label="to_deposit selection">
                             <option value="">---</option>
                             {% for deposit in deposits %}
-                            <option value="{{deposit.id}}"
-                                {% if to_deposit_id == deposit.id|stringformat:"i" %}selected{% endif %}>
-                                {{deposit.name}}</option>
+                            <option value="{{ deposit.id }}"
+                                {% if to_deposit == deposit.id|stringformat:"i" %}selected{% endif %}>
+                                {{ deposit.name }}
+                            </option>
                             {% endfor %}
                         </select>
-                        <!-- end to_deposit_id SELECTION -->
 
                     </div>
                 </div>
-                <!-- end to_deposit_id SELECTION -->
+                <!-- end TO DEPOSIT SELECTION -->
 
-                <!-- start from_carrier TYPE SELECTION -->
+                <!-- start FROM CARRIER SELECTION -->
                 <div class="row g-2 mt-2">
                     <div class="col">
-                        <label for="id_from_carrier_modal" class="form-label">Cliente</label>
+                        <label for="id_from_carrier_modal" class="form-label">Usuario emisor</label>
 
-                        <!-- start from_carrier SELECTION -->
                         <select id="id_from_carrier_modal" name="from_carrier_modal" class="form-select"
                             aria-label="from_carrier selection">
                             <option value="">---</option>
-                            {% for carrier in deposits %}
-                            <option value="{{carrier.id}}"
-                                {% if from_carrier_id == carrier.id|stringformat:"i" %}selected{% endif %}>
-                                {{carrier.name}}</option>
+                            {% for carrier in carriers %}
+                            <option value="{{ carrier.id }}"
+                                {% if from_carrier == carrier.id|stringformat:"i" %}selected{% endif %}>
+                                {{ carrier.full_name }}
+                            </option>
                             {% endfor %}
                         </select>
-                        <!-- end from_carrier SELECTION -->
 
                     </div>
                 </div>
-                <!-- end from_carrier SELECTION -->
+                <!-- end FROM CARRIER SELECTION -->
 
-                <!-- start from_carrier TYPE SELECTION -->
+                <!-- start TO CARRIER SELECTION -->
                 <div class="row g-2 mt-2">
                     <div class="col">
-                        <label for="id_to_carrier_modal" class="form-label">Cliente</label>
+                        <label for="id_to_carrier_modal" class="form-label">Usuario receptor</label>
 
-                        <!-- start from_carrier SELECTION -->
                         <select id="id_to_carrier_modal" name="to_carrier_modal" class="form-select"
                             aria-label="to_carrier selection">
                             <option value="">---</option>
-                            {% for carrier in deposits %}
-                            <option value="{{carrier.id}}"
-                                {% if to_carrier_id == carrier.id|stringformat:"i" %}selected{% endif %}>
-                                {{carrier.name}}</option>
+                            {% for carrier in carriers %}
+                            <option value="{{ carrier.id }}"
+                                {% if to_carrier == carrier.id|stringformat:"i" %}selected{% endif %}>
+                                {{ carrier.full_name }}
+                            </option>
                             {% endfor %}
                         </select>
-                        <!-- end from_carrier SELECTION -->
 
                     </div>
                 </div>
-                <!-- end from_carrier SELECTION -->
+                <!-- end TO CARRIER SELECTION -->
 
+                <!-- start AUTHOR SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_author_modal" class="form-label">Autor</label>
 
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                        onclick="clearFilters()">Limpiar</button>
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
-                        onclick="applyFilters()">Aplicar</button>
+                        <select id="id_author_modal" name="author_modal" class="form-select"
+                            aria-label="author selection">
+                            <option value="">---</option>
+                            {% for user in users %}
+                            <option value="{{ user.id }}"
+                                {% if author == user.id|stringformat:"i" %}selected{% endif %}>
+                                {{ user.full_name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                    </div>
                 </div>
+                <!-- end AUTHOR SELECTION -->
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                    onclick="clearFilters()">Limpiar</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal"
+                    onclick="applyFilters()">Aplicar</button>
             </div>
         </div>
     </div>
-    <!-- end BASE MODAL DIALOG -->
+</div>
+<!-- end BASE MODAL DIALOG -->
 
-    {% endblock modal_content %}
-
-
-
-
-    {% block add_url_block %}href="{% url 'envios:envio-add' %}" {% endblock add_url_block %}
-
-
-    {% block custom_add_block %}
-    <a href="{% url 'envios:envio-bulk-add' %}" type="button" class="btn btn-success btn-sm ms-2 me-1 shadow"><i
-            class="bi bi-upload me-1"></i>Carga masiva</a>
-    {% endblock custom_add_block %}
-
-    {% block orderby_block %}
-    <li>
-        <button onclick="orderByChanged('date_created_desc','id_order_by','list_form');" class="dropdown-item">
-            Carga&nbsp;más&nbsp;reciente
-        </button>
-    </li>
-    <li>
-        <button onclick="orderByChanged('date_created','id_order_by','list_form');" class="dropdown-item">
-            Carga&nbsp;más&nbsp;antigua
-        </button>
-    </li>
-    <li>
-        <button onclick="orderByChanged('is_flex_desc','id_order_by','list_form');" class="dropdown-item">
-            Flex&nbsp;primero
-        </button>
-    </li>
-    <li>
-        <button onclick="orderByChanged('is_flex','id_order_by','list_form');" class="dropdown-item">
-            Mensajería&nbsp;primero
-        </button>
-    </li>
-    <li>
-        <button onclick="orderByChanged('town__name','id_order_by','list_form');" class="dropdown-item">
-            Localidad&nbsp;A-Z
-        </button>
-    </li>
-    <li>
-        <button onclick="orderByChanged('town__name_desc','id_order_by','list_form');" class="dropdown-item">
-            Localidad&nbsp;Z-A
-        </button>
-    </li>
-    <li>
-        <button onclick="orderByChanged('client__name','id_order_by','list_form');" class="dropdown-item">
-            Cliente&nbsp;A-Z
-        </button>
-    </li>
-    <li>
-        <button onclick="orderByChanged('client__name_desc','id_order_by','list_form');" class="dropdown-item">
-            Cliente&nbsp;Z-A
-        </button>
-    </li>
-    <li>
-        <button onclick="orderByChanged('status','id_order_by','list_form');" class="dropdown-item">
-            Estado&nbsp;A-Z
-        </button>
-    </li>
-    <li>
-        <button onclick="orderByChanged('status_desc','id_order_by','list_form');" class="dropdown-item">
-            Estado&nbsp;Z-A
-        </button>
-    </li>
-    {% endblock orderby_block %}
+{% endblock modal_content %}
 
 
 
-    {% block filters_block %}
-    <input type="text" id='id_min_date' name="min_date" {% if min_date %}value="{{ min_date }}" {% endif %}>
-    <input type="text" id='id_max_date' name="max_date" {% if max_date %}value="{{ max_date }}" {% endif %}>
-    <input type="text" id='id_from_deposit_id' name="from_deposit_id" {% if client_id %}value="{{ client_id }}"
-        {% endif %}>
-    <input type="text" id='id_to_deposit_id' name="to_deposit_id" {% if client_id %}value="{{ client_id }}" {% endif %}>
-    <input type="text" id='id_from_carrier_id' name="from_carrier_id" {% if client_id %}value="{{ client_id }}"
-        {% endif %}>
-    <input type="text" id='id_to_carrier_id' name="to_carrier_id" {% if client_id %}value="{{ client_id }}" {% endif %}>
-    <input type="submit">
-    {% endblock filters_block %}
-
-
-    {% block actions_block %}
-    <!-- start ACTIONS -->
-    <div class="d-flex flex-wrap align-items-center">
-
-        <div class="d-none">
-            <form method="POST" id="example_form">{% csrf_token %}
-                <textarea type="text" id="id_ids" name="ids"></textarea>
-            </form>
-        </div>
-        <button type="button" id="printLabels" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2"
-            onclick="printSelectedItems()" disabled>
-            Imprimir etiquetas
-        </button>
-        <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{totalEnvios}} elementos seleccionados</div>
-        <div class="my-1 mx-xl-3">
-            <div id="clearSelectionDiv" class="hide-on-load">
-                <a id="clearSelection" type="button" class="ms-2 text-decoration-none" onclick="removeSelection()"
-                    style="cursor: pointer;">Quitar selección
-                    <i class="bi bi-x"></i></a>
-            </div>
-        </div>
-
-    </div>
-    <!-- end ACTIONS -->
-
-    <hr>
-
-    {% endblock actions_block %}
+{% block orderby_block %}
+<li>
+    <button onclick="orderByChanged('date_created_desc','id_order_by','list_form');" class="dropdown-item">
+        Carga&nbsp;más&nbsp;reciente
+    </button>
+</li>
+<li>
+    <button onclick="orderByChanged('date_created','id_order_by','list_form');" class="dropdown-item">
+        Carga&nbsp;más&nbsp;antigua
+    </button>
+</li>
+{% endblock orderby_block %}
 
 
 
-    {% block objects_table_head_block %}
-    <th>
-        <div class="form-check">
-            <input class="form-check-input checkbox-select" type="checkbox" id="checkAll">
-        </div>
-    </th>
-    <th class="cell-centered">Fecha de carga</th>
-    <th class="cell-centered">Estado</th>
-    <th class="cell-centered">Tipo</th>
-    <th class="cell-centered">Cliente</th>
-    <th>Destino</th>
-    <th>Depósito/Portador</th>
-    <th class="cell-centered fw-bolder"><i class="bi bi-calendar-check"></i></th>
-    <th class="cell-centered fw-bolder"><i class="bi bi-clock"></i></th>
-    {% endblock objects_table_head_block %}
+{% block filters_block %}
+<input type="text" id='id_min_date' name="min_date" {% if min_date %}value="{{ min_date }}" {% endif %}>
+<input type="text" id='id_max_date' name="max_date" {% if max_date %}value="{{ max_date }}" {% endif %}>
+<input type="text" id='id_result' name="result" {% if result %}value="{{ result }}" {% endif %}>
+<input type="text" id='id_from_deposit' name="from_deposit" {% if from_deposit %}value="{{ from_deposit }}" {% endif %}>
+<input type="text" id='id_to_deposit' name="to_deposit" {% if to_deposit %}value="{{ to_deposit }}" {% endif %}>
+<input type="text" id='id_from_carrier' name="from_carrier" {% if from_carrier %}value="{{ from_carrier }}" {% endif %}>
+<input type="text" id='id_to_carrier' name="to_carrier" {% if to_carrier %}value="{{ to_carrier }}" {% endif %}>
+<input type="text" id='id_author' name="author" {% if author %}value="{{ author }}" {% endif %}>
+<input type="submit">
+{% endblock filters_block %}
 
 
-    {% block objects_table_body_block %}
-    {% for envio in objects %}
-    {% include 'envios/envio/snippets/item.html' with obj=envio counter=forloop.counter%}
-    {% endfor %}
-    {% endblock objects_table_body_block %}
+
+{% block objects_table_head_block %}
+<th>Fecha</th>
+<th>Autor</th>
+<th>Movimiento</th>
+{% endblock objects_table_head_block %}
 
 
-    {% block scripts_block %}
-    <script>
-        const passedOrderBy = '{{ order_by }}';
-        var lastQuery = "{{ query_by }}";
-        var selectionModeEnabled = false;
-        var totalEnvios = parseInt('{{pagination_count}}');
+{% block objects_table_body_block %}
+{% for movement in objects %}
+<tr>
+    <td>{{movement.date_created | date:"d/m/Y H:i"}}</td>
+    {% if request.user.role == 'admin' %}
+    <td>{% if movement.created_by %}
+        <a href="{% url 'account:employees-detail' pk=movement.created_by.pk %}" data-bs-toggle="tooltip"
+            data-bs-toggle="tooltip" data-bs-html="true"
+            title="{{movement.created_by.full_name}}">{{movement.created_by.username}}</a>{% else %}Sindatos{% endif %}
+    </td>
+    {% endif %}
+    {% if request.user.role == 'client' %}
+    <td class="w-100">
+        <b>{{movement.client_display.0}}</b>: {{ movement.client_display.1 }}
+    </td>
+    {% else %}
+    <td class="w-100">
+        {% if movement.result == '_new' %}
+        Agregado al sistema por <a href="{% url 'account:employees-detail' pk=movement.created_by.pk %}"
+            data-bs-toggle="tooltip" data-bs-toggle="tooltip" data-bs-html="true"
+            title="{{movement.created_by.full_name}}">{{movement.created_by.username}}</a>
 
-        $(document).ready(function () {
-            addingSelectedIdsAjaxConfig();
-            enableTooltips();
-            $('#list_form').submit(function (e) {
-                e.preventDefault();
-                [
-                    'id_query_by',
-                    'id_order_by',
-                    'id_results_per_page',
-                    'id_min_date',
-                    'id_max_date',
-                    'id_client_id',
-                    'id_status',
-                    'id_is_flex',
-                ].forEach(function (id) {
-                    if ($('#' + id).val() == '') {
-                        $('#' + id).prop('disabled', true);
-                    } else {
-                        $('#' + id).prop('disabled', false);
-                    }
-                });
-                $(this).unbind('submit').submit();
+        {% elif movement.result == 'collected' %}
+        Recolectado de <a
+            href="{% url 'deposits:detail' pk=movement.from_deposit.pk%}">{{movement.from_deposit.name}}</a>
+        por <a href="{% url 'account:employees-detail' pk=movement.to_carrier.pk %}" data-bs-toggle="tooltip"
+            data-bs-html="true" title="{{ movement.to_carrier.full_name }}">{{ movement.to_carrier.username }}</a>
+
+        {% elif movement.result == 'transfered' %}
+        Transferido de <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk%}"
+            data-bs-toggle="tooltip" data-bs-html="true"
+            title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a> a <a
+            href="{% url 'account:employees-detail' pk=movement.to_carrier.pk %}" data-bs-toggle="tooltip"
+            data-bs-html="true" title="{{movement.to_carrier.full_name}}">
+            {{movement.to_carrier.username}}</a>
+
+        {% elif movement.result == 'in_deposit' %}
+        Depositado en <a href="{% url 'deposits:detail' pk=movement.to_deposit.pk %}">{{movement.to_deposit.name}}</a>
+        por <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}" data-bs-toggle="tooltip"
+            data-bs-html="true" title="{{movement.from_carrier.full_name}}"> {{movement.from_carrier.username}}</a>
+
+        {% elif movement.result == 'success' %}
+        Entregado por <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
+            data-bs-toggle="tooltip" data-bs-html="true"
+            title="{{ movement.from_carrier.full_name }}">{{movement.from_carrier.username}}</a>
+
+        {% elif movement.result == 'rejected' %}
+        Rechazado en destino a <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
+            data-bs-toggle="tooltip" data-bs-html="true"
+            title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% if movement.comment %}.
+        Comentario: "{{ movement.comment }}"{% endif %}{% if movement.proof %}. Se adjuntó <a
+            href="{{ movement.proof.url }}">esta imagen</a>.{% endif %}
+
+
+        {% elif movement.result == 'reprogram' %}
+        Reprogramado en destino a <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
+            data-bs-toggle="tooltip" data-bs-html="true"
+            title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% if movement.comment %}.
+        Comentario: "{{ movement.comment }}"{% endif %}{% if movement.proof %}. Se adjuntó <a
+            href="{{ movement.proof.url }}">esta imagen</a>.{% endif %}
+
+        {% elif movement.result == 'not-respond' %}
+        Sin respuesta en destino a <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
+            data-bs-toggle="tooltip" data-bs-html="true"
+            title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% if movement.comment %}.
+        Comentario: "{{ movement.comment }}"{% endif %}{% if movement.proof %}. Se adjuntó <a
+            href="{{ movement.proof.url }}">esta imagen</a>.{% endif %}
+
+        {% elif movement.result == 'custom' %}
+        <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}" data-bs-toggle="tooltip"
+            data-bs-html="true" title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a> no
+        pudo entregar en destino: {% if movement.comment %}"{{ movement.comment }}"{% else %}sin
+        comentario{% endif %}{% if movement.proof %}. Se adjuntó <a href="{{ movement.proof.url }}">esta
+            imagen</a>{% endif %}.
+
+        {% else %}
+        Sin información del movimiento.
+        {% endif %}
+    </td>
+    {% endif %}
+</tr>
+{% endfor %}
+{% endblock objects_table_body_block %}
+
+
+
+{% block scripts_block %}
+<script>
+    const passedOrderBy = '{{ order_by }}';
+    var lastQuery = "{{ query_by }}";
+
+    $(document).ready(function () {
+
+        $('#list_form').submit(function (e) {
+            e.preventDefault();
+            [
+                'id_query_by',
+                'id_order_by',
+                'id_results_per_page',
+                'id_min_date',
+                'id_max_date',
+                'id_result',
+                'id_from_deposit',
+                'id_to_deposit',
+                'id_from_carrier',
+                'id_to_carrier',
+                'id_author',
+            ].forEach(function (id) {
+                if ($('#' + id).val() == '') {
+                    $('#' + id).prop('disabled', true);
+                } else {
+                    $('#' + id).prop('disabled', false);
+                }
             });
-
-
-            $('#id_results_per_page').change(function () {
-                $('#list_form').submit();
-            });
-
-            $('#id_query_by').on('change paste keyup', function () {
-                show('clearSearchDiv', $('#id_query_by').val() != '');
-                show('btnCleanQuery', $('#id_query_by').val() != '');
-            });
-
-            if (lastQuery != '') {
-                $('#id_query_by').val(lastQuery);
-                show('clearSearchDiv', $('#id_query_by').val() != '');
-                show('btnCleanQuery', $('#id_query_by').val() != '');
-            }
-
-            $("#checkAll").click(function () {
-                $(".item-checker").prop('checked', this.checked);
-                countCheckedItems();
-            });
-
-            $(".item-checker").click(function (e) {
-                e.stopImmediatePropagation();
-                countCheckedItems();
-            });
-
-            $(".td-item-checker").click(function (e) {
-                var id = this.id.split("-")[1];
-                changeItemCheckerState('item-checker-' + id);
-                e.stopImmediatePropagation();
-                e.stopPropagation();
-                countCheckedItems();
-            });
-
-            $('#btnRadioRPP50').click(function () {
-                $('#id_results_per_page').val(50);
-                $('#list_form').submit();
-            });
-            $('#btnRadioRPP100').click(function () {
-                $('#id_results_per_page').val(100);
-                $('#list_form').submit();
-            });
-            $('#btnRadioRPP200').click(function () {
-                $('#id_results_per_page').val(200);
-                $('#list_form').submit();
-            });
-            $('#btnRadioRPP500').click(function () {
-                $('#id_results_per_page').val(500);
-                $('#list_form').submit();
-            });
-
-
+            $(this).unbind('submit').submit();
         });
 
-        function clearSearch() {
-            $('#id_query_by').val('');
-            if (lastQuery != '' && lastQuery != null && lastQuery != undefined) {
-                $('#list_form').submit();
-            }
-            show('btnCleanQuery', false);
+        enableTooltips();
+
+        $('#id_results_per_page').change(function () {
+            $('#list_form').submit();
+        });
+
+        $('#id_query_by').on('change paste keyup', function () {
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
+        });
+
+        if (lastQuery != '') {
+            $('#id_query_by').val(lastQuery);
+            show('clearSearchDiv', $('#id_query_by').val() != '');
+            show('btnCleanQuery', $('#id_query_by').val() != '');
         }
 
+        $('#btnRadioRPP50').click(function () {
+            $('#id_results_per_page').val(50);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP100').click(function () {
+            $('#id_results_per_page').val(100);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP200').click(function () {
+            $('#id_results_per_page').val(200);
+            $('#list_form').submit();
+        });
+        $('#btnRadioRPP500').click(function () {
+            $('#id_results_per_page').val(500);
+            $('#list_form').submit();
+        });
 
-        function applyFilters() {
-            $('#id_min_date').val($('#id_min_date_modal').val());
-            $('#id_max_date').val($('#id_max_date_modal').val());
-            $('#id_client_id').val($('#id_client_modal').val());
-            $('#id_status').val($('#id_status_modal').val());
-            $('#id_is_flex').val($('#id_is_flex_modal').val());
+
+    });
+
+    function clearSearch() {
+        $('#id_query_by').val('');
+        if (lastQuery != '' && lastQuery != null && lastQuery != undefined) {
             $('#list_form').submit();
         }
+        show('btnCleanQuery', false);
+    }
 
-        function clearFilters() {
-            $('#id_min_date').val('');
-            $('#id_max_date').val('');
-            $('#id_client_id').val('');
-            $('#id_status').val('');
-            $('#id_is_flex').val('');
-            $('#list_form').submit();
-        }
 
-        function onItemClicked(id, url) {
-            if (selectionModeEnabled) {
-                $('#item-checker-' + id).prop('checked', !$('#item-checker-' + id).is(":checked"));
-            } else {
-                window.location.href = url;
-            }
-            countCheckedItems();
-        }
+    function applyFilters() {
+        $('#id_min_date').val($('#id_min_date_modal').val());
+        $('#id_max_date').val($('#id_max_date_modal').val());
+        $('#id_result').val($('#id_result_modal').val());
+        $('#id_from_deposit').val($('#id_from_deposit_modal').val());
+        $('#id_to_deposit').val($('#id_to_deposit_modal').val());
+        $('#id_from_carrier').val($('#id_from_carrier_modal').val());
+        $('#id_to_carrier').val($('#id_to_carrier_modal').val());
+        $('#id_author').val($('#id_author_modal').val());
+        $('#list_form').submit();
+    }
 
-        function countCheckedItems() {
-            // Get all checkboxes
-            var checkBoxes = Array.from(document.getElementsByClassName("item-checker"));
-            // Count total checkboxes
-            var totalCheckBoxes = checkBoxes.length;
-            // Count checked checkboxes
-            var checkedItemsCount = checkBoxes.filter(checkBox => checkBox.checked == true).length;
-            // If all checkboxes checked, check "checkAll" checkbox
-            $('#checkAll').prop('checked', checkedItemsCount == totalCheckBoxes);
-            // Update selected count
-            $('#selectedCount').text(checkedItemsCount + " de " + totalEnvios + " elementos seleccionados");
+    function clearFilters() {
+        $('#id_min_date').val('');
+        $('#id_max_date').val('');
+        $('#id_result').val('');
+        $('#id_from_deposit').val('');
+        $('#id_to_deposit').val('');
+        $('#id_from_carrier').val('');
+        $('#id_to_carrier').val('');
+        $('#id_author').val('');
+        $('#list_form').submit();
+    }
+</script>
 
-            // Enable print labels btn if at least 1 checkbox is checked
-            isEnabled('printLabels', checkedItemsCount > 0);
-
-            // Enable bulk add task btn if at least 1 checkbox is checked
-            isEnabled('bulkAddTask', checkedItemsCount > 0);
-
-            // Enable selection mode if at least 1 checkbox checked
-            selectionModeEnabled = checkedItemsCount > 0;
-            // hide
-            show('clearSelectionDiv', selectionModeEnabled);
-        }
-
-        function changeItemCheckerState(id) {
-            $('#' + id).prop('checked', !$('#' + id).is(":checked"));
-        }
-
-        function isEnabled(id, enable = true) {
-            if (enable && $('#' + id).is(":disabled")) {
-                $('#' + id).removeAttr("disabled");
-            }
-            if (!enable && $('#' + id).is(":enabled")) {
-                $('#' + id).attr("disabled", true);
-            }
-        }
-
-        function itemClicked(id) {
-            if ($('#item-checker-' + id).is(":checked")) {
-                $('#item-checker-' + id).prop('checked', false);
-            } else if (selectionModeEnabled) {
-                $('#item-checker-' + id).prop('checked', true);
-            } else {
-                alert("launch detail item");
-            }
-
-        }
-
-        function removeSelection() {
-            $(".item-checker").prop('checked', false);
-            countCheckedItems();
-        }
-
-        function getSelectedIds() {
-            // Get all checked checkboxes
-            return Array.from(document.getElementsByClassName("item-checker"))
-                .filter(checkBox => checkBox.checked == true).map(function (checkbox) {
-                    var id = checkbox.id;
-                    return id.split("-checker-")[1];
-                }).join("-");
-        }
-
-        function printSelectedItems() {
-            $('#example_form').submit();
-        }
-
-        function addingSelectedIdsAjaxConfig() {
-            $("#example_form").submit(function (e) {
-                // preventing from page reload and default actions
-                e.preventDefault();
-                var csrftoken = getCookie('csrftoken');
-                var ids = getSelectedIds();
-                $("#id_ids").val(ids);
-                // serialize the data for sending the form data.
-                var serializedData = $(this).serialize();
-                // make POST ajax call
-                $.ajax({
-                    type: 'POST',
-                    url: "{% url 'envios:post-selected-ids' %}",
-                    data: serializedData,
-                    success: function (response) {
-                        // on successfull creating object
-                        // clear the form.
-                        $("#example_form").trigger('reset');
-
-                        removeSelection();
-                        var ids = getSelectedIds();
-                        var url_mask = "{% url 'envios:envio-download-labels' %}";
-                        window.location.href = url_mask;
-                    },
-                    error: function (response) {
-                        // alert the error if any error occured
-                        alert(response["responseJSON"]["error"]);
-                    }
-                })
-            });
-        }
-    </script>
-    {% endblock scripts_block %}
+{% endblock scripts_block %}
