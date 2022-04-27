@@ -212,6 +212,8 @@ def update_user_view(request, pk):
         'client_list': Client.objects.all(),
     }
     account = get_object_or_404(Account, pk=pk)
+    if account.is_superuser:
+        return redirect('account:employees-list')
     form = UpdateAccountForm(instance=account)
 
     if account.profile_picture:
@@ -282,6 +284,8 @@ def update_user_view(request, pk):
 def employee_detail_view(request, pk):
     context = {}
     account = get_object_or_404(Account, pk=pk)
+    if account.is_superuser:
+        return redirect('account:employees-list')
     context['account'] = account
     context['selected_tab'] = 'accounts-tab'
     context['envios'] = Envio.objects.filter(
@@ -293,7 +297,9 @@ def employee_detail_view(request, pk):
 @login_required(login_url='/login/')
 @allowed_users(roles="Admins")
 def account_delete_view(request, pk, **kwargs):
-
+    if (Account.objects.get(pk).exists()
+            and Account.objects.get(pk).is_superuser):
+        return redirect('account:employees-list')
     delete_utility = DeleteObjectsUtil(
         model=Account,
         model_ids=pk,
