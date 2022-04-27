@@ -425,12 +425,12 @@
             <!-- END APK url -->
 
             <!-- START Tracking Movements -->
-            {% if request.user|has_group:"Admins" %}
+            {% comment %} {% if request.user|has_group:"Admins" %}
             <li class="nav-item {% if selected_tab == 'movements-tab' %}activetab{% endif %} li-navigation">
                 <a href="{% url 'tracking:list' %}" class="nav-link tab"><i class="bi bi-activity"></i>
                     Movimientos</a>
             </li>
-            {% endif %}
+            {% endif %} {% endcomment %}
             <!-- END Tracking Movements -->
 
             <!-- START AYUDA -->
