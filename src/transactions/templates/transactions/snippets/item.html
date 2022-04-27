@@ -14,6 +14,8 @@
         <div class="badge" style="background-color: #ef5350;">Administrativo</div>
         {% elif obj.category == '1' %}
         <div class="badge" style="background-color: #ec407a;">Alquiler</div>
+        {% elif obj.category == '12' %}
+        <div class="badge" style="background-color: #081e66; color: white;">Cobro por cuenta y orden de terceros</div>
         {% elif obj.category == '2' %}
         <div class="badge" style="background-color: #ab47bc;">Compras</div>
         {% elif obj.category == '3' %}
@@ -24,14 +26,18 @@
         <div class="badge" style="background-color: #42a5f5;">Insumos</div>
         {% elif obj.category == '6' %}
         <div class="badge" style="background-color: #26C6DA;">Mantenimiento</div>
+        {% elif obj.category == '14' %}
+        <div class="badge" style="background-color: #541b0f; color: white;">Pagos</div>
         {% elif obj.category == '7' %}
         <div class="badge" style="background-color: #26a69a;">Publicidad</div>
+        {% elif obj.category == '13' %}
+        <div class="badge" style="background-color: #1a451a; color: white;">Retiros de caja en efectivo</div>
         {% elif obj.category == '8' %}
         <div class="badge" style="background-color: #66bb6a;">Seguros</div>
         {% elif obj.category == '9' %}
         <div class="badge" style="background-color: #9ccc65;">Servicios</div>
         {% elif obj.category == '10' %}
-        <div class="badge" style="background-color: #ffee58;">Sueldos</div>
+        <div class="badge" style="background-color: #ffee58; color: black;">Sueldos</div>
         {% elif obj.category == '11' %}
         <div class="badge" style="background-color: #ff7043;">Otros</div>
         {% endif %}
