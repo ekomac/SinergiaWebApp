@@ -177,6 +177,8 @@ def create_user_view(request):
         'selected_tab': 'accounts-tab',
         'client_list': Client.objects.all(),
     }
+    if client_id := request.GET.get('client_id', None):
+        context['client_id'] = client_id
     form = CreateAccountForm()
     if request.method == 'POST':
         form = CreateAccountForm(request.POST or None, request.FILES or None)

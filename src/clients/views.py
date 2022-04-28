@@ -12,6 +12,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 # Project
 from account.decorators import allowed_users, allowed_users_in_class_view
+from account.models import Account
 from clients.forms import CreateClientForm, CreateDiscountForm, EditClientForm
 from clients.models import Client, Discount
 from deposit.models import Deposit
@@ -231,6 +232,11 @@ def client_detail_view(request, pk):
     ctx['deposits_count'] = deposits_count
     ctx['deposits'] = deposits
     ctx['contract'] = None
+    ctx['users'] = Account.objects.filter(
+        is_active=True,
+        client__pk=client.pk,
+        is_superuser=False,
+    ).order_by('last_name', 'first_name', 'username')
     if client.contract:
         ctx['contract'] = {
             'url': client.contract.url,
