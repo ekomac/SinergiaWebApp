@@ -8,7 +8,12 @@
                 Nuevo usuario
             </div>
             <div>
+                {% if request.GET.client_id %}
+                <a href="{% url 'clients:detail' pk=request.GET.client_id%}"><i
+                        class="bi bi-arrow-left-short"></i>Volver</a>
+                {% else %}
                 <a href="{% url 'account:employees-list' %}"><i class="bi bi-arrow-left-short"></i>Volver</a>
+                {% endif %}
             </div>
         </div>
         <div class="card-body">
@@ -24,7 +29,8 @@
                         <option value="" {% if not form.role.value %}selected{% endif %}>---------</option>
                         <option value="admin" {% if form.role.value == 'admin' %}selected{% endif %}>Administrador
                         </option>
-                        <option value="client" {% if form.role.value == 'client' %}selected{% endif %}>Cliente</option>
+                        <option value="client" {% if client_id or form.role.value == 'client' %}selected{% endif %}>
+                            Cliente</option>
                         <option value="level_1" {% if form.role.value == 'level_1' %}selected{% endif %}>Distribuidor +
                             repartidor</option>
                         <option value="level_2" {% if form.role.value == 'level_2' %}selected{% endif %}>Motoquero /
@@ -70,16 +76,17 @@
                     </div>
                 </div>
                 <!-- end PROFILE PIC SELECT -->
-
                 <!-- start CLIENT SELECT -->
                 <div class="col-md-6 col-xl-4">
                     <label for="id_client" class="form-label">Cliente</label>
                     <select id="id_client" name="client"
                         class="form-select {% if form.client.errors %}is-invalid{% endif %}">
-                        <option value="" selected>---------</option>
+                        <option value="">---------</option>
                         {% for client in client_list %}
+                        {{client.id}}
                         <option id="option-{{client.id}}" value="{{client.id}}"
-                            {% if form.client.value == client.id %}selected{% endif %}>{{client.name | title}}</option>
+                            {% if request.GET.client_id and request.GET.client_id == client.pk|stringformat:"i" %}selected{% endif %}{% if form.client.value == client.id %}selected{% endif %}>
+                            {{client.name | title}}</option>
                         {% endfor %}
                     </select>
                     <div class="invalid-feedback">
