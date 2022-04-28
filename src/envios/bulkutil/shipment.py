@@ -14,6 +14,7 @@ class Shipment:
     dni_destinatario: str = ""
     phone: str = ""
     detalle_envio: str = ""
+    cargos: str = "0"
 
     def clean(self):
         self.replace_commas()
@@ -39,6 +40,12 @@ class Shipment:
         self.phone = str(self.phone).replace(",", " ").replace("  ", " ")
         self.detalle_envio = str(self.detalle_envio).replace(
             ",", " ").replace("  ", " ")
+        if "." in str(self.cargos):
+            dot = str(self.cargos).index(".")
+            self.cargos = str(self.cargos).strip()[:dot]
+        if "," in str(self.cargos):
+            comma = str(self.cargos).index(",")
+            self.cargos = str(self.cargos).strip()[:comma]
         return
 
     def replace_accents(self):
@@ -52,6 +59,7 @@ class Shipment:
         self.dni_destinatario = unidecode.unidecode(self.dni_destinatario)
         self.phone = unidecode.unidecode(self.phone)
         self.detalle_envio = unidecode.unidecode(self.detalle_envio)
+        self.cargos = unidecode.unidecode(self.cargos)
         return
 
     def is_not_empty(self):
@@ -63,4 +71,5 @@ class Shipment:
             or len(self.destinatario) > 0 \
             or len(self.dni_destinatario) > 0 \
             or len(self.phone) > 0 \
-            or len(self.detalle_envio) > 0
+            or len(self.detalle_envio) > 0 \
+            or len(self.cargos) > 0

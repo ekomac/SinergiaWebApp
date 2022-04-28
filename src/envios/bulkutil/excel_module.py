@@ -96,6 +96,7 @@ class ExcelModule(ShipmentExractorModule):
             'CODIGO POSTAL': 3, 'LOCALIDAD': 4, 'PARTIDO': 5,
             'DESTINATARIO': 6, 'DNI DESTINATARIO': 7,
             'TELEFONO DESTINATARIO': 8, 'DETALLE DEL ENVIO': 9,
+            'CARGOS AL DESTINATARIO': 10,
         }
 
     def __update_columns_order(self, first_row_values: list) -> dict:
@@ -112,7 +113,8 @@ class ExcelModule(ShipmentExractorModule):
                    'DESTINATARIO',
                    'DNI DESTINATARIO',
                    'TELEFONO DESTINATARIO',
-                   'DETALLE DEL ENVIO']
+                   'DETALLE DEL ENVIO',
+                   'CARGOS AL DESTINATARIO']
         for i, value in enumerate(first_row_values):
             # Increase index by one to get real column,
             # cause openpyxl index starts from 1
@@ -144,6 +146,7 @@ class ExcelModule(ShipmentExractorModule):
         DNI = 'DNI DESTINATARIO'
         TEL = 'TELEFONO DESTINATARIO'
         DETALLE = 'DETALLE DEL ENVIO'
+        CARGOS = 'CARGOS AL DESTINATARIO'
 
         columns_order = self.columns_order
 
@@ -229,6 +232,15 @@ class ExcelModule(ShipmentExractorModule):
                     detalle = self.sheet.cell(
                         row=row_i, column=columns_order[DETALLE]).value
             shipment.detalle_envio = detalle
+
+            cargos = "0"
+            if columns_order[CARGOS] != -1:
+                if self.sheet.cell(row=row_i, column=columns_order[CARGOS]
+                                   ).value:
+                    cargos = self.sheet.cell(
+                        row=row_i, column=columns_order[CARGOS]).value
+            shipment.cargos = cargos
+
             shipment.clean()
             if shipment.is_not_empty():
                 shipments.append(shipment)

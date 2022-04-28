@@ -265,14 +265,13 @@ def create_empty_xlsx_workbook() -> Workbook:
     # Change title to 'Datos'
     sheet.title = 'Datos'
     # Get the sheet recently changed
-    sheet = wb.get_sheet_by_name('Datos')
+    sheet = wb['Datos']
     # The default amount of columns
-    COLUMNS = 10
     col_names = [
         "ID FLEX", "DOMICILIO", "ENTRECALLES", "CODIGO POSTAL",
         "LOCALIDAD", "PARTIDO", "DESTINATARIO", "DNI DESTINATARIO",
-        "TELEFONO DESTINATARIO", "DETALLE DEL ENVIO"]
-    for i in range(COLUMNS):
+        "TELEFONO DESTINATARIO", "DETALLE DEL ENVIO", "CARGOS AL DESTINATARIO"]
+    for i in range(len(col_names)):
         cell = sheet.cell(row=1, column=i+1)
         cell.value = col_names[i]
     return wb
@@ -333,12 +332,16 @@ def __cols_to_kwargs(
         'detail': cols[9] if cols[9] else "0-1",
         'updated_by': bulk_load_envios.created_by,
         'client': bulk_load_envios.client,
-        # 'state_ptr__deposit': bulk_load_envios.deposit,
         'bulk_upload_id': bulk_load_envios.pk,
     }
     if cols[0]:
         kwargs['is_flex'] = True
         kwargs['flex_id'] = cols[0]
+    if cols[10]:
+        try:
+            kwargs['charge'] = int(cols[10])
+        except ValueError:
+            kwargs['charge'] = 0
     return kwargs
 
 

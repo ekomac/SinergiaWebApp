@@ -56,7 +56,7 @@ class Extractor:
     def __shipments_to_csv(self, shipments: list) -> str:
         titles = "traking_id,domicilio,referencia," + \
             "codigo_postal,localidad,partido,destinatario," + \
-            "dni_destinatario,telefono,detalle_envio"
+            "dni_destinatario,telefono,detalle_envio,cargos_destinatario"
         shipments_mapped = [self.__shipment_as_csv_row_string(
             i, shipment) for i, shipment in enumerate(shipments)]
         shipments_str = "\n".join(shipments_mapped)
@@ -91,7 +91,7 @@ class Extractor:
             shipment.tracking_id, shipment.domicilio, shipment.referencia,
             shipment.codigo_postal, town, shipment.partido,
             shipment.destinatario, shipment.dni_destinatario,
-            shipment.phone, shipment.detalle_envio,
+            shipment.phone, shipment.detalle_envio, shipment.cargos
         ]
         return ",".join(map(str, values))
 
