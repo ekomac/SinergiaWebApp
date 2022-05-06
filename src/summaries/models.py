@@ -1,4 +1,6 @@
 # Python
+from datetime import timedelta
+from datetime import datetime
 from django.db.models.signals import post_save
 import json
 from decimal import Decimal
@@ -36,7 +38,8 @@ class Summary(models.Model):
         return self.__get_envios()
 
     def __get_envios(self):
-        return Envio.objects.filter(**self.get_envios_filters())
+        return Envio.objects.filter(
+            **self.get_envios_filters()).order_by('date_delivered')
 
     def get_envios_filters(self) -> Dict[str, Any]:
         raise NotImplementedError("This method should be overrided.")
@@ -106,9 +109,14 @@ class ClientSummary(Summary):
         blank=True, null=True, related_name="client_summary")
 
     def get_envios_filters(self) -> Dict[str, Any]:
+        _to = datetime(self.date_to.year, self.date_to.month,
+                       self.date_to.day, 0, 0, 0)
+        next_day = _to + timedelta(days=1)
+        _from = datetime(self.date_from.year, self.date_from.month,
+                         self.date_from.day, 0, 0, 0)
         return {
-            'date_delivered__gte': self.date_from,
-            'date_delivered__lte': self.date_to,
+            'date_delivered__gte': _from,
+            'date_delivered__lt': next_day,
             'status': Envio.STATUS_DELIVERED,
             'client': self.client,
         }
@@ -137,9 +145,14 @@ class EmployeeSummary(Summary):
         related_name="employee_summary")
 
     def get_envios_filters(self) -> Dict[str, Any]:
+        _to = datetime(self.date_to.year, self.date_to.month,
+                       self.date_to.day, 0, 0, 0)
+        next_day = _to + timedelta(days=1)
+        _from = datetime(self.date_from.year, self.date_from.month,
+                         self.date_from.day, 0, 0, 0)
         return {
-            'date_delivered__gte': self.date_from,
-            'date_delivered__lte': self.date_to,
+            'date_delivered__gte': _from,
+            'date_delivered__lt': next_day,
             'status': Envio.STATUS_DELIVERED,
             'deliverer': self.employee,
         }
