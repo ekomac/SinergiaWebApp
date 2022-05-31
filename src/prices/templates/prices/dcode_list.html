@@ -44,6 +44,8 @@
 <th class="cell-centered">Bulto &lt; 20kg</th>
 <th class="cell-centered">Miniflete</th>
 <th class="cell-centered">Trámite</th>
+<th>Partidos</th>
+<th>Localidades</th>
 {% endblock objects_table_head_block %}
 
 
@@ -67,7 +69,22 @@
     <td class="cell-centered">
         {% if obj.tramite_price %}${{ obj.tramite_price |floatformat:"2" }}{% else %}-{% endif %}
     </td>
-
+    <td>
+        {% for partido in obj.partidos %}
+        {{ partido | title }}{% if not forloop.last %},{% endif %}
+        {% if forloop.counter|divisibleby:2 %}
+        <br>
+        {% endif %}
+        {% endfor %}
+    </td>
+    <td>
+        {% for town in obj.towns %}
+        {{ town | title }}{% if not forloop.last %},{% endif %}
+        {% if forloop.counter|divisibleby:2 %}
+        <br>
+        {% endif %}
+        {% endfor %}
+    </td>
 </tr>
 {% endfor %}
 {% endblock objects_table_body_block %}
