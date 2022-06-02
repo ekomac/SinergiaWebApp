@@ -61,6 +61,9 @@ class PDFReport(object):
     LOGO_BASE_SCALAR = 0.68
     LOGO_BASE_WIDTH = 189.86
     LOGO_BASE_HEIGHT = 35.796
+    SINERGIA_WEB = "www.sinergiamensajeria.com"
+    SINERGIA_TEL = "+54 9 11 2745-8276"
+    SINERGIA_FOOTER = "www.sinergiamensajeria.com / +54 9 11 2745-8276"
 
     def __init__(self, buffer, **kwargs):
         self.COLS = 12 if not kwargs.get("cols", None) else kwargs["cols"]
@@ -90,9 +93,14 @@ class PDFReport(object):
             settings.STATIC_ROOT, 'map-marker.png'), 12, 12)
         self.phone_image = Image(os.path.join(
             settings.STATIC_ROOT, 'phone.png'), 12, 12)
+        self.whatsapp_image = Image(os.path.join(
+            settings.STATIC_ROOT, 'phone.png'), 12, 12)
+        self.link_image = Image(os.path.join(
+            settings.STATIC_ROOT, 'link.png'), 12, 12)
 
     def create(self, data: List[Envio]):
         for envio in data:
+            self.canvas.setFont("Helvetica-Oblique", 9)
             self.create_frame(envio)
             self.update_position()
         return self.canvas.save()
@@ -113,6 +121,9 @@ class PDFReport(object):
             y = self.MAX_HEIGHT - self.PADDING - self.BASE_FRAME_HEIGHT
         if self.current_position == 4:
             x = self.MAX_WIDTH - self.PADDING - self.BASE_FRAME_WIDTH
+        self.canvas.rect(x, y, self.BASE_FRAME_WIDTH, 12, stroke=1, fill=0)
+        self.canvas.drawCentredString(
+            x+self.BASE_FRAME_WIDTH//2, y+3, self.SINERGIA_FOOTER)
         frame = Frame(x, y,
                       self.BASE_FRAME_WIDTH,
                       self.BASE_FRAME_HEIGHT,
