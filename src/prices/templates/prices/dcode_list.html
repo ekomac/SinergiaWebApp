@@ -44,11 +44,19 @@
 <th class="cell-centered">Bulto &lt; 20kg</th>
 <th class="cell-centered">Miniflete</th>
 <th class="cell-centered">Trámite</th>
+<th>Partidos completos</th>
+<th>Localidades</th>
 {% endblock objects_table_head_block %}
 
 
 
 {% block objects_table_body_block %}
+<style>
+    .table-hover tbody tr:hover td {
+        background-color: rgba(0, 0, 0, 0);
+        color: #000;
+    }
+</style>
 {% for obj in objects %}
 <tr id="tr-{{ obj.id }}" class="table-item highlight-row">
     <td class="cell-centered">{{ obj.code |title}}</td>
@@ -67,7 +75,42 @@
     <td class="cell-centered">
         {% if obj.tramite_price %}${{ obj.tramite_price |floatformat:"2" }}{% else %}-{% endif %}
     </td>
+    <td>
+        {% if obj.partidos %}
+        <button type="button" id="show-partidos-zone-{{ obj.id }}" onclick="showPartidos({{ obj.id }})"
+            class="btn btn-link">Mostrar {{ obj.partidos|length }} partido(s)</button>
+        <div id="partidos-zone-{{ obj.id }}" class="d-none">
+            {% for partido in obj.partidos %}
+            {{ partido | title }}{% if not forloop.last %},{% endif %}
+            <br>
+            {% endfor %}
+        </div>
+        <button type="button" id="hide-partidos-zone-{{ obj.id }}" onclick="hidePartidos({{ obj.id }})"
+            class="btn btn-link d-none">Ocultar {{ obj.partidos|length }} partido(s)</button>
+        {% else %}
+        -
+        {% endif %}
 
+    </td>
+    <td>
+        {% if obj.towns %}
+        <button type="button" id="show-towns-zone-{{ obj.id }}" onclick="showTowns({{ obj.id }})"
+            class="btn btn-link">Mostrar {{ obj.towns|length }} localidades</button>
+        <div id="towns-zone-{{ obj.id }}" class="d-none">
+            {% for town in obj.towns %}
+            {{ town | title }}{% if not forloop.last %},{% endif %}
+            <br>
+            {% endfor %}
+        </div>
+        <button type="button" id="hide-towns-zone-{{ obj.id }}" onclick="hideTowns({{ obj.id }})"
+            class="btn btn-link d-none">Ocultar {{ obj.towns|length }} localidades</button>
+        {% else %}
+        -
+        {% endif %}
+
+
+
+    </td>
 </tr>
 {% endfor %}
 {% endblock objects_table_body_block %}
@@ -148,6 +191,30 @@
 
     function clearFilters() {
         $('#list_form').submit();
+    }
+
+    function showPartidos(id) {
+        $('#partidos-zone-' + id).removeClass('d-none');
+        $('#show-partidos-zone-' + id).addClass('d-none');
+        $('#hide-partidos-zone-' + id).removeClass('d-none');
+    }
+
+    function hidePartidos(id) {
+        $('#partidos-zone-' + id).addClass('d-none');
+        $('#show-partidos-zone-' + id).removeClass('d-none');
+        $('#hide-partidos-zone-' + id).addClass('d-none');
+    }
+
+    function showTowns(id) {
+        $('#towns-zone-' + id).removeClass('d-none');
+        $('#show-towns-zone-' + id).addClass('d-none');
+        $('#hide-towns-zone-' + id).removeClass('d-none');
+    }
+
+    function hideTowns(id) {
+        $('#towns-zone-' + id).addClass('d-none');
+        $('#show-towns-zone-' + id).removeClass('d-none');
+        $('#hide-towns-zone-' + id).addClass('d-none');
     }
 </script>
 
