@@ -82,9 +82,7 @@
         <div id="partidos-zone-{{ obj.id }}" class="d-none">
             {% for partido in obj.partidos %}
             {{ partido | title }}{% if not forloop.last %},{% endif %}
-            {% if forloop.counter|divisibleby:2 %}
             <br>
-            {% endif %}
             {% endfor %}
         </div>
         <button type="button" id="hide-partidos-zone-{{ obj.id }}" onclick="hidePartidos({{ obj.id }})"
@@ -101,9 +99,7 @@
         <div id="towns-zone-{{ obj.id }}" class="d-none">
             {% for town in obj.towns %}
             {{ town | title }}{% if not forloop.last %},{% endif %}
-            {% if forloop.counter|divisibleby:2 %}
             <br>
-            {% endif %}
             {% endfor %}
         </div>
         <button type="button" id="hide-towns-zone-{{ obj.id }}" onclick="hideTowns({{ obj.id }})"
