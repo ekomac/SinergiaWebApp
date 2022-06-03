@@ -21,24 +21,15 @@ class Shipment:
         return
 
     def replace_commas(self):
-        self.tracking_id = str(self.tracking_id).replace(
-            ",", " ").replace("  ", " ")
-        self.domicilio = str(self.domicilio).replace(
-            ",", " ").replace("  ", " ")
-        self.referencia = str(self.referencia).replace(
-            ",", " ").replace("  ", " ")
-        self.codigo_postal = str(self.codigo_postal).replace(
-            ",", " ").replace("  ", " ")
-        self.localidad = str(self.localidad).replace(
-            ",", " ").replace("  ", " ")
-        self.partido = str(self.partido).replace(",", " ").replace("  ", " ")
-        self.destinatario = str(self.destinatario).replace(
-            ",", " ").replace("  ", " ")
-        self.dni_destinatario = str(self.dni_destinatario).replace(
-            ",", " ").replace("  ", " ")
-        self.phone = str(self.phone).replace(",", " ").replace("  ", " ")
-        self.detalle_envio = str(self.detalle_envio).replace(
-            ",", " ").replace("  ", " ")
+        comma = ","
+        single_space = " "
+        double_space = "  "
+        for attr in self.__dict__:
+            if isinstance(self.__dict__[attr], str):
+                self.__dict__[attr] = self.__dict__[
+                    attr].replace(comma, single_space)
+                self.__dict__[attr] = self.__dict__[
+                    attr].replace(double_space, single_space)
         return
 
     def replace_accents(self):

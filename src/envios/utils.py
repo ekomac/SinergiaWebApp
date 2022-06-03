@@ -322,6 +322,7 @@ def bulk_create_envios(
 def __cols_to_kwargs(
     cols: List[str], bulk_load_envios: BulkLoadEnvios
 ) -> Dict[str, Any]:
+    print("cols:", cols)
     kwargs = {
         'street': cols[1],
         'remarks': cols[2],
@@ -333,7 +334,6 @@ def __cols_to_kwargs(
         'detail': cols[9] if cols[9] else "0-1",
         'updated_by': bulk_load_envios.created_by,
         'client': bulk_load_envios.client,
-        # 'state_ptr__deposit': bulk_load_envios.deposit,
         'bulk_upload_id': bulk_load_envios.pk,
     }
     if cols[0]:

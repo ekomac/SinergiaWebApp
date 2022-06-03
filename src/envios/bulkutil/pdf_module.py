@@ -25,8 +25,11 @@ class MercadoLibreSubmodule():
 
     def __page_to_shipments(self, page):
         page_text = page.getText()
-        cp_regex = re.compile(r'(\nCP: [0-9]{4,}\n)')
-        page_text = cp_regex.sub(r'\1<<<COLUMN-END>>>\n', page_text)
+        if "Barrio" in page_text:
+            regex = re.compile(r'(\nBarrio:[\sA-Za-z0-9]{0,}\n)')
+        else:
+            regex = re.compile(r'(\nCP:[\s0-9]{4,}\n)')
+        page_text = regex.sub(r'\1<<<COLUMN-END>>>\n', page_text)
         parts = page_text.split('<<<COLUMN-END>>>\n')
         return map(self.__part_to_shipment, parts[:-1])
 
@@ -35,32 +38,44 @@ class MercadoLibreSubmodule():
         if lines[0] == "":
             return None
 
-        # MercadoLibre's PDF labels got 2 different patterns
-        is_type_1 = lines[0].isnumeric()
+        # Get tracking id
+        regex = re.compile(r'\nTracking:(?P<result>.*)\n')
+        tracking_id = regex.search(part).group("result").strip()
 
-        # Define the Shipment2's properties
-        traking_id = self.__without(lines[4 if is_type_1 else 1], "Tracking: ")
-        domicilio = self.__without(
-            lines[11 if is_type_1 else 10], "Direccion: ")
-        referencia = self.__without(
-            " ".join(lines[12 if is_type_1 else 11:-2]), "Referencia: ")
-        codigo_postal = self.__without(lines[-2], "CP: ")
-        localidad = lines[8 if is_type_1 else 7]
-        partido = lines[7 if is_type_1 else 6]
-        destinatario = self.__without(
-            lines[9 if is_type_1 else 8], "Destinatario: ")
+        # Get address
+        regex = re.compile(r'\nDireccion:(?P<result>.*)\n')
+        domicilio = regex.search(part).group("result").strip()
+
+        # Get reference
+        regex = re.compile(r'\s+Referencia:(?P<result>(.|\n)*)CP')
+        referencia = regex.search(part).group("result").strip()
+        referencia = " ".join(referencia.split("\n")).strip()
+
+        # Get postal code
+        regex = re.compile(r'\nCP:(?P<result>.*)\n')
+        codigo_postal = regex.search(part).group("result").strip()
+
+        # Get town and partido
+        regex = re.compile(
+            r'\n(?P<part>.*)\n(?P<loc>.*)\nDestinatario')
+        partido = regex.search(part).group("part").strip()
+        town = regex.search(part).group("loc").strip()
+
+        # Get receiver name
+        regex = re.compile(r'(\nDestinatario:(?P<result>.*)\n)')
+        destinatario = regex.search(part).group("result").strip()
+
+        # Set receiver phone
         phone = ""
+        # Set default details
         detalle_envio = "0-1"
 
         # Return the shipment with the declared properties
-        shipment = Shipment(traking_id, domicilio, referencia,
-                            codigo_postal, localidad, partido,
+        shipment = Shipment(tracking_id, domicilio, referencia,
+                            codigo_postal, town, partido,
                             destinatario, "", phone, detalle_envio)
         shipment.clean()
         return shipment
-
-    def __without(self, s: str, replaceable: str):
-        return s.replace(replaceable, "")
 
 
 class TiendaNubeSubmodule():
@@ -127,8 +142,6 @@ class PDFModule(ShipmentExractorModule):
         super(PDFModule, self).__init__(file, **kwargs)
 
     def extract_shipments(self):
-        print(type(self.file))
-        print(hex(id(self.file)))
         file: InMemoryUploadedFile = self.file
         with fitz.open(None, file.read(), 'pdf') as pdf:
             first_page = pdf[0]
@@ -139,7 +152,6 @@ class PDFModule(ShipmentExractorModule):
             elif self.__is_tienda_nube(fp_text):
                 submodule = TiendaNubeSubmodule(pdf)
             else:
-                print(fp_text)
                 raise InvalidPdfFileError(
                     "El pdf proporcionado no es de" +
                     " Mercado Libre ni de TiendaNube")
