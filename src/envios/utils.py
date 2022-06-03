@@ -322,7 +322,6 @@ def bulk_create_envios(
 def __cols_to_kwargs(
     cols: List[str], bulk_load_envios: BulkLoadEnvios
 ) -> Dict[str, Any]:
-    print("cols:", cols)
     kwargs = {
         'street': cols[1],
         'remarks': cols[2],

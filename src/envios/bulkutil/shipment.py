@@ -33,16 +33,10 @@ class Shipment:
         return
 
     def replace_accents(self):
-        self.tracking_id = unidecode.unidecode(self.tracking_id)
-        self.domicilio = unidecode.unidecode(self.domicilio)
-        self.referencia = unidecode.unidecode(self.referencia)
-        self.codigo_postal = unidecode.unidecode(self.codigo_postal)
-        self.localidad = unidecode.unidecode(self.localidad)
-        self.partido = unidecode.unidecode(self.partido)
-        self.destinatario = unidecode.unidecode(self.destinatario)
-        self.dni_destinatario = unidecode.unidecode(self.dni_destinatario)
-        self.phone = unidecode.unidecode(self.phone)
-        self.detalle_envio = unidecode.unidecode(self.detalle_envio)
+        for attr in self.__dict__:
+            if isinstance(self.__dict__[attr], str):
+                self.__dict__[attr] = unidecode.unidecode(
+                    self.__dict__[attr])
         return
 
     def is_not_empty(self):

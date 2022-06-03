@@ -32,7 +32,6 @@ class Extractor:
         self.file = in_mem_file
         self.file_name = self.file.name
         shipments = self.__do_extraction()
-        print("shipments:", shipments)
         return {
             'result': self.__shipments_to_csv(shipments),
             'count': len(shipments),
