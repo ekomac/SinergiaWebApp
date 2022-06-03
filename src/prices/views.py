@@ -116,11 +116,6 @@ class DeliveryCodeListView(CompleteListView, LoginRequiredMixin):
         dcode['tramite_price'] = obj.tramite_price
         return dcode
 
-    def get_context_data(self, **kwargs):
-        context = super(DeliveryCodeListView, self).get_context_data(**kwargs)
-
-        return context
-
 
 class FlexCodeListView(CompleteListView, LoginRequiredMixin):
     template_name = 'prices/fcode_list.html'
