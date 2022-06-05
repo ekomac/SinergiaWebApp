@@ -8,7 +8,7 @@ class Change(models.Model):
 
     LABELS = (
         ('IM', 'Mejora'),
-        ('BF de error', 'Corrección de error'),
+        ('BF', 'Corrección de error'),
         ('UP', 'Actualización'),
         ('MC', 'Corrección menor'),
         ('WF', 'Sin solución'),
