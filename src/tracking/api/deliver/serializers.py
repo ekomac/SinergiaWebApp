@@ -72,6 +72,7 @@ class DeliveryAttemptSerializer(serializers.ModelSerializer):
         )
         movement.save()
 
+        # ! START "AVOID THIS LINES ON SERVER"
         if proof is not None:
             movement.proof = proof
 
@@ -85,6 +86,7 @@ class DeliveryAttemptSerializer(serializers.ModelSerializer):
 
             os.remove(url)
             movement.save()
+        # ! END "AVOID THIS LINES ON SERVER"
 
         envio = Envio.objects.filter(tracking_id=envio_tracking_id).first()
 
