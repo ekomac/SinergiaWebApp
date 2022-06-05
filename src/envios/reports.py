@@ -95,6 +95,8 @@ class PDFReport(object):
             settings.STATIC_ROOT, 'phone.png'), 12, 12)
         self.whatsapp_image = Image(os.path.join(
             settings.STATIC_ROOT, 'phone.png'), 12, 12)
+        self.money_image = Image(os.path.join(
+            settings.STATIC_ROOT, 'money.png'), 12, 12)
         self.link_image = Image(os.path.join(
             settings.STATIC_ROOT, 'link.png'), 12, 12)
 
@@ -146,7 +148,7 @@ class PDFReport(object):
             zip_code=envio.zipcode,
             entrances=envio.remarks,
             phone=envio.phone,
-            flex_id=envio.flex_id if envio.flex_id else None,
+            charge=envio.charge if envio.charge else None
         )
         return [header, qr_code, table_below_qr_code, final_table]
 
@@ -228,7 +230,8 @@ class PDFReport(object):
         name, address, zip_code, reference, phone.
         By default, they are initialized as 'No especificado'.
         """
-        keys = ['name', 'address', 'zip_code', 'entrances', 'phone', 'flex_id']
+        keys = ['name', 'address', 'zip_code',
+                'entrances', 'phone', 'charge', ]
         for key in keys:
             kwargs[key] = kwargs[key] if kwargs[key] else 'No especificado'
 
@@ -236,7 +239,7 @@ class PDFReport(object):
         styleN.alignment = TA_LEFT
         data = []
         styles = [
-            ('TOPPADDING', (0, 0), (1, 0), 6),
+            ('TOPPADDING', (0, 0), (1, 0), 0),
             ('LEFTPADDING', (0, 0), (0, -1), 10),
             ('ALIGN', (1, 0), (-1, -1), "LEFT"),
             ('VALIGN', (0, 0), (-1, -1), "TOP"),
@@ -252,18 +255,19 @@ class PDFReport(object):
                 f"<b>CP:</b> {kwargs['zip_code']}", styleN),
                 "", "", "", "", "", "", "", "", "", ""])
         if kwargs['entrances'] != 'No especificado':
+            txt = f"<b>Referencias:</b> {kwargs['entrances']}"
+            if len(txt) > 120:
+                txt = txt[:120] + "..."
             data.append(["", Paragraph(
-                f"<b>Referencias:</b> {kwargs['entrances']}", styleN),
+                txt, styleN),
                 "", "", "", "", "", "", "", "", "", ""])
         if kwargs['phone'] != 'No especificado':
             data.append([self.phone_image, Paragraph(kwargs['phone'], styleN),
                         "", "", "", "", "", "", "", "", "", ""])
-        if kwargs['flex_id'] != 'No especificado':
-            data.append(["",
-                         Paragraph(
-                             "<b>Flex ID</b>: %s" % kwargs['flex_id'],
-                             styleN),
-                         "", "", "", "", "", "", "", "", "", ""])
+        if kwargs['charge'] != 'No especificado':
+            txt = "<b>Cobrar</b>: %s,00.-" % str(kwargs['charge'])
+            data.append([self.money_image, Paragraph(txt, styleN),
+                        "", "", "", "", "", "", "", "", "", ""])
 
         for i in range(len(data)):
             styles.append(('SPAN', (1, i), (-1, i)))
