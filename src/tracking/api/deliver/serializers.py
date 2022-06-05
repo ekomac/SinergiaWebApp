@@ -145,24 +145,3 @@ class SuccessfulDeliverySerializer(serializers.ModelSerializer):
             envio_tracking_id=envio_tracking_id,
             receiver_doc_id=receiver_doc_id
         )
-
-# movement = TrackingMovement(
-#     created_by=author,
-#     from_carrier=author,
-#     action=TrackingMovement.ACTION_DELIVERY_ATTEMPT,
-#     result=TrackingMovement.RESULT_DELIVERED,
-# )
-# movement.save()
-
-# envio = Envio.objects.filter(tracking_id=envio_tracking_id).first()
-
-# # Add envios to the movement
-# movement.envios.add(envio)
-
-# envio.status = Envio.STATUS_DELIVERED
-# envio.carrier = None
-# envio.deposit = None
-# envio.date_delivered = movement.date_created
-# envio.updated_by = movement.created_by
-# envio.receiver_doc = receiver_doc_id
-# envio.save()

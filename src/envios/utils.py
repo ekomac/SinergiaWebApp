@@ -360,7 +360,7 @@ VERBOSE_NAMES_FOR_DETAIL_CODES = {
 
 def calculate_price(envio: Envio):
     """
-    Performs de calculation for the price of the 'envio'.
+    Performs the calculation for the price of the 'envio'.
     It applies the discount if it is available.
     The operations are made with Decimal to avoid the rounding errors.
 
