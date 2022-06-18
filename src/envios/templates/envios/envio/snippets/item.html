@@ -41,7 +41,9 @@
     </td>
     <td class="cell-centered">
         {% if obj.status == 'S' or obj.status == 'N' or obj.status == 'R' %}
-        <a href="{% url 'deposits:detail' obj.deposit.id %}" class="btn btn-secondary btn-sm">{{ obj.deposit.name }}</a>
+        {% if obj.deposit %}<a href="{% url 'deposits:detail' obj.deposit.id %}"
+            class="btn btn-secondary btn-sm">{{ obj.deposit.name }}</a>{% else %}Error: Se eliminó al usuario portador
+        del sistema.{% endif %}
         {% elif obj.status == 'M' %}
         {% if obj.carrier %}
         <a href="{% url 'account:employees-detail' obj.carrier.pk %}"

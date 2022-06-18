@@ -329,8 +329,8 @@
                             {{movement.date_created | date:"d/m/Y H:i"}}</td>
                         {% if request.user.role == 'admin' %}
                         <td>{% if movement.created_by %} <a
-                                href="{% url 'account:employees-detail' pk=movement.created_by.pk %}">@{{ movement.created_by.username}}</a>{% else %}Sin
-                            datos{% endif %}</td>
+                                href="{% url 'account:employees-detail' pk=movement.created_by.pk %}">@{{ movement.created_by.username}}</a>{% else %}Se
+                            eliminó al usuario que creó el envío.{% endif %}</td>
                         {% endif %}
                         {% if request.user.role == 'client' %}
                         <td class="w-100">
@@ -339,68 +339,83 @@
                         {% else %}
                         <td class="w-100">
                             {% if movement.result == '_new' %}
-                            Agregado al sistema por <a
+                            Agregado al sistema por {% if movement.created_by %}<a
                                 href="{% url 'account:employees-detail' pk=movement.created_by.pk %}"
                                 data-bs-toggle="tooltip" data-bs-toggle="tooltip" data-bs-html="true"
-                                title="{{movement.created_by.full_name}}">{{movement.created_by.username}}</a>
+                                title="{{movement.created_by.full_name}}">{{movement.created_by.username}}</a>{% else %}un
+                            usuario que se eliminó{% endif %}.
+
 
                             {% elif movement.result == 'collected' %}
-                            Recolectado de <a
-                                href="{% url 'deposits:detail' pk=movement.from_deposit.pk%}">{{movement.from_deposit.name}}</a>
-                            por <a href="{% url 'account:employees-detail' pk=movement.to_carrier.pk %}"
+                            Recolectado de {% if movement.from_deposit %}<a
+                                href="{% url 'deposits:detail' pk=movement.from_deposit.pk%}">{{movement.from_deposit.name}}</a>{% else %}
+                            un depósito que se eliminó{% endif %} por {% if movement.to_carrier %}<a
+                                href="{% url 'account:employees-detail' pk=movement.to_carrier.pk %}"
                                 data-bs-toggle="tooltip" data-bs-html="true"
-                                title="{{ movement.to_carrier.full_name }}">{{ movement.to_carrier.username }}</a>
+                                title="{{ movement.to_carrier.full_name }}">{{ movement.to_carrier.username }}</a>{% else %}un
+                            usuario que se eliminó.{% endif %}
 
                             {% elif movement.result == 'transfered' %}
-                            Transferido de <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk%}"
+                            Transferido de {% if movement.from_carrier %}<a
+                                href="{% url 'account:employees-detail' pk=movement.from_carrier.pk%}"
                                 data-bs-toggle="tooltip" data-bs-html="true"
-                                title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a> a <a
+                                title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% else %}un
+                            usuario que se eliminó{% endif %} a {% if movement.to_carrier %}<a
                                 href="{% url 'account:employees-detail' pk=movement.to_carrier.pk %}"
                                 data-bs-toggle="tooltip" data-bs-html="true" title="{{movement.to_carrier.full_name}}">
-                                {{movement.to_carrier.username}}</a>
+                                {{movement.to_carrier.username}}</a>{% else %}un usuario que se eliminó.{% endif %}
 
                             {% elif movement.result == 'in_deposit' %}
-                            Depositado en <a
+                            Depositado en {% if movement.to_deposit %}<a
                                 href="{% url 'deposits:detail' pk=movement.to_deposit.pk %}">{{movement.to_deposit.name}}</a>
-                            por <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
-                                data-bs-toggle="tooltip" data-bs-html="true"
-                                title="{{movement.from_carrier.full_name}}"> {{movement.from_carrier.username}}</a>
-
-                            {% elif movement.result == 'success' %}
-                            Entregado por <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
-                                data-bs-toggle="tooltip" data-bs-html="true"
-                                title="{{ movement.from_carrier.full_name }}">{{movement.from_carrier.username}}</a>
-
-                            {% elif movement.result == 'rejected' %}
-                            Rechazado en destino a <a
+                            {% else %}un depósito que se eliminó{% endif %} por {% if movement.from_deposit %}<a
                                 href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
                                 data-bs-toggle="tooltip" data-bs-html="true"
-                                title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% if movement.comment %}.
+                                title="{{movement.from_carrier.full_name}}">
+                                {{movement.from_carrier.username}}</a>{% else %}un usuario que se eliminó{% endif %}.
+
+                            {% elif movement.result == 'success' %}
+                            Entregado por {% if movement.from_carrier %}<a
+                                href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
+                                data-bs-toggle="tooltip" data-bs-html="true"
+                                title="{{ movement.from_carrier.full_name }}">{{movement.from_carrier.username}}</a>{% else %}un
+                            usuario que se eliminó{% endif %}.
+
+                            {% elif movement.result == 'rejected' %}
+                            Rechazado en destino a {% if movement.from_carrier %}<a
+                                href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
+                                data-bs-toggle="tooltip" data-bs-html="true"
+                                title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% else %}un
+                            usuario que se eliminó{% endif %}{% if movement.comment %}.
                             Comentario: "{{ movement.comment }}"{% endif %}{% if movement.proof %}. Se adjuntó <a
                                 href="{{ movement.proof.url }}">esta imagen</a>.{% endif %}
 
 
                             {% elif movement.result == 'reprogram' %}
-                            Reprogramado en destino a <a
+                            Reprogramado en destino a {% if movement.from_carrier %}<a
                                 href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
                                 data-bs-toggle="tooltip" data-bs-html="true"
-                                title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% if movement.comment %}.
+                                title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% else %}un
+                            usuario que se eliminó{% endif %}{% if movement.comment %}.
                             Comentario: "{{ movement.comment }}"{% endif %}{% if movement.proof %}. Se adjuntó <a
                                 href="{{ movement.proof.url }}">esta imagen</a>.{% endif %}
 
                             {% elif movement.result == 'not-respond' %}
-                            Sin respuesta en destino a <a
+                            Sin respuesta en destino a {% if movement.from_carrier %}<a
                                 href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
                                 data-bs-toggle="tooltip" data-bs-html="true"
-                                title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% if movement.comment %}.
+                                title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% else %}un
+                            usuario que se eliminó.{% endif %}{% if movement.comment %}.
                             Comentario: "{{ movement.comment }}"{% endif %}{% if movement.proof %}. Se adjuntó <a
                                 href="{{ movement.proof.url }}">esta imagen</a>.{% endif %}
 
                             {% elif movement.result == 'custom' %}
-                            <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
+                            {% if movement.from_carrier %}<a
+                                href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
                                 data-bs-toggle="tooltip" data-bs-html="true"
-                                title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a> no
-                            pudo entregar en destino: {% if movement.comment %}"{{ movement.comment }}"{% else %}sin
+                                title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% else %}un
+                            usuario que se eliminó{% endif %} no pudo entregar en destino:
+                            {% if movement.comment %}"{{ movement.comment }}"{% else %}sin
                             comentario{% endif %}{% if movement.proof %}. Se adjuntó <a
                                 href="{{ movement.proof.url }}">esta imagen</a>{% endif %}.
 
