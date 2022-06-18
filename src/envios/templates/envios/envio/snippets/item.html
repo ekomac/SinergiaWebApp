@@ -43,8 +43,12 @@
         {% if obj.status == 'S' or obj.status == 'N' or obj.status == 'R' %}
         <a href="{% url 'deposits:detail' obj.deposit.id %}" class="btn btn-secondary btn-sm">{{ obj.deposit.name }}</a>
         {% elif obj.status == 'M' %}
+        {% if obj.carrier %}
         <a href="{% url 'account:employees-detail' obj.carrier.pk %}"
             class="btn btn-secondary btn-sm">@{{ obj.carrier.username }}</a>
+        {% else %}
+        <b style="color: red;">Error: Se eliminó al usuario portador del sistema.</b>
+        {% endif %}
         {% elif obj.status == 'C' %}
         No aplica
         {% else %}
