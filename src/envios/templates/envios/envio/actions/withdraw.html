@@ -54,12 +54,12 @@ Envíos
 
             <div>
                 <strong>Envío:</strong> {{ form.envio.full_address }}<br>
-                <strong>En:</strong> <a
+                <strong>En:</strong> {% if form.envio.deposit %}<a
                     href="{% url 'deposits:detail' pk=form.envio.deposit.pk %}">{{ form.envio.deposit.name }}</a> en
                 <i>{{ form.envio.deposit.full_address }}</i>{% if form.envio.deposit.client %} de
-                {{ form.envio.deposit.client.name }}{% endif %}<br>
-                <strong>Cliente:</strong> <a
-                    href="{% url 'clients:detail' pk=form.envio.client.pk %}">{{ form.envio.client }}</a><br>
+                {{ form.envio.deposit.client.name }}{% endif %}{% else %}un depósito que se eliminó.{% endif %}<br>
+                <strong>Cliente:</strong> {% if form.envio.client %}<a
+                    href="{% url 'clients:detail' pk=form.envio.client.pk %}">{{ form.envio.client }}</a>{% else %}se eliminó del sistema.{% endif %}<br>
             </div>
 
             <div class="row g-3 mt-1">

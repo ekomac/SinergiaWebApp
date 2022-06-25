@@ -343,8 +343,8 @@ def __cols_to_kwargs(
 
 DETAIL_CODES = {
     "0": 'max_5k_price',
-    "1":  'bulto_max_10k_price',
-    "2":  'bulto_max_20k_price',
+    "1": 'bulto_max_10k_price',
+    "2": 'bulto_max_20k_price',
     "3": 'miniflete_price',
     "4": 'tramite_price',
 }

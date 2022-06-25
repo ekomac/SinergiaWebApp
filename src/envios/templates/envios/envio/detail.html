@@ -182,19 +182,19 @@
                             <td class="w-100">
                                 <!-- NEW OR STILL -->
                                 {% if object.status == 'N' or object.status == 'S' %}
-                                En depósito "{{ object.deposit.name }}" en <i>{{ object.deposit.full_address }}</i>
-                                {% if object.deposit.client %}de {{ object.deposit.client.name }}{% endif %}
+                                {% if object.deposit %}En depósito "{{ object.deposit.name }}" en <i>{{ object.deposit.full_address }}</i>
+                                {% if object.deposit.client %}de {{ object.deposit.client.name }}{% endif %}{% else %}En un depósito que se eliminó del sistema.{% endif %}
 
                                 <!-- MOVING -->
                                 {% elif object.status == 'M' %}
-                                En manos de <a href="#" data-bs-toggle="tooltip" data-bs-html="true"
-                                    title="{{ object.carrier.full_name }}<em><br>{% if object.carrier.client != None %}&nbsp;({{ object.carrier.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ object.carrier.username }}</a>
+                                En manos de {% if object.carrier %}<a href="#" data-bs-toggle="tooltip" data-bs-html="true"
+                                    title="{{ object.carrier.full_name }}<em><br>{% if object.carrier.client != None %}&nbsp;({{ object.carrier.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ object.carrier.username }}</a>{% else %}un usuario que se eliminó{% endif %}
 
                                 <!-- DELIVERED -->
                                 {% elif object.status == 'D' %}
-                                Entregado por <a href="#" data-bs-toggle="tooltip" data-bs-html="true"
+                                Entregado por {% if deliverer %}<a href="#" data-bs-toggle="tooltip" data-bs-html="true"
                                     title="{{ deliverer.full_name }}<em><br>{% if deliverer.client != None %}&nbsp;({{ deliverer.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ deliverer.username }}</a>
-                                el {{delivered_date}}
+                                el {{delivered_date}}{% else %}un usuario que se eliminó del sistema.{% endif %}
 
                                 {% endif %}
                             </td>
