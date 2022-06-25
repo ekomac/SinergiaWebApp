@@ -19,7 +19,8 @@ class MercadoLibreSubmodule():
             lambda page: 'Despacha tu producto' not in page.getText(),
             self.pdf)
         # Map each page to a list o shipments
-        list_of_shipments_lists = map(self.__page_to_shipments, pages)
+        list_of_shipments_lists = [
+            self.__page_to_shipments(page) for page in pages]
         # Flatten the list containing list of shipments
         return list(chain(*list_of_shipments_lists))
 
@@ -31,7 +32,10 @@ class MercadoLibreSubmodule():
             regex = re.compile(r'(\nCP:[\s0-9]{4,}\n)')
         page_text = regex.sub(r'\1<<<COLUMN-END>>>\n', page_text)
         parts = page_text.split('<<<COLUMN-END>>>\n')
-        return map(self.__part_to_shipment, parts[:-1])
+        return [
+            self.__part_to_shipment(part) for part in
+            parts if "Tracking" in part
+        ]
 
     def __part_to_shipment(self, part) -> Shipment:
         lines = part.split("\n")

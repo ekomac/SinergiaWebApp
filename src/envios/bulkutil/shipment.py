@@ -49,3 +49,17 @@ class Shipment:
             or len(self.dni_destinatario) > 0 \
             or len(self.phone) > 0 \
             or len(self.detalle_envio) > 0
+
+    def __repr__(self) -> str:
+        return (
+            "{" + "tracking_id:" + self.tracking_id + ",\n"
+            "domicilio:" + self.domicilio + ",\n" +
+            "referencia:" + self.referencia + ",\n" +
+            "codigo_postal:" + self.codigo_postal + ",\n" +
+            "localidad:" + self.localidad + ",\n" +
+            "partido:" + self.partido + ",\n" +
+            "destinatario:" + self.destinatario + ",\n" +
+            "dni_destinatario:" + self.dni_destinatario + ",\n" +
+            "phone:" + self.phone + ",\n" +
+            "detalle_envio:" + self.detalle_envio + "}"
+        )
