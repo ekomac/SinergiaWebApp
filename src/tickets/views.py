@@ -227,9 +227,16 @@ def truncate_start(s: str) -> str:
         str: the truncated string.
     """
     if '/' in s:
-        return ".../" + s[s.rfind('/') + 1:]
+        return ".../" + truncate_get_params(s[s.rfind('/') + 1:])
     elif len(s) > 30:
-        return "..." + s[-30:]
+        return "..." + truncate_get_params(s[-30:])
+    return s
+
+
+def truncate_get_params(s: str) -> str:
+    if '?' in s:
+        i = s.index('?')
+        return s[:i]
     return s
 
 
