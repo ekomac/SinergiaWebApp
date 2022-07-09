@@ -655,6 +655,10 @@ class ActionDeliveryAttemptForm(BaseActionForm):
 
         # Add envios to the movement
         movement.envios.add(envio)
+
+        envio.has_delivery_attempt = True
+        envio.save()
+
         return movement
 
 
