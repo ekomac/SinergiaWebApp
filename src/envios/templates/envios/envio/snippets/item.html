@@ -3,6 +3,9 @@
         overflow: auto;
         white-space: nowrap;
     }
+    .badge {
+        margin: 0px;
+    }
 </style>
 <tr id="tr-{{obj.id}}" class="table-item highlight-row"
     onclick="onItemClicked({{ obj.id }},'{% url 'envios:envio-detail' pk=obj.id %}');">
@@ -17,8 +20,14 @@
         <span class="badge rounded-pill bg-danger">{{obj.get_status_display}}</span>
         {% elif obj.status == 'M' %}
         <span class="badge rounded-pill bg-primary">{{obj.get_status_display}}</span>
+        {% if obj.has_delivery_attempt %} <br>
+        <span class="badge rounded-pill bg-info text-dark">Reprogramado</span>
+        {% endif %}
         {% elif obj.status == 'S' %}
-        <span class="badge rounded-pill bg-warning">{{obj.get_status_display}}</span>
+        <span class="badge rounded-pill bg-warning text-dark">{{obj.get_status_display}}</span>
+        {% if obj.has_delivery_attempt %} <br>
+        <span class="badge rounded-pill bg-info text-dark">Reprogramado</span>
+        {% endif %}
         {% elif obj.status == 'D' %}
         <span class="badge rounded-pill bg-success">{{obj.get_status_display}}</span>
         {% elif obj.status == 'R' %}
@@ -26,9 +35,9 @@
         {% elif obj.status == 'C' %}
         <span class="badge rounded-pill bg-secondary">{{obj.get_status_display}}</span>
         {% endif %}
+        
     </td>
     <td class="cell-centered">
-
         {% if obj.is_flex %}
         <span class="badge" style="background-color: #212529;">FLEX</span>
         {% else %}
@@ -42,14 +51,13 @@
     <td class="cell-centered">
         {% if obj.status == 'S' or obj.status == 'N' or obj.status == 'R' %}
         {% if obj.deposit %}<a href="{% url 'deposits:detail' obj.deposit.id %}"
-            class="btn btn-secondary btn-sm">{{ obj.deposit.name }}</a>{% else %}Error: Se eliminó al usuario portador
-        del sistema.{% endif %}
+            class="btn btn-secondary btn-sm m-0">{{ obj.deposit.name }}</a>{% else %}<b style="color: red;">Depósito eliminado</b>{% endif %}
         {% elif obj.status == 'M' %}
         {% if obj.carrier %}
         <a href="{% url 'account:employees-detail' obj.carrier.pk %}"
-            class="btn btn-secondary btn-sm">@{{ obj.carrier.username }}</a>
+            class="btn btn-secondary btn-sm m-0" >@{{ obj.carrier.username }}</a>
         {% else %}
-        <b style="color: red;">Error: Se eliminó al usuario portador del sistema.</b>
+        <b style="color: red;">Usuario eliminado</b>
         {% endif %}
         {% elif obj.status == 'C' %}
         No aplica

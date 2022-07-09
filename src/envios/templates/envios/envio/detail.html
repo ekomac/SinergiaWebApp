@@ -11,8 +11,6 @@
 
     .spaced-tr {
         height: 9vh;
-        //line-height: 45px;
-        //padding-left: 200px;
     }
 
     .date {
@@ -46,12 +44,25 @@
 
 
                     {% elif object.status == "S" %}
-                    <h4>
-                        <div class="badge rounded-pill bg-warning">
-                            <i class="bi bi-geo-alt"></i> En depósito
+                    <div class="d-flex justify-content-between">
+                        <div class="d-flex">
+                            <h4>
+                                <div class="badge rounded-pill bg-warning text-dark">
+                                    <i class="bi bi-geo-alt"></i> En depósito
+                                </div>
+                            </h4>
                         </div>
-                    </h4>
-
+                        {% if object.has_delivery_attempt %}
+                        <div class="ms-2">
+                            <h4>
+                                <div class="badge rounded-pill bg-info text-dark">
+                                    <i class="bi bi-skip-forward"></i> Reprogramado
+                                </div>
+                            </h4>
+                        </div>
+                        {% endif %}
+                        
+                    </div>
                     {% elif object.status == "M" %}
                     <div class="d-flex justify-content-between">
                         <div class="d-flex">
@@ -68,6 +79,15 @@
                                 <span class="visually-hidden">New alerts</span>
                             </span>
                         </div>
+                        {% if object.has_delivery_attempt %}
+                        <div class="ms-2">
+                            <h4>
+                                <div class="badge rounded-pill bg-info text-dark">
+                                    <i class="bi bi-skip-forward"></i> Reprogramado
+                                </div>
+                            </h4>
+                        </div>
+                        {% endif %}
                     </div>
 
                     {% elif object.status == "D" %}
