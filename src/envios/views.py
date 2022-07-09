@@ -455,8 +455,6 @@ def delete_envio_view(request, pk, **kwargs):
         form = CheckPasswordForm()
     context = delete_utility.get_context_data()
     context['form'] = form
-    # context['password_match'] = passwords_match
-
     return render(request, "envios/envio/delete.html", context)
 
 
@@ -467,8 +465,7 @@ def withdraw_envio_view(request, pk: int):
         form = ActionWithdrawForm(
             data=request.POST, user=request.user, envio=envio)
         if form.is_valid():
-            movement = form.perform_action()
-            print(movement)
+            form.perform_action()
             msg = f'El envío "{envio.full_address} de {envio.client}" '\
                 + 'se retiró correctamente.'
             return update_alert_and_redirect(
@@ -488,8 +485,7 @@ def deposit_envio_view(request, pk: int):
         form = ActionDepositForm(
             data=request.POST, user=request.user, envio=envio)
         if form.is_valid():
-            movement = form.perform_action()
-            print(movement)
+            form.perform_action()
             msg = f'El envío "{envio.full_address} de {envio.client}" '\
                 + 'se depositó correctamente.'
             return update_alert_and_redirect(
@@ -509,8 +505,7 @@ def transfer_envio_view(request, pk: int):
         form = ActionTransferForm(
             data=request.POST, user=request.user, envio=envio)
         if form.is_valid():
-            movement = form.perform_action()
-            print(movement)
+            form.perform_action()
             msg = f'El envío "{envio.full_address} de {envio.client}" '\
                 + 'se transferió correctamente.'
             return update_alert_and_redirect(
@@ -530,8 +525,7 @@ def devolver_envio_view(request, pk: int):
         form = ActionDevolverForm(
             data=request.POST, user=request.user, envio=envio)
         if form.is_valid():
-            movement = form.perform_action()
-            print(movement)
+            form.perform_action()
             msg = f'El envío "{envio.full_address} de {envio.client}" '\
                 + 'se devolvió correctamente.'
             return update_alert_and_redirect(
@@ -551,20 +545,11 @@ def delivery_attempt_envio_view(request, pk: int):
         form = ActionDeliveryAttemptForm(
             request.user, envio, request.POST, request.FILES)
         if form.is_valid():
-            movement = form.perform_action()
-            print(movement)
+            form.perform_action()
             msg = f'El envío "{envio.full_address} de {envio.client}" '\
                 + 'se intentó entregar correctamente.'
             return update_alert_and_redirect(
                 request, msg, 'envios:envio-detail', envio.pk)
-        else:
-            for error in form.errors:
-                print(error)
-            for error in form.non_field_errors():
-                print(error)
-            # for field in form.fields:
-            #     for error in field.errors:
-            #         print(error)
     context = {
         'form': form,
         'envio': envio,
@@ -588,8 +573,7 @@ def successful_delivery_envio_view(request, pk: int):
         form = ActionSuccessfulDeliveryForm(
             data=request.POST, user=request.user, envio=envio)
         if form.is_valid():
-            movement = form.perform_action()
-            print(movement)
+            form.perform_action()
             msg = f'El envío "{envio.full_address} de {envio.client}" '\
                 + 'se entregó correctamente.'
             return update_alert_and_redirect(
