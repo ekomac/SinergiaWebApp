@@ -24,7 +24,7 @@
         <span class="badge rounded-pill bg-info text-dark">Reprogramado</span>
         {% endif %}
         {% elif obj.status == 'S' %}
-        <span class="badge rounded-pill bg-warning">{{obj.get_status_display}}</span>
+        <span class="badge rounded-pill bg-warning text-dark">{{obj.get_status_display}}</span>
         {% if obj.has_delivery_attempt %} <br>
         <span class="badge rounded-pill bg-info text-dark">Reprogramado</span>
         {% endif %}
