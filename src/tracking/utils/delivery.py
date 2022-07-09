@@ -45,6 +45,8 @@ def delivery_attempt(
     # Add envios to the movement
     movement.envios.add(*envios)
 
+    envios.update(has_delivery_attempt=True)
+
     if result_obtained == TrackingMovement.RESULT_DELIVERED:
         envios.update(
             status=Envio.STATUS_DELIVERED,
@@ -102,6 +104,8 @@ def indirect_delivery_attempt(
 
     # Add envios to the movement
     movement.envios.add(*envios)
+
+    envios.update(has_delivery_attempt=True)
 
     if result_obtained == TrackingMovement.RESULT_DELIVERED:
         envios.update(
