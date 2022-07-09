@@ -26,6 +26,11 @@
         {% elif obj.status == 'C' %}
         <span class="badge rounded-pill bg-secondary">{{obj.get_status_display}}</span>
         {% endif %}
+        {% if obj.status == 'M' or obj.status == 'S' %}
+        {% if obj.has_delivery_attempt %}
+        <span class="badge bg-info text-dark">Intento entrega fallido</span>
+        {% endif %}
+        {% endif %}
     </td>
     <td class="cell-centered">
 

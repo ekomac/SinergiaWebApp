@@ -158,6 +158,8 @@ class Envio(Receiver):
     receiver_doc = models.CharField(
         verbose_name="DNI del destinatario", max_length=20,
         blank=True, null=True)
+    has_delivery_attempt = models.BooleanField(
+        verbose_name="Se ha intentado entregar", default=False)
 
     def __str__(self):
         address = self.full_address
