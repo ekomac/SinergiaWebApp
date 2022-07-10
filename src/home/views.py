@@ -89,13 +89,22 @@ def get_deposits_with_envios_queryset() -> QuerySet:
 
 
 def get_envios_at_deposit() -> QuerySet:
-    return Envio.objects.filter(
-        status=Envio.STATUS_STILL,
+    today = datetime(datetime.now().year,
+                     datetime.now().month, datetime.now().day, 23, 59, 59, 99)
+    envio_count = Count('envio', filter=Q(envio__status=Envio.STATUS_STILL))
+    priorities = Count('envio',
+                       filter=Q(envio__max_delivery_date__lte=today) &
+                       Q(envio__status=Envio.STATUS_STILL))
+    scheduled_time = Count('envio',
+                           filter=Q(envio__delivery_schedule__isnull=False) &
+                           Q(envio__status=Envio.STATUS_STILL))
+    return Deposit.objects.filter(client__isnull=True).values(
+        'id', 'name'
     ).annotate(
-        client_count=Count(
-            'client__name'
-        ),
-    ).order_by()
+        envio_count=envio_count,
+        priorities=priorities,
+        scheduled_time=scheduled_time
+    ).order_by('name')
 
 
 def get_carriers_with_envios() -> QuerySet:

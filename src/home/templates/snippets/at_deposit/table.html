@@ -1,4 +1,4 @@
-<div class="row m-0 mb-2">
+<div class="row m-0 mt-3 mb-2">
     <div class="col">
         <h5 class="card-title font-monospace top-card mx-1"><i class="bi bi-shop-window" style="color: grey;"></i> EN
             DEPÓSITO - Esperando para ser distribuidos</h5>
@@ -10,15 +10,27 @@
                             <thead>
                                 <tr>
                                     <th>Depósito</th>
-                                    <th>Cliente</th>
                                     <th>Cantidad</th>
                                     <th>Prioritarios</th>
                                     <th>Horarios particulares</th>
                                 </tr>
                             </thead>
                             <tbody id="overrided-1" class="overrided-tbody">
-                                {% for client in clients_with_envios %}
-                                {% include 'snippets/at_deposit/item.html' with obj=client counter=forloop.counter%}
+                                <style>
+                                    td {
+                                        overflow: auto;
+                                        white-space: nowrap;
+                                    }
+                                </style>
+                                {% for obj in envios_at_deposit %}
+                                {% if obj.envio_count > 0 %}
+                                <tr id="tr-{{obj.id}}" class="table-item">
+                                    <td><a href="{% url 'deposits:detail' obj.id %}">{{ obj.name }}</a></td>
+                                    <td>{{ obj.envio_count }}</td>
+                                    <td>{{ obj.priorities }}</td>
+                                    <td>{{ obj.scheduled_time }}</td>
+                                </tr>
+                                {% endif %}
                                 {% endfor %}
                             </tbody>
                         </table>
