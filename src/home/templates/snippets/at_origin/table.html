@@ -14,6 +14,7 @@
                                     <th class="cell-centered">Cantidad</th>
                                     <th class="cell-centered">Con fecha de entrega</th>
                                     <th class="cell-centered">Con horario de entrega</th>
+                                    <th class="cell-centered">Reprogramados</th>
                                 </tr>
                             </thead>
                             <tbody id="overrided-1" class="overrided-tbody">
@@ -52,6 +53,15 @@
                                         {% endif %}
                                         {{ obj.has_special_delivery_schedule_time }} envío{% if obj.has_special_delivery_schedule_time != 1 %}s{% endif %}
                                         {% if obj.has_special_delivery_schedule_time > 0 %}
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="cell-centered">
+                                        {% if obj.reprogramed > 0 %}
+                                        <a href="{% url 'envios:envio-list' %}?client_id={{ obj.client__pk }}&status=N&has_delivery_attempt=1">
+                                        {% endif %}
+                                        {{ obj.reprogramed }} envío{% if obj.reprogramed != 1 %}s{% endif %}
+                                        {% if obj.reprogramed > 0 %}
                                         </a>
                                         {% endif %}
                                     </td>

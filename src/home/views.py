@@ -44,7 +44,7 @@ def app_account_change_password_view(request) -> HttpResponse:
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
 def admin_home_screen_view(request):
-    clients_with_envios = get_deposits_with_envios_queryset()
+    clients_with_envios = get_clients_with_envios()
     deposits_with_envios = get_deposits_with_envios()
     carriers_with_envios = get_carriers_with_envios()
     main_stats = {
@@ -69,7 +69,14 @@ def admin_home_screen_view(request):
     return render(request, 'home.html', context)
 
 
-def get_deposits_with_envios_queryset() -> QuerySet:
+def get_clients_with_envios() -> QuerySet:
+    """Returns a list of clients with 4 counts: total, with
+     delivery date, with delivery scheduled and reprogramed
+
+    Returns:
+        QuerySet: containing Deposit objects with the following fields:
+            id, name, envio_count, priorities, scheduled_time, reprogramed
+    """
     envio_count = Count('envio', filter=Q(envio__status=Envio.STATUS_NEW))
     priorities = Count('envio',
                        filter=Q(envio__max_delivery_date__isnull=False) &
@@ -77,12 +84,16 @@ def get_deposits_with_envios_queryset() -> QuerySet:
     scheduled_time = Count('envio',
                            filter=Q(envio__delivery_schedule__isnull=False) &
                            Q(envio__status=Envio.STATUS_NEW))
+    reprogramed = Count('envio',
+                        filter=Q(envio__has_delivery_attempt=True) &
+                        Q(envio__status=Envio.STATUS_NEW))
     return Deposit.objects.values(
         'id', 'name', 'client__name', 'client__pk'
     ).annotate(
         envio_count=envio_count,
         priorities=priorities,
-        has_special_delivery_schedule_time=scheduled_time
+        has_special_delivery_schedule_time=scheduled_time,
+        reprogramed=reprogramed
     ).order_by('name')
 
 
@@ -94,12 +105,16 @@ def get_deposits_with_envios() -> QuerySet:
     scheduled_time = Count('envio',
                            filter=Q(envio__delivery_schedule__isnull=False) &
                            Q(envio__status=Envio.STATUS_STILL))
+    reprogramed = Count('envio',
+                        filter=Q(envio__has_delivery_attempt=True) &
+                        Q(envio__status=Envio.STATUS_STILL))
     return Deposit.objects.filter(client__isnull=True).values(
         'id', 'name'
     ).annotate(
         envio_count=envio_count,
         priorities=priorities,
-        scheduled_time=scheduled_time
+        scheduled_time=scheduled_time,
+        reprogramed=reprogramed
     ).order_by('name')
 
 
@@ -113,13 +128,18 @@ def get_carriers_with_envios() -> QuerySet:
     scheduled_time = Count('envios_carried_by',
                            filter=Q(**q_filter) &
                            Q(envios_carried_by__status=Envio.STATUS_MOVING))
+    reprogramed = Count('envios_carried_by',
+                        filter=Q(
+                            envios_carried_by__has_delivery_attempt=True) &
+                        Q(envios_carried_by__status=Envio.STATUS_MOVING))
     return Account.objects.filter(
         envios_carried_by__status=Envio.STATUS_MOVING,
         envios_carried_by__isnull=False,
     ).annotate(
         envio_count=envio_count,
         priorities=priorities,
-        scheduled_time=scheduled_time
+        scheduled_time=scheduled_time,
+        reprogramed=reprogramed
     ).order_by('username')
 
 
