@@ -162,6 +162,24 @@
                 </div>
                 <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
                 
+                <!-- start SHIPMENT DELIVERY ATTEMPT SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_has_delivery_attempt_modal" class="form-label">Fue reprogramado alguna vez</label>
+                        
+                        <!-- start SHIPMENT DELIVERY ATTEMPT -->
+                        <select id="id_has_delivery_attempt_modal" name="has_delivery_attempt_modal" class="form-select"
+                        aria-label="has_delivery_attempt selection">
+                            <option value="" {% if not has_delivery_attempt %}selected{% endif %}>---</option>
+                            <option value="1" {% if has_delivery_attempt == '1' %}selected{% endif %}>Sí</option>
+                            <option value="0" {% if has_delivery_attempt == '0' %}selected{% endif %}>No</option>
+                        </select>
+                        <!-- end SHIPMENT DELIVERY ATTEMPT -->
+                    
+                    </div>
+                </div>
+                <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+                
 
             </div>
 
@@ -252,6 +270,7 @@
 <input type="text" id='id_deposit_id' name="deposit_id" {% if deposit_id %}value="{{ deposit_id }}" {% endif %}>
 <input type="text" id='id_status' name="status" {% if status %}value="{{ status }}" {% endif %}>
 <input type="text" id='id_is_flex' name="is_flex" {% if is_flex %}value="{{ is_flex }}" {% endif %}>
+<input type="text" id='id_has_delivery_attempt' name="has_delivery_attempt" {% if has_delivery_attempt %}value="{{ has_delivery_attempt }}" {% endif %}>
 <input type="text" id='id_has_delivery_date' name="has_delivery_date" {% if has_delivery_date %}value="{{ has_delivery_date }}" {% endif %}>
 <input type="text" id='id_is_scheduled' name="is_scheduled" {% if is_scheduled %}value="{{ is_scheduled }}" {% endif %}>
 <input type="submit">
@@ -336,6 +355,7 @@
                 'id_deposit_id',
                 'id_status',
                 'id_is_flex',
+                'id_has_delivery_attempt',
                 'id_has_delivery_date',
                 'id_is_scheduled',
             ].forEach(function (id) {
@@ -419,6 +439,7 @@
         $('#id_deposit_id').val($('#id_deposit_modal').val());
         $('#id_status').val($('#id_status_modal').val());
         $('#id_is_flex').val($('#id_is_flex_modal').val());
+        $('#id_has_delivery_attempt').val($('#id_has_delivery_attempt_modal').val());
         $('#id_has_delivery_date').val($('#id_has_delivery_date_modal').val());
         $('#id_is_scheduled').val($('#id_is_scheduled_modal').val());
         $('#list_form').submit();
@@ -432,6 +453,7 @@
         $('#id_deposit_id').val('');
         $('#id_status').val('');
         $('#id_is_flex').val('');
+        $('#id_has_delivery_attempt').val('');
         $('#id_has_delivery_date').val('');
         $('#id_is_scheduled').val('');
         $('#list_form').submit();

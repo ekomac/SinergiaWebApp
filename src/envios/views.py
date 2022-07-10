@@ -92,6 +92,12 @@ class EnvioListView(CompleteListView, LoginRequiredMixin):
             'context': lambda x: x,
         },
         {
+            'key': 'has_delivery_attempt',
+            'filter': 'has_delivery_attempt',
+            'function': lambda x: True if x == '1' else False,
+            'context': lambda x: x,
+        },
+        {
             'key': 'has_delivery_date',
             'filter': 'max_delivery_date__isnull',
             'function': lambda x: False if x == '1' else True,
