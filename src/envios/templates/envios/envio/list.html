@@ -8,8 +8,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="filtersModalLabel">Elegí cómo querés filtrar los envíos.
-                </h5>
+                <h5 class="modal-title" id="filtersModalLabel">Elegí cómo querés filtrar los envíos.</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -38,7 +37,7 @@
                 </div>
                 <!-- end DATES FROM AND TO FILTER -->
 
-                <!-- start CLIENT TYPE SELECTION -->
+                <!-- start CLIENT SELECTION -->
                 <div class="row g-2 mt-2">
                     <div class="col">
                         <label for="id_client_modal" class="form-label">Cliente</label>
@@ -58,6 +57,48 @@
                     </div>
                 </div>
                 <!-- end CLIENT SELECTION -->
+                
+                <!-- start CARRIER SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_carrier_modal" class="form-label">Portador</label>
+
+                        <!-- start CARRIER SELECTION -->
+                        <select id="id_carrier_modal" name="carrier_modal" class="form-select"
+                            aria-label="carrier selection">
+                            <option value="">---</option>
+                            {% for carrier in carriers %}
+                            <option value="{{carrier.pk}}"
+                                {% if carrier_id == carrier.pk|stringformat:"i" %}selected{% endif %}>
+                                {{carrier.full_name}}</option>
+                            {% endfor %}
+                        </select>
+                        <!-- end CARRIER SELECTION -->
+
+                    </div>
+                </div>
+                <!-- end CARRIER SELECTION -->
+                
+                <!-- start DEPOSIT SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_deposit_modal" class="form-label">Depósito</label>
+
+                        <!-- start DEPOSIT SELECTION -->
+                        <select id="id_deposit_modal" name="deposit_modal" class="form-select"
+                            aria-label="deposit selection">
+                            <option value="">---</option>
+                            {% for deposit in deposits %}
+                            <option value="{{deposit.id}}"
+                                {% if deposit_id == deposit.id|stringformat:"i" %}selected{% endif %}>
+                                {{deposit.name}} de {{ deposit.client.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <!-- end DEPOSIT SELECTION -->
+
+                    </div>
+                </div>
+                <!-- end DEPOSIT SELECTION -->
 
                 <!-- start SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
                 <div class="row g-2 mt-2">
@@ -79,7 +120,6 @@
 
                     <div class="col">
                         <label for="id_is_flex_modal" class="form-label">Tipo</label>
-
                         <!-- start SHIPMENT TYPE SELECTION -->
                         <select id="id_is_flex_modal" name="is_flex_modal" class="form-select"
                             aria-label="shipment type selection">
@@ -89,11 +129,10 @@
                             </option>
                         </select>
                         <!-- end SHIPMENT TYPE SELECTION -->
-
                     </div>
                 </div>
+                <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
             </div>
-            <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -105,7 +144,6 @@
         </div>
     </div>
 </div>
-<!-- end BASE MODAL DIALOG -->
 
 {% endblock modal_content %}
 
@@ -179,6 +217,8 @@
 <input type="text" id='id_min_date' name="min_date" {% if min_date %}value="{{ min_date }}" {% endif %}>
 <input type="text" id='id_max_date' name="max_date" {% if max_date %}value="{{ max_date }}" {% endif %}>
 <input type="text" id='id_client_id' name="client_id" {% if client_id %}value="{{ client_id }}" {% endif %}>
+<input type="text" id='id_carrier_id' name="carrier_id" {% if carrier_id %}value="{{ carrier_id }}" {% endif %}>
+<input type="text" id='id_deposit_id' name="deposit_id" {% if deposit_id %}value="{{ deposit_id }}" {% endif %}>
 <input type="text" id='id_status' name="status" {% if status %}value="{{ status }}" {% endif %}>
 <input type="text" id='id_is_flex' name="is_flex" {% if is_flex %}value="{{ is_flex }}" {% endif %}>
 <input type="submit">
@@ -259,6 +299,8 @@
                 'id_min_date',
                 'id_max_date',
                 'id_client_id',
+                'id_carrier_id',
+                'id_deposit_id',
                 'id_status',
                 'id_is_flex',
             ].forEach(function (id) {
@@ -338,6 +380,8 @@
         $('#id_min_date').val($('#id_min_date_modal').val());
         $('#id_max_date').val($('#id_max_date_modal').val());
         $('#id_client_id').val($('#id_client_modal').val());
+        $('#id_carrier_id').val($('#id_carrier_modal').val());
+        $('#id_deposit_id').val($('#id_deposit_modal').val());
         $('#id_status').val($('#id_status_modal').val());
         $('#id_is_flex').val($('#id_is_flex_modal').val());
         $('#list_form').submit();
@@ -347,6 +391,8 @@
         $('#id_min_date').val('');
         $('#id_max_date').val('');
         $('#id_client_id').val('');
+        $('#id_carrier_id').val('');
+        $('#id_deposit_id').val('');
         $('#id_status').val('');
         $('#id_is_flex').val('');
         $('#list_form').submit();

@@ -91,6 +91,20 @@ class EnvioListView(CompleteListView, LoginRequiredMixin):
             'function': lambda x: True if x == 'true' else False,
             'context': lambda x: x,
         },
+        {
+            'key': 'carrier_id',
+            'filter': lambda x: 'carrier__isnull' if (
+                x in [-1, '-1']) else 'carrier__id',
+            'function': lambda x: True if x in [-1, '-1'] else int(x),
+            'context': str,
+        },
+        {
+            'key': 'deposit_id',
+            'filter': lambda x: 'deposit__isnull' if (
+                x in [-1, '-1']) else 'deposit__id',
+            'function': lambda x: True if x in [-1, '-1'] else int(x),
+            'context': str,
+        },
     )
     query_keywords = (
         'updated_by__first_name__icontains',
@@ -112,6 +126,9 @@ class EnvioListView(CompleteListView, LoginRequiredMixin):
     def get_context_data(self) -> Dict[str, Any]:
         context = super().get_context_data()
         context['clients'] = Client.objects.all()
+        context['carriers'] = Account.objects.filter(
+            client__isnull=True, has_access_denied=False)
+        context['deposits'] = Deposit.objects.all().annotate()
         context['selected_tab'] = 'shipments-tab'
         now = datetime.now()
         year = str(now.year).zfill(4)
