@@ -30,41 +30,9 @@ def redirect_no_url(request):
     if request.user.is_authenticated:
         if request.user.groups.filter(name='Admins').exists():
             return admin_home_screen_view(request)
-        # elif request.user.groups.filter(
-        #         name__in=['Level 1', 'Level 2']).exists():
-        #     return mobile_based_tracking_actions_view(request)
         elif request.user.groups.filter(name='Clients').exists():
             return redirect(reverse('clients_only:index'))
     return Http404()
-
-
-# @login_required(login_url='/login/')
-# @allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
-# def mobile_based_tracking_actions_view(request) -> HttpResponse:
-#     """
-#     Renders the app's index view.
-#     """
-#     context = {}
-#     is_carrier = request.user.envios_carried_by.count() > 0
-#     can_transfer_any = request.user.groups.filter(
-#         name__in=["Admins", "Level 1"]).exists()
-#     # If user is carrying something, he can transfer it
-#     if is_carrier:
-#         print("is carrier")
-#         context['user_can_transfer'] = True
-#     # If user is not carrying anything, he can transfer
-#     # anything if he is an admin or a tier 1 employee
-#     elif not is_carrier and can_transfer_any:
-#         context['user_can_transfer'] = True
-#     else:
-#         context['user_can_transfer'] = False
-#     return render(request, 'baseapp_index.html', context)
-
-
-# @login_required(login_url='/login/')
-# @allowed_users(roles=settings.ACCESS_EMPLOYEE_APP)
-# def mobile_account_view(request) -> HttpResponse:
-#     return render(request, 'baseapp_account.html', {})
 
 
 @login_required(login_url='/login/')
@@ -79,7 +47,6 @@ def admin_home_screen_view(request):
     clients_with_envios = get_deposits_with_envios_queryset()
     envios_at_deposit = get_envios_at_deposit()
     carriers_with_envios = get_carriers_with_envios()
-    # carriers_with_envios = get_carriers_with_envios_queryset()
     main_stats = {
         'at_origin': Envio.objects.filter(
             status=Envio.STATUS_NEW).count(),
@@ -191,24 +158,6 @@ def get_all():
 
 
 def get_carriers_with_envios_queryset() -> Dict[str, List[Envio]]:
-
-    # moving_envios = sorted(list(map(
-    #     lambda envio: (
-    #         envio, TrackingMovement.objects.filter(
-    #             envios=envio,
-    #             action=TrackingMovement.ACTION_RECOLECTION,
-    #             result=TrackingMovement.RESULT_TRANSFERED
-    #         ).last().carrier
-    #     ),
-    #     list(Envio.objects.filter(status=Envio.STATUS_MOVING))
-    # )), key=lambda envio: envio[1].id)
-    # moving_envios = sorted(moving_envios, key=lambda envio: envio[1].id)
-
-    # grouped_envios = [list(g) for _, g in groupby(
-    #     moving_envios, key=lambda envio: envio[1].id)]
-    # for g in grouped_envios:
-    # print("g -->", g)
-    # print('\n')
 
     envios = Envio.objects.filter(
         status=Envio.STATUS_MOVING
