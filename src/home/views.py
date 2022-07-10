@@ -72,24 +72,19 @@ def admin_home_screen_view(request):
 def get_deposits_with_envios_queryset() -> QuerySet:
     today = datetime(datetime.now().year,
                      datetime.now().month, datetime.now().day, 23, 59, 59, 99)
+    envio_count = Count('envio', filter=Q(envio__status=Envio.STATUS_NEW))
+    priorities = Count('envio',
+                       filter=Q(envio__max_delivery_date__lte=today) &
+                       Q(envio__status=Envio.STATUS_NEW))
+    scheduled_time = Count('envio',
+                           filter=Q(envio__delivery_schedule__isnull=False) &
+                           Q(envio__status=Envio.STATUS_NEW))
     return Deposit.objects.values(
         'id', 'name', 'client__name'
     ).annotate(
-        envio_count=Count(
-            'envio', filter=Q(
-                envio__status=Envio.STATUS_NEW
-            )
-        ),
-        priorities=Count(
-            'envio', filter=Q(
-                envio__max_delivery_date__lte=today
-            )
-        ),
-        has_special_delivery_schedule_time=Count(
-            'envio', filter=Q(
-                envio__delivery_schedule__isnull=False
-            )
-        )
+        envio_count=envio_count,
+        priorities=priorities,
+        has_special_delivery_schedule_time=scheduled_time
     ).order_by('name')
 
 
