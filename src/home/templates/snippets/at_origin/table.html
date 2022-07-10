@@ -25,10 +25,10 @@
                                 </style>
                                 {% for obj in clients_with_envios %}
                                 {% if obj.envio_count > 0 or obj.priorities > 0 or obj.has_special_delivery_schedule_time %}
-                                <tr id="tr-{{obj.id}}" class="table-item" onclick="onItemClicked({{ obj.id }});">
-                                    <td>{{ obj.name }}</td>
-                                    <td>{{ obj.client__name }}</td>
-                                    <td class="cell-centered">{{ obj.envio_count }} envíos</td>
+                                <tr id="tr-{{obj.id}}" class="table-item">
+                                    <td><a href="{% url 'deposits:detail' obj.id %}">{{ obj.name }}</a></td>
+                                    <td><a href="{% url 'clients:detail' obj.client__pk %}">{{ obj.client__name }}</a></td>
+                                    <td class="cell-centered"><a href="{% url 'envios:envio-list' %}?client_id={{ obj.client__pk }}&status=N">{{ obj.envio_count }} envíos</a></td>
                                     <td class="cell-centered">{{ obj.priorities }} envíos</td>
                                     <td class="cell-centered">{{ obj.has_special_delivery_schedule_time }} envíos</td>
                                 </tr>

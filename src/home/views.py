@@ -80,7 +80,7 @@ def get_deposits_with_envios_queryset() -> QuerySet:
                            filter=Q(envio__delivery_schedule__isnull=False) &
                            Q(envio__status=Envio.STATUS_NEW))
     return Deposit.objects.values(
-        'id', 'name', 'client__name'
+        'id', 'name', 'client__name', 'client__pk'
     ).annotate(
         envio_count=envio_count,
         priorities=priorities,
