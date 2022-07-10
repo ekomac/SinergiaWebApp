@@ -86,7 +86,7 @@
 <div class="w-100 d-flex flex-column">
     {% include 'snippets/main_stats.html' %}
     {% if clients_with_envios %}{% include 'snippets/at_origin/table.html' %}{% endif %}
-    {% if envios_at_deposit %}{% include 'snippets/at_deposit/table.html' %}{% endif %}
+    {% if deposits_with_envios %}{% include 'snippets/at_deposit/table.html' %}{% endif %}
     {% if carriers_with_envios %}{% include 'snippets/moving/table.html' %}{% endif %}
 
 </div>

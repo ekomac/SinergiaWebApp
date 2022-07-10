@@ -12,8 +12,8 @@
                                     <th>Depósito</th>
                                     <th>Cliente</th>
                                     <th class="cell-centered">Cantidad</th>
-                                    <th class="cell-centered">Se deben entregar hoy</th>
-                                    <th class="cell-centered">Con horario</th>
+                                    <th class="cell-centered">Con fecha de entrega</th>
+                                    <th class="cell-centered">Con horario de entrega</th>
                                 </tr>
                             </thead>
                             <tbody id="overrided-1" class="overrided-tbody">
@@ -28,9 +28,33 @@
                                 <tr id="tr-{{obj.id}}" class="table-item">
                                     <td><a href="{% url 'deposits:detail' obj.id %}">{{ obj.name }}</a></td>
                                     <td><a href="{% url 'clients:detail' obj.client__pk %}">{{ obj.client__name }}</a></td>
-                                    <td class="cell-centered"><a href="{% url 'envios:envio-list' %}?client_id={{ obj.client__pk }}&status=N">{{ obj.envio_count }} envíos</a></td>
-                                    <td class="cell-centered">{{ obj.priorities }} envíos</td>
-                                    <td class="cell-centered">{{ obj.has_special_delivery_schedule_time }} envíos</td>
+                                    <td class="cell-centered">
+                                        {% if obj.envio_count > 0 %}
+                                        <a href="{% url 'envios:envio-list' %}?client_id={{ obj.client__pk }}&status=N">
+                                        {% endif %}
+                                        {{ obj.envio_count }} envío{% if obj.envio_count != 1 %}s{% endif %}
+                                        {% if obj.envio_count > 0 %}
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="cell-centered">
+                                        {% if obj.priorities > 0 %}
+                                        <a href="{% url 'envios:envio-list' %}?client_id={{ obj.client__pk }}&status=N&has_delivery_date=1">
+                                        {% endif %}
+                                        {{ obj.priorities }} envío{% if obj.priorities != 1 %}s{% endif %}
+                                        {% if obj.priorities > 0 %}
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="cell-centered">
+                                        {% if obj.has_special_delivery_schedule_time > 0 %}
+                                        <a href="{% url 'envios:envio-list' %}?client_id={{ obj.client__pk }}&status=N&is_scheduled=1">
+                                        {% endif %}
+                                        {{ obj.has_special_delivery_schedule_time }} envío{% if obj.has_special_delivery_schedule_time != 1 %}s{% endif %}
+                                        {% if obj.has_special_delivery_schedule_time > 0 %}
+                                        </a>
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 {% endif %}
                                 {% endfor %}

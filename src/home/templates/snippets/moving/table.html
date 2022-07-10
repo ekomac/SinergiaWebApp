@@ -12,8 +12,8 @@
                                     <th>Usuario</th>
                                     <th>Apellido y nombre</th>
                                     <th class="cell-centered">Cantidad de envíos</th>
-                                    <th class="cell-centered">Se deben entregar hoy</th>
-                                    <th class="cell-centered">Con horario</th>
+                                    <th class="cell-centered">Con fecha de entrega</th>
+                                    <th class="cell-centered">Con horario de entrega</th>
                                 </tr>
                             </thead>
                             <tbody id="overrided-1" class="overrided-tbody">
@@ -24,9 +24,33 @@
                                 <tr id="tr-{{obj.id}}" class="table-item">
                                     <td><a href="{% url 'account:employees-detail' obj.pk %}">{{ obj.username }}</a></td>
                                     <td>{{ obj.full_name }}</td>
-                                    <td class="cell-centered">{{ obj.envio_count }} envíos</td>
-                                    <td class="cell-centered">{{ obj.priorities }} envíos</td>
-                                    <td class="cell-centered">{{ obj.scheduled_time }} envíos</td>
+                                    <td class="cell-centered">
+                                        {% if obj.envio_count > 0 %}
+                                        <a href="{% url 'envios:envio-list' %}?carrier_id={{ obj.pk }}&status=M">
+                                        {% endif %}
+                                        {{ obj.envio_count }} envío{% if obj.envio_count != 1 %}s{% endif %}
+                                        {% if obj.envio_count > 0 %}
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="cell-centered">
+                                        {% if obj.priorities > 0 %}
+                                        <a href="{% url 'envios:envio-list' %}?carrier_id={{ obj.pk }}&status=M&has_delivery_date=1">
+                                        {% endif %}
+                                        {{ obj.priorities }} envío{% if obj.priorities != 1 %}s{% endif %}
+                                        {% if obj.priorities > 0 %}
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="cell-centered">
+                                        {% if obj.scheduled_time > 0 %}
+                                        <a href="{% url 'envios:envio-list' %}?carrier_id={{ obj.pk }}&status=M&is_scheduled=1">
+                                        {% endif %}
+                                        {{ obj.scheduled_time }} envío{% if obj.scheduled_time != 1 %}s{% endif %}
+                                        {% if obj.scheduled_time > 0 %}
+                                        </a>
+                                        {% endif %}
+                                    </td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

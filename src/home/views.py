@@ -45,7 +45,7 @@ def app_account_change_password_view(request) -> HttpResponse:
 @allowed_users(roles=["Admins"])
 def admin_home_screen_view(request):
     clients_with_envios = get_deposits_with_envios_queryset()
-    envios_at_deposit = get_envios_at_deposit()
+    deposits_with_envios = get_deposits_with_envios()
     carriers_with_envios = get_carriers_with_envios()
     main_stats = {
         'at_origin': Envio.objects.filter(
@@ -61,7 +61,7 @@ def admin_home_screen_view(request):
         'selected_tab': 'home-tab',
         'main_stats': main_stats,
         'clients_with_envios': clients_with_envios,
-        'envios_at_deposit': envios_at_deposit,
+        'deposits_with_envios': deposits_with_envios,
         'carriers_with_envios': carriers_with_envios,
         'apk_download_url': get_object_or_404(
             Data, key='apk_download_url').value,
@@ -70,11 +70,9 @@ def admin_home_screen_view(request):
 
 
 def get_deposits_with_envios_queryset() -> QuerySet:
-    today = datetime(datetime.now().year,
-                     datetime.now().month, datetime.now().day, 23, 59, 59, 99)
     envio_count = Count('envio', filter=Q(envio__status=Envio.STATUS_NEW))
     priorities = Count('envio',
-                       filter=Q(envio__max_delivery_date__lte=today) &
+                       filter=Q(envio__max_delivery_date__isnull=False) &
                        Q(envio__status=Envio.STATUS_NEW))
     scheduled_time = Count('envio',
                            filter=Q(envio__delivery_schedule__isnull=False) &
@@ -88,12 +86,10 @@ def get_deposits_with_envios_queryset() -> QuerySet:
     ).order_by('name')
 
 
-def get_envios_at_deposit() -> QuerySet:
-    today = datetime(datetime.now().year,
-                     datetime.now().month, datetime.now().day, 23, 59, 59, 99)
+def get_deposits_with_envios() -> QuerySet:
     envio_count = Count('envio', filter=Q(envio__status=Envio.STATUS_STILL))
     priorities = Count('envio',
-                       filter=Q(envio__max_delivery_date__lte=today) &
+                       filter=Q(envio__max_delivery_date__isnull=False) &
                        Q(envio__status=Envio.STATUS_STILL))
     scheduled_time = Count('envio',
                            filter=Q(envio__delivery_schedule__isnull=False) &
@@ -108,13 +104,11 @@ def get_envios_at_deposit() -> QuerySet:
 
 
 def get_carriers_with_envios() -> QuerySet:
-    today = datetime(datetime.now().year,
-                     datetime.now().month, datetime.now().day, 23, 59, 59, 99)
     envio_count = Count('envios_carried_by')
     priorities = Count('envios_carried_by',
                        filter=Q(
-                           envios_carried_by__max_delivery_date__lte=today) &
-                       Q(envios_carried_by__status=Envio.STATUS_MOVING))
+                           envios_carried_by__max_delivery_date__isnull=False
+                       ) & Q(envios_carried_by__status=Envio.STATUS_MOVING))
     q_filter = {'envios_carried_by__delivery_schedule__isnull': False}
     scheduled_time = Count('envios_carried_by',
                            filter=Q(**q_filter) &
