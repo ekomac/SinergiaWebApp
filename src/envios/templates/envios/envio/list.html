@@ -104,10 +104,10 @@
                 <div class="row g-2 mt-2">
                     <div class="col">
                         <label for="id_status_modal" class="form-label">Estado</label>
-
+                        
                         <!-- start SHIPMENT STATUS -->
                         <select id="id_status_modal" name="status_modal" class="form-select"
-                            aria-label="status selection">
+                        aria-label="status selection">
                             <option value="">---</option>
                             <option value="N" {% if status == 'N' %}selected{% endif %}>Nuevo</option>
                             <option value="S" {% if status == 'S' %}selected{% endif %}>En depósito</option>
@@ -115,23 +115,54 @@
                             <option value="D" {% if status == 'D' %}selected{% endif %}>Entregado</option>
                         </select>
                         <!-- end SHIPMENT STATUS -->
-
+                    
                     </div>
-
+                    
                     <div class="col">
                         <label for="id_is_flex_modal" class="form-label">Tipo</label>
                         <!-- start SHIPMENT TYPE SELECTION -->
                         <select id="id_is_flex_modal" name="is_flex_modal" class="form-select"
-                            aria-label="shipment type selection">
+                        aria-label="shipment type selection">
                             <option value="" {% if not is_flex %}selected{% endif %}>---</option>
                             <option value="true" {% if is_flex == 'true' %}selected{% endif %}>Flex</option>
                             <option value="false" {% if is_flex == 'false' %}selected{% endif %}>Mensajería</option>
-                            </option>
                         </select>
                         <!-- end SHIPMENT TYPE SELECTION -->
                     </div>
                 </div>
                 <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+                
+                <!-- start SHIPMENT DELIVERY DATE AND SHIPMENT SCHEDULED SELECTION -->
+                <div class="row g-2 mt-2">
+                    <div class="col">
+                        <label for="id_has_delivery_date_modal" class="form-label">Con fecha de entrega</label>
+                        
+                        <!-- start SHIPMENT DELIVERY DATE -->
+                        <select id="id_has_delivery_date_modal" name="has_delivery_date_modal" class="form-select"
+                        aria-label="has_delivery_date selection">
+                            <option value="" {% if not has_delivery_date %}selected{% endif %}>---</option>
+                            <option value="1" {% if has_delivery_date == '1' %}selected{% endif %}>Sí</option>
+                            <option value="0" {% if has_delivery_date == '0' %}selected{% endif %}>No</option>
+                        </select>
+                        <!-- end SHIPMENT DELIVERY DATE -->
+                    
+                    </div>
+                    
+                    <div class="col">
+                        <label for="id_is_scheduled_modal" class="form-label">Con horario de entrega</label>
+                        <!-- start SHIPMENT SCHEDULED SELECTION -->
+                        <select id="id_is_scheduled_modal" name="is_scheduled_modal" class="form-select"
+                        aria-label="shipment type selection">
+                            <option value="" {% if not is_scheduled %}selected{% endif %}>---</option>
+                            <option value="1" {% if is_scheduled == '1' %}selected{% endif %}>Sí</option>
+                            <option value="0" {% if is_scheduled == '0' %}selected{% endif %}>No</option>
+                        </select>
+                        <!-- end SHIPMENT SCHEDULED SELECTION -->
+                    </div>
+                </div>
+                <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+                
+
             </div>
 
             <div class="modal-footer">
@@ -221,6 +252,8 @@
 <input type="text" id='id_deposit_id' name="deposit_id" {% if deposit_id %}value="{{ deposit_id }}" {% endif %}>
 <input type="text" id='id_status' name="status" {% if status %}value="{{ status }}" {% endif %}>
 <input type="text" id='id_is_flex' name="is_flex" {% if is_flex %}value="{{ is_flex }}" {% endif %}>
+<input type="text" id='id_has_delivery_date' name="has_delivery_date" {% if has_delivery_date %}value="{{ has_delivery_date }}" {% endif %}>
+<input type="text" id='id_is_scheduled' name="is_scheduled" {% if is_scheduled %}value="{{ is_scheduled }}" {% endif %}>
 <input type="submit">
 {% endblock filters_block %}
 
@@ -303,6 +336,8 @@
                 'id_deposit_id',
                 'id_status',
                 'id_is_flex',
+                'id_has_delivery_date',
+                'id_is_scheduled',
             ].forEach(function (id) {
                 if ($('#' + id).val() == '') {
                     $('#' + id).prop('disabled', true);
@@ -384,6 +419,8 @@
         $('#id_deposit_id').val($('#id_deposit_modal').val());
         $('#id_status').val($('#id_status_modal').val());
         $('#id_is_flex').val($('#id_is_flex_modal').val());
+        $('#id_has_delivery_date').val($('#id_has_delivery_date_modal').val());
+        $('#id_is_scheduled').val($('#id_is_scheduled_modal').val());
         $('#list_form').submit();
     }
 
@@ -395,6 +432,8 @@
         $('#id_deposit_id').val('');
         $('#id_status').val('');
         $('#id_is_flex').val('');
+        $('#id_has_delivery_date').val('');
+        $('#id_is_scheduled').val('');
         $('#list_form').submit();
     }
 
