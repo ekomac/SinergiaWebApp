@@ -1,9 +1,3 @@
-{% comment %} <div class="row m-0 mb-2 w-100" style="background-color: grey; border-radius: 15px;">
-    {% for carrier in carriers_with_envios %}
-    {% include 'snippets/moving/item.html' with obj=carrier %}
-    {% endfor %}
-</div> {% endcomment %}
-
 <div class="row m-0 mt-3 mb-2">
     <div class="col">
         <h5 class="card-title font-monospace top-card mx-1"><i class="bi bi-truck" style="color: grey;"></i>
@@ -17,28 +11,23 @@
                                 <tr>
                                     <th>Usuario</th>
                                     <th>Apellido y nombre</th>
-                                    <th>Vehículo</th>
-                                    <th>Cantidad de envíos</th>
+                                    <th class="cell-centered">Cantidad de envíos</th>
+                                    <th class="cell-centered">Se deben entregar hoy</th>
+                                    <th class="cell-centered">Con horario</th>
                                 </tr>
                             </thead>
                             <tbody id="overrided-1" class="overrided-tbody">
                                 <style>
-                                    td {
-                                        overflow: auto;
-                                        white-space: nowrap;
-                                    }
+                                    
                                 </style>
                                 {% for obj in carriers_with_envios %}
-                                <tr id="tr-{{obj.id}}" class="table-item" onclick="onItemClicked({{ obj.id }});">
-                                    <td>{{ obj.username }}</td>
+                                <tr id="tr-{{obj.id}}" class="table-item">
+                                    <td><a href="{% url 'account:employees-detail' obj.pk %}">{{ obj.username }}</a></td>
                                     <td>{{ obj.full_name }}</td>
-                                    <td>{{ obj.get_vehicle_type_display }}</td>
-                                    <td>{{ obj.envio_count }}</td>
+                                    <td class="cell-centered">{{ obj.envio_count }} envíos</td>
+                                    <td class="cell-centered">{{ obj.priorities }} envíos</td>
+                                    <td class="cell-centered">{{ obj.scheduled_time }} envíos</td>
                                 </tr>
-
-                                {% comment %}
-                                {% include 'snippets/moving/item.html' with obj=client counter=forloop.counter%}
-                                {% endcomment %}
                                 {% endfor %}
                             </tbody>
                         </table>

@@ -108,14 +108,25 @@ def get_envios_at_deposit() -> QuerySet:
 
 
 def get_carriers_with_envios() -> QuerySet:
+    today = datetime(datetime.now().year,
+                     datetime.now().month, datetime.now().day, 23, 59, 59, 99)
+    envio_count = Count('envios_carried_by')
+    priorities = Count('envios_carried_by',
+                       filter=Q(
+                           envios_carried_by__max_delivery_date__lte=today) &
+                       Q(envios_carried_by__status=Envio.STATUS_MOVING))
+    q_filter = {'envios_carried_by__delivery_schedule__isnull': False}
+    scheduled_time = Count('envios_carried_by',
+                           filter=Q(**q_filter) &
+                           Q(envios_carried_by__status=Envio.STATUS_MOVING))
     return Account.objects.filter(
         envios_carried_by__status=Envio.STATUS_MOVING,
         envios_carried_by__isnull=False,
     ).annotate(
-        envio_count=Count(
-            'envios_carried_by'
-        ),
-    ).order_by()
+        envio_count=envio_count,
+        priorities=priorities,
+        scheduled_time=scheduled_time
+    ).order_by('username')
 
 
 def get_all():

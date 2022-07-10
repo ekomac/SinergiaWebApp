@@ -10,9 +10,9 @@
                             <thead>
                                 <tr>
                                     <th>Depósito</th>
-                                    <th>Cantidad</th>
-                                    <th>Prioritarios</th>
-                                    <th>Horarios particulares</th>
+                                    <th class="cell-centered">Cantidad</th>
+                                    <th class="cell-centered">Se deben entregar hoy</th>
+                                    <th class="cell-centered">Con horario</th>
                                 </tr>
                             </thead>
                             <tbody id="overrided-1" class="overrided-tbody">
@@ -26,9 +26,9 @@
                                 {% if obj.envio_count > 0 %}
                                 <tr id="tr-{{obj.id}}" class="table-item">
                                     <td><a href="{% url 'deposits:detail' obj.id %}">{{ obj.name }}</a></td>
-                                    <td>{{ obj.envio_count }}</td>
-                                    <td>{{ obj.priorities }}</td>
-                                    <td>{{ obj.scheduled_time }}</td>
+                                    <td class="cell-centered">{{ obj.envio_count }} envíos</td>
+                                    <td class="cell-centered">{{ obj.priorities }} envíos</td>
+                                    <td class="cell-centered">{{ obj.scheduled_time }} envíos</td>
                                 </tr>
                                 {% endif %}
                                 {% endfor %}
