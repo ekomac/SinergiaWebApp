@@ -112,7 +112,11 @@
                             <option value="N" {% if status == 'N' %}selected{% endif %}>Nuevo</option>
                             <option value="S" {% if status == 'S' %}selected{% endif %}>En depósito</option>
                             <option value="M" {% if status == 'M' %}selected{% endif %}>En viaje</option>
+                            {% if show_only_on_circuit == '0' %}
                             <option value="D" {% if status == 'D' %}selected{% endif %}>Entregado</option>
+                            <option value="R" {% if status == 'R' %}selected{% endif %}>Devuelto</option>
+                            <option value="C" {% if status == 'C' %}selected{% endif %}>Cancelado</option>
+                            {% endif %}
                         </select>
                         <!-- end SHIPMENT STATUS -->
                     
