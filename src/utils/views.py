@@ -439,7 +439,8 @@ class CompleteListView(View):
                     # Add the filter to the context
                     self.context[decoder['key']] = decoder['context'](
                         value)
-                    self.context['filters_count'] += 1
+                    if 'ignore_at_count' not in decoder:
+                        self.context['filters_count'] += 1
                     # Appends it to the self.url for pagination if needed
                     if self.paginate:
                         self.pagination_url += f"{decoder['key']}={value}&"

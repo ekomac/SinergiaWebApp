@@ -61,6 +61,17 @@ class EnvioListView(CompleteListView, LoginRequiredMixin):
     model = Envio
     decoders = (
         {
+            'key': 'show_only_on_circuit',
+            'filter': 'status__in',
+            'function': lambda x: [
+                Envio.STATUS_NEW,
+                Envio.STATUS_MOVING,
+                Envio.STATUS_STILL,
+                Envio.STATUS_RETURNED] if x == '1' else Envio.ALL_STATUSES,
+            'context': lambda x: x,
+            'ignore_at_count': True
+        },
+        {
             'key': 'min_date',
             'filter': 'date_created__gte',
             'function': sanitize_date,

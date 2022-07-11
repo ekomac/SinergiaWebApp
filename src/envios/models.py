@@ -91,21 +91,28 @@ class Envio(Receiver):
     SCHEDULE_INDEX_16_ON = '16+'
     SCHEDULE_PHRASE_16_ON = '+16 h'
 
-    STATUSES = [
+    STATUSES = (
         (STATUS_NEW, STATUS_NEW_TEXT),
         (STATUS_MOVING, STATUS_MOVING_TEXT),
         (STATUS_STILL, STATUS_STILL_TEXT),
         (STATUS_DELIVERED, STATUS_DELIVERED_TEXT),
         (STATUS_RETURNED, STATUS_RETURNED_TEXT),
         (STATUS_CANCELED, STATUS_CANCELED_TEXT),
-    ]
+    )
 
-    SCHEDULES = [
+    ALL_STATUSES = [x for x, _ in STATUSES]
+
+    ON_CIRCUIT_STATUSES = (STATUS_NEW,
+                           STATUS_MOVING,
+                           STATUS_STILL,
+                           STATUS_RETURNED)
+
+    SCHEDULES = (
         (SCHEDULE_INDEX_7_10, SCHEDULE_PHRASE_7_10),
         (SCHEDULE_INDEX_10_13, SCHEDULE_PHRASE_10_13),
         (SCHEDULE_INDEX_13_16, SCHEDULE_PHRASE_13_16),
         (SCHEDULE_INDEX_16_ON, SCHEDULE_PHRASE_16_ON),
-    ]
+    )
 
     date_created = models.DateTimeField(
         verbose_name="Creación", auto_now_add=True)

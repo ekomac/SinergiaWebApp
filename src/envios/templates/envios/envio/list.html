@@ -197,14 +197,16 @@
 {% endblock modal_content %}
 
 
-
-
 {% block add_url_block %}href="{% url 'envios:envio-add' %}" {% endblock add_url_block %}
 
 
 {% block custom_add_block %}
 <a href="{% url 'envios:envio-bulk-add' %}" type="button" class="btn btn-success btn-sm ms-2 me-1 shadow"><i
         class="bi bi-upload me-1"></i>Carga masiva</a>
+<div class="form-check form-switch mx-2 fs-6 fw-normal">
+  <input class="form-check-input" type="checkbox" id="id_show_only_on_circuit_chkbox" {% if show_only_on_circuit == '1' %}checked{% endif %}>
+  <label class="form-check-label" for="id_show_only_on_circuit_modal">Solo envíos en circuito</label>
+</div>
 {% endblock custom_add_block %}
 
 {% block orderby_block %}
@@ -273,6 +275,7 @@
 <input type="text" id='id_has_delivery_attempt' name="has_delivery_attempt" {% if has_delivery_attempt %}value="{{ has_delivery_attempt }}" {% endif %}>
 <input type="text" id='id_has_delivery_date' name="has_delivery_date" {% if has_delivery_date %}value="{{ has_delivery_date }}" {% endif %}>
 <input type="text" id='id_is_scheduled' name="is_scheduled" {% if is_scheduled %}value="{{ is_scheduled }}" {% endif %}>
+<input type="text" id='id_show_only_on_circuit' name="show_only_on_circuit" {% if show_only_on_circuit %}value="{{ show_only_on_circuit }}" {% endif %}>
 <input type="submit">
 {% endblock filters_block %}
 
@@ -416,6 +419,11 @@
         });
         $('#btnRadioRPP500').click(function () {
             $('#id_results_per_page').val(500);
+            $('#list_form').submit();
+        });
+
+        $('#id_show_only_on_circuit_chkbox').click(function () {
+            $('#id_show_only_on_circuit').val($(this).is(':checked') ? 1 : 0);
             $('#list_form').submit();
         });
 
