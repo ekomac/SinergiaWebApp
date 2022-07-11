@@ -377,7 +377,7 @@
 
                             {% elif movement.result == 'transfered' %}
                             Transferido de {% if movement.from_carrier %}<a
-                                href="{% url 'account:employees-detail' pk=movement.from_carrier.pk%}"
+                                href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
                                 data-bs-toggle="tooltip" data-bs-html="true"
                                 title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% else %}un
                             usuario que se eliminó{% endif %} a {% if movement.to_carrier %}<a
@@ -388,7 +388,7 @@
                             {% elif movement.result == 'in_deposit' %}
                             Depositado en {% if movement.to_deposit %}<a
                                 href="{% url 'deposits:detail' pk=movement.to_deposit.pk %}">{{movement.to_deposit.name}}</a>
-                            {% else %}un depósito que se eliminó{% endif %} por {% if movement.from_deposit %}<a
+                            {% else %}un depósito que se eliminó{% endif %} por {% if movement.from_carrier %}<a
                                 href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
                                 data-bs-toggle="tooltip" data-bs-html="true"
                                 title="{{movement.from_carrier.full_name}}">
