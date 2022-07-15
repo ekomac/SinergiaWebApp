@@ -1,5 +1,5 @@
 from decimal import Decimal
-from django.db.models.signals import post_save
+from django.db.models.signals import post_delete, post_save
 # from decimal import Decimal
 from django.db import models
 from django.conf import settings
@@ -311,11 +311,9 @@ def create_tracking_id(sender, instance, created, **kwargs):
 
 def bulk_file_upload_path(instance, filename):
     author_id = str(instance.created_by.id)
-    client_id = str(instance.client.id)
-    client_name = str(instance.client.name)
-    date = instance.date_created.strftime('%YYYY%MM%DD')
+    date = instance.date_created.strftime('%Y%m%d')
     dirs = f'bulk_loads/{author_id}/'
-    file_data = f'{date}_{client_id}-{client_name}_{filename}'
+    file_data = f'{date}_{filename}'
     return dirs + file_data
 
 
@@ -363,6 +361,10 @@ class BulkLoadEnvios(models.Model):
     unused_flex_ids = models.TextField(
         verbose_name="IDs de Flex no usados",
         blank=True, null=True, default=None)
+    original_file = models.FileField(
+        verbose_name="Archivo original",
+        upload_to=bulk_file_upload_path,
+        blank=True, null=True)
 
     @property
     def short_errors_display(self):
@@ -375,3 +377,8 @@ class BulkLoadEnvios(models.Model):
     class Meta:
         verbose_name = 'Carga masiva de envios'
         verbose_name_plural = 'Cargas masivas de envios'
+
+
+@receiver(post_delete, sender=BulkLoadEnvios)
+def submission_delete(sender, instance, **kwargs):
+    instance.original_file.delete(False)

@@ -4,6 +4,7 @@
 {% endblock modal_content %}
 
 {% block content %}
+{% load url_extras %}
 <style>
     .table thead th {
         border-bottom: 2px solid #C556FF;
@@ -317,6 +318,12 @@
                                     class="bi bi-currency-dollar"></i> Precio actual</td>
                             <td class="w-100">$ {{ actual_price }}.-</td>
                         </tr>
+                        {% if object.bulk_upload and object.bulk_upload.original_file.url %}
+                        <tr>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-file-earmark"></i> Archivo origen</td>
+                                <td class="w-100"><a href="{{ object.bulk_upload.original_file.url}}">{{ object.bulk_upload.original_file.url | truncate_start}}</a></td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
 

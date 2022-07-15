@@ -102,6 +102,7 @@ class BulkLoadEnviosForm(forms.ModelForm):
         bulk_load.errors = self.found_errors
         bulk_load.requires_manual_fix = self.requires_manual_fix
         bulk_load.cells_to_paint = self.cells_to_paint
+        bulk_load.original_file = self.cleaned_data.get('file')
         if commit:
             bulk_load.save()
         return bulk_load
