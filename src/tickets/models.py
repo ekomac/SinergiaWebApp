@@ -37,10 +37,16 @@ class Attachment(models.Model):
     )
 
     def __str__(self):
-        return 'Archivo: {path} de {ticket}'.format(
-            path=self.file.path,
-            ticket=self.ticket
-        )
+        try:
+            return 'Archivo: {path} de {ticket}'.format(
+                path=self.file.path,
+                ticket=self.ticket
+            )
+        except NotImplementedError:
+            return 'Archivo: {path} de {ticket}'.format(
+                path=self.file.url,
+                ticket=self.ticket
+            )
 
 
 class Ticket(models.Model):
@@ -120,6 +126,8 @@ class TicketMessage(models.Model):
         verbose_name="Ticket",
         on_delete=models.CASCADE
     )
+    is_priority_update = models.BooleanField(
+        default=False, verbose_name="Actualización de prioridad")
 
     def __str__(self):
         return 'Mensaje de {user} en {ticket}'.format(

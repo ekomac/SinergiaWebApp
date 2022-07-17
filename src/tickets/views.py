@@ -355,3 +355,23 @@ def mark_resolved_ticket_view(request, pk):
     ticket.closed_by = request.user
     ticket.save()
     return redirect('tickets:detail', pk=ticket.pk)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins", ])
+def change_priority_ticket_view(request, pk, priority):
+    # Update ticket
+    ticket = get_object_or_404(Ticket, pk=pk)
+    ticket.priority = priority
+    ticket.save()
+    msg = ("Se actualizó la prioridad del ticket.")
+
+    # Create ticket message to notify user
+    ticket_message = TicketMessage(
+        created_by=request.user,
+        msg=msg,
+        ticket=ticket,
+        is_priority_update=True
+    )
+    ticket_message.save()
+    return redirect('tickets:detail', pk=ticket.pk)

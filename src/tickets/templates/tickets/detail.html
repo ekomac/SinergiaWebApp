@@ -19,8 +19,6 @@
 </style>
 
 
-
-
 {% if request.user.is_superuser %}
 {% block modal_content %}
 <div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="baseModal" tabindex="-1"
@@ -71,6 +69,31 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="changePriority" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Cambiar prioridad al ticket</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        {% if ticket.priority != '1' and request.user.is_superuser %}
+        <a href="{% url 'tickets:change-priority-ticket' ticket.pk '1' %}" class="btn btn-danger btn-sm me-1">Alta</a>
+        {% endif %}
+            
+        {% if ticket.priority != '2' and request.user.is_superuser %}
+        <a href="{% url 'tickets:change-priority-ticket' ticket.pk '2' %}" class="btn btn-danger btn-sm me-1">Media</a>
+        {% endif %}
+                
+        {% if ticket.priority != '3' and request.user.is_superuser %}
+        <a href="{% url 'tickets:change-priority-ticket' ticket.pk '3' %}" class="btn btn-danger btn-sm me-1">Baja</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock modal_content %}
 {% endif %}
 
@@ -132,6 +155,10 @@
                     <a href="{% url 'tickets:delete' ticket.id %}" class="btn btn-danger btn-sm me-1"><i
                             class="bi bi-trash me-1"></i>Eliminar</a>
                     {% endif %}
+
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#changePriority">
+                        <i class="bi bi-pencil-square"></i>Cambiar prioridad
+                    </button>
 
                 </div>
 
@@ -227,6 +254,7 @@
 
     <!-- start CHAT -->
     <div class="card flex-fill shadow-lg mt-3">
+
         <!-- start CARD HEADER -->
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
@@ -244,10 +272,14 @@
                 <div class="card mt-3">
                     <div class="card-header px-2 py-1 d-flex justify-content-between">
                         <div class="d-flex flex-row">
-                            <div><a
-                                    href="{% url 'account:employees-detail' pk=chat.created_by.pk %}">{{ chat.created_by.full_name }}</a>
+                            {% if chat.is_priority_update %}
+                            <span class="badge rounded-pill bg-info fw-5">Actualización del sistema</span>
+                            {% else %}
+                            <div>
+                                <a href="{% url 'account:employees-detail' pk=chat.created_by.pk %}">{{ chat.created_by.full_name }}</a>
                             </div>
                             <div class="text-muted">&nbsp;dijo:</div>
+                            {% endif %}
                         </div>
 
                         <div class="text-muted">
@@ -326,16 +358,7 @@
         $.ajax({
             url: "{% url 'tickets:close-ticket' pk=ticket.id %}", // the endpoint
             type: "POST", // http method
-            /*headers: {
-                "X-CSRFToken": getCookie("csrftoken")
-            },*/
-
             data: $('#close_ticket_form').serialize(), // data sent with the post request
-
-            /*data: {
-                closed_reason: $('#closed_reason').val(),
-                closed_msg: $('#closed_message').val(),
-            }, // data sent with the post request*/
 
             // handle a successful response
             success: function (json) {
@@ -358,12 +381,6 @@
         $.ajax({
             url: "{% url 'tickets:post-message' ticket_pk=ticket.id user_pk=request.user.pk %}", // the endpoint
             type: "POST", // http method
-            /*headers: {
-                "X-CSRFToken": getCookie("csrftoken")
-            },
-            data: {
-                msg: $('#post-msg').val()
-            }, // data sent with the post request*/
 
             data: $('#new_msg_form').serialize(),
 
