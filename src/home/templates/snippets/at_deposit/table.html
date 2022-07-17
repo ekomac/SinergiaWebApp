@@ -69,7 +69,7 @@
                             </tbody>
                         </table>
                     </div>
-                    {% if deposits_with_envios|length %}
+                    {% if not deposits_with_envios %}
                         No hay depósitos con envíos.
                     {% endif %}
                 </div>

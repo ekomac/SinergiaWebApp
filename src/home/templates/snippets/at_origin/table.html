@@ -71,7 +71,7 @@
                             </tbody>
                         </table>
                     </div>
-                    {% if clients_with_envios|length %}
+                    {% if not clients_with_envios %}
                         No hay envíos en depósitos de clientes.
                     {% endif %}
                 </div>

@@ -87,14 +87,14 @@ def get_clients_with_envios() -> QuerySet:
     reprogramed = Count('envio',
                         filter=Q(envio__has_delivery_attempt=True) &
                         Q(envio__status=Envio.STATUS_NEW))
-    return Deposit.objects.values(
+    return Deposit.objects.all().values(
         'id', 'name', 'client__name', 'client__pk'
     ).annotate(
         envio_count=envio_count,
         priorities=priorities,
         has_special_delivery_schedule_time=scheduled_time,
         reprogramed=reprogramed
-    ).order_by('name')
+    ).order_by('name').filter(envio_count__gt=0)
 
 
 def get_deposits_with_envios() -> QuerySet:
@@ -115,7 +115,7 @@ def get_deposits_with_envios() -> QuerySet:
         priorities=priorities,
         scheduled_time=scheduled_time,
         reprogramed=reprogramed
-    ).order_by('name')
+    ).order_by('name').filter(envio_count__gt=0)
 
 
 def get_carriers_with_envios() -> QuerySet:
@@ -140,7 +140,7 @@ def get_carriers_with_envios() -> QuerySet:
         priorities=priorities,
         scheduled_time=scheduled_time,
         reprogramed=reprogramed
-    ).order_by('username')
+    ).order_by('username').filter(envio_count__gt=0)
 
 
 def get_all():
