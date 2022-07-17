@@ -15,7 +15,6 @@ from .views import (
 app_name = 'tickets'
 urlpatterns = [
 
-    # ******************************* ENVIOS *******************************
     path('', list_tickets_view, name="list"),
     path('add/', CreateTicketView.as_view(), name="add"),
     path('<int:pk>/', ticket_detail_view, name="detail"),

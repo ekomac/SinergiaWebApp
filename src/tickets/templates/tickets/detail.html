@@ -227,6 +227,7 @@
 
     <!-- start CHAT -->
     <div class="card flex-fill shadow-lg mt-3">
+
         <!-- start CARD HEADER -->
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
@@ -349,6 +350,7 @@
         $.ajax({
             url: "{% url 'tickets:post-message' ticket_pk=ticket.id user_pk=request.user.pk %}", // the endpoint
             type: "POST", // http method
+
             data: $('#new_msg_form').serialize(),
 
             // handle a successful response
