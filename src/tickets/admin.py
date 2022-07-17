@@ -7,6 +7,14 @@ class AttachmentInline(admin.TabularInline):
     model = Attachment
 
 
+class AttachmentAdmin(admin.ModelAdmin):
+    list_display = ('date_created', 'ticket', 'file',)
+    search_fields = ('ticket',)
+    filter_horizontal = ()
+    list_filter = ()
+    fieldsets = ()
+
+
 class TicketAdmin(admin.ModelAdmin):
     list_display = ('subject', 'priority', 'msg', 'status', 'closed_reason',)
     search_fields = ('priority', 'subject', 'msg', 'status', 'closed_reason',)
@@ -21,5 +29,6 @@ class TicketMessageAdmin(admin.ModelAdmin):
     search_fields = ('msg',)
 
 
+admin.site.register(Attachment, AttachmentAdmin)
 admin.site.register(Ticket, TicketAdmin)
 admin.site.register(TicketMessage, TicketMessageAdmin)

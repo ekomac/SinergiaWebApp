@@ -37,10 +37,16 @@ class Attachment(models.Model):
     )
 
     def __str__(self):
-        return 'Archivo: {path} de {ticket}'.format(
-            path=self.file.path,
-            ticket=self.ticket
-        )
+        try:
+            return 'Archivo: {path} de {ticket}'.format(
+                path=self.file.path,
+                ticket=self.ticket
+            )
+        except NotImplementedError:
+            return 'Archivo: {path} de {ticket}'.format(
+                path=self.file.url,
+                ticket=self.ticket
+            )
 
 
 class Ticket(models.Model):

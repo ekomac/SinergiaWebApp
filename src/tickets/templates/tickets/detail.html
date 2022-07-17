@@ -326,16 +326,7 @@
         $.ajax({
             url: "{% url 'tickets:close-ticket' pk=ticket.id %}", // the endpoint
             type: "POST", // http method
-            /*headers: {
-                "X-CSRFToken": getCookie("csrftoken")
-            },*/
-
             data: $('#close_ticket_form').serialize(), // data sent with the post request
-
-            /*data: {
-                closed_reason: $('#closed_reason').val(),
-                closed_msg: $('#closed_message').val(),
-            }, // data sent with the post request*/
 
             // handle a successful response
             success: function (json) {
@@ -358,13 +349,6 @@
         $.ajax({
             url: "{% url 'tickets:post-message' ticket_pk=ticket.id user_pk=request.user.pk %}", // the endpoint
             type: "POST", // http method
-            /*headers: {
-                "X-CSRFToken": getCookie("csrftoken")
-            },
-            data: {
-                msg: $('#post-msg').val()
-            }, // data sent with the post request*/
-
             data: $('#new_msg_form').serialize(),
 
             // handle a successful response
