@@ -1,3 +1,6 @@
+import calendar
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from collections import Counter
 from decimal import Decimal
 from typing import Any, Callable, Dict, List, Tuple
@@ -432,3 +435,44 @@ def map_detail(detail):
         verbose_name = VERBOSE_NAMES_FOR_DETAIL_CODES[index]
         return f'{amount}x {verbose_name}'.lower()
     return ""
+
+
+MONTHS = {
+    '01': 'Enero',
+    '02': 'Febrero',
+    '03': 'Marzo',
+    '04': 'Abril',
+    '05': 'Mayo',
+    '06': 'Junio',
+    '07': 'Julio',
+    '08': 'Agosto',
+    '09': 'Septiembre',
+    '10': 'Octubre',
+    '11': 'Noviembre',
+    '12': 'Diciembre'
+}
+
+
+def get_stats_4_last_12_months() -> Tuple[List[str], List[int]]:
+    """
+    Returns a Tuple containing two lists, one with last 12 months'
+    name labels, and the other with corresponding delivered shipments count.
+
+    Returns:
+        Tuple[List[str], List[int]]: The Tuple containing both lists.
+    """
+    now = datetime.now()
+    months = []
+    counts = []
+    for _ in range(12):
+        months.insert(0,  MONTHS[now.strftime('%m')])
+        last_day_in_month = calendar.monthrange(now.year, now.month)[1]
+        from_date = datetime(now.year, now.month, 1, 0, 0, 0)
+        to_date = datetime(now.year, now.month, last_day_in_month, 23, 59, 59)
+        delivered_count = TrackingMovement.objects.filter(
+            date_created__range=(from_date, to_date),
+            result=TrackingMovement.RESULT_DELIVERED
+        ).count()
+        counts.insert(0, delivered_count)
+        now = now - relativedelta(months=1)
+    return months, counts

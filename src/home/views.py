@@ -23,6 +23,7 @@ from data.models import Data
 from deposit.models import Deposit
 from envios.models import Envio
 from tracking.models import TrackingMovement
+from envios.utils import get_stats_4_last_12_months
 
 
 @login_required(login_url='/login/')
@@ -57,6 +58,7 @@ def admin_home_screen_view(request):
         'delivered_today': TrackingMovement.objects.filter(
             envios__status=Envio.STATUS_DELIVERED).count(),
     }
+    months, counts = get_stats_4_last_12_months()
     context = {
         'selected_tab': 'home-tab',
         'main_stats': main_stats,
@@ -65,6 +67,8 @@ def admin_home_screen_view(request):
         'carriers_with_envios': carriers_with_envios,
         'apk_download_url': get_object_or_404(
             Data, key='apk_download_url').value,
+        'stats_months': months,
+        'stats_counts': counts,
     }
     return render(request, 'home.html', context)
 
