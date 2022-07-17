@@ -10,6 +10,7 @@ from .views import (
     ajax_close_ticket_view,
     cancel_ticket_view,
     mark_resolved_ticket_view,
+    change_priority_ticket_view,
 )
 
 app_name = 'tickets'
@@ -27,4 +28,7 @@ urlpatterns = [
     path('<int:pk>/cancel/', cancel_ticket_view, name="cancel-ticket"),
     path('<int:pk>/mark-as-resolve/', mark_resolved_ticket_view,
          name="mark-resolve-ticket"),
+    path('<int:pk>/change-priority/<str:priority>/',
+         change_priority_ticket_view,
+         name="change-priority-ticket"),
 ]

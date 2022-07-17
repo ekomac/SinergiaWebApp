@@ -25,7 +25,9 @@ class TicketAdmin(admin.ModelAdmin):
 
 
 class TicketMessageAdmin(admin.ModelAdmin):
-    list_display = ('date_created', 'created_by', 'msg', 'ticket',)
+    list_display = ('date_created', 'created_by', 'msg',
+                    'ticket', 'is_priority_update',)
+    ordering = ('-date_created',)
     search_fields = ('msg',)
 
 

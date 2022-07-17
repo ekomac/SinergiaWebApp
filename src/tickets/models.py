@@ -126,6 +126,8 @@ class TicketMessage(models.Model):
         verbose_name="Ticket",
         on_delete=models.CASCADE
     )
+    is_priority_update = models.BooleanField(
+        default=False, verbose_name="Actualización de prioridad")
 
     def __str__(self):
         return 'Mensaje de {user} en {ticket}'.format(
