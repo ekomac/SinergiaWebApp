@@ -1,12 +1,28 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <div class="row m-0 mt-3 mb-2">
-    <div class="col">
+    <div class="col-12 col-lg-6 col-xl-7">
         <h5 class="card-title font-monospace top-card mx-1"><i class="bi bi-check-circle"></i> Envíos entregados en los últimos 12 meses</h5>
         <div class="card">
             <div class="card shadow-lg bg-white">
                 <div class="card-body">
-                    <div class="table-responsive">
-                        <canvas id="statsChart"></canvas>
+                    <div class="row">
+                        <div class="chart-container" id="enviosPerMonthWrapper">
+                            <canvas id="enviosPerMonthCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-6 col-xl-5 mt-sm-3 mt-lg-0">
+        <h5 class="card-title font-monospace top-card mx-1"><i class="bi bi-building"></i> Share por clientes</h5>
+        <div class="card">
+            <div class="card shadow-lg bg-white">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="chart-container"  id="clientShareWrapper">
+                            <canvas id="clientShareCanvas"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -15,26 +31,85 @@
 </div>
 
 <script>
-  const labels = {{ stats_months|safe }};
+    const enviosPerMonthLabels = {{ enviosPerMonth.months|safe }};
+    
+    const enviosPerMonthData = {
+        labels: enviosPerMonthLabels,
+        datasets: [{
+            label: 'Cantidad de envíos por mes',
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            data: {{ enviosPerMonth.counts|safe }},
+        }]
+    };
+    
+    const enviosPerMonthChartConfig = {
+        type: 'line',
+        data: enviosPerMonthData,
+        options: {
+            plugins: {
+                decimation: false,  // disable decimation
+            }
+        }
+    };
 
-  const data = {
-    labels: labels,
-    datasets: [{
-      label: 'Cantidad de envíos por mes',
-      backgroundColor: 'rgb(255, 99, 132)',
-      borderColor: 'rgb(255, 99, 132)',
-      data: {{ stats_counts|safe }},
-    }]
-  };
+    const enviosPerMonthChart = new Chart(
+        document.getElementById('enviosPerMonthCanvas'),
+        enviosPerMonthChartConfig
+    );
 
-  const config = {
-    type: 'line',
-    data: data,
-    options: {}
-  };
+    const COLORS = [
+        '#4dc9f6',
+        '#f67019',
+        '#f53794',
+        '#537bc4',
+        '#acc236',
+        '#166a8f',
+        '#00a950',
+        '#58595b',
+        '#8549ba'
+    ];
 
-  const myChart = new Chart(
-    document.getElementById('statsChart'),
-    config
-  );
+    
+    const backgroundColors = [];
+
+    let cursor = 0;
+    for (let i = 0; i < {{ clientShare.clients|length }}; i++) {
+        cursor = cursor == 9 ? 0 : cursor+1;
+        backgroundColors.push(COLORS[cursor]);
+    }
+
+    const clientShareData = {
+        labels: {{ clientShare.clients|safe }},
+        datasets: [{
+            label: 'Share por cliente',
+            backgroundColor: backgroundColors,
+            data: {{ clientShare.counts|safe }}
+        }]
+    };
+
+    const clientShareChartConfig = {
+        type: 'doughnut',
+        data: clientShareData,
+        zoomOutPercentage: 80,
+        maintainAspectRatio: false,
+        options: {
+            aspectRatio: 1,
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+            },
+
+        },
+    };
+
+    const clientShareChart = new Chart(
+        document.getElementById('clientShareCanvas'),
+        clientShareChartConfig
+    );
+    
+    //document.getElementById('clientShareCanvas').setAttribute('width', '300');
+    //clientShareChart.canvas.parentNode.style.height = '20vh';
 </script>

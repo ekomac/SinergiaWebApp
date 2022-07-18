@@ -1,3 +1,4 @@
+from django.db.models.aggregates import Count
 import calendar
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -8,7 +9,7 @@ from typing import Any, Callable, Dict, List, Tuple
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 import unidecode
-from clients.models import Discount
+from clients.models import Client, Discount
 from envios.models import BulkLoadEnvios, Envio
 from tracking.models import TrackingMovement
 from places.models import Partido, Town
@@ -476,3 +477,34 @@ def get_stats_4_last_12_months() -> Tuple[List[str], List[int]]:
         counts.insert(0, delivered_count)
         now = now - relativedelta(months=1)
     return months, counts
+
+
+def get_client_share() -> Tuple[Tuple[str], Tuple[int]]:
+    """
+    Returns a Tuple containing two tuples, one with clients'
+    names and the other with matching shipments count, both
+    ordered by client shipments count descending.
+
+    Returns:
+        Tuple[Tuple[str], Tuple[int]]: The Tuple containing both tuples.
+    """
+    clients = []
+    envios_counts = []
+    clients_qs = Client.objects.all()\
+        .values('name')\
+        .annotate(Count('envio'))\
+        .order_by('-envio__count')\
+        .values_list('name', 'envio__count')
+    others = 0
+    for name, envio_count in clients_qs:
+        if clients_qs.count() > 0:
+            max_count = clients_qs.first()[1]
+            ten_percent = 1 * max_count / 100
+            if envio_count > ten_percent:
+                clients.append(name)
+                envios_counts.append(envio_count)
+            else:
+                others += envio_count
+    clients.append('Otros')
+    envios_counts.append(others)
+    return clients, envios_counts
