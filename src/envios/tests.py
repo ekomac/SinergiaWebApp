@@ -5,42 +5,37 @@ from places.models import Partido, Town
 from utils.tests import SampledDataTestCase
 
 
-class DestinationTestCase(SampledDataTestCase):
+BASE_SAMPLE_DATA = {
+    Client: {'values': ({'name': 'Coca Cola'},)},
+    Partido: {'values': ({'name': 'Almirante Brown', 'is_amba': True},)},
+    Town: {
+        'values': ({'name': 'Adrogué'},),
+        'relations': {'partido': Partido}},
+    Envio: {
+        'values': (
+            {'street': 'Calle Falsa 123', 'zipcode': '1234',
+             'name': 'Juan', 'phone': '12345678', 'doc': '50123123'},
+            {'street': 'Otra calle 456', 'zipcode': '1234'},
+            {'street': 'Una calle más 789',
+             'zipcode': '1234', 'name': 'María'},
+        ),
+        'relations': {'town': Town, 'client': Client}},
+}
 
-    SAMPLE_DATA = {
-        Client: {'values': ({'name': 'Coca Cola'},)},
-        Partido: {'values': ({'name': 'Almirante Brown', 'is_amba': True},)},
-        Town: {
-            'values': ({'name': 'Adrogué'},),
-            'relations': {'partido': Partido}},
-        Envio: {
-            'values': ({'street': 'Calle Falsa 123', 'zipcode': '1234'},),
-            'relations': {'town': Town, 'client': Client}},
-    }
+
+class BaseEnvioAppTest(SampledDataTestCase):
+
+    SAMPLE_DATA = BASE_SAMPLE_DATA
+
+
+class DestinationTestCase(BaseEnvioAppTest):
 
     def test_full_address(self):
-        envio = Envio.objects.first()
+        envio = Envio.objects.get(street='Calle Falsa 123')
         self.assertEqual(envio.full_address, 'Calle Falsa 123, 1234 Adrogué')
 
 
-class ReceiverTestCase(SampledDataTestCase):
-
-    SAMPLE_DATA = {
-        Client: {'values': ({'name': 'Coca Cola'},)},
-        Partido: {'values': ({'name': 'Almirante Brown', 'is_amba': True},)},
-        Town: {
-            'values': ({'name': 'Adrogué'},),
-            'relations': {'partido': Partido}},
-        Envio: {
-            'values': (
-                {'street': 'Calle Falsa 123', 'zipcode': '1234',
-                 'name': 'Juan', 'phone': '12345678', 'doc': '50123123'},
-                {'street': 'Otra calle 456', 'zipcode': '1234'},
-                {'street': 'Una calle más 789',
-                 'zipcode': '1234', 'name': 'María'},
-            ),
-            'relations': {'town': Town, 'client': Client}},
-    }
+class ReceiverTestCase(BaseEnvioAppTest):
 
     def test_str(self):
         envio1 = Envio.objects.get(street='Calle Falsa 123')
@@ -51,24 +46,7 @@ class ReceiverTestCase(SampledDataTestCase):
         self.assertEqual(envio3.receiver_ptr.__str__(), 'María')
 
 
-class EnvioTestCase(SampledDataTestCase):
-
-    SAMPLE_DATA = {
-        Client: {'values': ({'name': 'Coca Cola'},)},
-        Partido: {'values': ({'name': 'Almirante Brown', 'is_amba': True},)},
-        Town: {
-            'values': ({'name': 'Adrogué'},),
-            'relations': {'partido': Partido}},
-        Envio: {
-            'values': (
-                {'street': 'Calle Falsa 123', 'zipcode': '1234',
-                 'name': 'Juan', 'phone': '12345678', 'doc': '50123123'},
-                {'street': 'Otra calle 456', 'zipcode': '1234'},
-                {'street': 'Una calle más 789',
-                 'zipcode': '1234', 'name': 'María'},
-            ),
-            'relations': {'town': Town, 'client': Client}},
-    }
+class EnvioTestCase(BaseEnvioAppTest):
 
     def test_str(self):
         envio1 = Envio.objects.get(street='Calle Falsa 123')

@@ -7,14 +7,11 @@ from django.test import TestCase
 class SampledDataTestCase(TestCase):
 
     SAMPLE_DATA = {}
-    db_is_populated = False
 
     def setUp(self):
-        if not self.db_is_populated:
-            if not self.SAMPLE_DATA:
-                raise ValueError('SAMPLE_DATA must be defined')
-            create_from_sample_data(self.SAMPLE_DATA)
-            self.db_is_populated = True
+        if not self.SAMPLE_DATA:
+            raise ValueError('SAMPLE_DATA must be defined')
+        create_from_sample_data(self.SAMPLE_DATA)
 
 
 def create_from_sample_data(sample: dict):
