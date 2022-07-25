@@ -1,3 +1,73 @@
+from django.db.models.query import QuerySet
+from django.db import models
+from typing import Dict
+from django.test import TestCase
+
+
+class SampledDataTestCase(TestCase):
+
+    SAMPLE_DATA = {}
+    db_is_populated = False
+
+    def setUp(self):
+        if not self.db_is_populated:
+            if not self.SAMPLE_DATA:
+                raise ValueError('SAMPLE_DATA must be defined')
+            create_from_sample_data(self.SAMPLE_DATA)
+            self.db_is_populated = True
+
+
+def create_from_sample_data(sample: dict):
+    """Create instances objects from sample data.
+    Sample data needs to be in the following format for this to work:
+
+    {
+        <Class>: {
+            'values': (
+                {'property': <value>, 'property2': <value>, ...},
+                ...
+            ),
+            'relations': {
+                <property name in parent class>: <related Class>,
+                ...
+            },
+        },
+        ...
+    }
+
+    Args:
+        sample (dict): the data needed to create the instances.
+    """
+
+    def replace_class_with_instance(
+        relations: Dict[str, models.Model]
+    ) -> Dict[str, QuerySet]:
+        """Replaces the class model with an instance.
+
+        Args:
+            relations (Dict[str, models.Model]): key-value pairs containg
+            property names and related classes.
+
+        Returns:
+            Dict[str, QuerySet]: key-value pairs containg property names
+            and related instances.
+        """
+        result = {}
+        for key, value_class in relations.items():
+            result[key] = value_class.objects.first()
+        return result
+
+    for model_name, dict_data in sample.items():
+        relations_dict = {}
+        if relations := dict_data.get('relations', None):
+            relations_dict = replace_class_with_instance(relations)
+        for values_dict in dict_data.get('values'):
+            model_class = model_name
+            values_dict.update(relations_dict)
+            model_class.objects.create(**values_dict)
+    return True
+
+
 # # DJANGO
 # from django.contrib.auth.models import Group
 
@@ -29,8 +99,10 @@
 #     def create_01_groups(self):
 #         self.group_admins = Group.objects.create(**samples.groups[0])
 #         self.group_clients = Group.objects.create(**samples.groups[1])
-#         self.group_employess_tier_1 = Group.objects.create(**samples.groups[2])
-#         self.group_employess_tier_2 = Group.objects.create(**samples.groups[3])
+#         self.group_employess_tier_1 = Group.objects.create(
+# **samples.groups[2])
+#         self.group_employess_tier_2 = Group.objects.create(
+# **samples.groups[3])
 
 #     def create_02_super_user(self):
 #         if not Account.objects.filter(is_superuser=True).exists():
@@ -39,7 +111,8 @@
 #             self.superuser.groups.add(self.group_admins)
 #             self.superuser.save()
 #         else:
-#             self.superuser = Account.objects.filter(is_superuser=True).first()
+#             self.superuser = Account.objects.filter(
+# is_superuser=True).first()
 
 #     def create_03_token(self):
 #         if Token.objects.filter(user__is_superuser=True).exists():
@@ -135,7 +208,8 @@
 #                 **samples.clients[0]).first()
 
 #     def create_11_clients_accounts(self):
-#         if not Account.objects.filter(**samples.clients_accounts[0]).exists():
+#         if not Account.objects.filter(
+# **samples.clients_accounts[0]).exists():
 #             self.client_account_1 = Account(**samples.clients_accounts[0])
 #             self.client_account_1.save()
 #             self.client_account_1.groups.add(self.group_clients)
@@ -195,7 +269,8 @@
 #         if self.reverse_to_app_args is None:
 #             return reverse(self.reverse_to_app)
 #         else:
-#             return reverse(self.reverse_to_app, args=self.reverse_to_app_args)
+#             return reverse(
+# self.reverse_to_app, args=self.reverse_to_app_args)
 
 #     def post(self, data={}):
 #         return self.client.post(self.url, data, format='json')
@@ -323,7 +398,8 @@
 # #     def authorize(self):
 # #         self.token = Token(user=self.superuser)
 # #         self.token.save()
-# #         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+# #         self.client.credentials(
+# HTTP_AUTHORIZATION='Token ' + self.token.key)
 
 # #     def test_1_no_authorization(self):
 # #         """
@@ -386,7 +462,8 @@
 # #     def authorize(self):
 # #         self.token = Token(user=self.superuser)
 # #         self.token.save()
-# #         self.client.credentials(HTTP_AUTHORIZATION='Token ' + self.token.key)
+# #         self.client.credentials(
+# HTTP_AUTHORIZATION='Token ' + self.token.key)
 
 # #     def test_1_no_authorization(self):
 # #         """

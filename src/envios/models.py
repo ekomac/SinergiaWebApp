@@ -58,9 +58,12 @@ class Receiver(Destination):
         blank=True, null=True)
 
     def __str__(self):
-        recipient = f'{self.name}({self.doc})' or not_specified
-        address = f'{self.street}, {self.zipcode} {self.town}'
-        return f'{recipient}, {address}'
+        if not self.name:
+            return "No especificado"
+        if not self.doc:
+            return f'{self.name}'
+        else:
+            return f'{self.name} ({self.doc})'
 
 
 class NotDeliveredYetError(Exception):
@@ -174,15 +177,12 @@ class Envio(Receiver):
         status = self.get_status_display()
         if status == self.STATUS_DELIVERED:
             return f'{address} ({status}) de {client}'
+        where = ''
         if self.carrier is not None:
-            where = self.carrier
+            where = ' @%s' % self.carrier
         elif self.deposit is not None:
-            where = self.deposit.name
-        elif self.status == self.STATUS_DELIVERED:
-            where = ""
-        else:
-            where = not_specified
-        return f'{address} @{where} ({status}) >>> {client}'
+            where = ' @%s' % self.deposit.name
+        return f'{address} de {client} ({status}){where}'
 
     @property
     def destination_for_client(self):
