@@ -1,11 +1,9 @@
-from decimal import Decimal
 from django.db.models.signals import post_delete, post_save
-# from decimal import Decimal
 from django.db import models
 from django.conf import settings
 from django.dispatch import receiver
 from django.template.defaultfilters import truncatechars
-from clients.models import Client, Discount  # , Discount
+from clients.models import Client
 from deposit.models import Deposit
 from places.models import Town
 
@@ -192,103 +190,18 @@ class Envio(Receiver):
         status = self.get_status_display()
         carrier = self.carrier
         deposit = self.deposit
-        if status == self.STATUS_DELIVERED:
-            return status
-        if status in [self.STATUS_NEW, self.STATUS_STILL]:
+        if self.status in [self.STATUS_NEW, self.STATUS_STILL]:
             if deposit is not None:
-                return f'{status}: "{deposit}"'
-        if status == self.STATUS_MOVING and carrier is not None:
-            return f'{status} con {carrier.username}' +\
+                return f'{status}: {deposit}'
+        if self.status == self.STATUS_MOVING and carrier is not None:
+            return f'{status} con @{carrier.username}' +\
                 f' ({carrier.first_name} {carrier.last_name})'
         return status
-
-    @property
-    def readable_detail(self):
-        self.get_detail_readable()
-
-    def get_detail_readable(self):
-        print("get_Detail")
-        if self.is_flex and self.flex_id is not None:
-            return f'Paquete Flex {self.flex_id}'
-        details = map(self.map_detail, self.detail.split(","))
-        print(details)
-        return ",".join(details)
-
-    def map_detail(self, detail):
-        parts = detail.split("-")
-        index = parts[0]
-        amount = parts[1]
-        if index in DETAIL_CODES.keys():
-            name = DETAIL_CODES[index]['name']
-            return f'{amount}x {name}'.lower()
 
     class Meta:
         verbose_name = 'Envío'
         verbose_name_plural = 'Envíos'
         ordering = ['-date_created']
-
-    @property
-    def shimpent_type(self):
-        return 'Flex' if self.is_flex else 'Mensajería'
-
-    @property
-    def price(self):
-        return calculate_price(self)
-
-
-def calculate_price(envio: Envio):
-    """
-    Performs de calculation for the price of the 'envio'.
-    It applies the discount if it is available.
-    The operations are made with Decimal to avoid the rounding errors.
-
-    Returns:
-        Decimal: The price of the 'envio'.
-    """
-    # Get the town of recipient's address
-    town = envio.town
-
-    # Initialize total price to 0
-    total_price = Decimal(0)
-
-    if envio.is_flex:
-        # Get the flex price
-        total_price = Decimal(str(town.flex_code.price))
-    else:
-        delivery_code = town.delivery_code
-        # Get the detail for the given envio
-        detail_codes = envio.detail.split(',')
-        # Get the price for each package detail
-        for detail_code in detail_codes:
-            # Unpack code and amount spliting by '-'
-            code, amount = detail_code.split('-')
-            # Get multiplier for the given package detail
-            attr = DETAIL_CODES[code]
-            multiplier = getattr(delivery_code, attr)
-            # Multiply the price by the multiplier for given package
-            # detail, times the amount of packages
-            result = Decimal(str(multiplier)) * Decimal(amount)
-            # Add the result to the total price
-            total_price += result
-
-    # Get single discount for envio's client and partido, if and
-    # only if the envio and discount match the is_for_flex and
-    # is_flex flags
-    discount = Discount.objects.filter(
-        client=envio.client,
-        is_for_flex=envio.is_flex,
-        partidos__in=[envio.town.partido]
-    ).first()
-
-    # If discount exists, apply it to the total price
-    if discount:
-        discount = Decimal(discount.amount) / Decimal(100)
-        total_discount = total_price * discount
-        result = total_price - total_discount
-        return result
-
-    # return the total price
-    return total_price
 
 
 @receiver(post_save, sender=Envio)

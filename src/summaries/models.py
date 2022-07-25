@@ -4,7 +4,7 @@ from datetime import datetime
 from django.db.models.signals import post_save
 import json
 from decimal import Decimal
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict
 
 # Django
 from django.conf import settings
@@ -13,7 +13,7 @@ from django.dispatch import receiver
 
 # Project
 from envios.models import Envio
-from envios.utils import calculate_price
+from envios.utils import calculate_price, get_detail_readable
 
 
 class Summary(models.Model):
@@ -44,30 +44,6 @@ class Summary(models.Model):
     def get_envios_filters(self) -> Dict[str, Any]:
         raise NotImplementedError("This method should be overrided.")
 
-    def process(self) -> Tuple[List[Dict[str, Any]], Decimal]:
-        total = 0
-        envios = []
-        for envio in self.__get_envios():
-            if envio.is_flex:
-                code = envio.town.flex_code
-                code_type = "Flex"
-            else:
-                code = envio.town.delivery_code
-                code_type = "Mensajería"
-            date = envio.date_delivered.strftime("%d/%m/%Y")
-            total += envio.price
-            as_dict = {
-                'id': envio.pk,
-                'destination': envio.full_address,
-                'price': calculate_price(envio),
-                'code': code.code,
-                'code_type': code_type,
-                'date_delivered': date,
-                'detail': envio.get_detail_readable(),
-            }
-            envios.append(as_dict)
-        return envios, round(total)
-
     def total_cost(self) -> Decimal:
         total = Decimal(0)
         total = sum([calculate_price(envio) for envio in self.__get_envios()])
@@ -93,7 +69,7 @@ class Summary(models.Model):
                 'code': code.code,
                 'code_type': code_type,
                 'date_delivered': date,
-                'detail': envio.get_detail_readable(),
+                'detail': get_detail_readable(envio),
             }
             result.append(as_dict)
         return result
