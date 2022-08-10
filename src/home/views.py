@@ -55,8 +55,8 @@ def admin_home_screen_view(request):
             status=Envio.STATUS_STILL).count(),
         'moving': Envio.objects.filter(
             status=Envio.STATUS_MOVING).count(),
-        'delivered_today': TrackingMovement.objects.filter(
-            envios__status=Envio.STATUS_DELIVERED).count(),
+        'delivered': TrackingMovement.objects.filter(
+            result=TrackingMovement.RESULT_DELIVERED).count(),
     }
     months, months_counts = get_stats_4_last_12_months()
     clients, clients_counts = get_client_share()
