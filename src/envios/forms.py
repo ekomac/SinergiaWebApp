@@ -21,7 +21,7 @@ class BulkLoadEnviosForm(forms.ModelForm):
 
     client = forms.ModelChoiceField(
         label="Cliente", required=True,
-        queryset=Client.objects.all(),
+        queryset=Client.objects.filter(is_active=True),
         widget=forms.Select(attrs={
             'class': ' form-select',
         }),
@@ -116,7 +116,7 @@ class CreateEnvioForm(forms.ModelForm):
 
     client = forms.ModelChoiceField(
         label="Cliente", required=True,
-        queryset=Client.objects.all(),
+        queryset=Client.objects.filter(is_active=True),
         widget=forms.Select(attrs={
             'class': ' form-select',
         }),
@@ -296,7 +296,7 @@ class UpdateEnvioForm(forms.ModelForm):
 
     client = forms.ModelChoiceField(
         label="Cliente", required=True,
-        queryset=Client.objects.all(),
+        queryset=Client.objects.filter(is_active=True),
         widget=forms.Select(attrs={
             'class': ' form-select',
         }),

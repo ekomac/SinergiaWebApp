@@ -387,7 +387,8 @@ def activate_client_view(request, pk):
     client.is_active = True
     client.save()
     msg = (f'El cliente {client} se activó correctamente. '
-           'Recordá activar las cuentas de los usuarios asociados.')
+           'Recordá activar los depósitos y las cuentas '
+           'de los usuarios asociados.')
     return create_alert_and_redirect(request, msg, 'clients:detail', client.pk)
 
 
@@ -397,11 +398,14 @@ def deactivate_client_view(request, pk):
     client = get_object_or_404(Client, pk=pk)
     client.is_active = False
     client.save()
-    msg = (f'El cliente {client} y sus usuarios '
+    msg = (f'El cliente {client}, sus depósitos y sus usuarios '
            'asociados se desactivaron correctamente.')
     for user in client.client_user_account.all():
         user.is_active = False
         user.save()
+    for deposit in client.deposit_set.all():
+        deposit.is_active = False
+        deposit.save()
     return create_alert_and_redirect(request, msg, 'clients:detail', client.pk)
 
 

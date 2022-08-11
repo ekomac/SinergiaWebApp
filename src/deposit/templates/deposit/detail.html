@@ -36,7 +36,11 @@
 
                 <!-- start DETAIL TITLE -->
                 <div class="me-2 w-100 align-content-center">
+                    {% if deposit.is_active %}
                     <h2>{{ deposit.name | title }}</h2>
+                    {% else %}
+                    <h2 style="color: red;">{{ deposit.name }}&nbsp;[inactivo/a]</h2>
+                    {% endif %}
                 </div>
                 <!-- end DETAIL TITLE -->
 
@@ -75,9 +79,7 @@
                         <tr>
                             <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
                                     class="bi bi-people me-1"></i>Cliente</td>
-                            <td class="w-100"><a
-                                    href="{% url 'clients:detail' deposit.client.pk %}">{{ deposit.client.name }}</a>
-                            </td>
+                            <td class="w-100"><a href="{% url 'clients:detail' deposit.client.pk %}">{{ deposit.client.name }}</a>{% if not deposit.client.is_active %}<span class="ms-2 badge bg-dark">Inactivo</span>{% endif %}</td>
                         </tr>
                         {% endif %}
 

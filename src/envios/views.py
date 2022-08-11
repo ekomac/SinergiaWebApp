@@ -154,10 +154,15 @@ class EnvioListView(CompleteListView, LoginRequiredMixin):
 
     def get_context_data(self) -> Dict[str, Any]:
         context = super().get_context_data()
-        context['clients'] = Client.objects.all()
+        context['clients'] = Client.objects.filter(
+            is_active=True, envio__isnull=False).distinct()
         context['carriers'] = Account.objects.filter(
-            client__isnull=True, has_access_denied=False)
-        context['deposits'] = Deposit.objects.all().annotate()
+            client__isnull=True,
+            has_access_denied=False,
+            envios_carried_by__isnull=False,
+            is_superuser=False).distinct()
+        context['deposits'] = Deposit.objects.filter(
+            client__is_active=True, envio__isnull=False).distinct()
         context['selected_tab'] = 'shipments-tab'
         now = datetime.now()
         year = str(now.year).zfill(4)
@@ -419,7 +424,9 @@ def print_empty_excel_file(request):
 
 
 def get_deposits_as_JSON(client_id: int = None):
-    query = Deposit.objects.all().order_by('client', 'name')
+    query = Deposit.objects.filter(
+        envio__isnull=False,
+        client__is_active=True).order_by('client', 'name')
     if client_id is not None:
         query = Deposit.objects.filter(pk=client_id).order_by('client', 'name')
     mapped = list(map(map_deposit_to_dict, query))
