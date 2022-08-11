@@ -60,7 +60,7 @@
                     {% if account.is_active %}
                     <h2>{{ account.full_name }}</h2>
                     {% else %}
-                    <h2 style="color: red;">#{{ account.id }} | {{ account.full_name }}</h2>
+                    <h2 style="color: red;">{{ account.full_name }}</h2>
                     <h5 style="color: red;">&nbsp;[inactivo/a]</h5>
                     {% endif %}
                 </div>
@@ -84,8 +84,9 @@
                     <button type="button" onclick="disableAccount()" class="btn btn-danger btn-sm me-1"><i
                             class="bi bi-toggle-off"></i>Desactivar cuenta</button>
                     {% else %}
-                    <button type="button" onclick="enableAccount()" class="btn btn-primary btn-sm me-1"><i
-                            class="bi bi-toggle-on"></i>Activar cuenta</button>
+                        {% if account.client and account.client.is_active %}
+                        <button type="button" onclick="enableAccount()" class="btn btn-primary btn-sm me-1"><i class="bi bi-toggle-on"></i>Activar cuenta</button>
+                        {% endif %}
                     {% endif %}
 
                 </div>
@@ -93,6 +94,12 @@
 
             </div>
             <!-- end DETAILS HEADER -->
+
+            {% if account.client and not account.client.is_active %}
+            <div class="alert alert-danger" role="alert">
+                La cuenta no se puede activar porque el cliente asociado esta inactivo.
+            </div>
+            {% endif %}
 
             <hr>
 
@@ -110,12 +117,11 @@
                                 especificar{% endif %}</td>
                         </tr>
 
-                        {% if account.client %}
                         <!-- row CLIENT -->
+                        {% if account.client %}
                         <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
-                                    class="bi bi-people me-1"></i>Cliente</td>
-                            <td class="w-100">{{ account.client.name }}</td>
+                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-people me-1"></i>Cliente</td>
+                            <td class="w-100"><a href="{% url 'clients:detail' account.client.pk %}">{{ account.client.name }}</a>{% if not account.client.is_active %}<span class="ms-2 badge bg-dark">Inactivo</span>{% endif %}</td>
                         </tr>
                         {% endif %}
 

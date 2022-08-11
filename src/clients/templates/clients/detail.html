@@ -38,7 +38,11 @@
 
                 <!-- start DETAIL TITLE -->
                 <div class="me-2 w-100 align-content-center">
+                    {% if client.is_active %}
                     <h2>{{ client.name }}</h2>
+                    {% else %}
+                    <h2 style="color: red;">{{ client.name }}&nbsp;[inactivo/a]</h2>
+                    {% endif %}
                 </div>
                 <!-- end DETAIL TITLE -->
 
@@ -52,9 +56,11 @@
                 <!-- start DETAIL BUTTONS -->
                 <div>
                     {% if client.is_active %}
-                    <a href="{% url 'clients:deactivate' client.id %}" class="btn btn-danger btn-sm me-1"><i class="bi bi-toggle-off me-1"></i>Deshabilitar</a>{% else %}
-                    <a href="{% url 'clients:activate' client.id %}" class="btn btn-primary btn-sm me-1"><i class="bi bi-toggle-on me-1"></i></i>Habilitar</a>{% endif %}
+                    <a href="{% url 'clients:deactivate' client.id %}" class="btn btn-danger btn-sm me-1"><i class="bi bi-toggle-off me-1"></i>Deshabilitar</a>
                     <a href="{% url 'clients:edit' client.id %}" class="btn btn-secondary btn-sm me-1"><i class="bi bi-pencil me-1"></i>Editar</a>
+                    {% else %}
+                    <a href="{% url 'clients:activate' client.id %}" class="btn btn-primary btn-sm me-1"><i class="bi bi-toggle-on me-1"></i></i>Habilitar</a>
+                    {% endif %}
                     <a href="{% url 'clients:delete' client.id %}" class="btn btn-danger btn-sm me-1"><i class="bi bi-trash me-1"></i>Eliminar</a>
 
                 </div>
@@ -236,19 +242,20 @@
     <div class="card flex-fill shadow-lg mt-3">
         <div class="card-header d-flex justify-content-between align-items-center">
             <div><i class="bi bi-people me-1"></i></i>Usuarios representantes</div>
-            {% if discounts_count > 0 %}
+            {% if users.count > 0 %}
             <a href="{% url 'account:employees-add' %}?client_id={{client.pk}}" class="btn btn-secondary btn-sm me-1"><i
                     class="bi bi-plus me-1"></i>Nuevo usuario</a>
             {% endif %}
 
         </div>
         <div class="card-body">
-            {% if discounts_count > 0 %}
+            {% if users.count > 0 %}
             <div>
                 <table class="table table-hover">
                     <thead>
                         <tr class="bg-dark text-white fw-bold">
                             <th class="text-center text-wrap m-auto">#</th>
+                            <th class="text-center text-wrap m-auto">Estado</th>
                             <th class="text-center w-auto">Apellido y nombre</th>
                             <th class="text-center">Usuario</th>
                             <th class="text-center">Fecha de alta</th>
@@ -256,8 +263,9 @@
                     </thead>
                     <tbody>
                         {% for obj in users %}
-                        <tr onclick="window.location.href='{% url 'account:employees-detail' pk=obj.pk %}'">
+                        <tr onclick="window.location.href='{% url 'account:employees-detail' pk=obj.pk %}'" {% if not obj.is_active %}style="color: red;"{% endif %}>
                             <th scope="row" class="text-center">{{ forloop.counter }}</th>
+                            <th scope="row" class="text-center">{% if obj.is_active %}Activo{% else %}Inactivo{% endif %}</th>
                             <td class="text-center">{{ obj.full_name_formal }}</td>
                             <td class="text-center">{{ obj.username }}</td>
                             <td class="text-center">
@@ -269,7 +277,7 @@
                 </table>
             </div>
             {% else %}
-            El cliente no posee descuentos. Hacé click acá para <a
+            El cliente no posee usuarios que lo representen. Hacé click acá para <a
                 href="{% url 'clients:add-discount' client.pk %}">agregar uno</a>.
             {% endif %}
 

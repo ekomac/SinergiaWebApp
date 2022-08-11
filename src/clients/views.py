@@ -230,6 +230,11 @@ def client_detail_view(request, pk):
     discounts = Discount.objects.filter(client__id=client.id)
     discounts_count = discounts.count()
     discounts = list(map(map_discount_to_dict, discounts))
+    users = Account.objects.filter(
+        client__pk=client.pk,
+        is_superuser=False,
+    ).order_by('last_name', 'first_name', 'username')
+    users_count = users.count()
     ctx = {}
     ctx['client'] = client
     ctx['selected_tab'] = 'clients-tab'
@@ -238,11 +243,8 @@ def client_detail_view(request, pk):
     ctx['deposits_count'] = deposits_count
     ctx['deposits'] = deposits
     ctx['contract'] = None
-    ctx['users'] = Account.objects.filter(
-        is_active=True,
-        client__pk=client.pk,
-        is_superuser=False,
-    ).order_by('last_name', 'first_name', 'username')
+    ctx['users'] = users
+    ctx['users_count'] = users_count
     if client.contract:
         ctx['contract'] = {
             'url': client.contract.url,
@@ -384,7 +386,8 @@ def activate_client_view(request, pk):
     client = get_object_or_404(Client, pk=pk)
     client.is_active = True
     client.save()
-    msg = f'El cliente {client} se activó correctamente.'
+    msg = (f'El cliente {client} se activó correctamente. '
+           'Recordá activar las cuentas de los usuarios asociados.')
     return create_alert_and_redirect(request, msg, 'clients:detail', client.pk)
 
 
@@ -394,7 +397,11 @@ def deactivate_client_view(request, pk):
     client = get_object_or_404(Client, pk=pk)
     client.is_active = False
     client.save()
-    msg = f'El cliente {client} se desactivó correctamente.'
+    msg = (f'El cliente {client} y sus usuarios '
+           'asociados se desactivaron correctamente.')
+    for user in client.client_user_account.all():
+        user.is_active = False
+        user.save()
     return create_alert_and_redirect(request, msg, 'clients:detail', client.pk)
 
 
