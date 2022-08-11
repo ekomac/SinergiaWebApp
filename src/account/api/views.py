@@ -209,6 +209,7 @@ def api_check_app_state_view(request, pk: int = 0):
 
 class ApiEmployeesWithEnviosListView(ListAPIView):
     queryset = Account.objects.filter(
+        is_active=True,
         groups__name__in=['Admins', 'Level 1', 'Level 2'],
     ).annotate(
         envios=Count('envios_carried_by')).order_by(
@@ -223,6 +224,7 @@ class ApiCarrierListView(ListAPIView):
     queryset = Account.objects.filter(
         groups__name__in=['Admins', 'Level 1', 'Level 2'],
         envios_carried_by__isnull=False,
+        is_superuser=False,
     ).annotate(
         envios=Count('envios_carried_by')).order_by('-envios').distinct()
     serializer_class = EmployeeSerializer
