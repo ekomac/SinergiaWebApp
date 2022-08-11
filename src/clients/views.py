@@ -34,6 +34,12 @@ class ClientListView(CompleteListView, LoginRequiredMixin):
             'function': lambda x: True if x == 'true' else False,
             'context': lambda x: x,
         },
+        {
+            'key': 'is_active',
+            'filter': 'is_active',
+            'function': lambda x: True if x == 'true' else False,
+            'context': lambda x: x,
+        },
     )
     query_keywords = (
         'name__icontains',
@@ -370,6 +376,26 @@ def edit_discount_view(request, client_pk, discount_pk):
         'selected_partidos_ids': discount.partidos.all().values('pk'),
     }
     return render(request, 'clients/edit_discount.html', context)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def activate_client_view(request, pk):
+    client = get_object_or_404(Client, pk=pk)
+    client.is_active = True
+    client.save()
+    msg = f'El cliente {client} se activó correctamente.'
+    return create_alert_and_redirect(request, msg, 'clients:detail', client.pk)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def deactivate_client_view(request, pk):
+    client = get_object_or_404(Client, pk=pk)
+    client.is_active = False
+    client.save()
+    msg = f'El cliente {client} se desactivó correctamente.'
+    return create_alert_and_redirect(request, msg, 'clients:detail', client.pk)
 
 
 @login_required(login_url='/login/')

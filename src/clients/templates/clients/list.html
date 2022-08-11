@@ -16,7 +16,7 @@
             <div class="modal-body">
 
                 <div class="row g-2 mt-2">
-                    <!-- start HAS ENVIOS SELECTION -->
+                    <!-- start HAS DISCOUNTS -->
                     <div class="col">
                         <label for="id_has_discounts_modal" class="form-label">Tiene descuentos</label>
                         <select id="id_has_discounts_modal" name="has_discounts_modal" class="form-select"
@@ -25,6 +25,17 @@
                             <!-- True and false are inverted because this filters the Deposit QuerySet with the key 'envio__isnull' -->
                             <option value="false" {% if has_discounts == 'false' %}selected{% endif %}>Sí</option>
                             <option value="true" {% if has_discounts == 'true' %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+                    <!-- end HAS DISCOUNTS -->
+                    <!-- start HAS ENVIOS SELECTION -->
+                    <div class="col">
+                        <label for="id_is_active_modal" class="form-label">Está activo</label>
+                        <select id="id_is_active_modal" name="is_active_modal" class="form-select"
+                            aria-label="is actiev">
+                            <option value="">-----</option>
+                            <option value="true" {% if is_active == 'true' %}selected{% endif %}>Sí</option>
+                            <option value="false" {% if is_active == 'false' %}selected{% endif %}>No</option>
                         </select>
                     </div>
                     <!-- end HAS ENVIOS SELECTION -->
@@ -70,8 +81,8 @@
 
 
 {% block filters_block %}
-<input type="text" id='id_has_discounts' name="has_discounts" {% if has_discounts %}value="{{ has_discounts }}"
-    {% endif %}>
+<input type="text" id='id_has_discounts' name="has_discounts" {% if has_discounts %}value="{{ has_discounts }}"{% endif %}>
+<input type="text" id='id_is_active' name="is_active" {% if is_active %}value="{{ is_active }}"{% endif %}>
 <input type="submit">
 {% endblock filters_block %}
 
@@ -118,6 +129,7 @@
                 'id_order_by',
                 'id_results_per_page',
                 'id_has_discounts',
+                'id_is_active',
             ].forEach(function (id) {
                 if ($('#' + id).val() == '') {
                     $('#' + id).prop('disabled', true);
@@ -135,7 +147,6 @@
         });
 
         $('#id_query_by').on('change paste keyup', function () {
-            //show('clearSearchDiv', $('#id_query_by').val() != '');
             show('btnCleanQuery', $('#id_query_by').val() != '');
         });
 
@@ -144,15 +155,6 @@
             show('clearSearchDiv', $('#id_query_by').val() != '');
             show('btnCleanQuery', $('#id_query_by').val() != '');
         }
-
-        /*
-        results_per_page_buttons.forEach(function (button) {
-            $('#' + button[0]).click(function () {
-                $('#id_results_per_page').val(button[1]);
-                $('#list_form').submit();
-            });
-        });
-        */
 
         $('#btnRadioRPP50').click(function () {
             $('#id_results_per_page').val(50);
@@ -183,11 +185,13 @@
 
     function applyFilters() {
         $('#id_has_discounts').val($('#id_has_discounts_modal').val());
+        $('#id_is_active').val($('#id_is_active_modal').val());
         $('#list_form').submit();
     }
 
     function clearFilters() {
         $('#id_has_discounts').val('');
+        $('#id_is_active').val('');
         $('#list_form').submit();
     }
 </script>

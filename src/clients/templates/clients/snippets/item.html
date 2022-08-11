@@ -7,7 +7,7 @@
 
 
 <tr scope="row" id="tr-{{ obj.id }}" class="table-item highlight-row"
-    onclick="window.location.href='{% url 'clients:detail' pk=obj.id %}'">
+    onclick="window.location.href='{% url 'clients:detail' pk=obj.id %}'" {% if not obj.is_active %}style="color: red;"{% endif %}>
     <th id="td-{{ obj.id }}" class="td-item-checker">{{ counter }}</th>
     <td>{{ obj.name }}</td>
     <td>{{ obj.contact_name }}</td>
@@ -15,5 +15,4 @@
     <td>{{ obj.contact_email }}</td>
     <td>{{ deposits }}</td>
     <td class="cell-centered">{{ discounts_count }}</td>
-
 </tr>

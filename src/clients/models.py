@@ -58,6 +58,8 @@ class Client(models.Model):
             )
         ],
     )
+    is_active = models.BooleanField(
+        verbose_name="Activo", default=True, blank=False, null=False)
 
     @property
     def contract_url(self):
