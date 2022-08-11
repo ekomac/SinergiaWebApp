@@ -525,6 +525,8 @@ class ActionWithdrawForm(BaseActionForm):
     to_carrier = CarrierModelChoiceField(
         label="Quién lo recibió", required=True,
         queryset=Account.objects.filter(
+            is_active=True,
+            is_superuser=False,
             groups__name__in=['Admins', 'Level 1', 'Level 2']
         ).order_by('last_name'),
         widget=forms.Select(attrs={
@@ -563,6 +565,8 @@ class ActionTransferForm(BaseActionForm):
     to_carrier = CarrierModelChoiceField(
         label="Quién lo recibió", required=True,
         queryset=Account.objects.filter(
+            is_active=True,
+            is_superuser=False,
             groups__name__in=['Admins', 'Level 1', 'Level 2']
         ).order_by('last_name'),
         widget=forms.Select(attrs={
