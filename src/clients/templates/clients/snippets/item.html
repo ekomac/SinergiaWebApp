@@ -8,7 +8,7 @@
 
 <tr scope="row" id="tr-{{ obj.id }}" class="table-item highlight-row"
     onclick="window.location.href='{% url 'clients:detail' pk=obj.id %}'">
-    <th id="td-{{ obj.id }}" class="td-item-checker {% if not obj.is_active %}text-danger{% endif %}">{{ counter }}</th>
+    <th id="td-{{ obj.id }}" class="td-item-checker {% if not obj.is_active %}text-danger{% endif %}">{{ pagination_from|add:counter |add:"-1" }}</th>
     <td class="{% if not obj.is_active %}text-danger{% endif %}">{% if obj.is_active %}Activo{% else %}Inactivo{% endif %}</td>
     <td class="{% if not obj.is_active %}text-danger{% endif %}">{{ obj.name }}</td>
     <td class="{% if not obj.is_active %}text-danger{% endif %}">{{ obj.contact_name }}</td>
