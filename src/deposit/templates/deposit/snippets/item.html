@@ -8,7 +8,7 @@
 
 <tr id="tr-{{ obj.id }}" class="table-item highlight-row"
     onclick="window.location.href='{% url 'deposits:detail' pk=obj.id %}'" {% if not obj.is_active %}style="color: red !important;"{% endif %}>
-    <th scope="row" id="td-{{ obj.id }}" class="td-item-checker">{{ counter }}</th>
+    <th scope="row" id="td-{{ obj.id }}" class="td-item-checker" {% if not obj.is_active %}style="color: red !important;"{% endif %}>{{ counter }}</th>
     <td {% if not obj.is_active %}style="color: red !important;"{% endif %}>{{ obj.name }}
     <td {% if not obj.is_active %}style="color: red !important;"{% endif %}>
         {% if obj.is_sinergia or obj.client == None %}
