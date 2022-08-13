@@ -159,7 +159,7 @@
                     </thead>
                     <tbody id="overrided-1" class="overrided-tbody">
                         {% for ticket in tickets %}
-                        {% include 'tickets/snippets/item.html' with obj=ticket counter=forloop.counter%}
+                        {% include 'tickets/snippets/item.html' with obj=ticket counter=forloop.counter pagination_from=tickets_from%}
                         {% endfor %}
                     </tbody>
                 </table>

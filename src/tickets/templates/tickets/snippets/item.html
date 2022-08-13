@@ -6,7 +6,7 @@
 </style>
 <tr id="tr-{{ obj.id }}" class="table-item highlight-row"
     onclick="window.location.href='{% url 'tickets:detail' pk=obj.id %}'">
-    <td id="td-{{ obj.id }}" class="td-item-checker">{{ counter }}</td>
+    <td id="td-{{ obj.id }}" class="td-item-checker">{{ pagination_from |add:counter |add:"-1" }}</td>
     <td>{{ obj.date_created|date:"d/m/Y H:i" }}</td>
     <td class="cell-centered">
         {% if obj.priority == '1' %}
