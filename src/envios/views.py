@@ -425,10 +425,10 @@ def print_empty_excel_file(request):
 
 def get_deposits_as_JSON(client_id: int = None):
     query = Deposit.objects.filter(
-        envio__isnull=False,
-        client__is_active=True).order_by('client', 'name')
+        client__is_active=True).order_by('client', 'name').distinct()
     if client_id is not None:
-        query = Deposit.objects.filter(pk=client_id).order_by('client', 'name')
+        query = Deposit.objects.filter(pk=client_id).order_by(
+            'client', 'name').distinct()
     mapped = list(map(map_deposit_to_dict, query))
     return json.dumps(mapped)
 
