@@ -7,28 +7,28 @@
 
 
 <tr id="tr-{{ obj.id }}" class="table-item highlight-row"
-    onclick="window.location.href='{% url 'deposits:detail' pk=obj.id %}'" {% if not obj.is_active %}style="color: red !important;"{% endif %}>
-    <th scope="row" id="td-{{ obj.id }}" class="td-item-checker" {% if not obj.is_active %}style="color: red !important;"{% endif %}>{{ counter }}</th>
-    <td {% if not obj.is_active %}style="color: red !important;"{% endif %}>{{ obj.name }}
-    <td {% if not obj.is_active %}style="color: red !important;"{% endif %}>
+    onclick="window.location.href='{% url 'deposits:detail' pk=obj.id %}'">
+    <th scope="row" id="td-{{ obj.id }}" class="td-item-checker {% if not obj.is_active %}text-danger{% endif %}">{{ counter }}</th>
+    <td class="{% if not obj.is_active %}text-danger{% endif %}">{{ obj.name }}
+    <td class="{% if not obj.is_active %}text-danger{% endif %}">
         {% if obj.is_sinergia or obj.client == None %}
         Propio
         {% else %}
         <a class="btn btn-sm btn-secondary py-0" href="{% url 'clients:detail' obj.client.pk %}">{{ obj.client }}</a>
         {% endif %}
-    <td {% if not obj.is_active %}style="color: red !important;"{% endif %}>{{ obj.full_address }}</td>
-    <td class="text-center" {% if not obj.is_active %}style="color: red !important;"{% endif %}>
+    <td class="{% if not obj.is_active %}text-danger{% endif %}">{{ obj.full_address }}</td>
+    <td class="text-center {% if not obj.is_active %}text-danger{% endif %}">
         {% if obj.is_active %}
         <span class="badge bg-success">Si</span>
         {% else %}
         <span class="badge bg-danger">No</span>
         {% endif %}
     </td>
-    <td class="text-center" {% if not obj.is_active %}style="color: red !important;"{% endif %}>{{ envios }}</td>
-    <td class="text-center" {% if not obj.is_active %}style="color: red !important;"{% endif %}>
+    <td class="text-center {% if not obj.is_active %}text-danger{% endif %}">{{ envios }}</td>
+    <td class="text-center {% if not obj.is_active %}text-danger{% endif %}">
         {% if obj.phone %}{{ obj.phone }}{% else %}Sin especificar{% endif %}
     </td>
-    <td class="text-center" {% if not obj.is_active %}style="color: red !important;"{% endif %}>
+    <td class="text-center {% if not obj.is_active %}text-danger{% endif %}">
         {% if obj.email %}{{ obj.email }}{% else %}Sin especificar{% endif %}
     </td>
 
