@@ -14,7 +14,7 @@
         {% if obj.is_sinergia or obj.client == None %}
         Propio
         {% else %}
-        {{ obj.client }}
+        <a class="btn btn-sm btn-secondary py-0" href="{% url 'clients:detail' obj.client.pk %}">{{ obj.client }}</a>
         {% endif %}
     <td {% if not obj.is_active %}style="color: red !important;"{% endif %}>{{ obj.full_address }}</td>
     <td class="text-center" {% if not obj.is_active %}style="color: red !important;"{% endif %}>
