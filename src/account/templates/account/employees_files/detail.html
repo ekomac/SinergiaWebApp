@@ -76,16 +76,13 @@
                 <!-- start DETAIL BUTTONS -->
                 <div>
                     <button onclick="resetPassword();" id="btnResetPassword" class="btn btn-primary btn-sm me-1"
-                        {% if account.has_to_reset_password %}disabled{% endif %}><i class="bi bi-key me-1"></i>Blanqueo
-                        de clave</button>
-                    <a href="{% url 'account:account-edit' account.id %}" class="btn btn-secondary btn-sm me-1"><i
-                            class="bi bi-pencil me-1"></i>Editar</a>
+                        {% if account.has_to_reset_password %}disabled{% endif %}><i class="bi bi-key me-1"></i>Blanqueo de clave</button>
+                    <a href="{% url 'account:account-edit' account.id %}" class="btn btn-secondary btn-sm me-1"><i class="bi bi-pencil me-1"></i>Editar</a>
                     {% if account.is_active %}
-                    <button type="button" onclick="disableAccount()" class="btn btn-danger btn-sm me-1"><i
-                            class="bi bi-toggle-off"></i>Desactivar cuenta</button>
+                    <button type="button" onclick="disableAccount()" class="btn btn-danger btn-sm me-1"><i class="bi bi-toggle-off"></i>Deshabilitar cuenta</button>
                     {% else %}
                         {% if account.client and account.client.is_active %}
-                        <button type="button" onclick="enableAccount()" class="btn btn-primary btn-sm me-1"><i class="bi bi-toggle-on"></i>Activar cuenta</button>
+                        <button type="button" onclick="enableAccount()" class="btn btn-primary btn-sm me-1"><i class="bi bi-toggle-on"></i>Habilitar cuenta</button>
                         {% endif %}
                     {% endif %}
 
@@ -97,7 +94,7 @@
 
             {% if account.client and not account.client.is_active %}
             <div class="alert alert-danger" role="alert">
-                La cuenta no se puede activar porque el cliente asociado esta inactivo.
+                La cuenta no se puede habilitar porque el cliente asociado está inhabilitado.
             </div>
             {% endif %}
 
