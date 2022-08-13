@@ -164,12 +164,15 @@ class EnvioListView(CompleteListView, LoginRequiredMixin):
         context['deposits'] = Deposit.objects.filter(
             client__is_active=True, envio__isnull=False).distinct()
         context['selected_tab'] = 'shipments-tab'
+        context['max_selectable_date'] = self.__get_max_selectable_date()
+        return context
+
+    def __get_max_selectable_date(self):
         now = datetime.now()
         year = str(now.year).zfill(4)
         month = str(now.month).zfill(2)
         day = str(now.day).zfill(2)
-        context['max_selectable_date'] = f'{year}-{month}-{day}'
-        return context
+        return f'{year}-{month}-{day}'
 
 
 DEFAULT_ENVIOS_PER_PAGE = 50
