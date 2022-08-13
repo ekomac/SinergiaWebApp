@@ -119,6 +119,28 @@ def deposit_edit_view(request, pk):
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
+def activate_deposit_view(request, pk):
+    deposit = get_object_or_404(Deposit, pk=pk)
+    deposit.is_active = True
+    deposit.save()
+    msg = f'El depósito "{deposit}" se habilitó correctamente.'
+    return create_alert_and_redirect(
+        request, msg, 'deposits:detail', pk)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def deactivate_deposit_view(request, pk):
+    deposit = get_object_or_404(Deposit, pk=pk)
+    deposit.is_active = False
+    deposit.save()
+    msg = f'El depósito "{deposit}" se inhabilitó correctamente.'
+    return create_alert_and_redirect(
+        request, msg, 'deposits:detail', pk)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
 def deposit_detail_view(request, pk):
     ctx = {}
     deposit = get_object_or_404(Deposit, pk=pk)
