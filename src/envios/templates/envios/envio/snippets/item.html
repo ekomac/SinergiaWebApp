@@ -44,18 +44,18 @@
         <span class="badge" style="background-color: #808080;">MENSAJERIA</span>
         {% endif %}
     </td>
-    <td class="cell-centered">{{ obj.client.name }}</td>
+    <td class="cell-centered"><a class="btn btn-sm btn-secondary py-0" href="{% url 'clients:detail' obj.client.pk %}">{{ obj.client }}</a></td>
     <td>
         {{ obj.full_address|title |truncatewords:8}}
     </td>
     <td class="cell-centered">
         {% if obj.status == 'S' or obj.status == 'N' or obj.status == 'R' %}
         {% if obj.deposit %}<a href="{% url 'deposits:detail' obj.deposit.id %}"
-            class="btn btn-secondary btn-sm m-0">{{ obj.deposit.name }}</a>{% else %}<b style="color: red;">Depósito eliminado</b>{% endif %}
+            class="btn btn-secondary btn-sm m-0 py-0">{{ obj.deposit.name }}</a>{% else %}<b style="color: red;">Depósito eliminado</b>{% endif %}
         {% elif obj.status == 'M' %}
         {% if obj.carrier %}
         <a href="{% url 'account:employees-detail' obj.carrier.pk %}"
-            class="btn btn-secondary btn-sm m-0" >@{{ obj.carrier.username }}</a>
+            class="btn btn-secondary btn-sm m-0 py-0" >@{{ obj.carrier.username }}</a>
         {% else %}
         <b style="color: red;">Usuario eliminado</b>
         {% endif %}
