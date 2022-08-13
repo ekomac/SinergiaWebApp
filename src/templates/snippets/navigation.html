@@ -26,24 +26,6 @@
             {% endif %}
             <!-- END Legajos -->
 
-
-            {% comment %}
-            <!-- START Tracking -->
-            {% if request.user|has_group:"Admins" %}
-            <li class="nav-item {% if selected_tab == 'tracking-tab' %}activetab{% endif %} li-navigation">
-                <a id="shipments-tab" href="{% url 'tracking:list' %}" class="nav-link tab">
-                    <i class="bi bi-clipboard-pulse"></i> Tracking
-                </a>
-            </li>
-            {% else %}
-            <li class="nav-item {% if selected_tab == 'tracking-tab' %}activetab{% endif %} li-navigation">
-                <a id="shipments-tab" href="{% url 'tracking:list' %}" class="nav-link tab">
-                    <i class="bi bi-clipboard-pulse"></i> Tracking
-                </a>
-            </li>
-            {% endif %}
-            <!-- END Tracking --> {% endcomment %}
-
             <!-- START Envíos -->
             {% if request.user|has_group:"Admins" %}
             <li class="nav-item {% if selected_tab == 'shipments-tab' %}activetab{% endif %} li-navigation">
@@ -73,76 +55,15 @@
             <!-- START Depósitos -->
             {% if request.user|has_group:"Admins" %}
             <li class="nav-item {% if selected_tab == 'deposits-tab' %}activetab{% endif %} li-navigation">
-                <a id="deposits-tab" {% if selected_tab != 'deposits-tab' %}href="{% url 'deposits:list' %}" {% endif %}
-                    class="nav-link tab">
+                <a id="deposits-tab" href="{% url 'deposits:list' %}" class="nav-link tab">
                     <i class="bi bi-shop"></i> Depósitos
                 </a>
             </li>
             {% endif %}
             <!-- END Depósitos -->
-
-            {% comment %}
-            <!-- START Lugares -->
+        
             {% if request.user|has_group:"Admins" %}
-            <li class="nav-item">
-
-                <!-- START OPTION 1: A places tab is selected-->
-                {% if selected_tab == 'town-tab' or selected_tab == 'zone-tab' or selected_tab == 'partido-tab' %}
-                <a class="parent-nav nav-link align-items-center rounded tab mt-2" data-bs-toggle="collapse"
-                    data-bs-target="#places-collapse" aria-expanded="true">
-                    Lugares
-                </a>
-                <div class="collapse show" id="places-collapse">
-                    <ul class="btn-toggle-nav list-unstyled fw-normal" style="font-size: 13px;">
-                        <!-- START Places Partidos -->
-                        <li class="nav-item {% if selected_tab == 'partido-tab' %}activetab{% endif %} li-navigation">
-                            <a id="partido-tab" href="{% url 'places:partido-list' %}" class="nav-link tab">
-                                <i class="bi bi-map"></i> Partidos
-                            </a>
-                        </li>
-                        <!-- END Places Partidos -->
-                        <!-- START Places Zone -->
-                        <li class="nav-item {% if selected_tab == 'zone-tab' %}activetab{% endif %} li-navigation">
-                            <a id="zone-tab" href="{% url 'places:zone-list' %}" class="nav-link tab">
-                                <i class="bi bi-collection"></i> Zonas
-                            </a>
-                        </li>
-                        <!-- END Places Zone -->
-                    </ul>
-                </div>
-                {% else %}
-                <!-- END OPTION 1: A places tab is selected-->
-                <!-- START OPTION 2: No places tab is selected -->
-                <a class="parent-nav nav-link align-items-center rounded tab collapsed mt-2" data-bs-toggle="collapse"
-                    data-bs-target="#places-collapse" aria-expanded="false">
-                    Lugares
-                </a>
-                <div class="collapse" id="places-collapse">
-                    <ul class="btn-toggle-nav list-unstyled fw-normal" style="font-size: 13px;">
-                        <!-- START Places Partidos -->
-                        <li class="nav-item {% if selected_tab == 'partido-tab' %}activetab{% endif %} li-navigation">
-                            <a id="partido-tab" href="{% url 'places:partido-list' %}" class="nav-link tab">
-                                <i class="bi bi-map"></i> Partidos
-                            </a>
-                        </li>
-                        <!-- END Places Partidos -->
-                        <!-- START Places Zone -->
-                        <li class="nav-item {% if selected_tab == 'zone-tab' %}activetab{% endif %} li-navigation">
-                            <a id="zone-tab" href="{% url 'places:zone-list' %}" class="nav-link tab">
-                                <i class="bi bi-collection"></i> Zonas
-                            </a>
-                        </li>
-                        <!-- END Places Zone -->
-                    </ul>
-                </div>
-                {% endif %}
-                <!-- END START OPTION 2: No price tab is selected -->
-            </li>
-            {% endif %}
-            <!-- END Lugares --> {% endcomment %}
-
-            {% if request.user|has_group:"Admins" %}
-
+            
             <!-- START Precios -->
             <li class="nav-item">
 
