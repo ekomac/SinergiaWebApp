@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_cleanup.apps.CleanupConfig',
     'request',
+    'dbbackup',
 ]
 
 AUTH_USER_MODEL = 'account.Account'
@@ -213,17 +214,6 @@ DEFAULT_RESULTS_PER_PAGE = 50
 
 DEFAULT_RESET_PASSWORD = "Cambiar123"
 
-
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_HOST_USER = 'jcmacielhenning@gmail.com'
-# EMAIL_HOST_PASSWORD = 'bkwivgnwbouskjer'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# noreply = '<noreply@sinergiamensajeria.com>'
-# DEFAULT_FROM_EMAIL = f'Administración de SinergiaSoftware {noreply}'
-
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.hostinger.com'
 EMAIL_HOST_USER = 'no-reply@sinergiamensajeria.com'
@@ -233,3 +223,8 @@ EMAIL_USE_SSL = True
 # EMAIL_USE_TLS = True
 noreply = '<no-reply@sinergiamensajeria.com>'
 DEFAULT_FROM_EMAIL = f'Administración de SinergiaSoftware {noreply}'
+
+# Django BACKUP:
+# https://django-dbbackup.readthedocs.io/en/master/installation.html
+DBBACKUP_STORAGE = 'django.core.files.storage.FileSystemStorage'
+DBBACKUP_STORAGE_OPTIONS = {'location': '/backup/'}
