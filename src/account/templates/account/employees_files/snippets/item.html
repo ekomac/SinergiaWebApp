@@ -10,7 +10,14 @@
     onclick="window.location.href='{% url 'account:employees-detail' pk=obj.id %}'">
     <th {% if not obj.is_active %}class="text-danger" {% endif %} id="td-{{ obj.id }}" class="td-item-checker">
         {{ counter }}</th>
-    <td {% if not obj.is_active %}class="text-danger" {% endif %}>{{ obj.get_role_display }}</td>
+    <td class="text-center{% if not obj.is_active %} text-danger{% endif %}">
+        {% if not obj.client %}
+        {{ obj.get_role_display }}
+        {% else %}
+        <a class="btn btn-sm btn-secondary py-0" href="{% url 'clients:detail' obj.client.pk %}">{{ obj.client.name }}</a>
+        {% endif %}
+
+    </td>
     <td {% if not obj.is_active %}class="text-danger" {% endif %}>{{ obj.full_name_formal }}</td>
     <td {% if not obj.is_active %}class="text-danger" {% endif %}>{% if obj.dni %}{{ obj.dni }}{% else %}-{% endif %}
     </td>
