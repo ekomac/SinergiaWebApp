@@ -297,7 +297,7 @@
         onclick="printSelectedItems()" disabled>
         Imprimir etiquetas
     </button>
-    <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{totalEnvios}} elementos seleccionados</div>
+    <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{pagination_count}} elementos seleccionados</div>
     <div class="my-1 mx-xl-3">
         <div id="clearSelectionDiv" class="hide-on-load">
             <a id="clearSelection" type="button" class="ms-2 text-decoration-none" onclick="removeSelection()"
@@ -430,8 +430,6 @@
             $('#id_show_only_on_circuit').val($(this).is(':checked') ? 1 : 0);
             $('#list_form').submit();
         });
-
-
     });
 
     function clearSearch() {
