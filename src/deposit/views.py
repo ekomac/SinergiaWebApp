@@ -78,6 +78,7 @@ def deposit_create_view(request):
         if form.is_valid():
             deposit = form.save()
             deposit.created_by = request.user
+            deposit.is_sinergia = deposit.client is None
             deposit.save()
             msg = f'El depósito "{deposit}" se creó correctamente.'
             return create_alert_and_redirect(
@@ -100,6 +101,7 @@ def deposit_edit_view(request, pk):
                                  instance=Deposit.objects.get(pk=pk))
         if form.is_valid():
             deposit = form.save(commit=False)
+            deposit.is_sinergia = deposit.client is None
             deposit.save()
             msg = f'El depósito "{deposit}" se actualizó correctamente.'
             return update_alert_and_redirect(
