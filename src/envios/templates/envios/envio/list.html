@@ -344,7 +344,7 @@
     const passedOrderBy = '{{ order_by }}';
     var lastQuery = "{{ query_by }}";
     var selectionModeEnabled = false;
-    var totalEnvios = parseInt('{{pagination_count}}');
+    var totalEnvios = parseInt('{{objects|length}}');
 
     $(document).ready(function () {
         addingSelectedIdsAjaxConfig();
