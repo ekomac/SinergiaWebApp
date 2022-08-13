@@ -9,7 +9,7 @@
 <tr scope="row" id="tr-{{ obj.id }}" class="table-item highlight-row"
     onclick="window.location.href='{% url 'account:employees-detail' pk=obj.id %}'">
     <th class="{% if not obj.is_active %}text-danger{% endif %} td-item-checker" id="td-{{ obj.id }}">
-        {{ counter }}</th>
+        {{ pagination_from|add:counter |add:"-1" }}</th>
     <td class="text-center{% if not obj.is_active %} text-danger{% endif %}">
         {% if not obj.client %}
         {{ obj.get_role_display }}
