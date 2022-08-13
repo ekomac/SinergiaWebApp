@@ -60,7 +60,9 @@
                     <a href="{% url 'deposits:deactivate' deposit.id %}" class="btn btn-danger btn-sm me-1"><i class="bi bi-toggle-off me-1"></i>Deshabilitar</a>
                     <a href="{% url 'deposits:edit' deposit.id %}" class="btn btn-secondary btn-sm me-1"><i class="bi bi-pencil me-1"></i>Editar</a>
                     {% else %}
+                    {% if deposit.client and deposit.client.is_active %}
                     <a href="{% url 'deposits:activate' deposit.id %}" class="btn btn-primary btn-sm me-1"><i class="bi bi-toggle-on me-1"></i></i>Habilitar</a>
+                    {% endif %}
                     {% endif %}
                     <a href="{% url 'deposits:delete' deposit.id %}" class="btn btn-danger btn-sm me-1"><i class="bi bi-trash me-1"></i>Eliminar</a>
                 </div>
@@ -68,6 +70,12 @@
 
             </div>
             <!-- end DETAILS HEADER -->
+
+            {% if deposit.client and not deposit.client.is_active %}
+            <div class="alert alert-danger" role="alert">
+                El depósito no se puede habilitar porque el cliente asociado está deshabilitado.
+            </div>
+            {% endif %}
 
             <hr>
 
