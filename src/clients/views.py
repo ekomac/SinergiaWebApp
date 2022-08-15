@@ -1,12 +1,9 @@
 # Basic Python
-from typing import Any, Dict, List, Tuple
-import unidecode
+from typing import Any, Dict
 
 # Django
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 
