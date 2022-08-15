@@ -12,7 +12,7 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus.flowables import Image
 from reportlab.platypus.tables import LongTable
 from reportlab.lib.styles import ParagraphStyle
-from envios.utils import calculate_price
+from envios.utils import calculate_price, get_detail_readable
 from summaries.models import ClientSummary, EmployeeSummary
 
 
@@ -184,7 +184,7 @@ class PDFSummaryReport():
         as_list = [
             Paragraph(date, self.LEFT_COLS_STYLE),
             Paragraph(envio.full_address, self.CENTER_COLS_STYLE),
-            Paragraph(envio.get_detail_readable(), self.CENTER_COLS_STYLE),
+            Paragraph(get_detail_readable(envio), self.CENTER_COLS_STYLE),
             Paragraph('$ {:,.2f}'.format(price), self.RIGHT_COLS_STYLE),
         ]
         return as_list, price

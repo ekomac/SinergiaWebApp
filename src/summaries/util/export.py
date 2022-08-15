@@ -1,6 +1,3 @@
-from summaries.api import summarize_by_client, summarize_by_deliverer
-
-
 def create_pdf():
     pass
 
