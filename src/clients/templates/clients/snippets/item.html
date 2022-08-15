@@ -10,10 +10,10 @@
     onclick="window.location.href='{% url 'clients:detail' pk=obj.id %}'">
     <th id="td-{{ obj.id }}" class="td-item-checker {% if not obj.is_active %}text-danger{% endif %}">{{ pagination_from|add:counter |add:"-1" }}</th>
     <td class="{% if not obj.is_active %}text-danger{% endif %}">{% if obj.is_active %}Activo{% else %}Inactivo{% endif %}</td>
-    <td class="{% if not obj.is_active %}text-danger{% endif %}">{{ obj.name }}</td>
-    <td class="{% if not obj.is_active %}text-danger{% endif %}">{{ obj.contact_name }}</td>
-    <td class="{% if not obj.is_active %}text-danger{% endif %}">{{ obj.contact_phone }}</td>
-    <td class="{% if not obj.is_active %}text-danger{% endif %}">{{ obj.contact_email }}</td>
-    <td class="{% if not obj.is_active %}text-danger{% endif %}">{{ deposits }}</td>
+    <td class="{% if not obj.is_active %}text-danger{% endif %}">{% if obj.name %}{{ obj.name }}{% else %}-{% endif %}</td>
+    <td class="{% if not obj.is_active %}text-danger{% endif %}">{% if obj.contact_name %}{{ obj.contact_name }}{% else %}-{% endif %}</td>
+    <td class="{% if not obj.is_active %}text-danger{% endif %}">{% if obj.contact_phone %}{{ obj.contact_phone }}{% else %}-{% endif %}</td>
+    <td class="{% if not obj.is_active %}text-danger{% endif %}">{% if obj.contact_email %}{{ obj.contact_email }}{% else %}-{% endif %}</td>
+    <td class="{% if not obj.is_active %}text-danger{% endif %}">{% if deposits %}{{ deposits }}{% else %}-{% endif %}</td>
     <td class="{% if not obj.is_active %}text-danger{% endif %} cell-centered">{{ discounts_count }}</td>
 </tr>
