@@ -1,12 +1,9 @@
 # Basic Python
-from typing import Any, Dict, List, Tuple
-import unidecode
+from typing import Any, Dict
 
 # Django
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 
@@ -64,112 +61,6 @@ class ClientListView(CompleteListView, LoginRequiredMixin):
         context['clients'] = Client.objects.all()
         context['selected_tab'] = 'clients-tab'
         return context
-
-
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
-def client_list_view(request):
-
-    context = {}
-
-    # Search
-    query = ""
-    if request.method == "GET":
-        query = request.GET.get("query_by", None)
-        if query:
-            context["query_by"] = str(query)
-
-        order_by = request.GET.get("order_by", 'name')
-        if order_by:
-            order_by = str(order_by)
-            context["order_by"] = order_by
-            if '_desc' in order_by:
-                order_by = "-" + order_by[:-5]
-
-        results_per_page = request.GET.get("results_per_page", None)
-        if results_per_page is None:
-            results_per_page = 50
-        context['results_per_page'] = str(results_per_page)
-
-        # Filter clients
-        clients = get_clients_queryset(query, order_by)
-
-        # Pagination
-        page = request.GET.get('page', 1)
-        clients_paginator = Paginator(clients, results_per_page)
-        try:
-            clients = clients_paginator.page(page)
-
-            # How many clients in total
-            context['clients_count'] = clients_paginator.count
-
-            # Showing client from
-            context['clients_from'] = (
-                clients.number - 1) * clients_paginator.per_page + 1
-
-            # Showing client to
-            if clients_paginator.per_page > len(clients):
-                what_to_sum = len(clients)
-            else:
-                what_to_sum = clients_paginator.per_page
-            context['clients_to'] = context['clients_from'] + \
-                what_to_sum - 1
-
-        except PageNotAnInteger:
-            clients = clients_paginator.page(results_per_page)
-        except EmptyPage:
-            clients = clients_paginator.page(clients_paginator.num_pages)
-
-        context['clients'] = clients
-        context['totalClients'] = len(clients)
-        context['selected_tab'] = 'clients-tab'
-    return render(request, "clients/list.html", context)
-
-
-def get_clients_queryset(
-        query: str = None, order_by_key: str = 'name',
-) -> List[Client]:
-    """Get all clients that match provided query, if any. If none is given,
-    returns all clients. Also, performs the query in the specified
-    order_by_key.
-
-    Args:
-        query (str, optional): words to match the query. Defaults to empyt str.
-        order_by_key (str, optional): to perform ordery by. Defaults to 'name'.
-
-    Returns:
-        List[Client]: a list containing the clients which match at least
-        one query.
-    """
-    query = unidecode.unidecode(query) if query else ""
-    return list(map(map_client_to_tuple, list(
-        Client.objects.filter(
-            Q(name__icontains=query) |
-            Q(contact_name__icontains=query) |
-            Q(contact_phone__icontains=query) |
-            Q(contact_email__icontains=query)
-        ).order_by(order_by_key).distinct()
-    )))
-
-
-def map_client_to_tuple(client: Client) -> Tuple[Client, str, int]:
-    """
-    Maps a client to a tuple containing the client, a str with the deposits
-    assigned to it and an int with the number of partidos and towns with
-    discounts belonging to it.
-
-    Args:
-        client (Client): the client to be mapped.
-
-    Returns:
-        Tuple[Client, str, str]: the mapped client, the str with the deposits
-        and the number of places with discounts.
-    """
-    deposits = ", ".join(
-        [depo.name for depo in Deposit.objects.filter(client=client)])
-    places_with_discounts = Partido.objects.filter(
-        discount__client=client).count()
-    return (client, deposits, places_with_discounts)
 
 
 @login_required(login_url='/login/')
