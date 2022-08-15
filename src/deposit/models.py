@@ -6,6 +6,7 @@ from django.db import models
 # project
 from clients.models import Client
 from places.models import Town
+from utils.models import build_full_address
 
 
 class Deposit(models.Model):
@@ -45,18 +46,16 @@ class Deposit(models.Model):
     def __str__(self):
         name = self.name
         client = f'{self.client.name}' if self.client else "Sinergia"
-        address = '{title},{zip_code} {town}'.format(
-            title=self.address.title(),
-            zip_code=" %s" % self.zip_code if self.zip_code else "",
-            town=self.town
-        )
+        address = build_full_address(
+            self.address, self.zip_code, self.town)
         return f'{name} en {address} de {client}'
 
     def full_name(self):
         return self.__str__()
 
-    def full_address(self):
-        return f'{self.address.title()}, {self.zip_code} {self.town}'
+    def full_address(self, title_cased=True):
+        return build_full_address(
+            self.address, self.zip_code, self.town, title_cased)
 
     class Meta:
         verbose_name = 'Depósito'
