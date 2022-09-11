@@ -351,6 +351,7 @@ DETAIL_CODES = {
     "2": 'bulto_max_20k_price',
     "3": 'miniflete_price',
     "4": 'tramite_price',
+    "5": 'camioneta_price',
 }
 
 VERBOSE_NAMES_FOR_DETAIL_CODES = {
@@ -359,6 +360,7 @@ VERBOSE_NAMES_FOR_DETAIL_CODES = {
     "2": 'Bulto(s) hasta 20kg',
     "3": 'miniflete(s)',
     "4": 'trámite(s)',
+    "5": 'camioneta(s) completa(s)',
 }
 
 

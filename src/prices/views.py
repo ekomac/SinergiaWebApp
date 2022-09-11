@@ -62,12 +62,14 @@ def calcular_cotizacion_view(request):
         max20kg_amount = int(request.GET.get('max20kg', 0))
         miniflete_amount = int(request.GET.get('miniflete', 0))
         tramite_amount = int(request.GET.get('tramite', 0))
+        camioneta_amount = int(request.GET.get('camioneta', 0))
         result = 0
         result += town.delivery_code.max_5k_price * max5kg_amount
         result += town.delivery_code.bulto_max_10k_price * max10kg_amount
         result += town.delivery_code.bulto_max_20k_price * max20kg_amount
         result += town.delivery_code.miniflete_price * miniflete_amount
         result += town.delivery_code.tramite_price * tramite_amount
+        result += town.delivery_code.camioneta_price * camioneta_amount
 
         if request.user.groups.filter(name='Clients').exists():
             print("es cliente")
@@ -93,8 +95,7 @@ class DeliveryCodeListView(CompleteListView, LoginRequiredMixin):
     template_name = 'prices/dcode_list.html'
     decoders = None
     model = DeliveryCode
-    query_keywords = (
-        'code__icontains',)
+    query_keywords = ('code__icontains',)
     selected_tab = 'dprices-tab'
     include_add_button = False
 
@@ -114,6 +115,7 @@ class DeliveryCodeListView(CompleteListView, LoginRequiredMixin):
         dcode['bulto_max_20k_price'] = obj.bulto_max_20k_price
         dcode['miniflete_price'] = obj.miniflete_price
         dcode['tramite_price'] = obj.tramite_price
+        dcode['camioneta_price'] = obj.camioneta_price
         return dcode
 
 
@@ -139,14 +141,14 @@ class FlexCodeListView(CompleteListView, LoginRequiredMixin):
             'partidos': set(only_names),
         }
 
-    @ allowed_users_in_class_view(roles=["Admins", "Clients", ])
+    @allowed_users_in_class_view(roles=["Admins", "Clients", ])
     def get(self, request):
         return super(FlexCodeListView, self).get(request)
 
 
 # ****************** MENSAJERIA ******************
-@ login_required(login_url='/login/')
-@ allowed_users(roles="Admins")
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def delivery_codes_view(request, *args, **kwargs):
 
     context = {}
@@ -204,7 +206,7 @@ class DeliveryCodeAddView(
             ctx['name_suggestion'] = 'M01'
         return ctx
 
-    @ allowed_users_in_class_view(roles="Admins")
+    @allowed_users_in_class_view(roles="Admins")
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -224,7 +226,7 @@ class DeliveryCodeDetailView(LoginRequiredMixin, DetailView):
         context['code_type'] = 'd'
         return context
 
-    @ allowed_users_in_class_view(roles="Admins")
+    @allowed_users_in_class_view(roles="Admins")
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -255,13 +257,13 @@ class DeliveryCodeUpdateView(
     def get_success_url(self):
         return reverse('prices:dcode-detail', kwargs={'pk': self.object.pk})
 
-    @ allowed_users_in_class_view(roles="Admins")
+    @allowed_users_in_class_view(roles="Admins")
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
 
-@ login_required(login_url='/login/')
-@ allowed_users(roles="Admins")
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def delivery_code_bulk_fixed_update(request, dcodeids):
 
     ids = dcodeids.split("-")
@@ -301,8 +303,8 @@ def delivery_code_bulk_fixed_update(request, dcodeids):
     return render(request, "prices/fixed-bulk-edit.html", context)
 
 
-@ login_required(login_url='/login/')
-@ allowed_users(roles="Admins")
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def delivery_code_bulk_percentage_update(request, dcodeids):
 
     ids = dcodeids.split("-")
@@ -344,8 +346,8 @@ def delivery_code_bulk_percentage_update(request, dcodeids):
     return render(request, "prices/percentage-bulk-edit.html", context)
 
 
-@ login_required(login_url='/login/')
-@ allowed_users(roles="Admins")
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def delivery_code_delete(request, *args, **kwargs):
 
     dcodesids = kwargs['dcodeids'].split("-")
@@ -370,8 +372,8 @@ def delivery_code_delete(request, *args, **kwargs):
 
 
 # ****************** FLEX ******************
-@ login_required(login_url='/login/')
-@ allowed_users(roles="Admins")
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def flex_codes_view(request, *args, **kwargs):
 
     context = {}
@@ -431,7 +433,7 @@ class FlexCodeAddView(
             ctx['name_suggestion'] = 'F01'
         return ctx
 
-    @ allowed_users_in_class_view(roles="Admins")
+    @allowed_users_in_class_view(roles="Admins")
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -451,7 +453,7 @@ class FlexCodeDetailView(LoginRequiredMixin, DetailView):
         context['code_type'] = 'f'
         return context
 
-    @ allowed_users_in_class_view(roles="Admins")
+    @allowed_users_in_class_view(roles="Admins")
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
@@ -482,13 +484,13 @@ class FlexCodeUpdateView(
     def get_success_url(self):
         return reverse('prices:fcode-detail', kwargs={'pk': self.object.pk})
 
-    @ allowed_users_in_class_view(roles="Admins")
+    @allowed_users_in_class_view(roles="Admins")
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
 
-@ login_required(login_url='/login/')
-@ allowed_users(roles="Admins")
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def flex_code_bulk_fixed_update(request, fcodeids):
 
     ids = fcodeids.split("-")
@@ -527,8 +529,8 @@ def flex_code_bulk_fixed_update(request, fcodeids):
     return render(request, "prices/fixed-bulk-edit.html", context)
 
 
-@ login_required(login_url='/login/')
-@ allowed_users(roles="Admins")
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def flex_code_bulk_percentage_update(request, fcodeids):
 
     ids = fcodeids.split("-")
@@ -569,8 +571,8 @@ def flex_code_bulk_percentage_update(request, fcodeids):
     return render(request, "prices/percentage-bulk-edit.html", context)
 
 
-@ login_required(login_url='/login/')
-@ allowed_users(roles="Admins")
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def flex_code_delete(request, *args, **kwargs):
 
     fcodesids = kwargs['fcodeids'].split("-")

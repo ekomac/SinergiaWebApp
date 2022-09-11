@@ -45,7 +45,7 @@
     },
     "workbench.iconTheme": "material-icon-theme",
     // "terminal.integrated.shellArgs.windows": [],
-    "workbench.colorTheme": "Monokai",
+    "workbench.colorTheme": "Andromeda Colorizer",
     "python.languageServer": "Pylance",
     "[html]": {
         "editor.suggest.insertMode": "replace",
