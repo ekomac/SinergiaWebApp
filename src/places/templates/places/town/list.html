@@ -125,6 +125,7 @@
 <th>Bulto &lt; 20kg</th>
 <th>Miniflete</th>
 <th>Trámite</th>
+<th>Camioneta</th>
 {% endblock objects_table_head_block %}
 
 
@@ -151,6 +152,9 @@
     </td>
     <td class="cell-centered">
         {% if obj.delivery_code.tramite_price %}${{ obj.delivery_code.tramite_price |floatformat:"2" }}{% else %}-{% endif %}
+    </td>
+    <td class="cell-centered">
+        {% if obj.delivery_code.camioneta_price %}${{ obj.delivery_code.camioneta_price |floatformat:"2" }}{% else %}-{% endif %}
     </td>
 
 </tr>

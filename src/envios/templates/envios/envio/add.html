@@ -40,11 +40,10 @@ Depósitos
             <div class="row g-3">
 
 
-
                 <!-- START CLIENTE INPUT -->
                 <div class="col-md-12 col-lg-6 col-xl-5 {% if is_client %}d-none{% endif %}">
                     <label for="{{form.client.id_for_label}}" class="form-label">Cliente</label>
-                    {{ form.client}}
+                    {{ form.client }}
                 </div>
                 <!-- END CLIENT INPUT -->
 
@@ -186,6 +185,19 @@ Depósitos
                                                 <button id="btnClear4" type="button"
                                                     class="btn btn-danger clear-amount-button invisible"><i
                                                         class="bi bi-x"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="on-body">
+                                        <td>Camioneta completa tipo partner/kangoo/caddy</td>
+                                        <td>
+                                            <input type="number" max="20" min="0" step="1" class="form-control"
+                                                id="detailInput5" pattern="^\d+$"></input>
+                                        </td>
+                                        <td>
+                                            <div id="clearRowCamioneta">
+                                                <button id="btnClear5" type="button" class="btn btn-danger clear-amount-button invisible"><i class="bi bi-x"></i></button>
                                             </div>
                                         </td>
                                     </tr>
@@ -414,6 +426,7 @@ Depósitos
         2: "max-20-package",
         3: "miniflete",
         4: "tramite",
+        5: "camioneta",
     };
 
     function isNumeric(value) {
@@ -516,7 +529,7 @@ Depósitos
     }
 
     function setDetailsListeners() {
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 6; i++) {
             $('#detailInput' + i).on('inputchange', function () {
                 var currentValue = this.value.toString();
                 if (currentValue != "" && currentValue != "0" && isNumeric(currentValue)) {

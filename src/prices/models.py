@@ -23,6 +23,9 @@ class DeliveryCode(models.Model):
     tramite_price = models.DecimalField(
         verbose_name="Precio trámite",
         max_digits=20, decimal_places=2)
+    camioneta_price = models.DecimalField(
+        verbose_name="Precio camioneta",
+        max_digits=20, decimal_places=2)
     last_update = models.DateTimeField(
         verbose_name="Última actualización", auto_now=True)
     updated_by = models.ForeignKey(

@@ -154,6 +154,22 @@
                                             </div>
                                         </td>
                                     </tr>
+                                   
+                                    <!-- Camioneta -->
+                                    <tr class="on-body">
+                                        <td>Camioneta completa</td>
+                                        <td>
+                                            <input type="number" max="20" min="0" step="1" class="form-control"
+                                                id="detailInput5" pattern="^\d+$"></input>
+                                        </td>
+                                        <td>
+                                            <div id="clearRowCamioneta">
+                                                <button id="btnClear5" type="button"
+                                                    class="btn btn-danger clear-amount-button invisible"><i
+                                                        class="bi bi-x"></i></button>
+                                            </div>
+                                        </td>
+                                    </tr>
 
                                 </tbody>
                             </table>
@@ -223,16 +239,13 @@
             var serializedData = $(this).serialize();
             // make POST ajax call
             const max5kg = $("#detailInput0").val() == '' ? '' : '&max5kg=' + $("#detailInput0").val();
-            const max10kg = $("#detailInput1").val() == '' ? '' : '&max10kg=' + $("#detailInput1")
-                .val();
-            const max20kg = $("#detailInput2").val() == '' ? '' : '&max20kg=' + $("#detailInput2")
-                .val();
-            const miniflete = $("#detailInput3").val() == '' ? '' : '&miniflete=' + $("#detailInput3")
-                .val();
-            const tramite = $("#detailInput4").val() == '' ? '' : '&tramite=' + $("#detailInput4")
-                .val();
+            const max10kg = $("#detailInput1").val() == '' ? '' : '&max10kg=' + $("#detailInput1").val();
+            const max20kg = $("#detailInput2").val() == '' ? '' : '&max20kg=' + $("#detailInput2").val();
+            const miniflete = $("#detailInput3").val() == '' ? '' : '&miniflete=' + $("#detailInput3").val();
+            const tramite = $("#detailInput4").val() == '' ? '' : '&tramite=' + $("#detailInput4").val();
+            const camioneta = $("#detailInput5").val() == '' ? '' : '&camioneta=' + $("#detailInput5").val();
             const URL = "{% url 'prices:calcular-cotizacion' %}?town_id=" + townID + max5kg + max10kg +
-                max20kg + miniflete + tramite
+                max20kg + miniflete + tramite + camioneta
             document.getElementById("loading").classList.remove("d-none");
             document.getElementById("result_alert_success").classList.add("d-none");
             document.getElementById("result_alert_failure").classList.add("d-none");
@@ -315,7 +328,7 @@
     }
 
     function setDetailsListeners() {
-        for (let i = 0; i < 5; i++) {
+        for (let i = 0; i < 6; i++) {
             $('#detailInput' + i).on('inputchange', function () {
                 var
                     currentValue = this.value.toString();
