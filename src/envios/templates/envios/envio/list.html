@@ -5,7 +5,7 @@
 
 <div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="baseModal" tabindex="-1"
     aria-labelledby="baseModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="filtersModalLabel">Elegí cómo querés filtrar los envíos.</h5>
@@ -188,6 +188,9 @@
             </div>
 
             <div class="modal-footer">
+                <div class="alert alert-danger" role="alert">
+                En este momento se encuentra aplicado un filtro para algunos envíos. Hacé <button onclick="removeIdsFilter();" type="button" class="btn btn-link m-0 p-0 pb-1">click acá</button> para quitarlo.
+                </div>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
                     onclick="clearFilters()">Limpiar</button>
@@ -280,6 +283,7 @@
 <input type="text" id='id_has_delivery_date' name="has_delivery_date" {% if has_delivery_date %}value="{{ has_delivery_date }}" {% endif %}>
 <input type="text" id='id_is_scheduled' name="is_scheduled" {% if is_scheduled %}value="{{ is_scheduled }}" {% endif %}>
 <input type="text" id='id_show_only_on_circuit' name="show_only_on_circuit" {% if show_only_on_circuit %}value="{{ show_only_on_circuit }}" {% endif %}>
+<input type="text" id='id_tckid' name="tckid" {% if tckid %}value="{{ tckid }}" {% endif %}>
 <input type="submit">
 {% endblock filters_block %}
 
@@ -305,8 +309,17 @@
                 <i class="bi bi-x"></i></a>
         </div>
     </div>
-
+    
 </div>
+
+{% if ids_filter_message %}
+<div>
+    <div class="d-block alert alert-danger ms-2 mt-2 mb-0" role="alert">
+        {{ids_filter_message|safe}}
+    </div>
+</div>
+{% endif %}
+
 <!-- end ACTIONS -->
 
 <hr>
@@ -466,6 +479,12 @@
         $('#id_has_delivery_attempt').val('');
         $('#id_has_delivery_date').val('');
         $('#id_is_scheduled').val('');
+        $('#id_tckid').val('');
+        $('#list_form').submit();
+    }
+    
+    function removeIdsFilter() {
+        $('#id_tckid').val('');
         $('#list_form').submit();
     }
 

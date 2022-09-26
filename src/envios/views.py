@@ -56,10 +56,25 @@ from utils.forms import CheckPasswordForm
 from utils.views import DeleteObjectsUtil, CompleteListView, sanitize_date
 
 
+def envios_from_TckMov(pk):
+    try:
+        tm = TrackingMovement.objects.get(pk=pk)
+        return set(tm.envios.all().values_list('pk', flat=True))
+    except Exception:
+        return None
+
+
 class EnvioListView(CompleteListView, LoginRequiredMixin):
     template_name = 'envios/envio/list.html'
     model = Envio
     decoders = (
+        {
+            'key': 'tckid',
+            'filter': 'pk__in',
+            'function': lambda x: envios_from_TckMov(x) if x else None,
+            'context': lambda x: x,
+            'iterable': True
+        },
         {
             'key': 'show_only_on_circuit',
             'filter': 'status__in',
@@ -165,6 +180,19 @@ class EnvioListView(CompleteListView, LoginRequiredMixin):
             client__is_active=True, envio__isnull=False).distinct()
         context['selected_tab'] = 'shipments-tab'
         context['max_selectable_date'] = self.__get_max_selectable_date()
+        if pk := self.request.GET.get('tckid', None):
+            tm = get_object_or_404(TrackingMovement, pk=pk)
+            is_admin = 'Admins' in map(
+                lambda x: x.name, self.request.user.groups.all())
+            context['ids_filter_message'] = (
+                "Estás viendo <b>solo</b> los envíos relacionados " +
+                'con el movimiento: "{txt}".'.format(
+                    txt=tm.admin_display() if is_admin else tm.client_display()
+                ) +
+                ' Hacé <button onclick="removeIdsFilter();" type="button" ' +
+                'class="btn btn-link m-0 p-0 pb-1">click acá</button>' +
+                ' para quitar el filtro.'
+            )
         return context
 
     def __get_max_selectable_date(self):

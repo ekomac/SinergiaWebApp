@@ -329,11 +329,22 @@
             {% if request.user|has_group:"Admins" %}
             <li class="nav-item {% if selected_tab == 'changes-tab' %}activetab{% endif %}  li-navigation">
                 <a href="{% url 'changes:list' %}" class="nav-link tab">
-                    <i class="bi bi-newspaper"></i> Novedades
+                    <i class="bi bi-newspaper"></i> Novedades{% if request.notification_count > 0 %}<span class="badge bg-danger ms-2">{{ request.notification_count }}</span>{% endif %}
                 </a>
             </li>
             {% endif %}
             <!-- END changes -->
+
+
+            <!-- START activity -->
+            {% if request.user|has_group:"Admins" %}
+            <li class="nav-item {% if selected_tab == 'tracking-tab' %}activetab{% endif %}  li-navigation">
+                <a href="{% url 'tracking:list' %}" class="nav-link tab">
+                    <i class="bi bi-clock-history"></i> Historial
+                </a>
+            </li>
+            {% endif %}
+            <!-- END activity -->
 
             <!-- START APK url -->
             {% if request.user|has_group:"Admins" %}

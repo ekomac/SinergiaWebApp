@@ -398,8 +398,9 @@ class TrackingMovement(models.Model):
     class Meta:
         verbose_name = 'Movimiento'
         verbose_name_plural = 'Movimientos'
+        ordering = ['-date_created']
 
 
-@ receiver(post_delete, sender=TrackingMovement)
+@receiver(post_delete, sender=TrackingMovement)
 def submission_delete(sender, instance, **kwargs):
     instance.proof.delete(False)

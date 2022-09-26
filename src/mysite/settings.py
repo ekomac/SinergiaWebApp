@@ -98,6 +98,7 @@ MIDDLEWARE = [
     'mysite.middleware.forwarder.XForwardedForMiddleware',
     'mysite.middleware.timezones.TimezoneMiddleware',
     'mysite.middleware.password.HasToResetPasswordMiddleware',
+    'mysite.middleware.notifications.NotificationsMiddleware',
 ]
 
 REQUEST_BASE_URL = 'http://localhost:8000'

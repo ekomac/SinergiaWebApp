@@ -1,5 +1,6 @@
 {% extends 'base/base_list.html' %}
 
+{% load url_extras %}
 
 {% block modal_content %}
 
@@ -169,6 +170,51 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade position-absolute top-0" style="z-index: 10000001;" id="modalEnvioNavigation" tabindex="-1"
+    aria-labelledby="modalEnvioNavigation" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filtersModalLabel">Envíos comprendidos en este movimiento
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                
+                <ol id="olEnviosNavigation" class="list-group list-group-numbered">
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                        <div class="fw-bold">Subheading</div>
+                        Cras justo odio
+                        </div>
+                        <span class="badge bg-primary rounded-pill">14</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                        <div class="fw-bold">Subheading</div>
+                        Cras justo odio
+                        </div>
+                        <span class="badge bg-primary rounded-pill">14</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                        <div class="fw-bold">Subheading</div>
+                        Cras justo odio
+                        </div>
+                        <span class="badge bg-primary rounded-pill">14</span>
+                    </li>
+                </ol>
+                
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="applyFilterAndGo()">Ver todos</button>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- end BASE MODAL DIALOG -->
 
 {% endblock modal_content %}
@@ -199,6 +245,7 @@
 <input type="text" id='id_from_carrier' name="from_carrier" {% if from_carrier %}value="{{ from_carrier }}" {% endif %}>
 <input type="text" id='id_to_carrier' name="to_carrier" {% if to_carrier %}value="{{ to_carrier }}" {% endif %}>
 <input type="text" id='id_author' name="author" {% if author %}value="{{ author }}" {% endif %}>
+<input type="text" id='id_selected_movement' name="selected_movement">
 <input type="submit">
 {% endblock filters_block %}
 
@@ -206,104 +253,222 @@
 
 {% block objects_table_head_block %}
 <th>Fecha</th>
-<th>Autor</th>
+{% if request.user.role == 'admin' %}<th>Autor</th>{% endif %}
 <th>Movimiento</th>
+<th>Detalle</th>
+<th>Envíos</th>
+<th>Comentario</th>
+<th>Adjunto</th>
 {% endblock objects_table_head_block %}
 
 
 {% block objects_table_body_block %}
 {% for movement in objects %}
-<tr>
+<tr {% if movement.envios.count == 1 %}onclick="openSingleEnvio('{% url 'envios:envio-detail' pk=movement.envios.first.pk %}');"{% endif %}{% if movement.envios.count > 1 %} onclick="openModalEnvios('{{ movement.pk }}');" {% endif %}>
     <td>{{movement.date_created | date:"d/m/Y H:i"}}</td>
     {% if request.user.role == 'admin' %}
     <td>{% if movement.created_by %}
-        <a href="{% url 'account:employees-detail' pk=movement.created_by.pk %}" data-bs-toggle="tooltip"
+        <a class="btn btn-sm btn-secondary m-0 py-0" href="{% url 'account:employees-detail' movement.created_by.pk %}" data-bs-toggle="tooltip"
             data-bs-toggle="tooltip" data-bs-html="true"
-            title="{{movement.created_by.full_name}}">{{movement.created_by.username}}</a>{% else %}Sindatos{% endif %}
+            title="{{movement.created_by.full_name}}">{{movement.created_by.username}}</a>{% else %}Sin datos{% endif %}
     </td>
     {% endif %}
+    <td>
+        {% if movement.result == '_new' %}
+        <span class="badge bg-info text-dark">Carga en sistema</span>
+        {% elif movement.result == 'collected' %}
+        <span class="badge bg-info text-dark">Recolección</span>
+        {% elif movement.result == 'transfered' %}
+        <span class="badge bg-info text-dark">Transferencia</span>
+        {% elif movement.result == 'in_deposit' %}
+        <span class="badge bg-info text-dark">Depósito</span>
+        {% elif movement.result == 'success' %}
+        <span class="badge bg-info text-dark">Entrega exitosa</span>
+        {% elif movement.result == 'rejected' %}
+        <span class="badge bg-info text-dark">Rechazado</span>
+        {% elif movement.result == 'reprogram' %}
+        <span class="badge bg-info text-dark">Reprogramado</span>
+        {% elif movement.result == 'not-respond' %}
+        <span class="badge bg-info text-dark">Sin respuesta</span>
+        {% elif movement.result == 'custom' %}
+        <span class="badge bg-info text-dark">No se pudo entregar</span>
+        {% else %}
+        <span class="badge bg-info text-dark">Sin información</span>
+        {% endif %}
+    </td>
     {% if request.user.role == 'client' %}
-    <td class="w-100">
+    <td class="text-wrap">
         <b>{{movement.client_display.0}}</b>: {{ movement.client_display.1 }}
     </td>
     {% else %}
-    <td class="w-100">
+    <td class="">
         {% if movement.result == '_new' %}
-        Agregado al sistema por <a href="{% url 'account:employees-detail' pk=movement.created_by.pk %}"
-            data-bs-toggle="tooltip" data-bs-toggle="tooltip" data-bs-html="true"
-            title="{{movement.created_by.full_name}}">{{movement.created_by.username}}</a>
+        {% if movement.created_by %}
+        <a class="btn btn-sm btn-secondary m-0 py-0" href="{% url 'account:employees-detail' pk=movement.created_by.pk %}" data-bs-toggle="tooltip" data-bs-toggle="tooltip" data-bs-html="true" title="{{movement.created_by.full_name}}"><i class="bi bi-person-badge me-1"></i>{{movement.created_by.username}}</a>
+        <i class="bi bi-arrow-right"></i>
+        <div class="btn btn-sm btn-success m-0 py-0"><i class="bi bi-server me-1"></i>Sistema</div>
+        {% else %}
+        <b>sin datos</b>
+        {% endif %}
 
         {% elif movement.result == 'collected' %}
-        Recolectado de <a
-            href="{% url 'deposits:detail' pk=movement.from_deposit.pk%}">{{movement.from_deposit.name}}</a>
-        por <a href="{% url 'account:employees-detail' pk=movement.to_carrier.pk %}" data-bs-toggle="tooltip"
-            data-bs-html="true" title="{{ movement.to_carrier.full_name }}">{{ movement.to_carrier.username }}</a>
+        {% if movement.from_deposit %}
+        <a class="btn btn-sm btn-secondary m-0 py-0" href="{% url 'deposits:detail' pk=movement.from_deposit.pk%}"><i class="bi bi-shop me-1"></i>{{movement.from_deposit.name}}</a>
+        {% else %}
+        <b>Sin datos</b>
+        {% endif %}
+        <i class="bi bi-arrow-right"></i>
+        {% if movement.to_carrier %}
+        <a class="btn btn-sm btn-success m-0 py-0" href="{% url 'account:employees-detail' pk=movement.to_carrier.pk %}" data-bs-toggle="tooltip" data-bs-html="true" title="{{ movement.to_carrier.full_name }}"><i class="bi bi-person-badge me-1"></i>{{ movement.to_carrier.username }}</a>
+        {% else %}
+        <b>Sin datos</b>
+        {% endif %}
 
         {% elif movement.result == 'transfered' %}
-        Transferido de <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk%}"
-            data-bs-toggle="tooltip" data-bs-html="true"
-            title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a> a <a
-            href="{% url 'account:employees-detail' pk=movement.to_carrier.pk %}" data-bs-toggle="tooltip"
-            data-bs-html="true" title="{{movement.to_carrier.full_name}}">
-            {{movement.to_carrier.username}}</a>
+        {% if movement.from_carrier %}
+        <a class="btn btn-sm btn-secondary m-0 py-0" href="{% url 'account:employees-detail' pk=movement.from_carrier.pk%}" data-bs-toggle="tooltip" data-bs-html="true" title="{{movement.from_carrier.full_name}}"><i class="bi bi-person-badge me-1"></i>{{movement.from_carrier.username}}</a>
+        {% else %}
+        <b>Sin datos</b>
+        {% endif %}
+        
+        <i class="bi bi-arrow-left-right"></i>
+        
+        {% if movement.to_carrier %}
+        <a class="btn btn-sm btn-success m-0 py-0" href="{% url 'account:employees-detail' pk=movement.to_carrier.pk %}" data-bs-toggle="tooltip" data-bs-html="true" title="{{movement.to_carrier.full_name}}"><i class="bi bi-person-badge me-1"></i>{{movement.to_carrier.username}}</a>
+        {% else %}
+        <b>Sin datos</b>
+        {% endif %}
 
         {% elif movement.result == 'in_deposit' %}
-        Depositado en <a href="{% url 'deposits:detail' pk=movement.to_deposit.pk %}">{{movement.to_deposit.name}}</a>
-        por <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}" data-bs-toggle="tooltip"
-            data-bs-html="true" title="{{movement.from_carrier.full_name}}"> {{movement.from_carrier.username}}</a>
+        
+        {% if movement.to_deposit %}
+        <a class="btn btn-sm btn-secondary m-0 py-0" href="{% url 'deposits:detail' pk=movement.to_deposit.pk %}"><i class="bi bi-shop me-1"></i>{{movement.to_deposit.name}}</a>
+        {% else %}
+        <b>Sin datos</b>
+        {% endif %}
+        
+        <i class="bi bi-arrow-right"></i>
+        
+        {% if movement.from_carrier %}
+        <a class="btn btn-sm btn-success m-0 py-0" href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}" data-bs-toggle="tooltip" data-bs-html="true" title="{{movement.from_carrier.full_name}}"><i class="bi bi-person-badge me-1"></i>{{movement.from_carrier.username}}</a>
+        {% else %}
+        <b>Sin datos</b>
+        {% endif %}
 
         {% elif movement.result == 'success' %}
-        Entregado por <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
-            data-bs-toggle="tooltip" data-bs-html="true"
-            title="{{ movement.from_carrier.full_name }}">{{movement.from_carrier.username}}</a>
+        {% if movement.from_carrier %}
+        <a class="btn btn-sm btn-secondary m-0 py-0" href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}" data-bs-toggle="tooltip" data-bs-html="true" title="{{ movement.from_carrier.full_name }}"><i class="bi bi-person-badge me-1"></i>{{movement.from_carrier.username}}</a>
+        <i class="bi bi-arrow-right"></i>
+        <div class="btn btn-sm btn-success m-0 py-0">Destino</div>
+        {% else %}
+        <b>Sin datos</b>
+        {% endif %}
 
         {% elif movement.result == 'rejected' %}
-        Rechazado en destino a <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
-            data-bs-toggle="tooltip" data-bs-html="true"
-            title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% if movement.comment %}.
-        Comentario: "{{ movement.comment }}"{% endif %}{% if movement.proof %}. Se adjuntó <a
-            href="{{ movement.proof.url }}">esta imagen</a>.{% endif %}
-
+        {% if movement.from_carrier %}
+        <a class="btn btn-sm btn-secondary m-0 py-0" href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}" data-bs-toggle="tooltip" data-bs-html="true" title="{{movement.from_carrier.full_name}}"><i class="bi bi-person-badge me-1"></i>{{movement.from_carrier.username}}</a>
+        <i class="bi bi-x-lg"></i>
+        <a class="btn btn-sm btn-danger m-0 py-0" href="{% url 'envios:envio-detail' pk=movement.envios.first.pk %}"><i class="bi bi-geo me-1"></i>Destino</a>
+        {% else %}
+        <b>sin datos</b>
+        {% endif %}
 
         {% elif movement.result == 'reprogram' %}
-        Reprogramado en destino a <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
-            data-bs-toggle="tooltip" data-bs-html="true"
-            title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% if movement.comment %}.
-        Comentario: "{{ movement.comment }}"{% endif %}{% if movement.proof %}. Se adjuntó <a
-            href="{{ movement.proof.url }}">esta imagen</a>.{% endif %}
+        
+        {% if movement.from_carrier %}
+        <a class="btn btn-sm btn-secondary m-0 py-0" href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}" data-bs-toggle="tooltip" data-bs-html="true" title="{{movement.from_carrier.full_name}}"><i class="bi bi-person-badge me-1"></i>{{movement.from_carrier.username}}</a>
+        <i class="bi bi-x-lg"></i>
+        <div class="btn btn-sm btn-danger m-0 py-0"><i class="bi bi-geo me-1"></i>Destino</div>
+        {% else %}
+        <b>sin datos</b>
+        {% endif %}
 
         {% elif movement.result == 'not-respond' %}
-        Sin respuesta en destino a <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
+        {% if movement.from_carrier %}
+        <a class="btn btn-sm btn-secondary m-0 py-0" href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}" data-bs-toggle="tooltip" data-bs-html="true" title="{{movement.from_carrier.full_name}}"><i class="bi bi-person-badge me-1"></i>{{movement.from_carrier.username}}</a>
+        <i class="bi bi-x-lg"></i>
+        <div class="btn btn-sm btn-danger m-0 py-0"><i class="bi bi-geo me-1"></i>Destino</div>
+        {% else %}
+        <b>sin datos</b>
+        {% endif %}
+        {% comment %} Sin respuesta en destino a {% if movement.from_carrier %}<a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
             data-bs-toggle="tooltip" data-bs-html="true"
-            title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a>{% if movement.comment %}.
+            title="{{movement.from_carrier.full_name}}"><i class="bi bi-person-badge me-1"></i>{{movement.from_carrier.username}}</a>{% else %}<b>sin datos</b>{% endif %}{% if movement.comment %}.
         Comentario: "{{ movement.comment }}"{% endif %}{% if movement.proof %}. Se adjuntó <a
-            href="{{ movement.proof.url }}">esta imagen</a>.{% endif %}
+            href="{{ movement.proof.url }}">esta imagen</a>.{% endif %} {% endcomment %}
 
         {% elif movement.result == 'custom' %}
-        <a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}" data-bs-toggle="tooltip"
-            data-bs-html="true" title="{{movement.from_carrier.full_name}}">{{movement.from_carrier.username}}</a> no
+        {% if movement.from_carrier %}
+        <a class="btn btn-sm btn-secondary m-0 py-0" href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}" data-bs-toggle="tooltip" data-bs-html="true" title="{{movement.from_carrier.full_name}}"><i class="bi bi-person-badge me-1"></i>{{movement.from_carrier.username}}</a>
+        <i class="bi bi-x-lg"></i>
+        <div class="btn btn-sm btn-danger m-0 py-0"><i class="bi bi-geo me-1"></i>Destino</div>
+        {% else %}
+        <b>Sin datos</b>
+        {% endif %}
+        {% comment %} {% if movement.from_carrier %}<a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}" data-bs-toggle="tooltip"
+            data-bs-html="true" title="{{movement.from_carrier.full_name}}"><i class="bi bi-person-badge me-1"></i>{{movement.from_carrier.username}}</a>{% else %}<b>Un usuario</b>{% endif %} no
         pudo entregar en destino: {% if movement.comment %}"{{ movement.comment }}"{% else %}sin
         comentario{% endif %}{% if movement.proof %}. Se adjuntó <a href="{{ movement.proof.url }}">esta
-            imagen</a>{% endif %}.
+            imagen</a>{% endif %}. {% endcomment %}
 
         {% else %}
-        Sin información del movimiento.
+        <b>Sin información del movimiento.</b>
         {% endif %}
     </td>
     {% endif %}
+    <td class="">
+        {{movement.envios.count}}
+    </td>
+    <td class="text-wrap">
+        {% if movement.comment %}"{{ movement.comment }}"{% else %}-{% endif %}
+    </td>
+    <td class="">
+        {% if movement.proof %}<a href="{{ movement.proof.url }}">Imagen</a>{% else %}-{% endif %}
+    </td>
 </tr>
 {% endfor %}
 {% endblock objects_table_body_block %}
 
-
-
 {% block scripts_block %}
 <script>
+    let movements = {};
+    {% for movement in objects %}
+        {% if movement.envios.count > 0 %}
+            movements["{{movement.pk}}"] = []
+            {% for envio in movement.envios.all %}
+                movements["{{movement.pk}}"].push({
+                    pk: "{{ envio.pk }}",
+                    url: "'{% url 'envios:envio-detail' pk=envio.pk %}'",
+                    address: "{{ envio.full_address }}",
+                    client: "{{ envio.client.name }}"
+                });
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+
+    function openModalEnvios(pk) {
+        console.log("Hola");
+        const olEnviosNavigation = document.querySelector("#olEnviosNavigation");
+        olEnviosNavigation.innerHTML = "";
+        const currElements = movements[pk].map(
+            mov => `<li onclick="window.location.href=${mov.url}" class="list-group-item list-group-item list-group-item-action d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                        <div class="fw-bold">${mov.address}</div>
+                        ${mov.client}
+                        </div>
+                    </li>`
+        );
+        olEnviosNavigation.innerHTML = currElements.join("\n");
+        document.getElementById('id_selected_movement').value = pk
+        var myModal = new bootstrap.Modal(document.getElementById('modalEnvioNavigation'));
+        myModal.show()
+    }
+
     const passedOrderBy = '{{ order_by }}';
     var lastQuery = "{{ query_by }}";
 
     $(document).ready(function () {
-
+        console.log("HOLA");
         $('#list_form').submit(function (e) {
             e.preventDefault();
             [
@@ -373,7 +538,6 @@
         show('btnCleanQuery', false);
     }
 
-
     function applyFilters() {
         $('#id_min_date').val($('#id_min_date_modal').val());
         $('#id_max_date').val($('#id_max_date_modal').val());
@@ -396,6 +560,16 @@
         $('#id_to_carrier').val('');
         $('#id_author').val('');
         $('#list_form').submit();
+    }
+
+    function openSingleEnvio(url) {
+        window.location.href = url;
+    }
+    
+    
+    function applyFilterAndGo() {
+        const pk = document.getElementById('id_selected_movement').value
+        window.location.href = `{% url 'envios:envio-list' %}?tckid=` + pk
     }
 </script>
 

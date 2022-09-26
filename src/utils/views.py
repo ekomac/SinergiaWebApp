@@ -425,20 +425,24 @@ class CompleteListView(View):
                             'context': Callable[Any, str],
                             """)
                 # Else, gets the value from the get request
-                value = request.GET.get(
-                    decoder['key'], None)
+                value = request.GET.get(decoder['key'], None)
                 # If found
                 if value is not None:
                     # Get the filter keyword
-                    filter_key = call_or_it(
-                        decoder['filter'], value)
+                    filter_key = call_or_it(decoder['filter'], value)
                     # Add the filter to filters with filter_key:value with
                     # the provided function applied
-                    filters[filter_key] = decoder['function'](
-                        value)
+                    result = decoder['function'](value)
+
+                    # Skip  operation ONLY IF the decoder \
+                    # is an iterable and is None
+                    if ('iterable' in decoder and decoder['iterable']
+                            and result is None):
+                        continue
+                    filters[filter_key] = decoder['function'](value)
                     # Add the filter to the context
-                    self.context[decoder['key']] = decoder['context'](
-                        value)
+                    self.context[decoder['key']
+                                 ] = decoder['context'](value)
                     if 'ignore_at_count' not in decoder:
                         self.context['filters_count'] += 1
                     # Appends it to the self.url for pagination if needed

@@ -56,7 +56,6 @@ urlpatterns = [
     path('admin/tickets/', include('tickets.urls')),
     path('admin/transactions/', include('transactions.urls')),
     path('admin/tracking/', include('tracking.urls')),
-    path('admin/logs/', include('logs.urls')),
     path('admin/changes/', include('changes.urls')),
     path('admin/change-password/',
          auth_views.PasswordChangeView.as_view(

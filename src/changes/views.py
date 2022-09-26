@@ -53,4 +53,5 @@ def detail_view(request, pk):
             'obj': change,
             'selected_tab': 'changes-tab',
         }
+        change.readers.add(request.user)
         return render(request, 'changes/detail.html', context)

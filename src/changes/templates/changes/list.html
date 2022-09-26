@@ -1,5 +1,6 @@
 {% extends 'base/base_list.html' %}
 
+{% load main_extras %}
 
 {% block modal_content %}
 
@@ -91,6 +92,7 @@
 
 
 {% block objects_table_head_block %}
+<th class="cell-centered"></th>
 <th class="cell-centered">Fecha</th>
 <th class="cell-centered">Etiqueta</th>
 <th>Nombre</th>
