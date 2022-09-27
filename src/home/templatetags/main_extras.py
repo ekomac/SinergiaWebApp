@@ -37,3 +37,13 @@ def comma_to_point(value):
 @register.filter(name='has_group')
 def has_group(user, group_name):
     return user.groups.filter(name=group_name).exists()
+
+
+@register.filter(name='is_in_list')
+def is_in_list(value, given_list):
+    return True if value in given_list else False
+
+
+@register.filter(name='not_in_list')
+def not_in_list(value, given_list):
+    return True if value not in given_list else False

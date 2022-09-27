@@ -4,10 +4,15 @@
         white-space: nowrap;
     }
 </style>
+
+{% load main_extras %}
+
 <tr id="tr-{{obj.id}}" class="table-item highlight-row"
     onclick="onItemClicked({{ obj.id }},'{% url 'changes:detail' pk=obj.id %}');">
-    <td class="cell-centered">{{ obj.date_created|date:"d/m/Y H:i" }}</td>
-    <td class="cell-centered">
+    {% with request.user|not_in_list:obj.readers.all as unread  %}
+    <td class="cell-centered {% if unread %}fw-bold{% endif %}">{% if unread %}<i class="bi bi-envelope-fill"></i>{% else %}<i class="bi bi-envelope-open"></i>{% endif %}</td>
+    <td class="cell-centered {% if unread %}fw-bold{% endif %}">{{ obj.date_created | date:"d/m/Y H:i" }}</td>
+    <td class="cell-centered {% if unread %}fw-bold{% endif %}">
         {% if obj.label == 'IM' %}
         <span class="badge rounded-pill bg-primary">{{obj.get_label_display}}</span>
         {% elif obj.label == 'BF' %}
@@ -20,6 +25,7 @@
         <span class="badge rounded-pill bg-danger">{{obj.get_label_display}}</span>
         {% endif %}
     </td>
-    <td>{{ obj.name }}</td>
-    <td>{{ obj.description | truncatechars:100}}</td>
+    <td class="{% if unread %}fw-bold{% endif %}">{{ obj.name }}</td>
+    <td class="text-wrap {% if unread %}fw-bold{% endif %}">{{ obj.description | truncatechars:100}}</td>
+    {% endwith %}
 </tr>
