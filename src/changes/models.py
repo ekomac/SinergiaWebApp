@@ -30,5 +30,5 @@ class Change(models.Model):
 
     class Meta:
         ordering = ['-date_created']
-        verbose_name = 'Cambio'
-        verbose_name_plural = 'Cambios'
+        verbose_name = 'Novedad'
+        verbose_name_plural = 'Novedades'
