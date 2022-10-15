@@ -340,9 +340,10 @@ def __cols_to_kwargs(
         'client': bulk_load_envios.client,
         'bulk_upload_id': bulk_load_envios.pk,
     }
-    if cols[0]:
+    if cols[0] != '' and not cols[0].isspace():
         kwargs['is_flex'] = True
         kwargs['flex_id'] = cols[0]
+    print(kwargs)
     return kwargs
 
 
