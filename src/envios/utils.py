@@ -311,15 +311,16 @@ def bulk_create_envios(
         envio.save()
         envios.append(envio)
 
-    author = envios[0].updated_by
-    tm = TrackingMovement(
-        created_by=author,
-        action=TrackingMovement.ACTION_ADDED_TO_SYSTEM,
-        result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
-        to_deposit=bulk_load_envios.deposit
-    )
-    tm.save()
-    tm.envios.add(*envios)
+    if len(envios) > 0:
+        author = envios[0].updated_by
+        tm = TrackingMovement(
+            created_by=author,
+            action=TrackingMovement.ACTION_ADDED_TO_SYSTEM,
+            result=TrackingMovement.RESULT_ADDED_TO_SYSTEM,
+            to_deposit=bulk_load_envios.deposit
+        )
+        tm.save()
+        tm.envios.add(*envios)
     return (envios, unused_flex_ids)
 
 
