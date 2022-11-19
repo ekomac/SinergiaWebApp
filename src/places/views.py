@@ -1,4 +1,7 @@
 # Basic Python
+from datetime import datetime
+from openpyxl.writer.excel import save_virtual_workbook
+from django.http.response import HttpResponse
 import json
 import unidecode
 from typing import Any, Dict, List
@@ -13,6 +16,7 @@ from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from account.decorators import allowed_users, allowed_users_in_class_view
+from places.utils import create_places_and_prices_xlsx_workbook
 
 # Projects utils
 from utils.views import CompleteListView, DeleteObjectsUtil, ContextMixin
@@ -668,3 +672,18 @@ def zone_delete(request, **kwargs):
 
     return render(request, "places/zone/delete.html", context)
 # ************* END FLEX *************
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins", "Clients"])
+def print_towns_and_prices_excel_file(request):
+
+    date = datetime.now().strftime("%Y-%m-%d")
+    filename = f'{date}_localidades_y_precios.xlsx'
+
+    wb = create_places_and_prices_xlsx_workbook()
+    response = HttpResponse(
+        save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+
+    return response
