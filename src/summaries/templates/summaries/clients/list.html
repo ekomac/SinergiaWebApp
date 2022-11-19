@@ -235,7 +235,6 @@
             type: 'GET',
             url: url,
             success: function (response) {
-                alert("hello get")
                 try {
                     const items = []
                     console.log(response)
@@ -268,7 +267,6 @@
                 }
                 $('.costs-spinner').addClass("d-none")
             },
-            timeout: 3000
         })
     }
 </script>
