@@ -1,5 +1,6 @@
 # Python
 from io import BytesIO
+import json
 from summaries.util.pdf import PDFSummaryReport
 import csv
 import os
@@ -66,6 +67,7 @@ class ClientSummaryListView(CompleteListView, LoginRequiredMixin):
         context = super().get_context_data()
         context['clients'] = Client.objects.filter(
             envio__isnull=False).distinct()
+        context['ids'] = ",".join(map(lambda x: str(x.pk), self.objects))
         return context
 
 
@@ -100,7 +102,7 @@ class EmployeeSummaryListView(CompleteListView, LoginRequiredMixin):
     )
     selected_tab = 'employees-summaries-tab'
 
-    @allowed_users_in_class_view(roles=["Admins"])
+    @ allowed_users_in_class_view(roles=["Admins"])
     def get(self, request):
         return super(EmployeeSummaryListView, self).get(request)
 
@@ -108,11 +110,12 @@ class EmployeeSummaryListView(CompleteListView, LoginRequiredMixin):
         context = super().get_context_data()
         context['employees'] = Account.objects.filter(
             employee_summary__isnull=False).distinct()
+        context['ids'] = ",".join(map(lambda x: str(x.pk), self.objects))
         return context
 
 
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
+@ login_required(login_url='/login/')
+@ allowed_users(roles=["Admins"])
 def client_summary_create_view(request):
     form = CreateClientSummaryForm()
     if request.method == 'POST':
@@ -335,7 +338,25 @@ def ajax_get_client_summary_total_cost(request, pk):
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
+def ajax_get_client_summaries_total_cost(request, pks=None):
+    pks = str(pks).split(",")
+    summaries = ClientSummary.objects.filter(pk__in=pks)
+    summaries_costs = list(map(lambda x: (x.pk, x.total_cost()), summaries))
+    return JsonResponse({'total_cost': json.dumps(summaries_costs)})
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
 def ajax_get_employee_summary_total_cost(request, pk):
     summary = get_object_or_404(EmployeeSummary, pk=pk)
     total_cost = summary.total_cost()
     return JsonResponse({'total_cost': f"${total_cost}"})
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def ajax_get_employee_summaries_total_cost(request, pks=None):
+    pks = str(pks).split(",")
+    summaries = EmployeeSummary.objects.filter(pk__in=pks)
+    summaries_costs = list(map(lambda x: (x.pk, x.total_cost()), summaries))
+    return JsonResponse({'total_cost': json.dumps(summaries_costs)})
