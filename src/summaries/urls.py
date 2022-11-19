@@ -3,6 +3,7 @@ from django.urls import path
 from .views import (
     ClientSummaryListView,
     EmployeeSummaryListView,
+    ajax_get_employee_summaries_total_cost,
     client_summary_create_view,
     client_summary_detail_view,
     employee_summary_create_view,
@@ -12,6 +13,7 @@ from .views import (
     print_pdf_client_summary,
     print_pdf_employee_summary,
     ajax_get_client_summary_total_cost,
+    ajax_get_client_summaries_total_cost,
     ajax_get_employee_summary_total_cost,
 )
 
@@ -55,8 +57,15 @@ urlpatterns = [
         'employees/<int:pk>/total-cost/', ajax_get_employee_summary_total_cost,
         name="employee-summary-total-cost"),
     path(
+        'employees/total-cost/<str:pks>',
+        ajax_get_employee_summaries_total_cost,
+        name="employee-summaries-total-cost"),
+    path(
         'clients/<int:pk>/total-cost/', ajax_get_client_summary_total_cost,
         name="client-summary-total-cost"),
+    path(
+        'clients/total-cost/<str:pks>', ajax_get_client_summaries_total_cost,
+        name="client-summaries-total-cost"),
 
 
 ]

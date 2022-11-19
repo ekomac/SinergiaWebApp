@@ -16,6 +16,10 @@
     </td>
     <td class="cell-centered">{{ obj.date_from|date:"d/m/Y" }}</td>
     <td class="cell-centered">{{ obj.date_to|date:"d/m/Y" }}</td>
-    <td class="cell-centered"></td>
-    <td class="cell-centered"></td>
+    <td class="cell-centered">{{ obj.total_envios }}</td>
+    <td class="cell-centered costs" id="costo_total_{{obj.pk}}">
+        <div id="cost_loading_{{obj.pk}}" class="spinner-border spinner-border-sm costs-spinner" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </td>
 </tr>

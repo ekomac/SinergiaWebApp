@@ -203,6 +203,8 @@
             $('#id_results_per_page').val(500);
             $('#list_form').submit();
         });
+
+        updateCosts()
     });
 
     function clearSearch() {
@@ -226,6 +228,47 @@
         $('#id_max_date').val('');
         $('#id_employee_id').val('');
         $('#list_form').submit();
+    }
+
+    function updateCosts() {
+        const url = "{% if ids %}{% if selected_tab == 'clients-summaries-tab' %}{% url 'summaries:client-summaries-total-cost' ids %}{% else %}{% url 'summaries:employee-summaries-total-cost' ids %}{% endif %}{% endif %}"
+        $.ajax({
+            type: 'GET',
+            url: url,
+            success: function (response) {
+                try {
+                    const items = []
+                    console.log(response)
+                    const costs = response.total_cost
+                    JSON.parse(costs).forEach(function (item) {
+                        const pk = item[0]
+                        const cost = item[1]
+                        items.push(pk)
+                        $('#cost_loading_'+pk).addClass("d-none");
+                        $('#costo_total_'+pk).text("$"+cost.toString());
+                    })
+                    const elements = document.getElementsByClassName("costs-spinner")
+                    for (let i = 0; i < elements.length; i++) {
+                        const element = elements[i]
+                        const pk = i.split("cost_loading_")[1]
+                        console.log("pk:"+pk.toString())
+                        if (!items.includes(pk)) {
+                            $('#cost_loading_'+pk).addClass("d-none")
+                            document.getElementById('costo_total_'+pk).innerHTML = "<i class='bi bi-x-circle'></i>"
+                        }
+                    }
+                } catch (e) {
+                    console.log(e)
+                }
+            },
+            error: function (response) {
+                const elements = document.getElementsByClassName("costs")
+                for (let i = 0; i < elements.length; i++) {
+                    elements[i].innerHTML = "<i class='bi bi-x-circle'></i>"
+                }
+                $('.costs-spinner').addClass("d-none")
+            },
+        })
     }
 </script>
 {% endblock scripts_block %}
