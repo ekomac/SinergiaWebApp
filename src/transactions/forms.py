@@ -9,7 +9,7 @@ class CreateTransactionForm(forms.ModelForm):
         model = Transaction
         fields = [
             'date', 'category', 'amount',
-            'description', 'summary',
+            'description',  # 'summary',
             'transaction_number', 'proof_of_payment',
         ]
         widgets = {
@@ -21,8 +21,8 @@ class CreateTransactionForm(forms.ModelForm):
                 attrs={'step': '0.01'}),
             'description': forms.Textarea(
                 attrs={'rows': '3'}),
-            'summary': forms.Select(
-                attrs={'class': 'form-select'}),
+            # 'summary': forms.Select(
+            #     attrs={'class': 'form-select'}),
             'transaction_number': forms.TextInput(
                 attrs={'class': 'form-control'}),
             'proof_of_payment': forms.FileInput(
@@ -49,7 +49,7 @@ class UpdateTransactionForm(forms.ModelForm):
         model = Transaction
         fields = [
             'date', 'category', 'amount',
-            'description', 'summary',
+            'description',  # 'summary',
             'transaction_number', 'proof_of_payment',
         ]
         widgets = {
@@ -61,8 +61,8 @@ class UpdateTransactionForm(forms.ModelForm):
                 attrs={'step': '0.01'}),
             'description': forms.Textarea(
                 attrs={'rows': '3'}),
-            'summary': forms.Select(
-                attrs={'class': 'form-select'}),
+            # 'summary': forms.Select(
+            #     attrs={'class': 'form-select'}),
             'transaction_number': forms.TextInput(
                 attrs={'class': 'form-control'}),
             'proof_of_payment': forms.FileInput(
