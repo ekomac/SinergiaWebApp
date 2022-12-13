@@ -176,7 +176,7 @@ def employee_summary_create_view(request):
 @allowed_users(roles=["Admins"])
 def client_summary_detail_view(request, pk):
     summary = get_object_or_404(ClientSummary, pk=pk)
-    envios = summary.get_envios()
+    envios = summary.get_envios(date_as_str=False)
     ctx = {
         'summary': summary,
         'selected_tab': 'clients-summaries-tab',
@@ -191,7 +191,7 @@ def client_summary_detail_view(request, pk):
 @allowed_users(roles=["Admins"])
 def employee_summary_detail_view(request, pk):
     summary = get_object_or_404(EmployeeSummary, pk=pk)
-    envios = summary.get_envios()
+    envios = summary.get_envios(date_as_str=False)
     ctx = {
         'summary': summary,
         'selected_tab': 'employees-summaries-tab',

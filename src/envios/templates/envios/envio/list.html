@@ -112,10 +112,16 @@
                             <option value="N" {% if status == 'N' %}selected{% endif %}>Nuevo</option>
                             <option value="S" {% if status == 'S' %}selected{% endif %}>En depósito</option>
                             <option value="M" {% if status == 'M' %}selected{% endif %}>En viaje</option>
-                            {% if show_only_on_circuit == '0' %}
+                            {% if 'show_only_on_circuit' not in request.GET %}
                             <option value="D" {% if status == 'D' %}selected{% endif %}>Entregado</option>
                             <option value="R" {% if status == 'R' %}selected{% endif %}>Devuelto</option>
                             <option value="C" {% if status == 'C' %}selected{% endif %}>Cancelado</option>
+                            {% else %}
+                            {% if show_only_on_circuit == '0' or show_only_on_circuit == '' or show_only_on_circuit == 0 %}
+                            <option value="D" {% if status == 'D' %}selected{% endif %}>Entregado</option>
+                            <option value="R" {% if status == 'R' %}selected{% endif %}>Devuelto</option>
+                            <option value="C" {% if status == 'C' %}selected{% endif %}>Cancelado</option>
+                            {% endif %}
                             {% endif %}
                         </select>
                         <!-- end SHIPMENT STATUS -->
@@ -188,9 +194,13 @@
             </div>
 
             <div class="modal-footer">
+                {% if 'tckid' in request.GET %}
+                {% if request.GET.tckid != '' %}
                 <div class="alert alert-danger" role="alert">
-                En este momento se encuentra aplicado un filtro para algunos envíos. Hacé <button onclick="removeIdsFilter();" type="button" class="btn btn-link m-0 p-0 pb-1">click acá</button> para quitarlo.
+                    En este momento se encuentra aplicado un filtro para mostrar solo algunos envíos. Hacé <button onclick="removeIdsFilter();" type="button" class="btn btn-link m-0 p-0 pb-1">click acá</button> para quitarlo.
                 </div>
+                {% endif %}
+                {% endif %}
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
                     onclick="clearFilters()">Limpiar</button>

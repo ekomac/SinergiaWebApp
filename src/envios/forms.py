@@ -10,7 +10,7 @@ from envios.models import BulkLoadEnvios, Envio
 from clients.models import Client
 from places.models import Town
 from tracking.models import TrackingMovement
-from tracking.utils.delivery import delivery_attempt
+from tracking.utils.delivery import indirect_successfull_delivery
 from tracking.utils.deposit import deposit_by_envios_tracking_ids
 from tracking.utils.devolver import devolver_by_envios_tracking_ids
 from tracking.utils.transfer import transfer_by_envios_tracking_ids
@@ -690,9 +690,42 @@ class ActionSuccessfulDeliveryForm(BaseActionForm):
             })
     )
 
+    keep_deliverer = forms.BooleanField(required=False)
+
+    new_deliverer = CarrierModelChoiceField(
+        label="Si lo entregó otra persona, indicá quién lo entregó",
+        required=False,
+        queryset=Account.objects.filter(
+            is_active=True,
+            is_superuser=False,
+            groups__name__in=['Admins', 'Level 1', 'Level 2']
+        ).order_by('last_name'),
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+        }),
+    )
+
     def perform_action(self) -> TrackingMovement:
-        movement, _ = delivery_attempt(
+        """
+        Save the successfull delivery action. If new_deliverer from self
+        is specified, then set that account to be de deliverer; else, set
+        the deliverer to the envio's carrier.
+
+        Returns:
+            TrackingMovement: the movement generated after this action.
+        """
+        keep_deliverer = self.cleaned_data.get('keep_deliverer', True)
+        new_deliverer = self.cleaned_data.get('new_deliverer', None)
+
+        if not keep_deliverer and new_deliverer is not None:
+            deliverer = new_deliverer
+        else:
+            envio = Envio.objects.get(tracking_id=self.envio.tracking_id)
+            deliverer = envio.carrier
+
+        movement, _ = indirect_successfull_delivery(
             author=self.user,
+            deliverer=deliverer,
             result_obtained=TrackingMovement.RESULT_DELIVERED,
             envio_tracking_id=self.envio.tracking_id,
             receiver_doc_id=self.cleaned_data['receiver_doc_id']

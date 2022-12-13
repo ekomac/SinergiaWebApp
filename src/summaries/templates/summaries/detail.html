@@ -146,7 +146,7 @@
                         <tr id="envio-{{ obj.id }}"
                             onclick="window.location.href='{% url 'envios:envio-detail' obj.id %}';"
                             style="cursor: pointer;">
-                            <td class="text-center">{{ obj.date_delivered }}</td>
+                            <td class="text-center">{{ obj.date_delivered | date:"d/m/Y"}}</td>
                             <td class="text-center">{{ obj.destination }}</td>
                             <td class="text-center">{{ obj.detail }}</td>
                             <td class="text-center">$ {{ obj.price }}</td>
@@ -227,9 +227,12 @@
     }
 
     function updateEnvios(query = "") {
+        const myQuery = query.toLowerCase()
         envios.forEach(function (envio) {
-            if (envio.destination.toLowerCase().includes(query.toLowerCase()) ||
-                envio.detail.toLowerCase().includes(query.toLowerCase())) {
+            if (envio.destination.toLowerCase().includes(myQuery)
+            || envio.detail.toLowerCase().includes(myQuery)
+            || envio.date_delivered.toString().toLowerCase().includes(myQuery)
+            || envio.price.toString().toLowerCase().includes(myQuery)) {
                 show('envio-' + envio.id, true);
             } else {
                 show('envio-' + envio.id, false);
