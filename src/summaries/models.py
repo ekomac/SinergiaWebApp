@@ -52,7 +52,7 @@ class Summary(models.Model):
     def total_envios(self) -> int:
         return self.__get_envios().count()
 
-    def get_envios(self) -> dict:
+    def get_envios(self, date_as_str: bool = True) -> dict:
         result = []
         for envio in self.__get_envios():
             if envio.is_flex:
@@ -61,7 +61,10 @@ class Summary(models.Model):
             else:
                 code = envio.town.delivery_code
                 code_type = "Mensajería"
-            date = envio.date_delivered.strftime("%d/%m/%Y")
+            if date_as_str:
+                date = envio.date_delivered.strftime("%d/%m/%Y")
+            else:
+                date = envio.date_delivered
             as_dict = {
                 'id': envio.pk,
                 'destination': envio.full_address,

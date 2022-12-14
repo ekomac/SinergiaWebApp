@@ -20,6 +20,7 @@ def delivery_attempt(
         and carrying the envio.
         result_obtained (str): the result obtained by the carrier.
         envio_tracking_id (int): the tracking id of the envio to be delivered.
+        receiver_doc_id (str): the document id of the person who received.
         proof_file ([File], optional): the proof file to be uploaded.
         Defaults to None.
         comment (str, optional): the comment to be added to the movement.
@@ -59,25 +60,27 @@ def delivery_attempt(
     return movement, envios[0]
 
 
-def indirect_delivery_attempt(
+def indirect_successfull_delivery(
     author: Account,
-    from_carrier: Account,
+    deliverer: Account,
     result_obtained: str,
     envio_tracking_id: int,
+    receiver_doc_id: str = None,
     proof_file=None,
     comment: str = ""
 ) -> Envio:
     """
-    Performs an indirect delivery attempt action, creating a movement and
+    Performs an indirect successfull delivery action, creating a movement and
     updating the envio status.
     The author corresponds to the Account that performed the save action, and
-    the carrier to the one performing the actual action.
+    the carrier to the one performing the actual action (deliverer).
 
     Args:
         author (Account): the Account performing the saving action.
         carrier (Account): the Account that performed the action.
         result_obtained (str): the result obtained by the carrier.
         envio_tracking_id (int): the tracking id of the envio to be delivered.
+        receiver_doc_id (str): the document id of the person who received.
         proof_file ([type], optional): the proof file to be uploaded.
         Defaults to None.
         comment (str, optional): the comment to be added to the movement.
@@ -92,8 +95,9 @@ def indirect_delivery_attempt(
     # Create the movement
     movement = TrackingMovement(
         created_by=author,
-        from_carrier=from_carrier,
+        from_carrier=deliverer,
         action=TrackingMovement.ACTION_DELIVERY_ATTEMPT,
+        receiver_doc_id=receiver_doc_id,
         result=result_obtained,
         proof=proof_file,
         comment=comment
@@ -112,7 +116,7 @@ def indirect_delivery_attempt(
             status=Envio.STATUS_DELIVERED,
             carrier=None,
             deposit=None,
-            deliverer=from_carrier,
+            deliverer=deliverer,
             date_delivered=movement.date_created,
             updated_by=movement.created_by
         )
