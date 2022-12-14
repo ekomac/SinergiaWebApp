@@ -106,8 +106,7 @@
                         <label for="id_status_modal" class="form-label">Estado</label>
                         
                         <!-- start SHIPMENT STATUS -->
-                        <select id="id_status_modal" name="status_modal" class="form-select"
-                        aria-label="status selection">
+                        <select id="id_status_modal" name="status_modal" class="form-select" aria-label="status selection">
                             <option value="">---</option>
                             <option value="N" {% if status == 'N' %}selected{% endif %}>Nuevo</option>
                             <option value="S" {% if status == 'S' %}selected{% endif %}>En depósito</option>
@@ -141,6 +140,31 @@
                     </div>
                 </div>
                 <!-- end SHIPMENT STATUS AND SHIPMENT TYPE SELECTION -->
+
+                <!-- start DELIVERY DATES FROM AND TO FILTER -->
+                <div id="deliveryDatesDiv" class="{% if status != 'D' %}d-none{% endif %} row g-2 mt-2">
+                    <div class="col form-floating">
+                        Rango de fechas de entrega:
+                        <div class="input-group mb-3">
+
+                            <!-- start DATE FROM -->
+                            <input type="date" class="form-control datepicker" name="delivery_min_date_modal"
+                                id="id_delivery_min_date_modal" max="{{ max_selectable_date }}"
+                                value="{% if delivery_min_date %}{{ delivery_min_date }}{% endif %}" placeholder="Desde">
+                            <!-- end DATE FROM -->
+
+                            <span class="input-group-text">&nbsp;a&nbsp;</span>
+
+                            <!-- start DATE TO -->
+                            <input type="date" class="form-control datepicker" name="delivery_max_date_modal"
+                                id="id_delivery_max_date_modal" max="{{ max_selectable_date }}"
+                                value="{% if delivery_max_date %}{{ delivery_max_date }}{% endif %}" placeholder="Desde">
+                            <!-- end DATE TO -->
+
+                        </div>
+                    </div>
+                </div>
+                <!-- end DELIVERY DATES FROM AND TO FILTER -->
                 
                 <!-- start SHIPMENT DELIVERY DATE AND SHIPMENT SCHEDULED SELECTION -->
                 <div class="row g-2 mt-2">
@@ -284,6 +308,8 @@
 {% block filters_block %}
 <input type="text" id='id_min_date' name="min_date" {% if min_date %}value="{{ min_date }}" {% endif %}>
 <input type="text" id='id_max_date' name="max_date" {% if max_date %}value="{{ max_date }}" {% endif %}>
+<input type="text" id='id_delivery_min_date' name="delivery_min_date" {% if delivery_min_date %}value="{{ delivery_min_date }}" {% endif %}>
+<input type="text" id='id_delivery_max_date' name="delivery_max_date" {% if delivery_max_date %}value="{{ delivery_max_date }}" {% endif %}>
 <input type="text" id='id_client_id' name="client_id" {% if client_id %}value="{{ client_id }}" {% endif %}>
 <input type="text" id='id_carrier_id' name="carrier_id" {% if carrier_id %}value="{{ carrier_id }}" {% endif %}>
 <input type="text" id='id_deposit_id' name="deposit_id" {% if deposit_id %}value="{{ deposit_id }}" {% endif %}>
@@ -380,6 +406,8 @@
                 'id_results_per_page',
                 'id_min_date',
                 'id_max_date',
+                'id_delivery_min_date',
+                'id_delivery_max_date',
                 'id_client_id',
                 'id_carrier_id',
                 'id_deposit_id',
@@ -397,6 +425,28 @@
             });
             $(this).unbind('submit').submit();
         });
+
+        $('#id_status_modal').change(function () {
+            updateDeliveryDatesBasedOnStatus(this.value)
+            /*
+            const deliveryDatesDiv = document.getElementById("deliveryDatesDiv")
+            const deliveryDatesDivClasses = deliveryDatesDiv.classList
+            let min_date = ""
+            let max_date = ""
+            if (this.value == 'D') {
+                deliveryDatesDivClasses.remove("d-none")
+                min_date = $('#id_delivery_min_date_modal').val()
+                max_date = $('#id_delivery_max_date_modal').val()
+                //$('#id_delivery_min_date').val();
+                //$('#id_delivery_max_date').val($('#id_delivery_max_date_modal').val());
+            } else {
+                deliveryDatesDivClasses.add("d-none")
+                //$('#id_delivery_min_date').val('');
+                //$('#id_delivery_max_date').val('');
+            }
+            $('#id_delivery_min_date').val(min_date);
+            $('#id_delivery_max_date').val(max_date);*/
+        })
 
 
         $('#id_results_per_page').change(function () {
@@ -463,14 +513,36 @@
         show('btnCleanQuery', false);
     }
 
+    function updateDeliveryDatesBasedOnStatus(status) {
+        const deliveryDatesDiv = document.getElementById("deliveryDatesDiv")
+        const deliveryDatesDivClasses = deliveryDatesDiv.classList
+        let min_date = ""
+        let max_date = ""
+        if (status == 'D') {
+            deliveryDatesDivClasses.remove("d-none")
+            min_date = $('#id_delivery_min_date_modal').val()
+            max_date = $('#id_delivery_max_date_modal').val()
+            //$('#id_delivery_min_date').val();
+            //$('#id_delivery_max_date').val($('#id_delivery_max_date_modal').val());
+        } else {
+            deliveryDatesDivClasses.add("d-none")
+            //$('#id_delivery_min_date').val('');
+            //$('#id_delivery_max_date').val('');
+        }
+        $('#id_delivery_min_date').val(min_date);
+        $('#id_delivery_max_date').val(max_date);
+    }
 
     function applyFilters() {
         $('#id_min_date').val($('#id_min_date_modal').val());
         $('#id_max_date').val($('#id_max_date_modal').val());
+        //$('#id_delivery_min_date').val($('#id_delivery_min_date_modal').val());
+        //$('#id_delivery_max_date').val($('#id_delivery_max_date_modal').val());
         $('#id_client_id').val($('#id_client_modal').val());
         $('#id_carrier_id').val($('#id_carrier_modal').val());
         $('#id_deposit_id').val($('#id_deposit_modal').val());
         $('#id_status').val($('#id_status_modal').val());
+        updateDeliveryDatesBasedOnStatus($('#id_status_modal').val())
         $('#id_is_flex').val($('#id_is_flex_modal').val());
         $('#id_has_delivery_attempt').val($('#id_has_delivery_attempt_modal').val());
         $('#id_has_delivery_date').val($('#id_has_delivery_date_modal').val());
@@ -481,6 +553,8 @@
     function clearFilters() {
         $('#id_min_date').val('');
         $('#id_max_date').val('');
+        $('#id_delivery_min_date').val('');
+        $('#id_delivery_max_date').val('');
         $('#id_client_id').val('');
         $('#id_carrier_id').val('');
         $('#id_deposit_id').val('');

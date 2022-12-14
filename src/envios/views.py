@@ -99,6 +99,18 @@ class EnvioListView(CompleteListView, LoginRequiredMixin):
             'context': lambda x: x,
         },
         {
+            'key': 'delivery_min_date',
+            'filter': 'date_delivered__gte',
+            'function': sanitize_date,
+            'context': lambda x: x,
+        },
+        {
+            'key': 'delivery_max_date',
+            'filter': 'date_delivered__lte',
+            'function': lambda x: sanitize_date(x, True) + timedelta(days=1),
+            'context': lambda x: x,
+        },
+        {
             'key': 'client_id',
             'filter': lambda x: 'client__isnull' if (
                 x in [-1, '-1']) else 'client__id',
