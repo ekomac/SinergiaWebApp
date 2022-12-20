@@ -141,6 +141,53 @@ class TicketMessage(models.Model):
         verbose_name_plural = "Mensajes"
 
 
+class EmailLog(models.Model):
+
+    date_created = models.DateTimeField(
+        auto_now_add=True, verbose_name="Creation")
+
+    msg = models.TextField(
+        verbose_name="Message",
+        null=True,
+        blank=True,
+        default=""
+    )
+
+    ticket = models.ForeignKey(
+        'tickets.Ticket',
+        blank=True,
+        null=True,
+        verbose_name="Ticket",
+        on_delete=models.SET_NULL
+    )
+
+    ticket_msg = models.ForeignKey(
+        'tickets.TicketMessage',
+        blank=True,
+        null=True,
+        verbose_name="TicketMessage",
+        on_delete=models.SET_NULL
+    )
+
+    function_name = models.TextField(
+        verbose_name="Function name",
+        null=True,
+        blank=True,
+        default=True
+    )
+
+    def __str__(self):
+        log_time = self.date_created.strftime("%Y-%m-%d %H:%M:%S%Z")
+        if self.ticket is not None:
+            return f"{log_time} when attempting {self.ticket}"
+        return f"{log_time} when attempting {self.ticket_msg}"
+
+    class Meta:
+        ordering = ['date_created']
+        verbose_name = "Email Log"
+        verbose_name_plural = "Email Logs"
+
+
 @receiver(pre_delete, sender=Ticket)
 def ticket_delete(sender, instance, **kwargs):
     """
@@ -206,13 +253,19 @@ def send_mail_to_superusers_new_ticket_created(ticket: Ticket):
     )
     recipient_list = Account.objects.filter(
         is_superuser=True).values_list('email', flat=True)
-    send_mail(
-        subject=subject,
-        message=msg,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=recipient_list,
-        html_message=html_msg
-    )
+    try:
+        send_mail(
+            subject=subject,
+            message=msg,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=recipient_list,
+            html_message=html_msg
+        )
+    except Exception as e:
+        EmailLog(
+            msg=str(e),
+            ticket=ticket,
+            function_name="send_mail_to_superusers_new_ticket_created").save()
 
 
 def send_mail_to_superusers_ticket_closed(ticket: Ticket):
@@ -250,13 +303,19 @@ def send_mail_to_superusers_ticket_closed(ticket: Ticket):
         )
         recipient_list = Account.objects.filter(
             is_superuser=True).values_list('email', flat=True)
-        send_mail(
-            subject=subject,
-            message=msg,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=recipient_list,
-            html_message=html_msg
-        )
+        try:
+            send_mail(
+                subject=subject,
+                message=msg,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=recipient_list,
+                html_message=html_msg
+            )
+        except Exception as e:
+            EmailLog(
+                msg=str(e),
+                ticket=ticket,
+                function_name="send_mail_to_superusers_ticket_closed").save()
 
 
 def send_mail_to_users_ticket_closed(ticket: Ticket):
@@ -287,13 +346,19 @@ def send_mail_to_users_ticket_closed(ticket: Ticket):
         author_name=ticket.created_by.full_name
     )
     recipient_list = [ticket.created_by.email]
-    send_mail(
-        subject=subject,
-        message=msg,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=recipient_list,
-        html_message=html_msg
-    )
+    try:
+        send_mail(
+            subject=subject,
+            message=msg,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=recipient_list,
+            html_message=html_msg
+        )
+    except Exception as e:
+        EmailLog(
+            msg=str(e),
+            ticket=ticket,
+            function_name="send_mail_to_users_ticket_closed").save()
 
 
 def send_mail_new_message_to_counterpart(message: TicketMessage):
@@ -324,10 +389,16 @@ def send_mail_new_message_to_counterpart(message: TicketMessage):
             is_superuser=True).values_list('email', flat=True)
     else:
         recipient_list = [message.ticket.created_by.email]
-    send_mail(
-        subject=subject,
-        message=msg,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=recipient_list,
-        html_message=html_msg
-    )
+    try:
+        send_mail(
+            subject=subject,
+            message=msg,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=recipient_list,
+            html_message=html_msg
+        )
+    except Exception as e:
+        EmailLog(
+            msg=str(e),
+            ticket_msg=message,
+            function_name="send_mail_new_message_to_counterpart").save()
