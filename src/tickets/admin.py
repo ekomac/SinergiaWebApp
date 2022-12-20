@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from tickets.models import Attachment, Ticket, TicketMessage
+from tickets.models import Attachment, EmailLog, Ticket, TicketMessage
 
 
 class AttachmentInline(admin.TabularInline):
@@ -31,6 +31,14 @@ class TicketMessageAdmin(admin.ModelAdmin):
     search_fields = ('msg',)
 
 
+class EmailLogAdmin(admin.ModelAdmin):
+    list_display = ('date_created', 'msg', 'ticket',
+                    'ticket_msg', 'function_name',)
+    ordering = ('-date_created',)
+    search_fields = ('msg',)
+
+
 admin.site.register(Attachment, AttachmentAdmin)
 admin.site.register(Ticket, TicketAdmin)
 admin.site.register(TicketMessage, TicketMessageAdmin)
+admin.site.register(EmailLog, EmailLogAdmin)
