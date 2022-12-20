@@ -261,6 +261,10 @@ def send_mail_to_superusers_new_ticket_created(ticket: Ticket):
             recipient_list=recipient_list,
             html_message=html_msg
         )
+        EmailLog(
+            msg="Succesfully send email",
+            ticket=ticket,
+            function_name="send_mail_to_superusers_new_ticket_created").save()
     except Exception as e:
         EmailLog(
             msg=str(e),
@@ -311,6 +315,10 @@ def send_mail_to_superusers_ticket_closed(ticket: Ticket):
                 recipient_list=recipient_list,
                 html_message=html_msg
             )
+            EmailLog(
+                msg="Succesfully send email",
+                ticket=ticket,
+                function_name="send_mail_to_superusers_ticket_closed").save()
         except Exception as e:
             EmailLog(
                 msg=str(e),
@@ -354,6 +362,10 @@ def send_mail_to_users_ticket_closed(ticket: Ticket):
             recipient_list=recipient_list,
             html_message=html_msg
         )
+        EmailLog(
+            msg="Succesfully send email",
+            ticket=ticket,
+            function_name="send_mail_to_users_ticket_closed").save()
     except Exception as e:
         EmailLog(
             msg=str(e),
@@ -397,6 +409,10 @@ def send_mail_new_message_to_counterpart(message: TicketMessage):
             recipient_list=recipient_list,
             html_message=html_msg
         )
+        EmailLog(
+            msg="Succesfully send email",
+            ticket_msg=message,
+            function_name="send_mail_new_message_to_counterpart").save()
     except Exception as e:
         EmailLog(
             msg=str(e),
