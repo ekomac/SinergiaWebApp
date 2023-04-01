@@ -1,12 +1,14 @@
-# Basic Python
+from datetime import datetime
+from reportlab.pdfgen import canvas
 import os
 import json
-from typing import Any, List
-
-# Reportlab
+from reportlab.lib.units import inch
+from django.http import HttpResponse
+from reportlab.platypus import SimpleDocTemplate
+from typing import Any, Iterable, List
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.platypus import Paragraph, Frame, Table, TableStyle
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.enums import TA_LEFT
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
@@ -15,8 +17,6 @@ from reportlab.platypus import Flowable
 from reportlab.graphics.barcode import qr
 from reportlab.graphics import renderPDF
 from reportlab.graphics.shapes import Drawing
-
-# Project related
 from envios.models import Envio
 from mysite import settings
 
@@ -276,3 +276,136 @@ class PDFReport(object):
         table = Table(data, self.BASE_FRAME_WIDTH/12, spaceBefore=6)
         table.setStyle(tstyle)
         return table
+
+
+class PDFEnviosListReport:
+
+    def __init__(
+        self,
+        response: HttpResponse,
+        employee_name: str = ""
+    ) -> None:
+        self._response = response
+        self._employee_name = employee_name
+        self._is_for_employee = employee_name != ""
+
+    def _envios_as_list(self, i: int, envio: Envio) -> list[str]:
+        styleN = getSampleStyleSheet()["BodyText"]
+        styleN.alignment = TA_LEFT
+
+        ret = [
+            str(i+1),
+            Paragraph(envio.tracking_id, styleN),
+            Paragraph(str(envio.get_status_display()), styleN),
+            Paragraph("Flex" if envio.is_flex else "Mensajería", styleN),
+            Paragraph(str(envio.client.name), styleN),
+            Paragraph(str(envio.full_address), styleN),
+        ]
+
+        if not self._is_for_employee:
+            print(f"{envio=}")
+            loc_data = ""
+            if envio.carrier is not None:
+                loc_data = envio.carrier.full_name
+            if envio.deposit is not None:
+                loc_data = envio.deposit.name
+            if envio.deposit is not None:
+                loc_data = envio.deposit.name
+            ret.append(Paragraph(loc_data, styleN))
+
+        ret.extend([
+            Paragraph(
+                str(envio.max_delivery_date if (
+                    envio.max_delivery_date is not None) else ""),
+                styleN
+            ),
+            Paragraph(
+                str(f'{envio.delivery_schedule} hs' if (
+                    envio.delivery_schedule is not None) else ""),
+                styleN
+            ),
+            Paragraph(
+                f'$ {envio.charge}' if envio.charge else "", styleN),
+        ])
+
+        return ret
+
+    def _parse_as_table_data(self, envios: Iterable[Envio]) -> list[list[str]]:
+        return [self._envios_as_list(i, envio)
+                for i, envio in enumerate(envios)]
+
+    def _crete_envios_table(self, envios: Iterable[Envio]) -> Table:
+        header = ['N.°', 'ID', 'Estado', 'Tipo', 'Cliente', 'Destino',
+                  'Localización', 'Fecha límite',
+                  'Horario entrega', 'A cobrar']
+        colWidths = [inch*0.5] + [None]*3 + \
+            [inch*1.4, inch*3, inch*1.2] + [None]*3
+
+        if self._is_for_employee:
+            header.pop(6)
+            colWidths.pop(6)
+
+        table_data = self._parse_as_table_data(envios)
+        table_data.insert(0, header)
+
+        ret = Table(table_data, hAlign='LEFT', colWidths=colWidths)
+
+        style = TableStyle([
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ('LEFTPADDING', (0, 0), (-1, -1), 2),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 2),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+            ('TOPPADDING', (0, 0), (-1, -1), 2),
+        ])
+        ret.setStyle(style)
+        return ret
+
+    class MyCanvas(canvas.Canvas):
+        def __init__(self, *args, **kwargs):
+            canvas.Canvas.__init__(self, *args, **kwargs)
+            self.pages = []
+
+        def showPage(self):
+            self.pages.append(dict(self.__dict__))
+            self._startPage()
+
+        def draw_page_number(self, page_count, date):
+            # Modify the content and styles according to the requirement
+            page = "Página {curr_page} de {total_pages}".format(
+                curr_page=self._pageNumber, total_pages=page_count)
+            self.setFont("Helvetica", 10)
+            date = f'Fecha creación: {date}'
+            # txt = f'{date} - {page}'
+            self.drawRightString(A4[1]-10, A4[0]-15, date)
+            self.drawRightString(A4[1]-10, 5, page)
+
+        def save(self):
+            page_count = len(self.pages)
+            for page in self.pages:
+                self.__dict__.update(page)
+                date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                self.draw_page_number(page_count, date)
+                canvas.Canvas.showPage(self)
+
+            canvas.Canvas.save(self)
+
+    def create(self, envios: Iterable[Envio], date: str) -> HttpResponse:
+        cm = 2.54
+        doc = SimpleDocTemplate(
+            self._response, pagesize=landscape(A4),
+            rightMargin=0.5 * cm, leftMargin=0.5 * cm,
+            topMargin=20, bottomMargin=20
+        )
+
+        contents = []
+
+        if self._employee_name != "":
+            contents.append(Paragraph(f"Portados por {self._employee_name}"))
+
+        contents.append(self._crete_envios_table(envios))
+
+        doc.build(contents, canvasmaker=self.MyCanvas)
+
+        return self._response

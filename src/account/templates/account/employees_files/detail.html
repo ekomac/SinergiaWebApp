@@ -270,6 +270,13 @@
     <div class="card flex-fill shadow-lg mt-3">
         <div class="card-header d-flex justify-content-between align-items-center">
             <div><i class="bi bi-truck me-1"></i>Envíos portados por este empleado ({{ envios | length }})</div>
+            <div>
+                <form method="POST" id="print_list_form">{% csrf_token %}
+                    <button type="button" id="printList" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2" onclick="window.location.href='{% url 'envios:envio-download-employee-list' account.pk %}'" >
+                        Imprimir listado
+                    </button>
+                </form>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -316,6 +323,7 @@
 
 <script>
     $(document).ready(function () {
+        //addingSelectedIdsAjaxConfig();
         $("#id_reset_password_form").on('submit', function (e) {
             e.preventDefault();
             var csrftoken = getCookie('csrftoken');

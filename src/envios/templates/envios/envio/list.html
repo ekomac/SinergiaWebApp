@@ -332,10 +332,17 @@
         <form method="POST" id="example_form">{% csrf_token %}
             <textarea type="text" id="id_ids" name="ids"></textarea>
         </form>
+        <form method="POST" id="print_list_form">{% csrf_token %}
+            <textarea type="text" id="id_ids_list" name="ids"></textarea>
+        </form>
     </div>
     <button type="button" id="printLabels" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2"
         onclick="printSelectedItems()" disabled>
         Imprimir etiquetas
+    </button>
+    <button type="button" id="printList" class="btn btn-secondary btn-sm m-2 m-xl-0 ms-xl-2"
+        onclick="printListSelectedItems()" disabled>
+        Imprimir listado
     </button>
     <div id="selectedCount" class="ms-2 ms-xl-3">0 de {{objects|length}} elementos seleccionados</div>
     <div class="my-1 mx-xl-3">
@@ -595,6 +602,7 @@
 
         // Enable print labels btn if at least 1 checkbox is checked
         isEnabled('printLabels', checkedItemsCount > 0);
+        isEnabled('printList', checkedItemsCount > 0);
 
         // Enable bulk add task btn if at least 1 checkbox is checked
         isEnabled('bulkAddTask', checkedItemsCount > 0);
@@ -647,6 +655,10 @@
         $('#example_form').submit();
     }
 
+    function printListSelectedItems() {
+        $('#print_list_form').submit();
+    }
+
     function addingSelectedIdsAjaxConfig() {
         $("#example_form").submit(function (e) {
             // preventing from page reload and default actions
@@ -673,7 +685,36 @@
                 },
                 error: function (response) {
                     // alert the error if any error occured
-                    alert(response["responseJSON"]["error"]);
+                    alert(JSON.stringify(response["responseJSON"]["error"]));
+                }
+            })
+        });
+        $("#print_list_form").submit(function (e) {
+            // preventing from page reload and default actions
+            e.preventDefault();
+            var csrftoken = getCookie('csrftoken');
+            var ids = getSelectedIds();
+            $("#id_ids_list").val(ids);
+            // serialize the data for sending the form data.
+            var serializedData = $(this).serialize();
+            // make POST ajax call
+            $.ajax({
+                type: 'POST',
+                url: "{% url 'envios:post-selected-ids' %}",
+                data: serializedData,
+                success: function (response) {
+                    // on successfull creating object
+                    // clear the form.
+                    $("#example_form").trigger('reset');
+
+                    removeSelection();
+                    var ids = getSelectedIds();
+                    var url_mask = "{% url 'envios:envio-download-list' %}";
+                    window.location.href = url_mask;
+                },
+                error: function (response) {
+                    // alert the error if any error occured
+                    alert(JSON.stringify(response["responseJSON"]["error"]));
                 }
             })
         });
