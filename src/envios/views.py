@@ -37,7 +37,7 @@ from envios.forms import (
     UpdateEnvioForm
 )
 from envios.models import BulkLoadEnvios, Envio
-from envios.reports import PDFReport
+from envios.reports import PDFEnviosListReport, PDFReport
 from envios.utils import (
     bulk_create_envios,
     calculate_price,
@@ -406,6 +406,46 @@ def post_selected_ids(request):
 
 
 @login_required(login_url='/login/')
+@allowed_users(roles=["Admins", ])
+def download_envios_list(request):
+    print("Calling...")
+    filters = {}
+
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    ids = request.session.get('selected-ids-for-download', None)
+    if ids is None:
+        return HttpResponse("No ids selected", status=400)
+    ids = ids.split("-")
+    filters['id__in'] = ids
+    hashed_ids = hashlib.md5("".join(ids).encode('utf-8')).hexdigest()
+    file_name = f'detalle_envios_{date}_{hashed_ids}'
+
+    envios = Envio.objects.filter(**filters)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename={file_name}.pdf'
+
+    return PDFEnviosListReport(response).create(envios, date)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins", ])
+def download_envios_list_by_employee(_, employee_pk: int = -1):
+    filters = {}
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    employee = get_object_or_404(Account, pk=employee_pk)
+    filters['carrier__id'] = employee_pk
+    filters['status__in'] = [Envio.STATUS_MOVING]
+    file_name = f'detalle_envios_{date}_{employee.full_name}'
+    envios = Envio.objects.filter(**filters)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename={file_name}.pdf'
+
+    return PDFEnviosListReport(
+        response, employee_name=employee.full_name).create(envios, date)
+
+
+@login_required(login_url='/login/')
 @allowed_users(roles=["Admins", "Clients"])
 def download_shipment_labels_file_response(request):
     ids = request.session.get('selected-ids-for-download', None)
@@ -415,7 +455,8 @@ def download_shipment_labels_file_response(request):
     envios = Envio.objects.filter(id__in=ids)
     response = HttpResponse(content_type='application/pdf')
     hashed_ids = hashlib.md5("".join(ids).encode('utf-8')).hexdigest()
-    file_name = 'etiquetas_' + hashed_ids
+    date = datetime.now().strftime('%Y-%m-%d_%H:%M:%S')
+    file_name = f'etiquetas_{date}_{hashed_ids}'
     response['Content-Disposition'] = f'attachment; filename={file_name}.pdf'
     PDFReport(response).create(envios)
     return response
@@ -554,6 +595,8 @@ def delete_envio_view(request, pk, **kwargs):
     return render(request, "envios/envio/delete.html", context)
 
 
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def withdraw_envio_view(request, pk: int):
     envio = get_object_or_404(Envio, pk=pk)
     form = ActionWithdrawForm(user=request.user, envio=envio)
@@ -574,6 +617,8 @@ def withdraw_envio_view(request, pk: int):
     return render(request, "envios/envio/actions/withdraw.html", context)
 
 
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def deposit_envio_view(request, pk: int):
     envio = get_object_or_404(Envio, pk=pk)
     form = ActionDepositForm(user=request.user, envio=envio)
@@ -594,6 +639,8 @@ def deposit_envio_view(request, pk: int):
     return render(request, "envios/envio/actions/deposit.html", context)
 
 
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def transfer_envio_view(request, pk: int):
     envio = get_object_or_404(Envio, pk=pk)
     form = ActionTransferForm(user=request.user, envio=envio)
@@ -614,6 +661,8 @@ def transfer_envio_view(request, pk: int):
     return render(request, "envios/envio/actions/transfer.html", context)
 
 
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def devolver_envio_view(request, pk: int):
     envio = get_object_or_404(Envio, pk=pk)
     form = ActionDevolverForm(user=request.user, envio=envio)
@@ -634,6 +683,8 @@ def devolver_envio_view(request, pk: int):
     return render(request, "envios/envio/actions/devolver.html", context)
 
 
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def delivery_attempt_envio_view(request, pk: int):
     envio = get_object_or_404(Envio, pk=pk)
     form = ActionDeliveryAttemptForm(user=request.user, envio=envio)
@@ -662,6 +713,8 @@ def delivery_attempt_envio_view(request, pk: int):
         request, "envios/envio/actions/delivery_attempt.html", context)
 
 
+@login_required(login_url='/login/')
+@allowed_users(roles="Admins")
 def successful_delivery_envio_view(request, pk: int):
     envio = get_object_or_404(Envio, pk=pk)
     form = ActionSuccessfulDeliveryForm(user=request.user, envio=envio)
