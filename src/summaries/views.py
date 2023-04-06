@@ -1,4 +1,5 @@
 # Python
+from unidecode import unidecode
 from io import BytesIO
 import json
 from summaries.util.pdf import PDFSummaryReport
@@ -269,13 +270,14 @@ class Echo:
         return value
 
 
-@login_required(login_url='/login/')
-@allowed_users(roles=["Admins"])
-def print_csv_summary(request, pk):
-    summary = get_object_or_404(ClientSummary, pk=pk)
-    rows = ([envio_dict['date_delivered'], envio_dict['destination'],
-            envio_dict['detail'], envio_dict['price']
-             ] for envio_dict in summary.get_envios())
+def print_csv_summary(summary: Union[ClientSummary, EmployeeSummary]):
+    rows = (
+        [
+            unidecode(envio_dict['date_delivered']),
+            unidecode(envio_dict['destination']),
+            unidecode(envio_dict['detail']),
+            unidecode(envio_dict['price'])
+        ] for envio_dict in summary.get_envios())
     pseudo_buffer = Echo()
     writer = csv.writer(pseudo_buffer)
     response = StreamingHttpResponse((writer.writerow(row) for row in rows),
@@ -287,16 +289,45 @@ def print_csv_summary(request, pk):
 
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
-def print_xls_summary(request, pk):
+def print_csv_client_summary(request, pk):
     summary = get_object_or_404(ClientSummary, pk=pk)
+    return print_csv_summary(summary)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def print_csv_employee_summary(request, pk):
+    summary = get_object_or_404(EmployeeSummary, pk=pk)
+    return print_csv_summary(summary)
+
+
+def print_xls_summary(summary: Union[ClientSummary, EmployeeSummary]):
     data = [['Fecha de entrega', 'Domicilio', 'Detalle', 'Valor']]
-    rows = [[envio_dict['date_delivered'], envio_dict['destination'],
-            envio_dict['detail'], envio_dict['price']
-             ] for envio_dict in summary.envios]
+    rows = [
+        [
+            unidecode(envio_dict['date_delivered']),
+            unidecode(envio_dict['destination']),
+            unidecode(envio_dict['detail']),
+            unidecode(envio_dict['price'])
+        ] for envio_dict in summary.get_envios()]
     data.extend(rows)
     filename = str(summary)
     return ExcelResponse(
         data=data, output_filename=filename, worksheet_name='Reporte')
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def print_xls_client_summary(request, pk):
+    summary = get_object_or_404(ClientSummary, pk=pk)
+    return print_xls_summary(summary)
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def print_xls_employee_summary(request, pk):
+    summary = get_object_or_404(EmployeeSummary, pk=pk)
+    return print_xls_summary(summary)
 
 
 def print_pdf_summary(

@@ -8,9 +8,11 @@ from .views import (
     client_summary_detail_view,
     employee_summary_create_view,
     employee_summary_detail_view,
-    print_csv_summary,
-    print_xls_summary,
+    print_csv_client_summary,
+    print_xls_client_summary,
     print_pdf_client_summary,
+    print_csv_employee_summary,
+    print_xls_employee_summary,
     print_pdf_employee_summary,
     ajax_get_client_summary_total_cost,
     ajax_get_client_summaries_total_cost,
@@ -28,10 +30,10 @@ urlpatterns = [
         'clients/<int:pk>/', client_summary_detail_view,
         name="client-detail"),
     path(
-        'clients/<int:pk>/print-csv/', print_csv_summary,
+        'clients/<int:pk>/print-csv/', print_csv_client_summary,
         name="client-print-csv"),
     path(
-        'clients/<int:pk>/print-xls/', print_xls_summary,
+        'clients/<int:pk>/print-xls/', print_xls_client_summary,
         name="client-print-excel"),
     path(
         'clients/<int:pk>/print-pdf/', print_pdf_client_summary,
@@ -45,10 +47,10 @@ urlpatterns = [
         'employees/<int:pk>/', employee_summary_detail_view,
         name="employee-detail"),
     path(
-        'employees/<int:pk>/print-csv/', print_csv_summary,
+        'employees/<int:pk>/print-csv/', print_csv_employee_summary,
         name="employee-print-csv"),
     path(
-        'employees/<int:pk>/print-xls/', print_xls_summary,
+        'employees/<int:pk>/print-xls/', print_xls_employee_summary,
         name="employee-print-excel"),
     path(
         'employees/<int:pk>/print-pdf/', print_pdf_employee_summary,
