@@ -41,7 +41,8 @@ class Destination(models.Model):
 
     @property
     def full_address(self):
-        return f'{self.street}, {self.zipcode} {self.town}'
+        zipcode = f"{self.zipcode} " if self.zipcode is not None else ""
+        return f'{self.street}, {zipcode}{self.town}'
 
 
 class Receiver(Destination):
