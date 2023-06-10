@@ -34,25 +34,18 @@ def get_places_data_for_dcode(dcode: DeliveryCode) -> Dict[str, List[str]]:
         "partidos": [],
         "towns": []
     }
-    for partido in Partido.objects.filter(
-            town__delivery_code__in=[dcode]).distinct():
-        print("Partido", partido.name)
-        towns = Town.objects.filter(partido=partido)
-        total_towns = len(towns)
-        print("total towns:", total_towns)
-        try:
-            if (total_towns > 0):
-                first_code = towns[0].delivery_code.code
-                with_same_code = list(filter(
-                    lambda x: x.delivery_code.code == first_code, towns))
-                print("with same code:", len(with_same_code))
-                if total_towns == len(with_same_code):
-                    result["partidos"].append(partido.name)
-                else:
-                    raise AttributeError("")
-        except AttributeError:
-            for town in towns:
+
+    filters = {"town__delivery_code__in": [dcode]}
+    for partido in Partido.objects.filter(**filters).distinct():
+
+        towns = partido.town_set.all()
+        with_dcode_towns = partido.town_set.filter(delivery_code=dcode)
+        if len(towns) == len(with_dcode_towns):
+            result["partidos"].append(partido.name)
+        else:
+            for town in with_dcode_towns:
                 result["towns"].append(town.name)
+    print(result)
     return result
 
 
