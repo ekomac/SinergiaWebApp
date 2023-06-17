@@ -14,6 +14,7 @@ class Shipment:
     dni_destinatario: str = ""
     phone: str = ""
     detalle_envio: str = ""
+    entrega: str = ""
 
     def clean(self):
         self.replace_commas()
@@ -48,7 +49,8 @@ class Shipment:
             or len(self.destinatario) > 0 \
             or len(self.dni_destinatario) > 0 \
             or len(self.phone) > 0 \
-            or len(self.detalle_envio) > 0
+            or len(self.detalle_envio) > 0 \
+            or len(self.entrega) > 0
 
     def __repr__(self) -> str:
         return (
@@ -61,5 +63,6 @@ class Shipment:
             "destinatario:" + self.destinatario + ",\n" +
             "dni_destinatario:" + self.dni_destinatario + ",\n" +
             "phone:" + self.phone + ",\n" +
-            "detalle_envio:" + self.detalle_envio + "}"
+            "detalle_envio:" + self.detalle_envio + ",\n" +
+            "entrega:" + self.entrega + "}"
         )

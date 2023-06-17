@@ -1,6 +1,6 @@
+from datetime import datetime, timedelta
 from django.db.models.aggregates import Count
 import calendar
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from collections import Counter
 from decimal import Decimal
@@ -42,13 +42,16 @@ class NoSuggestionsAvailable(Exception):
 
 
 def town_resolver(
-        town: str, partido: str = None, zip_code: str = None) -> Town:
+    town: str, partido: str = None, zip_code: str = None
+) -> Town:
+
     resolver = TownSuggestionResolver(town, partido, zip_code)
     result, reason = resolver.resolve()
+
     if not result:
         raise NoSuggestionsAvailable("Nothing found")
+
     return (result, reason)
-    #             la localidad con el nombre {cols[4]}
 
 
 class TownSuggestionResolver:
@@ -324,6 +327,25 @@ def bulk_create_envios(
     return (envios, unused_flex_ids)
 
 
+def convert_date(date_string: str):
+    current_year = datetime.now().year
+    day, month = date_string.split('-')
+
+    months_dict = {
+        'ene': 1, 'feb': 2, 'mar': 3, 'abr': 4, 'may': 5, 'jun': 6,
+        'jul': 7, 'ago': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dic': 12
+    }
+    month_number = months_dict[month.lower()]
+
+    converted_date = datetime(current_year, month_number, int(day))
+
+    min_date = datetime.now() - timedelta(days=10)
+    if converted_date < min_date:
+        converted_date = converted_date.replace(year=current_year + 1)
+
+    return converted_date
+
+
 def __cols_to_kwargs(
     cols: List[str], bulk_load_envios: BulkLoadEnvios
 ) -> Dict[str, Any]:
@@ -340,10 +362,14 @@ def __cols_to_kwargs(
         'client': bulk_load_envios.client,
         'bulk_upload_id': bulk_load_envios.pk,
     }
+
+    if cols[10] != "":
+        kwargs['max_delivery_date'] = convert_date(cols[10])
+
     if cols[0] != '' and not cols[0].isspace():
         kwargs['is_flex'] = True
         kwargs['flex_id'] = cols[0]
-    print(kwargs)
+
     return kwargs
 
 

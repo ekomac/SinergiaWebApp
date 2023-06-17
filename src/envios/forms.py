@@ -79,7 +79,7 @@ class BulkLoadEnviosForm(forms.ModelForm):
             raise forms.ValidationError("El PDF proporcionado no es\
                 ni de MercadoLibre ni de TiendaNube")
         except InvalidExcelFileError:
-            raise forms.ValidationError("El archivo de Excel proporcionada \
+            raise forms.ValidationError("El archivo de Excel proporcionado \
                 no es válido.")
 
     def save(self, commit=True):
