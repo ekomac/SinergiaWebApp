@@ -45,10 +45,7 @@ class MercadoLibreSubmodule():
 
         # LEGACY: Use old module if keyword is not there
         if "Entrega:" not in page_text:
-            print("Using Legacy Mode")
             return LegacyMercadoLibreSubmodule.page_to_shipments(page_text)
-
-        print("Using New Mode")
 
         # Get tracking id
         regex = re.compile(RE_TRACKING_ID)
