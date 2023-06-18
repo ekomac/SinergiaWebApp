@@ -7,37 +7,107 @@ from .exceptions import EmptyPDFError, InvalidPdfFileError
 from .shipment import Shipment
 
 
+RE_TRACKING_ID = r'\nTracking: (?P<result>[0-9]*)\n'
+RE_DOMICILIO = r'\nDireccion: (?P<result>.*\n?.*)\nReferencia:'
+RE_REFERENCIA = r'Referencia: (?P<result>.*\n?.*)\nBarrio:'
+RE_CODIGO_POSTAL = r'\nCP: (?P<result>.*)\n'
+RE_TOWN = r'CP: .*\n.*\n(?P<result>.*)\n'
+RE_PARTIDO = r'CP: .*\n(?P<result>.*)\n'
+RE_DESTINATARIO = r'\nDestinatario: (?P<result>.*\n?.*\))\n'
+RE_ENTREGA = r'Entrega:.*\n(?P<result>.*).\n'
+
+
 class MercadoLibreSubmodule():
 
     def __init__(self, pdf, **kwargs):
-        self.pdf = pdf
-        self.shipments = []
+        self._pdf = pdf
 
-    def extract_shipments(self):
+    def extract_shipments(self, pdf=None):
+        if pdf:
+            self._pdf = pdf
+
         # Filter last pages containing summary table
+        key_phrase = 'Despacha tu producto'
         pages = filter(
-            lambda page: 'Despacha tu producto' not in page.getText(),
-            self.pdf)
-        # Map each page to a list o shipments
-        list_of_shipments_lists = [
-            self.__page_to_shipments(page) for page in pages]
-        # Flatten the list containing list of shipments
-        return list(chain(*list_of_shipments_lists))
+            lambda page: key_phrase not in page.getText(), self._pdf)
 
-    def __page_to_shipments(self, page):
+        shipments = []
+        for page in pages:
+            shipments.extend(self._page_to_shipments(page))
+
+        return shipments
+
+    def _clean_match(self, s: str):
+        return s.replace("\n", " ").strip()
+
+    def _page_to_shipments(self, page) -> list[Shipment]:
         page_text = page.getText()
+
+        # LEGACY: Use old module if keyword is not there
+        if "Entrega:" not in page_text:
+            return LegacyMercadoLibreSubmodule.page_to_shipments(page_text)
+
+        # Get tracking id
+        regex = re.compile(RE_TRACKING_ID)
+        tracking_ids = [self._clean_match(s) for s in regex.findall(page_text)]
+
+        # Get address
+        regex = re.compile(RE_DOMICILIO)
+        addresses = [self._clean_match(s) for s in regex.findall(page_text)]
+
+        # Get reference
+        regex = re.compile(RE_REFERENCIA)
+        references = [self._clean_match(s) for s in regex.findall(page_text)]
+
+        # Get postal code
+        regex = re.compile(RE_CODIGO_POSTAL)
+        zip_codes = [self._clean_match(s) for s in regex.findall(page_text)]
+
+        # Get receiver name
+        regex = re.compile(RE_DESTINATARIO)
+        receivers = [self._clean_match(s) for s in regex.findall(page_text)]
+
+        # Get partido
+        regex = re.compile(RE_PARTIDO)
+        partidos = [self._clean_match(s) for s in regex.findall(page_text)]
+
+        # Get town
+        regex = re.compile(RE_TOWN)
+        towns = [self._clean_match(s) for s in regex.findall(page_text)]
+
+        # Get expected delivery date
+        regex = re.compile(RE_ENTREGA)
+        dates = [self._clean_match(s) for s in regex.findall(page_text)]
+
+        shipments = []
+
+        for i in range(len(tracking_ids)):
+            shipment = Shipment(
+                tracking_ids[i], addresses[i], references[i],
+                zip_codes[i], towns[i], partidos[i],
+                receivers[i], "", "", "detalle_envio", dates[i]
+            )
+            shipment.clean()
+            shipments.append(shipment)
+
+        return shipments
+
+
+class LegacyMercadoLibreSubmodule():
+
+    @staticmethod
+    def page_to_shipments(page_text):
         if "Barrio" in page_text:
             regex = re.compile(r'(\nBarrio:[\sA-Za-z0-9]{0,}\n)')
         else:
             regex = re.compile(r'(\nCP:[\s0-9]{4,}\n)')
         page_text = regex.sub(r'\1<<<COLUMN-END>>>\n', page_text)
         parts = page_text.split('<<<COLUMN-END>>>\n')
-        return [
-            self.__part_to_shipment(part) for part in
-            parts if "Tracking" in part
-        ]
+        func = LegacyMercadoLibreSubmodule.part_to_shipment
+        return [func(part) for part in parts if "Tracking" in part]
 
-    def __part_to_shipment(self, part) -> Shipment:
+    @staticmethod
+    def part_to_shipment(part) -> Shipment:
         lines = part.split("\n")
         if lines[0] == "":
             return None
@@ -77,7 +147,7 @@ class MercadoLibreSubmodule():
         # Return the shipment with the declared properties
         shipment = Shipment(tracking_id, domicilio, referencia,
                             codigo_postal, town, partido,
-                            destinatario, "", phone, detalle_envio)
+                            destinatario, "", phone, detalle_envio, "")
         shipment.clean()
         return shipment
 

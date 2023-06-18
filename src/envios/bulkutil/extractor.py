@@ -31,16 +31,16 @@ class Extractor:
     ) -> Dict[str, Any]:
         self.file = in_mem_file
         self.file_name = self.file.name
-        shipments = self.__do_extraction()
+        shipments = self._do_extraction()
         return {
-            'result': self.__shipments_to_csv(shipments),
+            'result': self._shipments_to_csv(shipments),
             'count': len(shipments),
             'errors': "\n".join(self.errors),
             'needs_manual_fix': self.needs_manual_fix,
             'cells_to_paint': "-".join(self.cells_to_paint),
         }
 
-    def __do_extraction(self) -> List[Shipment]:
+    def _do_extraction(self) -> List[Shipment]:
         self.module = None
         if self.file_name.lower().endswith(('.pdf')):
             self.module = PDFModule(self.file)
@@ -53,16 +53,16 @@ class Extractor:
                 f"The extension {extension} is not supported yet")
         return self.module.extract_shipments()
 
-    def __shipments_to_csv(self, shipments: list) -> str:
+    def _shipments_to_csv(self, shipments: list) -> str:
         titles = "traking_id,domicilio,referencia," + \
             "codigo_postal,localidad,partido,destinatario," + \
-            "dni_destinatario,telefono,detalle_envio"
-        shipments_mapped = [self.__shipment_as_csv_row_string(
+            "dni_destinatario,telefono,detalle_envio,entrega"
+        shipments_mapped = [self._shipment_as_csv_row_string(
             i, shipment) for i, shipment in enumerate(shipments)]
         shipments_str = "\n".join(shipments_mapped)
         return f'{titles}\n{shipments_str}'
 
-    def __shipment_as_csv_row_string(
+    def _shipment_as_csv_row_string(
         self,
         index: int,
         shipment: Shipment
@@ -91,7 +91,7 @@ class Extractor:
             shipment.tracking_id, shipment.domicilio, shipment.referencia,
             shipment.codigo_postal, town, shipment.partido,
             shipment.destinatario, shipment.dni_destinatario,
-            shipment.phone, shipment.detalle_envio,
+            shipment.phone, shipment.detalle_envio, shipment.entrega
         ]
         return ",".join(map(str, values))
 
