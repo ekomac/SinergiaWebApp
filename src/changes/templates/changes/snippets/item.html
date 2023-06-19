@@ -27,7 +27,7 @@
         {% endif %}
     </td>
     <td class="{% if unread %}fw-bold{% endif %}">{{ obj.name }}</td>
-    <td class="text-wrap {% if unread %}fw-bold{% endif %}">{{ obj.description | remove_html_tags }}
+    <td class="text-wrap {% if unread %}fw-bold{% endif %}">{{ obj.description | remove_html_tags | truncatechars:100 }}
     </td>
     {% endwith %}
 </tr>
