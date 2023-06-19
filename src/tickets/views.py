@@ -20,7 +20,7 @@ from account.decorators import (
     only_superusers_allowed
 )
 from account.models import Account
-from tickets.forms import CreateTicketForm
+from tickets.forms import AddAttachmentsToTicketForm, CreateTicketForm
 from tickets.models import Attachment, Ticket, TicketMessage
 from utils.alerts.views import delete_alert_and_redirect
 
@@ -201,7 +201,24 @@ def ticket_detail_view(request, pk):
     if not request.user.is_superuser:
         if not request.user.tickets_created.filter(pk=pk).exists():
             return redirect('tickets:list')
+
     ticket = get_object_or_404(Ticket, pk=pk)
+    if request.method == "POST":
+        form = AddAttachmentsToTicketForm(request.POST, request.FILES)
+
+        def to_html_txt(attachment: Attachment):
+            url = attachment.file.url
+            truncated = truncate_start(attachment.file.url)
+            return f'<li><a href="{url}">{truncated}</a></li>'
+
+        attachments = form.save(ticket_id=ticket.pk)
+        attachments = ''.join(map(to_html_txt, attachments))
+
+        msg = f"Acá van estos archivos:<br><ul>{attachments}</ul>"
+        ticket_message = TicketMessage(
+            created_by=request.user, msg=msg, ticket=ticket)
+        ticket_message.save()
+
     attachments = Attachment.objects.filter(ticket__id=ticket.id)
     attachments_count = attachments.count()
     chats = TicketMessage.objects.filter(ticket__id=ticket.id)

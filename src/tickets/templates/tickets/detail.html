@@ -26,7 +26,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="filtersModalLabel">Cancelar el envío</h5>
+                <h5 class="modal-title" id="filtersModalLabel">Cerrar ticket</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -71,33 +71,90 @@
 </div>
 
 <div class="modal fade" id="changePriority" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Cambiar prioridad al ticket</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        {% if ticket.priority != '1' and request.user.is_superuser %}
-        <a href="{% url 'tickets:change-priority-ticket' ticket.pk '1' %}" class="btn btn-danger btn-sm me-1">Alta</a>
-        {% endif %}
-            
-        {% if ticket.priority != '2' and request.user.is_superuser %}
-        <a href="{% url 'tickets:change-priority-ticket' ticket.pk '2' %}" class="btn btn-danger btn-sm me-1">Media</a>
-        {% endif %}
-                
-        {% if ticket.priority != '3' and request.user.is_superuser %}
-        <a href="{% url 'tickets:change-priority-ticket' ticket.pk '3' %}" class="btn btn-danger btn-sm me-1">Baja</a>
-        {% endif %}
-      </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Cambiar prioridad al ticket</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {% if ticket.priority != '1' and request.user.is_superuser %}
+                <a href="{% url 'tickets:change-priority-ticket' ticket.pk '1' %}"
+                    class="btn btn-danger btn-sm me-1">Alta</a>
+                {% endif %}
+
+                {% if ticket.priority != '2' and request.user.is_superuser %}
+                <a href="{% url 'tickets:change-priority-ticket' ticket.pk '2' %}"
+                    class="btn btn-danger btn-sm me-1">Media</a>
+                {% endif %}
+
+                {% if ticket.priority != '3' and request.user.is_superuser %}
+                <a href="{% url 'tickets:change-priority-ticket' ticket.pk '3' %}"
+                    class="btn btn-danger btn-sm me-1">Baja</a>
+                {% endif %}
+            </div>
+        </div>
     </div>
-  </div>
+</div>
+
+<div class="modal fade position-absolute top-0" style="z-index: 10000000;" id="addAttachmentsModal" tabindex="-1"
+    aria-labelledby="baseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Adjuntar archivos</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form method='POST' id="add_attachments_form" name="add_attachments_form" target="_top"
+                    enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="row g-2 mt-2">
+                        <div class="col">
+                            <!-- start FILES SELECT -->
+                            <div class="mb-3">
+                                <label for="id_files" class="form-label">Archivos adjuntos</label>
+                                <input class="form-control" type="file" id="id_files" name="files" multiple>
+                                <div class="fs-7 fst-italic">
+                                    Se puede cargar más de un archivo.
+                                </div>
+                            </div>
+                            <!-- end FILES SELECT -->
+
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mt-2">
+                        <button id="addAttachmentsButton" class="btn btn-primary" type="submit" data-bs-toggle="modal"
+                            data-bs-target="#staticBackdrop">Guardar archivos</button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header d-flex justify-content-start">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <h5 class="modal-title ms-2" id="staticBackdropLabel">Aguardá unos instantes</h5>
+            </div>
+            <div class="modal-body">
+                Se están cargando los archivos, por favor no abandones esta página.
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock modal_content %}
 {% endif %}
-
-
 
 
 <div class="col-md-12 col-xl-7 col-xxl-6 d-flex-block">
@@ -120,7 +177,9 @@
                 </div>
                 <div class="mt-1 mb-2 d-flex aling-items-center">
                     <i class="bi bi-clock-history"></i>&nbsp;Creado el {{ ticket.date_created|date:"d/m/Y" }} a las
-                    {{ ticket.date_created|date:"H:i" }}{% if ticket.created_by %}&nbsp;por&nbsp;<a href="{% url 'account:employees-detail' pk=ticket.created_by.pk %}"> {{ ticket.created_by.full_name }}</a>{% endif %}
+                    {{ ticket.date_created|date:"H:i" }}{% if ticket.created_by %}&nbsp;por&nbsp;<a
+                        href="{% url 'account:employees-detail' pk=ticket.created_by.pk %}">
+                        {{ ticket.created_by.full_name }}</a>{% endif %}
                 </div>
 
                 <div>
@@ -156,7 +215,8 @@
                             class="bi bi-trash me-1"></i>Eliminar</a>
                     {% endif %}
 
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#changePriority">
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#changePriority">
                         <i class="bi bi-pencil-square"></i>Cambiar prioridad
                     </button>
 
@@ -245,12 +305,18 @@
                     </tbody>
                 </table>
 
+                {% if ticket.status == '2' or ticket.status == '3' %}
+                <button type="button" class="btn-sm btn-outline-secondary" data-bs-toggle="modal"
+                    data-bs-target="#addAttachmentsModal"><i class="bi bi-paperclip"></i>Agregar
+                    archivos</button>
+                {% endif %}
             </div>
 
         </div>
     </div>
 
     {% if ticket.status == '2' or ticket.status == '3' and chats%}
+
 
     <!-- start CHAT -->
     <div class="card flex-fill shadow-lg mt-3">
@@ -274,9 +340,16 @@
                         <div class="d-flex flex-row">
                             {% if chat.is_priority_update %}
                             <span class="badge rounded-pill bg-info fw-5">Actualización del sistema</span>
+                            {% elif 'Acá van estos archivos' in chat.msg %}
+                            <div>
+                                <a
+                                    href="{% url 'account:employees-detail' pk=chat.created_by.pk %}">{{ chat.created_by.full_name }}</a>
+                            </div>
+                            <div class="text-muted">&nbsp;dijo:</div>
                             {% else %}
                             <div>
-                                <a href="{% url 'account:employees-detail' pk=chat.created_by.pk %}">{{ chat.created_by.full_name }}</a>
+                                <a
+                                    href="{% url 'account:employees-detail' pk=chat.created_by.pk %}">{{ chat.created_by.full_name }}</a>
                             </div>
                             <div class="text-muted">&nbsp;dijo:</div>
                             {% endif %}
@@ -287,11 +360,7 @@
                         </div>
                     </div>
                     <div class="card-body p-2">
-                        {% if chat.created_by.is_superuser %}
                         {{ chat.msg | safe }}
-                        {% else %}
-                        {{ chat.msg }}
-                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
@@ -308,23 +377,57 @@
                         uno:
                     </div>
                 </h5>
-                <form method='POST' id="new_msg_form" name="new_msg_form" target="_top" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="mb-1">
-                        <textarea class="form-control" id="post-msg" name="post-msg" rows="3"></textarea>
+                <div class="mb-1">
+                    <style>
+                        #input {
+                            height: 200px;
+                            padding: 10px;
+                            font-size: 14px;
+                            resize: vertical;
+                            overflow: auto;
+                            border: 0.5px grey solid;
+                        }
+
+                        .active {
+                            background-color: #ccc;
+                        }
+                    </style>
+                    <div class="btn-toolbar mb-2" role="toolbar" aria-label="Toolbar with button groups">
+                        <div class="btn-group me-2" role="group" aria-label="First group">
+                            <button class="btn btn-outline-secondary" onclick="applyFormatting('bold')"
+                                id="boldButton"><i class="bi bi-type-bold"></i></button>
+                            <button class="btn btn-outline-secondary" onclick="applyFormatting('italic')"
+                                id="italicButton"><i class="bi bi-type-italic"></i></button>
+                            <button class="btn btn-outline-secondary" onclick="applyFormatting('underline')"
+                                id="underlineButton"><i class="bi bi-type-underline"></i></button>
+                            <button class="btn btn-outline-secondary" onclick="applyFormatting('insertUnorderedList')"
+                                id="unorderedListButton"><i class="bi bi-list-ul"></i></button>
+                            <button class="btn btn-outline-secondary" onclick="applyFormatting('insertOrderedList')"
+                                id="orderedListButton"><i class="bi bi-list-ol"></i></button>
+                            <button class="btn btn-outline-secondary" onclick="addURL()" id="addURLButton"><i
+                                    class="bi bi-link-45deg"></i></button>
+                            <button class="btn btn-outline-secondary" type="button"
+                                onclick="deleteMessageWithConfirmation()"><i class="bi bi-trash"></i></button>
+                        </div>
                     </div>
-                    <div class="mt-2">
+                    <form method='POST' id="new_msg_form" name="new_msg_form" target="_top"
+                        enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <textarea class="d-none form-control" id="post-msg" name="post-msg" rows="3"></textarea>
+                        <div class="rounded" id="input" contenteditable="true"></div>
+                        <div class="mt-2">
 
-                        <button id="loadingButton" class="btn btn-primary d-none" type="submit" disabled>
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            Enviando...
-                        </button>
+                            <button id="loadingButton" class="btn btn-primary d-none" type="submit" disabled>
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Enviando...
+                            </button>
 
-                        <button id="sendMessageButton" class="btn btn-primary" type="submit">Enviar</button>
+                            <button id="sendMessageButton" class="btn btn-primary" type="submit">Enviar</button>
 
-                        <div id="errorQueue"></div>
-                    </div>
-                </form>
+                            <div id="errorQueue"></div>
+                        </div>
+                    </form>
+                </div>
                 <div id="results"></div>
 
             </div>
@@ -349,7 +452,6 @@
         $('#close_ticket_form').submit(function (e) {
             e.preventDefault();
             const data = $('#close_ticket_form').serialize();
-            console.log(data);
             closeTicket();
         });
     });
@@ -375,24 +477,26 @@
     }
 
     function create_message() {
-        var msg = $('#post-msg').val();
-        $('#sendMessageButton').toggleClass('d-none');
-        $('#loadingButton').toggleClass('d-none');
+        var inputDiv = document.getElementById("input");
+        var formattedText = inputDiv.innerHTML;
+        if (formattedText.includes("<script>")) throw Error("Not authorized.")
+        var msg = $('#post-msg').val(formattedText);
+        sendingMessage(true)
         $.ajax({
             url: "{% url 'tickets:post-message' ticket_pk=ticket.id user_pk=request.user.pk %}", // the endpoint
             type: "POST", // http method
-
             data: $('#new_msg_form').serialize(),
 
             // handle a successful response
             success: function (json) {
-                $('#post-msg').val(''); // remove the value from the input
+                $('#post-msg').val('');
                 $('#messages-list').append(json.newItem);
                 $("#titleResponder").removeClass('d-none');
                 $('#messageInputTitleHeader').removeClass('mt-2');
                 $('#messageInputTitleHeader').addClass('mt-4');
                 $("#titleSinMensajes").addClass('d-none');
-                sendingMessage(true);
+                sendingMessage(false);
+                deleteMessage()
             },
 
             // handle a non-successful response
@@ -431,6 +535,68 @@
         if (window.confirm("¿Estás seguro de que este ticket se encuentra resuelto?")) {
             window.location.href = "{% url 'tickets:mark-resolve-ticket' pk=ticket.id %}";
         }
+    }
+
+    // Formatting functions
+    let formattingActive = {
+        bold: false,
+        italic: false,
+        underline: false,
+        unorderedList: false,
+        orderedList: false
+    };
+
+    function deleteMessageWithConfirmation() {
+        var confirmDelete = confirm("¿Querés eliminar todo el texto ingresado?");
+        if (confirmDelete) {
+            deleteMessage()
+        }
+    }
+
+    function deleteMessage() {
+        var inputDiv = document.getElementById("input");
+        inputDiv.innerHTML = "";
+    }
+
+    function handleKeyDown(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+        }
+    }
+
+    function applyFormatting(command) {
+        var buttonId = command + 'Button';
+        var button = document.getElementById(buttonId);
+
+        var selection = window.getSelection();
+        if (selection.type === 'Range') {
+            document.execCommand(command)
+        } else {
+            formattingActive[command] = !formattingActive[command]
+            document.execCommand(command);
+            if (formattingActive[command]) button.classList.add('active')
+            else button.classList.remove('active')
+        }
+
+        var inputDiv = document.getElementById("input");
+        inputDiv.focus();
+    }
+
+    function addURL() {
+        var url = prompt("Enter the URL:");
+        if (url) {
+            document.execCommand('createLink', false, url);
+        }
+
+        var inputDiv = document.getElementById("input");
+        inputDiv.focus();
+    }
+
+    function captureFormattedText() {
+        var inputDiv = document.getElementById("input");
+        var formattedText = inputDiv.innerHTML;
+        // Do something with the formatted text, such as sending it to the server or processing it further
+        console.log(formattedText);
     }
 </script>
 

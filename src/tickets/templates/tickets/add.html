@@ -43,13 +43,13 @@
                 <!-- END MESSAGE INPUT -->
 
 
-                
+
                 <!-- START PRIORITY SELECT -->
                 <div class="col-12">
                     <label for="selectPartido" class="form-label">Prioridad</label>
                     <select class="form-select {% if form.priority.errors %}is-invalid{% endif %}" id="id_priority"
-                    name="priority" required>
-                    <option selected disabled value="">Elegir...</option>
+                        name="priority" required>
+                        <option selected disabled value="">Elegir...</option>
                         {% for id, name in form.priority.field.choices %}
                         <option value="{{ id }}">{{ name }}</option>
                         {% endfor %}
@@ -62,42 +62,52 @@
                     </a>
                     <div class="alert alert-info collapse mt-1" id="collapsePriorityAlert" role="alert">
                         <h6>¿Qué son las prioridades?</h6>
-                        <p>Las prioridades definen la importancia de un ticket y su orden de atención. Las prioridades son:</p>
+                        <p>Las prioridades definen la importancia de un ticket y su orden de atención. Las prioridades
+                            son:</p>
                         <ul>
                             <li>
-                                <strong>Alta:</strong> el motivo de la solicitud es importante y debe ser atendido inmediatamente porque interrumpe las operaciones del negocio o afecta el flow del negocio en gran medida y, si es una acción que se vio frustrada, no puede ser reemplazada por otra.
+                                <strong>Alta:</strong> el motivo de la solicitud es importante y debe ser atendido
+                                inmediatamente porque interrumpe las operaciones del negocio o afecta el flow del
+                                negocio en gran medida y, si es una acción que se vio frustrada, no puede ser
+                                reemplazada por otra.
                             </li>
                             <li>
-                                <strong>Media:</strong> el motivo presenta cierta recurrencia, es generalizable, pero no interrumpe las operaciones del negocio, no afecta el flow de una operación y que, si es una acción que se vio frustrada, en general, puede ser reemplazada por otra.
+                                <strong>Media:</strong> el motivo presenta cierta recurrencia, es generalizable, pero no
+                                interrumpe las operaciones del negocio, no afecta el flow de una operación y que, si es
+                                una acción que se vio frustrada, en general, puede ser reemplazada por otra.
                             </li>
                             <li>
-                                <strong>Baja:</strong> el motivo es individual y específico, no es recurrente, no interrumpe las operaciones del negocio, no afecta el flow de una operación y, si es una acción que se vio frustrada, en general, puede ser reemplazada por otra.
+                                <strong>Baja:</strong> el motivo es individual y específico, no es recurrente, no
+                                interrumpe las operaciones del negocio, no afecta el flow de una operación y, si es una
+                                acción que se vio frustrada, en general, puede ser reemplazada por otra.
                             </li>
                         </ul>
                     </div>
                 </div>
                 <!-- END PRIORITY SELECT -->
 
-                
+
                 <!-- start FILES SELECT -->
                 <div class="mb-3">
                     <label for="id_files" class="form-label">Archivos adjuntos</label>
                     <input class="form-control" type="file" id="id_files" name="files" multiple>
                     <div class="fs-7 fst-italic">
-                    Se puede cargar más de un archivo.
+                        Se puede cargar más de un archivo.
                     </div>
                 </div>
                 <!-- end FILES SELECT -->
 
                 <div class="d-grid gap-2 d-md-flex mb-2 alert alert-warning alert-dismissible fade show" role="alert">
                     Por favor, antes de enviar este ticket, corroborá que toda la información sea correcta ya que, una
-                    vez enviado, no se puede modificar.<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    vez enviado, no se puede modificar.<button type="button" class="btn-close" data-bs-dismiss="alert"
+                        aria-label="Close"></button>
                 </div>
 
 
                 <!-- START SUMBIT BUTTON -->
                 <div class="d-grid gap-2 d-md-flex">
-                    <input type="submit" value="Enviar ticket" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                    <input type="submit" value="Enviar ticket" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#staticBackdrop">
                 </div>
                 <!-- END SUMBIT BUTTON -->
 
@@ -105,15 +115,15 @@
         </div>
     </form>
     <!-- Modal -->
-    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header d-flex justify-content-start">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
                     <h5 class="modal-title ms-2" id="staticBackdropLabel">Aguardá unos instantes</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     Se están cargando los archivos, por favor no abandones esta página.
@@ -126,9 +136,8 @@
 <script>
     addEventListener('submit', (event) => {
         var element = document.getElementById("myDIV");
-        element.classList.remove("mystyle");    
+        element.classList.remove("mystyle");
     });
-
 </script>
 
 {% endblock %}
