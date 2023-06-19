@@ -305,10 +305,9 @@
                     </tbody>
                 </table>
 
-                {% if ticket.status == '2' or ticket.status == '3' %}
+                {% if ticket.status == '2' %}
                 <button type="button" class="btn-sm btn-outline-secondary" data-bs-toggle="modal"
-                    data-bs-target="#addAttachmentsModal"><i class="bi bi-paperclip"></i>Agregar
-                    archivos</button>
+                    data-bs-target="#addAttachmentsModal"><i class="bi bi-paperclip"></i>Agregar archivos</button>
                 {% endif %}
             </div>
 
