@@ -1,3 +1,4 @@
+import re
 from django import template
 
 
@@ -47,3 +48,11 @@ def is_in_list(value, given_list):
 @register.filter(name='not_in_list')
 def not_in_list(value, given_list):
     return True if value not in given_list else False
+
+
+@register.filter(name='remove_html_tags')
+def remove_html_tags(text):
+    text = re.sub(r"\<\w+\>", " ", text)
+    text = re.sub(r"\<\/\w+\>", " ", text)
+    text = re.sub(r"\<a href=\".*\"\>", " ", text)
+    return text
