@@ -10,7 +10,8 @@
 <tr id="tr-{{obj.id}}" class="table-item highlight-row"
     onclick="onItemClicked({{ obj.id }},'{% url 'changes:detail' pk=obj.id %}');">
     {% with request.user|not_in_list:obj.readers.all as unread  %}
-    <td class="cell-centered {% if unread %}fw-bold{% endif %}">{% if unread %}<i class="bi bi-envelope-fill"></i>{% else %}<i class="bi bi-envelope-open"></i>{% endif %}</td>
+    <td class="cell-centered {% if unread %}fw-bold{% endif %}">{% if unread %}<i
+            class="bi bi-envelope-fill"></i>{% else %}<i class="bi bi-envelope-open"></i>{% endif %}</td>
     <td class="cell-centered {% if unread %}fw-bold{% endif %}">{{ obj.date_created | date:"d/m/Y H:i" }}</td>
     <td class="cell-centered {% if unread %}fw-bold{% endif %}">
         {% if obj.label == 'IM' %}
@@ -26,6 +27,7 @@
         {% endif %}
     </td>
     <td class="{% if unread %}fw-bold{% endif %}">{{ obj.name }}</td>
-    <td class="text-wrap {% if unread %}fw-bold{% endif %}">{{ obj.description | truncatechars:100}}</td>
+    <td class="text-wrap {% if unread %}fw-bold{% endif %}">{{ obj.description | remove_html_tags | truncatechars:100 }}
+    </td>
     {% endwith %}
 </tr>
