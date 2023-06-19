@@ -167,6 +167,10 @@ docs/screenshots/Screenshot-Usuarios-Editar-A.png
 docs/screenshots/Screenshot-Usuarios-Editar-B.png
 docs/screenshots/Screenshot-Usuarios-Filtros.png
 docs/screenshots/Screenshot-Usuarios-Orden.png
+
+# Others
+src/media_cdn/
+src/media_cdn/**.*
 src/media_cdn/account/6/profile-6/120744300_3327537297326411_5813771262201177672_o.png
 src/media_cdn/movements/2022-04-25-120744300_3327537297326411_5813771262201177672_o.png
 src/media_cdn/movements/None-2022-04-25-120744300_3327537297326411_5813771262201177672_o_NhvuDh1.png
