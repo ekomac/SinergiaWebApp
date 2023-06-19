@@ -167,5 +167,34 @@ docs/screenshots/Screenshot-Usuarios-Editar-A.png
 docs/screenshots/Screenshot-Usuarios-Editar-B.png
 docs/screenshots/Screenshot-Usuarios-Filtros.png
 docs/screenshots/Screenshot-Usuarios-Orden.png
+# Cython debug symbols
+cython_debug/
+src/staff/migrations/__pycache__/__init__.cpython-39.pyc
+docs/screenshots/Screenshot-Home.png
+docs/screenshots/Screenshot-Usuarios-BlanqueoClave-Exito.png
+docs/screenshots/Screenshot-Usuarios-Lista.png
+docs/screenshots/Screenshot-Usuarios-BlanqueoClave-Alerta.png
+docs/screenshots/Screenshot-Usuarios-Detalle.png
+docs/screenshots/Screenshot-Envios-Alta.png
+docs/screenshots/Screenshot-Envios-CargaMasiva-Alta-Resultado-SinCorrecion.png
+docs/screenshots/Screenshot-Envios-CargaMasiva-Alta.png
+docs/screenshots/Screenshot-Envios-Detalle-Movimientos.png
+docs/screenshots/Screenshot-Envios-Detalle.png
+docs/screenshots/Screenshot-Envios-Eliminar.png
+docs/screenshots/Screenshot-Envios-Lista.png
+docs/screenshots/Screenshot-Usuarios-Alta-A.png
+docs/screenshots/Screenshot-Usuarios-Alta-B.png
+docs/screenshots/Screenshot-Usuarios-Busqueda.png
+docs/screenshots/Screenshot-Usuarios-DesactivarCuenta-Alerta.png
+docs/screenshots/Screenshot-Usuarios-DesactivarCuenta-Reactivar-Alerta.png
+docs/screenshots/Screenshot-Usuarios-DesactivarCuenta-Reactivar.png
+docs/screenshots/Screenshot-Usuarios-Editar-A.png
+docs/screenshots/Screenshot-Usuarios-Editar-B.png
+docs/screenshots/Screenshot-Usuarios-Filtros.png
+docs/screenshots/Screenshot-Usuarios-Orden.png
+
+# Others
 src/media_cdn/
 src/media_cdn/**.*
+.gitignore
+
