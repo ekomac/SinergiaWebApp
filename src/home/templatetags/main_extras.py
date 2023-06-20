@@ -56,3 +56,8 @@ def remove_html_tags(text):
     text = re.sub(r"\<\/\w+\>", " ", text)
     text = re.sub(r"\<a href=\".*\"\>", " ", text)
     return text
+
+
+@register.filter(name='remove_parenthesis')
+def remove_parenthesis(text: str):
+    return text.replace("(", "").replace(")", "")

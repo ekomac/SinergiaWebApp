@@ -1,6 +1,7 @@
 {% extends 'base/base_list.html' %}
 
 {% load url_extras %}
+{% load main_extras %}
 
 {% block modal_content %}
 
@@ -423,7 +424,7 @@
         {% if movement.comment %}"{{ movement.comment }}"{% else %}-{% endif %}
     </td>
     <td class="">
-        {% if movement.proof %}<a href="{{ movement.proof.url }}">Imagen</a>{% else %}-{% endif %}
+        {% if movement.proof %}<a href="{{ movement.proof.url | remove_parenthesis }}">Imagen</a>{% else %}-{% endif %}
     </td>
 </tr>
 {% endfor %}
