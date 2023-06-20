@@ -421,10 +421,10 @@
         {{movement.envios.count}}
     </td>
     <td class="text-wrap">
-        {% if movement.comment %}"{{ movement.comment }}"{% else %}-{% endif %}
+        {% if movement.comment %}{{ movement.comment | remove_parenthesis }}{% else %}-{% endif %}
     </td>
     <td class="">
-        {% if movement.proof %}<a href="{{ movement.proof.url | remove_parenthesis }}">Imagen</a>{% else %}-{% endif %}
+        {% if movement.proof %}<a href="{{ movement.proof.url }}">Imagen</a>{% else %}-{% endif %}
     </td>
 </tr>
 {% endfor %}
