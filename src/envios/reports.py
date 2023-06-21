@@ -21,6 +21,9 @@ from envios.models import Envio
 from mysite import settings
 
 
+MAX_ENTRANCE_CHARS = 200
+
+
 class QRFlowable(Flowable):
     """
     Thanks to christophe31 at StackOverflow
@@ -256,8 +259,8 @@ class PDFReport(object):
                 "", "", "", "", "", "", "", "", "", ""])
         if kwargs['entrances'] != 'No especificado':
             txt = f"<b>Referencias:</b> {kwargs['entrances']}"
-            if len(txt) > 120:
-                txt = txt[:120] + "..."
+            if len(txt) > MAX_ENTRANCE_CHARS:
+                txt = txt[:200] + "..."
             data.append(["", Paragraph(
                 txt, styleN),
                 "", "", "", "", "", "", "", "", "", ""])

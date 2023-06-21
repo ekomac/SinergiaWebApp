@@ -7,14 +7,14 @@ from .exceptions import EmptyPDFError, InvalidPdfFileError
 from .shipment import Shipment
 
 
-RE_TRACKING_ID = r'\nTracking: (?P<result>[0-9]*)\n'
-RE_DOMICILIO = r'\nDireccion: (?P<result>.*\n?.*)\nReferencia:'
-RE_REFERENCIA = r'Referencia: (?P<result>.*\n?.*)\nBarrio:'
-RE_CODIGO_POSTAL = r'\nCP: (?P<result>.*)\n'
-RE_TOWN = r'CP: .*\n.*\n(?P<result>.*)\n'
+RE_TRACKING_ID = r' Tracking: (?P<result>[0-9]+?) '
+RE_ADDRESS = r' Direccion: (?P<result>.*?) Referencia:'
+RE_REFERENCE = r'Referencia: (?P<result>.*?) Barrio:'
+RE_ZIP_CODE = r' CP: (?P<result>.*?) '
+RE_RECEIVER = r' Destinatario: (?P<result>.*?\)) '
+RE_DELIVERY_DATE = r'Entrega: (?P<result>[0-9]+?\-[a-zA-Z]+)'
 RE_PARTIDO = r'CP: .*\n(?P<result>.*)\n'
-RE_DESTINATARIO = r'\nDestinatario: (?P<result>.*\n?.*\))\n'
-RE_ENTREGA = r'Entrega:.*\n(?P<result>.*).\n'
+RE_TOWN = r'CP: .*\n.*\n(?P<result>[\w.\-\s]+)(?=CP\:)'
 
 
 class MercadoLibreSubmodule():
@@ -47,37 +47,42 @@ class MercadoLibreSubmodule():
         if "Entrega:" not in page_text:
             return LegacyMercadoLibreSubmodule.page_to_shipments(page_text)
 
+        txt_clean: str = self._clean_match(page_text)
+        first_zip_code_txt_index: int = page_text.index("\nCP: ")
+        start_index: int = first_zip_code_txt_index + 1
+        last_txt: str = page_text[start_index:] + "\nCP:"
+
         # Get tracking id
         regex = re.compile(RE_TRACKING_ID)
-        tracking_ids = [self._clean_match(s) for s in regex.findall(page_text)]
+        tracking_ids = [self._clean_match(s) for s in regex.findall(txt_clean)]
 
         # Get address
-        regex = re.compile(RE_DOMICILIO)
-        addresses = [self._clean_match(s) for s in regex.findall(page_text)]
+        regex = re.compile(RE_ADDRESS)
+        addresses = [self._clean_match(s) for s in regex.findall(txt_clean)]
 
         # Get reference
-        regex = re.compile(RE_REFERENCIA)
-        references = [self._clean_match(s) for s in regex.findall(page_text)]
+        regex = re.compile(RE_REFERENCE)
+        references = [self._clean_match(s) for s in regex.findall(txt_clean)]
 
         # Get postal code
-        regex = re.compile(RE_CODIGO_POSTAL)
-        zip_codes = [self._clean_match(s) for s in regex.findall(page_text)]
+        regex = re.compile(RE_ZIP_CODE)
+        zip_codes = [self._clean_match(s) for s in regex.findall(txt_clean)]
 
         # Get receiver name
-        regex = re.compile(RE_DESTINATARIO)
-        receivers = [self._clean_match(s) for s in regex.findall(page_text)]
+        regex = re.compile(RE_RECEIVER)
+        receivers = [self._clean_match(s) for s in regex.findall(txt_clean)]
+
+        # Get expected delivery date
+        regex = re.compile(RE_DELIVERY_DATE)
+        dates = [self._clean_match(s) for s in regex.findall(txt_clean)]
 
         # Get partido
         regex = re.compile(RE_PARTIDO)
-        partidos = [self._clean_match(s) for s in regex.findall(page_text)]
+        partidos = [self._clean_match(s) for s in regex.findall(last_txt)]
 
         # Get town
         regex = re.compile(RE_TOWN)
-        towns = [self._clean_match(s) for s in regex.findall(page_text)]
-
-        # Get expected delivery date
-        regex = re.compile(RE_ENTREGA)
-        dates = [self._clean_match(s) for s in regex.findall(page_text)]
+        towns = [self._clean_match(s) for s in regex.findall(last_txt)]
 
         shipments = []
 
