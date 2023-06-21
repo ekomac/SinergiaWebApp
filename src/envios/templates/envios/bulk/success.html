@@ -23,22 +23,32 @@
         </div>
         <div class="card-body">
             <h3 class="card-title mt-3">
+                {% if unused_flex_ids %}
+                ¡Los envíos se cargaron parcialmente!
+                {% elif unused_flex_ids and  not envios %}
+                ¡Los envíos <strong>NO</strong> se cargaron!
+                {% else %}
                 <img src="{% static 'res/confetti.png' %}" height="25" width="25" alt="Confetti">
                 ¡Los envíos se cargaron correctamente!
                 <img src="{% static 'res/confetti.png' %}" height="25" width="25" alt="Confetti">
+                {% endif %}
             </h3>
             <div class="mt-3">
                 {% if unused_flex_ids %}
+                <h6 class="mt-2">
+                    Los siguientes envíos <strong>NO fueron agregados</strong> a la base:
+                </h6>
                 <div>
                     Los envíos {{ unused_flex_ids }} <strong>no fueron agregados</strong> porque el ID de Flex ya
                     existía en la base de datos.
                 </div>
+                <hr>
                 {% endif %}
 
+                {% if envios %}
                 <h6 class="mt-2">
                     Los siguientes envíos fueron agregados a la base:
                 </h6>
-                {% if envios %}
                 <ul>
                     {% for envio in envios %}
                     {% if forloop.counter < 15 %}
