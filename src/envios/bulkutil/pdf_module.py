@@ -9,12 +9,12 @@ from .shipment import Shipment
 
 RE_TRACKING_ID = r' Tracking: (?P<result>[0-9]+?) '
 RE_ADDRESS = r' Direccion: (?P<result>.*?) Referencia:'
-RE_REFERENCE = r'Referencia: (?P<result>.*?) Barrio:'
+RE_REFERENCE = r'Referencia:(?P<result>.*?) Barrio:'
 RE_ZIP_CODE = r' CP: (?P<result>.*?) '
 RE_RECEIVER = r' Destinatario: (?P<result>.*?\)) '
 RE_DELIVERY_DATE = r'Entrega: (?P<result>[0-9]+?\-[a-zA-Z]+)'
 RE_PARTIDO = r'CP: .*\n(?P<result>.*)\n'
-RE_TOWN = r'CP: .*\n.*\n(?P<result>[\w.\-\s]+)(?=CP\:)'
+RE_TOWN = r'CP: .*\n.*\n(?P<result>[\w\"\'\´\`\,\.\-\s]+)(?=CP\:)'
 
 
 class MercadoLibreSubmodule():
