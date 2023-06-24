@@ -335,9 +335,10 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
 def bulk_create_envios_view(request):
+
     context = {}
     form = BulkLoadEnviosForm()
-    print(request.POST)
+
     if request.method == 'POST':
         user = Account.objects.get(email=request.user.email)
         form = BulkLoadEnviosForm(
