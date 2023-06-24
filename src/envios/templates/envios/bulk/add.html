@@ -37,12 +37,6 @@
 
         <div class="card-body">
 
-            {% comment %} <div class="alert alert-info" role="alert">
-                Solución inteligente para cargar envíos con PDFs y Excels de TiendaNube, MercadoLibre y hojas de cálculo
-                personalizadas (<a href="#" data-bs-toggle="modal" data-bs-target="#baseModal">click acá</a> para más
-                info).
-            </div> {% endcomment %}
-
             <div class="alert alert-info" role="alert">
                 Solución inteligente para cargar envíos con PDFs y Excels de TiendaNube, MercadoLibre y hojas de cálculo
                 personalizadas (<a href="{% url 'envios:print-empty-xlsx' %}">click acá</a> para descargar modelo).
@@ -96,8 +90,6 @@
                 <div class="d-grid gap-2 d-md-flex">
                     <button type="submit" class="btn btn-primary"><i class="bi bi-stars">&nbsp;Cargar envíos</i>
                     </button>
-                    {% comment %} <button type="button" class="btn btn-secondary" data-bs-toggle="modal"
-                        data-bs-target="#baseModal">Descargar excel</button> {% endcomment %}
                 </div>
             </div>
             <!-- END BUTTONS -->
@@ -109,38 +101,47 @@
 <script src="{% static 'base/base_system.js' %}"></script>
 
 <script>
-    var initial_deposit_id = "{{initial_deposit_id}}";
-    var initial_client_id = "{{initial_client_id}}";
+    var initial_deposit_id = "{{initial_deposit_id}}"
+    var initial_client_id = "{{initial_client_id}}"
     var deposits = JSON.parse('{{ deposits | escapejs }}');
-    $(document).ready(function () {
-        $('#id_deposit').find('option:not(:first)').remove();
-        $('#id_client').on('inputchange', function () {
-            var selectedClientId = this.value.toString();
-            console.log(selectedClientId);
-            if (![null, undefined, ''].includes(selectedClientId)) {
-                var depositsFromClient = deposits.filter(function (deposit) {
-                    return deposit.client_id == selectedClientId;
-                });
-                console.log("depositsFromClient", depositsFromClient);
-                $('#id_deposit').find('option:not(:first)').remove();
-                for (var element of depositsFromClient) {
-                    $('#id_deposit').append('<option value="' + element.id + '">' + element.name +
-                        '</option>');
-                }
-                if (initial_deposit_id != '') {
-                    $('#id_deposit').val(initial_deposit_id).change();
-                }
-            } else {
-                $('#id_deposit').find('option:not(:first)').remove();
-            }
-        });
-        if (initial_client_id != '') {
-            $('#id_client').val(initial_client_id).change();
-            if (initial_deposit_id != '') {
-                $('#id_deposit').val(initial_deposit_id).change();
-            }
-        }
-    });
+
+    const updateClientSelect = (client_id) => {
+        if (client_id === "") return
+
+        const clientSelect = document.getElementById('id_client')
+
+        const optionToSelect = Array.from(clientSelect.options).find(option => option.value === client_id);
+        if (optionToSelect) optionToSelect.selected = true
+    }
+
+    const updateDepositsSelect = (client_id, deposits, deposit_id = "") => {
+        let depositSelect = document.getElementById('id_deposit')
+        while (depositSelect.options.length > 1) depositSelect.remove(1)
+
+        if (client_id === "") return
+
+        var depositsFromClient = deposits.filter(deposit => deposit.client_id == client_id)
+
+        depositsFromClient.forEach(({
+            id,
+            name
+        }) => {
+            const newOption = document.createElement('option')
+            newOption.value = id
+            newOption.text = name
+            if (deposit_id !== "" && id == deposit_id) newOption.selected = true
+            depositSelect.add(newOption)
+        })
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+        updateClientSelect(initial_client_id)
+        updateDepositsSelect(initial_client_id, deposits, initial_deposit_id)
+
+        document.getElementById('id_client').addEventListener('change', (event) => updateDepositsSelect(event
+            .target.value, deposits))
+    })
 </script>
 
 {% endblock content %}

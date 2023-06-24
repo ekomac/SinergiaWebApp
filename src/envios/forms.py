@@ -4,7 +4,7 @@ from django.core.validators import FileExtensionValidator
 from account.models import Account
 from deposit.models import Deposit
 from envios.bulkutil.exceptions import (
-    InvalidExcelFileError, InvalidPdfFileError)
+    InvalidExcelFileError, InvalidMercadoLibreFile, InvalidPdfFileError)
 from envios.bulkutil.extractor import Extractor
 from envios.models import BulkLoadEnvios, Envio
 from clients.models import Client
@@ -81,6 +81,10 @@ class BulkLoadEnviosForm(forms.ModelForm):
         except InvalidExcelFileError:
             raise forms.ValidationError("El archivo de Excel proporcionado \
                 no es válido.")
+        except InvalidMercadoLibreFile:
+            error_msg = ("El archivo que se ingresó no cumple con el estándar"
+                         " de patrones reconocibles por el lector de PDF.")
+            raise forms.ValidationError(error_msg)
 
     def save(self, commit=True):
         bulk_load = self.instance

@@ -24,3 +24,7 @@ class InvalidExtensionError(Exception):
 
 class UnsupportedExtensionError(Exception):
     pass
+
+
+class InvalidMercadoLibreFile(Exception):
+    pass

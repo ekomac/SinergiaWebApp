@@ -335,8 +335,10 @@ class EnvioCreate(LoginRequiredMixin, CreateView):
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
 def bulk_create_envios_view(request):
+
     context = {}
     form = BulkLoadEnviosForm()
+
     if request.method == 'POST':
         user = Account.objects.get(email=request.user.email)
         form = BulkLoadEnviosForm(
@@ -346,17 +348,25 @@ def bulk_create_envios_view(request):
             if not obj.requires_manual_fix and not obj.errors:
                 return redirect('envios:envio-bulk-add-success', pk=obj.pk)
             return redirect('envios:bulk-handle', pk=obj.pk)
+
     context['upload_form'] = form
     context['selected_tab'] = 'shipments-tab'
     context['deposits'] = get_deposits_as_JSON()
 
     # Get params urls to preload client and deposit
-    client_id = request.GET.get('client_id', None)
-    if client_id is not None:
+    if client_id := request.GET.get('client_id', None):
         context['initial_client_id'] = client_id
-    deposit_id = request.GET.get('deposit_id', None)
-    if deposit_id is not None:
+    elif client_id := request.POST.get('client', None):
+        context['initial_client_id'] = client_id
+    else:
+        context['initial_client_id'] = ""
+
+    if deposit_id := request.GET.get('deposit_id', None):
         context['initial_deposit_id'] = deposit_id
+    elif deposit_id := request.POST.get('deposit', None):
+        context['initial_deposit_id'] = deposit_id
+    else:
+        context['initial_deposit_id'] = ""
 
     return render(request, 'envios/bulk/add.html', context)
 

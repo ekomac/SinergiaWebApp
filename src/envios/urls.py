@@ -30,7 +30,6 @@ app_name = 'envios'
 urlpatterns = [
 
     # ******************************* ENVIOS *******************************
-    #     path('', envios_view, name="envio-list"),
     path('', EnvioListView.as_view(), name="envio-list"),
     path('<int:pk>/', EnvioDetailView.as_view(), name="envio-detail"),
     path('add/', EnvioCreate.as_view(), name="envio-add"),
