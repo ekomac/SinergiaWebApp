@@ -3,7 +3,9 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 import fitz
 from itertools import chain
 from .base_module import ShipmentExractorModule
-from .exceptions import EmptyPDFError, InvalidPdfFileError
+from .exceptions import (
+    EmptyPDFError, InvalidMercadoLibreFile, InvalidPdfFileError
+)
 from .shipment import Shipment
 
 
@@ -14,7 +16,8 @@ RE_ZIP_CODE = r' CP: (?P<result>.*?) '
 RE_RECEIVER = r' Destinatario: (?P<result>.*?\)) '
 RE_DELIVERY_DATE = r'Entrega: (?P<result>[0-9]+?\-[a-zA-Z]+)'
 RE_PARTIDO = r'CP: .*\n(?P<result>.*)\n'
-RE_TOWN = r'CP: .*\n.*\n(?P<result>[\w\"\'\´\`\,\.\-\s]+)(?=CP\:)'
+RE_TOWN = r'<SEPARATOR>(?P<result>.*?)(?=<SEPARATOR>)'
+RE_SEPARATOR = r'CP: (.*\n.*\n)?'
 
 
 class MercadoLibreSubmodule():
@@ -33,7 +36,10 @@ class MercadoLibreSubmodule():
 
         shipments = []
         for page in pages:
-            shipments.extend(self._page_to_shipments(page))
+            try:
+                shipments.extend(self._page_to_shipments(page))
+            except IndexError:
+                InvalidMercadoLibreFile
 
         return shipments
 
@@ -47,10 +53,7 @@ class MercadoLibreSubmodule():
         if "Entrega:" not in page_text:
             return LegacyMercadoLibreSubmodule.page_to_shipments(page_text)
 
-        txt_clean: str = self._clean_match(page_text)
-        first_zip_code_txt_index: int = page_text.index("\nCP: ")
-        start_index: int = first_zip_code_txt_index + 1
-        last_txt: str = page_text[start_index:] + "\nCP:"
+        txt_clean = self._clean_match(page_text)
 
         # Get tracking id
         regex = re.compile(RE_TRACKING_ID)
@@ -76,9 +79,17 @@ class MercadoLibreSubmodule():
         regex = re.compile(RE_DELIVERY_DATE)
         dates = [self._clean_match(s) for s in regex.findall(txt_clean)]
 
+        first_zip_code_txt_index = page_text.index("\nCP: ")
+        start_index = first_zip_code_txt_index + 1
+        last_txt = page_text[start_index:]
+
         # Get partido
         regex = re.compile(RE_PARTIDO)
-        partidos = [self._clean_match(s) for s in regex.findall(last_txt)]
+        partidos = [self._clean_match(s) for s in regex.findall(page_text)]
+
+        last_txt = last_txt + ("CP: " if page_text[-1] == "\n" else "\nCP: ")
+        last_txt = re.sub(RE_SEPARATOR, "<SEPARATOR>", last_txt)
+        last_txt = last_txt.replace("\n", " ")
 
         # Get town
         regex = re.compile(RE_TOWN)
@@ -86,16 +97,20 @@ class MercadoLibreSubmodule():
 
         shipments = []
 
-        for i in range(len(tracking_ids)):
-            shipment = Shipment(
-                tracking_ids[i], addresses[i], references[i],
-                zip_codes[i], towns[i], partidos[i],
-                receivers[i], "", "", "detalle_envio", dates[i]
-            )
-            shipment.clean()
-            shipments.append(shipment)
+        try:
+            for i in range(len(tracking_ids)):
+                shipment = Shipment(
+                    tracking_ids[i], addresses[i], references[i],
+                    zip_codes[i], towns[i], partidos[i],
+                    receivers[i], "", "", "detalle_envio", dates[i]
+                )
+                shipment.clean()
+                shipments.append(shipment)
 
-        return shipments
+            return shipments
+        except IndexError:
+            raise InvalidMercadoLibreFile(
+                "Does not comply with pattern matching")
 
 
 class LegacyMercadoLibreSubmodule():
