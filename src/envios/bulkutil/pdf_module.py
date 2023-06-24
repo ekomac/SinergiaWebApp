@@ -36,10 +36,7 @@ class MercadoLibreSubmodule():
 
         shipments = []
         for page in pages:
-            try:
-                shipments.extend(self._page_to_shipments(page))
-            except IndexError:
-                InvalidMercadoLibreFile
+            shipments.extend(self._page_to_shipments(page))
 
         return shipments
 
