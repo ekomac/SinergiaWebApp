@@ -40,8 +40,11 @@ class MercadoLibreSubmodule():
 
         return shipments
 
-    def _clean_match(self, s: str):
-        return s.replace("\n", " ").strip()
+    def _clean(self, s: str, char_limit=None):
+        ret = s.replace("\n", " ").strip()
+        if char_limit is not None:
+            ret = ret[:char_limit]
+        return ret
 
     def _page_to_shipments(self, page) -> list[Shipment]:
         page_text = page.getText()
@@ -50,31 +53,31 @@ class MercadoLibreSubmodule():
         if "Entrega:" not in page_text:
             return LegacyMercadoLibreSubmodule.page_to_shipments(page_text)
 
-        txt_clean = self._clean_match(page_text)
+        txt_clean = self._clean(page_text)
 
         # Get tracking id
         regex = re.compile(RE_TRACKING_ID)
-        tracking_ids = [self._clean_match(s) for s in regex.findall(txt_clean)]
+        tracking_ids = [self._clean(s) for s in regex.findall(txt_clean)]
 
         # Get address
         regex = re.compile(RE_ADDRESS)
-        addresses = [self._clean_match(s) for s in regex.findall(txt_clean)]
+        addresses = [self._clean(s, 100) for s in regex.findall(txt_clean)]
 
         # Get reference
         regex = re.compile(RE_REFERENCE)
-        references = [self._clean_match(s) for s in regex.findall(txt_clean)]
+        references = [self._clean(s, 500) for s in regex.findall(txt_clean)]
 
         # Get postal code
         regex = re.compile(RE_ZIP_CODE)
-        zip_codes = [self._clean_match(s) for s in regex.findall(txt_clean)]
+        zip_codes = [self._clean(s, 10) for s in regex.findall(txt_clean)]
 
         # Get receiver name
         regex = re.compile(RE_RECEIVER)
-        receivers = [self._clean_match(s) for s in regex.findall(txt_clean)]
+        receivers = [self._clean(s, 50) for s in regex.findall(txt_clean)]
 
         # Get expected delivery date
         regex = re.compile(RE_DELIVERY_DATE)
-        dates = [self._clean_match(s) for s in regex.findall(txt_clean)]
+        dates = [self._clean(s) for s in regex.findall(txt_clean)]
 
         first_zip_code_txt_index = page_text.index("\nCP: ")
         start_index = first_zip_code_txt_index + 1
@@ -82,7 +85,7 @@ class MercadoLibreSubmodule():
 
         # Get partido
         regex = re.compile(RE_PARTIDO)
-        partidos = [self._clean_match(s) for s in regex.findall(page_text)]
+        partidos = [self._clean(s) for s in regex.findall(page_text)]
 
         last_txt = last_txt + ("CP: " if page_text[-1] == "\n" else "\nCP: ")
         last_txt = re.sub(RE_SEPARATOR, "<SEPARATOR>", last_txt)
@@ -90,7 +93,7 @@ class MercadoLibreSubmodule():
 
         # Get town
         regex = re.compile(RE_TOWN)
-        towns = [self._clean_match(s) for s in regex.findall(last_txt)]
+        towns = [self._clean(s) for s in regex.findall(last_txt)]
 
         shipments = []
 
