@@ -61,3 +61,8 @@ def remove_html_tags(text):
 @register.filter(name='remove_parenthesis')
 def remove_parenthesis(text: str):
     return text.replace("(", "").replace(")", "")
+
+
+@register.filter(name='addres_to_url_str')
+def addres_to_url_str(address: str):
+    return address.replace(" ", "+")
