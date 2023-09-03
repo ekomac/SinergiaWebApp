@@ -392,11 +392,6 @@
         {% else %}
         <b>sin datos</b>
         {% endif %}
-        {% comment %} Sin respuesta en destino a {% if movement.from_carrier %}<a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}"
-            data-bs-toggle="tooltip" data-bs-html="true"
-            title="{{movement.from_carrier.full_name}}"><i class="bi bi-person-badge me-1"></i>{{movement.from_carrier.username}}</a>{% else %}<b>sin datos</b>{% endif %}{% if movement.comment %}.
-        Comentario: "{{ movement.comment }}"{% endif %}{% if movement.proof %}. Se adjuntó <a
-            href="{{ movement.proof.url }}">esta imagen</a>.{% endif %} {% endcomment %}
 
         {% elif movement.result == 'custom' %}
         {% if movement.from_carrier %}
@@ -406,11 +401,6 @@
         {% else %}
         <b>Sin datos</b>
         {% endif %}
-        {% comment %} {% if movement.from_carrier %}<a href="{% url 'account:employees-detail' pk=movement.from_carrier.pk %}" data-bs-toggle="tooltip"
-            data-bs-html="true" title="{{movement.from_carrier.full_name}}"><i class="bi bi-person-badge me-1"></i>{{movement.from_carrier.username}}</a>{% else %}<b>Un usuario</b>{% endif %} no
-        pudo entregar en destino: {% if movement.comment %}"{{ movement.comment }}"{% else %}sin
-        comentario{% endif %}{% if movement.proof %}. Se adjuntó <a href="{{ movement.proof.url }}">esta
-            imagen</a>{% endif %}. {% endcomment %}
 
         {% else %}
         <b>Sin información del movimiento.</b>
@@ -424,7 +414,7 @@
         {% if movement.comment %}{{ movement.comment | remove_parenthesis }}{% else %}-{% endif %}
     </td>
     <td class="">
-        {% if movement.proof %}<a href="{{ movement.proof.url }}">Imagen</a>{% else %}-{% endif %}
+        {% if movement.proof %}<a target="_blank" href="{{ movement.proof.url }}">Imagen</a>{% else %}-{% endif %}
     </td>
 </tr>
 {% endfor %}

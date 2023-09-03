@@ -77,7 +77,7 @@
                 {% if contract %}
                 <div class="col-12">
                     <label for="id_clean_previous_contract" class="form-label">Contrato actual</label><br>
-                    <a href="{{ contract.url }}">{{ contract.text }}</a>
+                    <a target="_blank" href="{{ contract.url }}">{{ contract.text }}</a>
                     <input class="form-check-input ms-3" type="checkbox" name="clean_previous_contract"
                         id="id_clean_previous_contract">
                     <label class="form-check-label" for="id_clean_previous_contract">
