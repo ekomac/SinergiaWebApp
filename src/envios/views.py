@@ -235,6 +235,23 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
+    def get_last_update(self, envio: Envio) -> str:
+        client = "Sinergia" if envio.updated_by.client is None else (
+            envio.updated_by.client.name)
+
+        ref = ('&nbsp;<a href="#" class="mx-1" data-bs-toggle="tooltip" '
+               f'data-bs-html="true" title="{envio.updated_by.first_name} '
+               f'{envio.updated_by.last_name}<em><br>'
+               f' ({client})</em>">@{envio.updated_by.username}</a>&nbsp;')
+
+        admin_event = "&nbsp;un evento administrativo&nbsp;"
+
+        updater = admin_event if envio.updated_by is None else ref
+
+        date_of_update = envio.date_updated.strftime('%d/%m/%Y a las %H:%M')
+
+        return f"Última vez actualizado por{updater}el {date_of_update}"
+
     def get_context_data(self, **kwargs):
         ctx = super(EnvioDetailView, self).get_context_data(**kwargs)
         envio = ctx['object']
@@ -249,6 +266,9 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
             ctx['delivered_date'] = delivered_date
             deliverer = delivered_tracking_movement.created_by
             ctx['deliverer'] = deliverer
+
+        ctx['last_update_html_safe'] = self.get_last_update(envio)
+
         return ctx
 
 

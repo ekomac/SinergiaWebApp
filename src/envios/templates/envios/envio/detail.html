@@ -5,13 +5,15 @@
 
 {% block content %}
 {% load url_extras %}
+{% load main_extras %}
 <style>
     .table thead th {
         border-bottom: 2px solid #C556FF;
     }
 
     .spaced-tr {
-        height: 9vh;
+        //height: 7vh;
+        //margin: 20px 0;
     }
 
     .date {
@@ -19,105 +21,60 @@
         color: red;
     }
 </style>
-<div class="col-md-12 col-xl-7 col-xxl-6 d-flex-block">
+<div class="col-md-12  d-flex-block">
     <div class="card flex-fill shadow-lg">
-        <div class="card-header d-flex justify-content-between flex-wrap align-items-center">
-            <div>
-                Detalle de envío
-            </div>
-            <div class="">
-                <a href="{% url 'envios:envio-list' %}">
-                    <i class="bi bi-list"></i>Ver lista completa</a>
-            </div>
+        <div class="card-header d-flex justify-content-between">
+            Detalle de envío
+            <a href="{% url 'envios:envio-list' %}"><i class="bi bi-list"></i>Ver lista completa</a>
         </div>
-        <div class="card-body">
+        <div class="card-body ">
 
-            <div class="card-title d-flex justify-content-between flex-wrap align-content-center">
+            <div class="card-title d-flex flex-column flex-xxl-row justify-content-between align-content-center w-100">
 
-                <div class="d-flex justify-content-between align-items-center w-100">
-
-                    {% if object.status == "N" %}
-                    <h4>
+                <div class="flex-fill d-flex flex-column flex-sm-row flex-md-column flex-lg-row">
+                    <div class="d-flex fs-5 flex-row m-1 align-items-center">
+                        {% if object.status == "N" %}
                         <div class="badge rounded-pill bg-danger">
-                            <i class="bi bi-plus-circle-dotted"></i> Nuevo
+                            <i class="bi bi-plus-circle-dotted me-1"></i>Nuevo
                         </div>
-                    </h4>
-
-
-                    {% elif object.status == "S" %}
-                    <div class="d-flex justify-content-between">
+                        {% elif object.status == "S" %}
+                        <div class="badge rounded-pill bg-warning text-dark">
+                            <i class="bi bi-geo-alt me-1"></i>En depósito
+                        </div>
+                        {% elif object.status == "M" %}
                         <div class="d-flex">
-                            <h4>
-                                <div class="badge rounded-pill bg-warning text-dark">
-                                    <i class="bi bi-geo-alt"></i> En depósito
-                                </div>
-                            </h4>
-                        </div>
-                        {% if object.has_delivery_attempt %}
-                        <div class="ms-2">
-                            <h4>
-                                <div class="badge rounded-pill bg-info text-dark">
-                                    <i class="bi bi-skip-forward"></i> Reprogramado
-                                </div>
-                            </h4>
-                        </div>
-                        {% endif %}
-                        
-                    </div>
-                    {% elif object.status == "M" %}
-                    <div class="d-flex justify-content-between">
-                        <div class="d-flex">
-                            <h4>
-                                <div class="badge rounded-pill bg-primary">
-                                    <i class="bi bi-truck"></i> Viajando
-                                </div>
-                            </h4>
-                        </div>
-                        <div class="d-flex justify-content-end" style="min-width: 10px;">
-                            <span
-                                class="blinking position-absolute top-1 start-1 translate-bottom mt-1 ms-2 p-1 rounded-circle"
+                            <div class="ms-2 badge rounded-pill bg-primary"><i class="bi bi-truck me-1"></i>Viajando
+                            </div>
+                            <div class="blinking position-absolute top-1 start-1 translate-bottom mt-1 p-1 rounded-circle me-1"
                                 style="background-color: lime;">
                                 <span class="visually-hidden">New alerts</span>
-                            </span>
+                            </div>
                         </div>
-                        {% if object.has_delivery_attempt %}
-                        <div class="ms-2">
-                            <h4>
-                                <div class="badge rounded-pill bg-info text-dark">
-                                    <i class="bi bi-skip-forward"></i> Reprogramado
-                                </div>
-                            </h4>
+                        {% elif object.status == "D" %}
+                        <div class="badge rounded-pill bg-success">
+                            <i class="bi bi-check2 me-1"></i>Entregado
+                        </div>
+                        {% endif %}
+                        {% if object.has_delivery_attempt and object.status != "D" %}
+                        <div class="ms-2 badge rounded-pill bg-info text-dark">
+                            <i class="bi bi-skip-forward me-1"></i>Reprogramado
                         </div>
                         {% endif %}
                     </div>
 
-                    {% elif object.status == "D" %}
-                    <h4>
-                        <div class="badge rounded-pill bg-success"><i class="bi bi-check2"></i> Entregado</div>
-                    </h4>
-                    {% endif %}
+                    <div class="fs-5 lh-1 m-1 text-wrap text-sm-nowrap">
+                        {% if object.status == "D" %}En{% else %}{% if object.description %}{{ object.description }}c{% else %}C{% endif %}on&nbsp;destino&nbsp;a{% endif %}&nbsp;<strong>{{ object.full_address }}</strong>
+                    </div>
 
                 </div>
 
-                <div class="me-2 w-100 align-content-center">
-                    <h2>{{ object.full_address }}</h2>
-                </div>
-                <div class="mt-1 d-flex flex-wrap justify-content-start aling-items-center">
-                    <div class="text-nowrap">
-                        <i class="bi bi-clock-history"></i>&nbsp;Ultima vez actualizado
-                    </div>
-                    <div class="text-nowrap">
-                        {% if object.updated_by != None %}&nbsp;por&nbsp;<a href="#" data-bs-toggle="tooltip"
-                            data-bs-html="true"
-                            title="{{ object.updated_by.first_name }}&nbsp;{{ object.updated_by.last_name }}<em><br>{% if object.updated_by.client != None %}&nbsp;({{ object.updated_by.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ object.updated_by.username }}</a>{% else %}&nbsp;con&nbsp;un
-                        evento adminsitrativo{% endif %}
-                    </div>
-                    <div class="text-nowrap">
-                        &nbsp;el&nbsp;{{ object.date_updated|date:"d/m/Y H:i" }}
-                    </div>
-                </div>
+                <div class="m-1 text-wrap text-sm-nowrap">
+                    {{last_update_html_safe | safe }}</div>
+
 
             </div>
+
+
 
             <hr>
 
@@ -180,36 +137,62 @@
 
                 </div>
                 <hr>
-                <table class="table table-bordered">
-                    <tbody id="overrided-1" class="overrided-tbody">
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
-                                    class="bi bi-shop-window"></i>
-                                ID Tracking</td>
-                            <td class="w-100">{{ object.tracking_id }}</td>
-                        </tr>
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
-                                    class="bi bi-shop-window"></i>
-                                Cliente</td>
-                            <td class="w-100"><a
+
+                <!-- SHIMPENT INFO -->
+                <div style="max-width: 100%; max-height: 500px;" class="d-inline">
+
+                    <iframe style="width: 100%; height: 400px;" style="border:0" loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade"
+                        src="https://www.google.com/maps/embed/v1/place?key=AIzaSyBaR5f-Gfb6-dJaTjd3wiamnadF5Q7P8g0
+                    &q={{ object.full_address | addres_to_url_str }},{{ object.town.partido.name }},{{ object.town.partido.get_province_display }}">
+                    </iframe>
+                </div>
+
+                <hr>
+                <style>
+                    .wrapper {
+                        max-width: 100%;
+                        display: grid;
+                        grid-gap: 15px;
+                        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                    }
+
+                    .wrapper>div {
+                        border: 0.5px solid rgba(0, 0, 0, 0.1);
+                        border-radius: 5px;
+                        padding: 0.4em 0.7em;
+                        box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
+                    }
+                </style>
+                <div style="max-width: 100%; max-height: 500px;" class="d-inline mb-1">
+                    <div class="wrapper d-grid w-100">
+                        <div>
+                            <div class="fs-6 text-muted mb-1"><i class="bi bi-hash me-1"></i>ID Tracking</div>
+                            <div class="lh-1">{{ object.tracking_id }}</div>
+                        </div>
+                        <div>
+                            <div class="fs-6 text-muted mb-1"><i class="bi bi-shop-window me-1"></i>Cliente</div>
+                            <div class="lh-1"><a
                                     href="{% url 'clients:detail' object.client.pk %}">{{ object.client.name }}</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
-                                    class="bi bi-compass"></i>
-                                Localización</td>
-                            <td class="w-100">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="  text-muted mb-1"><i class="bi bi-compass me-1"></i>Localización actual</div>
+                            <div class="lh-1">
                                 <!-- NEW OR STILL -->
                                 {% if object.status == 'N' or object.status == 'S' %}
-                                {% if object.deposit %}En depósito "{{ object.deposit.name }}" en <i>{{ object.deposit.full_address }}</i>
-                                {% if object.deposit.client %}de {{ object.deposit.client.name }}{% endif %}{% else %}En un depósito que se eliminó del sistema.{% endif %}
+                                {% if object.deposit %}En depósito "{{ object.deposit.name }}" en
+                                <i>{{ object.deposit.full_address }}</i>
+                                {% if object.deposit.client %}de
+                                {{ object.deposit.client.name }}{% endif %}{% else %}En
+                                un depósito que se eliminó del sistema.{% endif %}
 
                                 <!-- MOVING -->
                                 {% elif object.status == 'M' %}
-                                En manos de {% if object.carrier %}<a href="#" data-bs-toggle="tooltip" data-bs-html="true"
-                                    title="{{ object.carrier.full_name }}<em><br>{% if object.carrier.client != None %}&nbsp;({{ object.carrier.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ object.carrier.username }}</a>{% else %}un usuario que se eliminó{% endif %}
+                                En manos de {% if object.carrier %}<a href="#" data-bs-toggle="tooltip"
+                                    data-bs-html="true"
+                                    title="{{ object.carrier.full_name }}<em><br>{% if object.carrier.client != None %}&nbsp;({{ object.carrier.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ object.carrier.username }}</a>{% else %}un
+                                usuario que se eliminó{% endif %}
 
                                 <!-- DELIVERED -->
                                 {% elif object.status == 'D' %}
@@ -218,39 +201,36 @@
                                 el {{delivered_date}}{% else %}un usuario que se eliminó del sistema.{% endif %}
 
                                 {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-type"></i>
-                                Tipo de envío
-                            </td>
-                            <td class="w-100">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-muted mb-1"><i class="bi bi-truck me-1"></i>Tipo de envío</div>
+                            <div class="lh-1">
                                 {% if object.is_flex %}
                                 <span class="badge" style="background-color: #212529;">FLEX</span>
                                 {% else %}
                                 <span class="badge" style="background-color: #808080;">MENSAJERIA</span>
                                 {% endif %}</td>
-                        </tr>
+                            </div>
+                        </div>
+
                         {% if object.is_flex %}
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-hash"></i>
-                                Id. Flex
-                            </td>
-                            <td class="w-100">{{ object.flex_id }}</td>
-                        </tr>
+                        <div>
+                            <div class="  text-muted mb-1"><i class="bi bi-hash me-1"></i>Identificador de ML Flex</div>
+                            <div class="lh-1">
+                                {{object.flex_id}}
+                            </div>
+                        </div>
                         {% endif %}
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
-                                    class="bi bi-card-list"></i>
-                                Detalle
-                            </td>
-                            <td class="w-100">{{ readable_detail }}</td>
-                        </tr>
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-geo"></i>
-                                Destino
-                            </td>
-                            <td class="w-100">
+
+                        <div>
+                            <div class="text-muted mb-1"><i class="bi bi-card-list me-1"></i>Detalle</div>
+                            <div class="lh-1">{{ readable_detail }}</div>
+                        </div>
+
+                        <div>
+                            <div class="text-muted mb-1"><i class="bi bi-geo me-1"></i>Destino</div>
+                            <div class="lh-1">
                                 <a data-bs-toggle="tooltip" data-bs-html="true" title='
                                 <div style="display: flex; justify-content: center;">
                                     Dirección: {{ object.street }}<br>
@@ -261,72 +241,237 @@
                                     {{ object.remarks }}{% endif %}
                                 </div>'>
                                     {{ object.full_address }}</a>
-                            </td>
+                            </div>
+                        </div>
 
-                        </tr>
                         {% if object.receiver.name != None and object.receiver.name != '' %}
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-person"></i>
-                                Destinatario
-                            </td>
-                            <td class="w-100">{{ object.receiver.name }}</td>
-                        </tr>
+                        <div>
+                            <div class="text-muted mb-1"><i class="bi bi-person me-1"></i>Destinatario</div>
+                            <div class="lh-1">{{ object.receiver.name }}</div>
+                        </div>
                         {% endif %}
-                        {% if object.receiver.doc != None and object.receiver.doc != '' %}
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
-                                    class="bi bi-person-badge"></i> Nro.
-                                Doc. Destinatario</td>
-                            <td class="w-100">{{ object.receiver.doc }}</td>
-                        </tr>
-                        {% endif %}
-                        {% if object.phone != None and object.phone != '' %}
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
-                                    class="bi bi-telephone"></i>
-                                Teléfono
-                            </td>
-                            <td class="w-100">{{ object.receiver.phone }}</td>
-                        </tr>
-                        {% endif %}
-                        {% if object.max_delivery_date != None and object.max_delivery_date != '' %}
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
-                                    class="bi bi-calendar-date"></i>
-                                Fecha máxima de entrega
-                            </td>
-                            <td class="w-100">{{ object.max_delivery_date }}</td>
-                        </tr>
-                        {% endif %}
-                        {% if object.delivery_schedule != None and object.delivery_schedule != '' %}
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-clock"></i>
-                                Horarios de entrega
-                            </td>
-                            <td class="w-100">{{ object.delivery_schedule }}</td>
-                        </tr>
-                        {% endif %}
-                        {% if object.charge != None and object.charge != '' and object.charge > 0 %}
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-clock"></i>
-                                Cobrarle al destinatario</td>
-                            <td class="w-100">$ {{ object.charge }}.-</td>
-                        </tr>
-                        {% endif %}
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
-                                    class="bi bi-currency-dollar"></i> Precio actual</td>
-                            <td class="w-100">$ {{ actual_price }}.-</td>
-                        </tr>
-                        {% if object.bulk_upload and object.bulk_upload.original_file.url %}
-                        <tr>
-                            <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i class="bi bi-file-earmark"></i> Archivo origen</td>
-                                <td class="w-100"><a href="{{ object.bulk_upload.original_file.url}}">{{ object.bulk_upload.original_file.url | truncate_start}}</a></td>
-                            </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
 
+                        {% if object.receiver.doc != None and object.receiver.doc != '' %}
+                        <div>
+                            <div class="  text-muted mb-1">Nro. Doc. Destinatario</div>
+                            <div class="lh-1">{{ object.receiver.doc }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if object.phone != None and object.phone != '' %}
+                        <div>
+                            <div class="text-muted mb-1"><i class="bi bi-telephone me-1"></i>Teléfono Destinatario</div>
+                            <div class="lh-1">{{ object.receiver.phone }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if object.max_delivery_date != None and object.max_delivery_date != '' %}
+                        <div>
+                            <div class="text-muted mb-1"><i class="bi bi-calendar-date me-1"></i>Fecha máxima de entrega
+                            </div>
+                            <div class="lh-1">{{ object.max_delivery_date }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if object.delivery_schedule != None and object.delivery_schedule != '' %}
+                        <div>
+                            <div class="text-muted mb-1"><i class="bi bi-clock me-1"></i>Horarios de entrega</div>
+                            <div class="lh-1">{{ object.delivery_schedule }}</div>
+                        </div>
+                        {% endif %}
+
+                        {% if object.charge != None and object.charge != '' and object.charge > 0 %}
+                        <div>
+                            <div class="  text-muted mb-1"><i class="bi bi-wallet2 me-1"></i></i>Cobrarle al
+                                destinatario
+                            </div>
+                            <div class="lh-1">$ {{ object.charge }}.-</div>
+                        </div>
+                        {% endif %}
+
+                        <div>
+                            <div class="text-muted mb-1"><i class="bi bi-coin me-1"></i>Precio actual</div>
+                            <div class="lh-1">$ {{ actual_price }}.-</div>
+                        </div>
+
+                        {% if object.bulk_upload and object.bulk_upload.original_file.url %}
+                        <div>
+                            <div class="text-muted mb-1"><i class="bi bi-file-earmark me-1"></i>Archivo de origen</div>
+                            <div class="lh-1">
+                                <a
+                                    href="{{ object.bulk_upload.original_file.url}}">{{ object.bulk_upload.original_file.url | truncate_start}}</a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+
+                    </div>
+                </div>
+                {% if 1 == 2 %}
+                <div class="d-none">
+                    <table class="table table-bordered">
+                        <tbody id="overrided-1" class="overrided-tbody">
+                            <tr>
+                                <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                        class="bi bi-shop-window"></i>
+                                    ID Tracking</td>
+                                <td class="w-100">{{ object.tracking_id }}</td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                        class="bi bi-shop-window"></i>
+                                    Cliente</td>
+                                <td class="w-100"><a
+                                        href="{% url 'clients:detail' object.client.pk %}">{{ object.client.name }}</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                        class="bi bi-compass"></i>
+                                    Localización</td>
+                                <td class="w-100">
+                                    <!-- NEW OR STILL -->
+                                    {% if object.status == 'N' or object.status == 'S' %}
+                                    {% if object.deposit %}En depósito "{{ object.deposit.name }}" en
+                                    <i>{{ object.deposit.full_address }}</i>
+                                    {% if object.deposit.client %}de
+                                    {{ object.deposit.client.name }}{% endif %}{% else %}En
+                                    un depósito que se eliminó del sistema.{% endif %}
+
+                                    <!-- MOVING -->
+                                    {% elif object.status == 'M' %}
+                                    En manos de {% if object.carrier %}<a href="#" data-bs-toggle="tooltip"
+                                        data-bs-html="true"
+                                        title="{{ object.carrier.full_name }}<em><br>{% if object.carrier.client != None %}&nbsp;({{ object.carrier.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ object.carrier.username }}</a>{% else %}un
+                                    usuario que se eliminó{% endif %}
+
+                                    <!-- DELIVERED -->
+                                    {% elif object.status == 'D' %}
+                                    Entregado por {% if deliverer %}<a href="#" data-bs-toggle="tooltip"
+                                        data-bs-html="true"
+                                        title="{{ deliverer.full_name }}<em><br>{% if deliverer.client != None %}&nbsp;({{ deliverer.client.name }}){% else %}&nbsp;(Sinergia){% endif %}</em>">@{{ deliverer.username }}</a>
+                                    el {{delivered_date}}{% else %}un usuario que se eliminó del sistema.{% endif %}
+
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                        class="bi bi-type"></i>
+                                    Tipo de envío
+                                </td>
+                                <td class="w-100">
+                                    {% if object.is_flex %}
+                                    <span class="badge" style="background-color: #212529;">FLEX</span>
+                                    {% else %}
+                                    <span class="badge" style="background-color: #808080;">MENSAJERIA</span>
+                                    {% endif %}</td>
+                            </tr>
+                            {% if object.is_flex %}
+                            <tr>
+                                <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                        class="bi bi-hash"></i>
+                                    Id. Flex
+                                </td>
+                                <td class="w-100">{{ object.flex_id }}</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                        class="bi bi-card-list"></i>
+                                    Detalle
+                                </td>
+                                <td class="w-100">{{ readable_detail }}</td>
+                            </tr>
+                            <tr>
+                                <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                        class="bi bi-geo"></i>
+                                    Destino
+                                </td>
+                                <td class="w-100">
+                                    <a data-bs-toggle="tooltip" data-bs-html="true" title='
+                                <div style="display: flex; justify-content: center;">
+                                    Dirección: {{ object.street }}<br>
+                                    Código Postal: {{ object.zipcode }}<br>
+                                    Town: {{ object.town.name }}<br>
+                                    Partido:
+                                    {{ object.town.partido.name }}{% if object.remarks != None and object.remarks != '' %}<br>Observaciones:
+                                    {{ object.remarks }}{% endif %}
+                                </div>'>
+                                        {{ object.full_address }}</a>
+                                </td>
+
+                            </tr>
+                            {% if object.receiver.name != None and object.receiver.name != '' %}
+                            <tr>
+                                <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                        class="bi bi-person"></i>
+                                    Destinatario
+                                </td>
+                                <td class="w-100">{{ object.receiver.name }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if object.receiver.doc != None and object.receiver.doc != '' %}
+                            <tr>
+                                <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                        class="bi bi-person-badge"></i> Nro.
+                                    Doc. Destinatario</td>
+                                <td class="w-100">{{ object.receiver.doc }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if object.phone != None and object.phone != '' %}
+                            <tr>
+                                <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                        class="bi bi-telephone"></i>
+                                    Teléfono
+                                </td>
+                                <td class="w-100">{{ object.receiver.phone }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if object.max_delivery_date != None and object.max_delivery_date != '' %}
+                            <tr>
+                                <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                        class="bi bi-calendar-date"></i>
+                                    Fecha máxima de entrega
+                                </td>
+                                <td class="w-100">{{ object.max_delivery_date }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if object.delivery_schedule != None and object.delivery_schedule != '' %}
+                            <tr>
+                                <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                        class="bi bi-clock"></i>
+                                    Horarios de entrega
+                                </td>
+                                <td class="w-100">{{ object.delivery_schedule }}</td>
+                            </tr>
+                            {% endif %}
+                            {% if object.charge != None and object.charge != '' and object.charge > 0 %}
+                            <tr>
+                                <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                        class="bi bi-clock"></i>
+                                    Cobrarle al destinatario</td>
+                                <td class="w-100">$ {{ object.charge }}.-</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                        class="bi bi-currency-dollar"></i> Precio actual</td>
+                                <td class="w-100">$ {{ actual_price }}.-</td>
+                            </tr>
+                            {% if object.bulk_upload and object.bulk_upload.original_file.url %}
+                            <tr>
+                                <td class="bg-dark fw-bolder text-nowrap" style="color: white;"><i
+                                        class="bi bi-file-earmark"></i> Archivo origen</td>
+                                <td class="w-100"><a
+                                        href="{{ object.bulk_upload.original_file.url}}">{{ object.bulk_upload.original_file.url | truncate_start}}</a>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                {% endif %}
             </div>
 
         </div>
@@ -351,8 +496,8 @@
                 </thead>
                 <tbody>
                     {% for movement in movements %}
-                    <tr class="spaced-tr p-2">
-                        <td class="text-nowrap fw-bold fst-italic" style=" color: #C556FF;">
+                    <tr class="spaced-tr p-4">
+                        <td class="text-nowrap p-3 fw-bold fst-italic" style=" color: #C556FF;">
                             {{movement.date_created | date:"d/m/Y H:i"}}</td>
                         {% if request.user.role == 'admin' %}
                         <td>{% if movement.created_by %} <a
@@ -444,7 +589,8 @@
                             usuario que se eliminó{% endif %} no pudo entregar en destino:
                             {% if movement.comment %}"{{ movement.comment }}"{% else %}sin
                             comentario{% endif %}{% if movement.proof %}. Se adjuntó <a
-                                href="{{ movement.proof.url }}">esta imagen</a>{% endif %}.
+                                href="{{ movement.proof.url }}">esta
+                                imagen</a>{% endif %}.
 
                             {% else %}
                             Sin información del movimiento.
