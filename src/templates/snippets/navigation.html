@@ -356,14 +356,6 @@
             {% endif %}
             <!-- END APK url -->
 
-            <!-- START Tracking Movements -->
-            {% comment %} {% if request.user|has_group:"Admins" %}
-            <li class="nav-item {% if selected_tab == 'movements-tab' %}activetab{% endif %} li-navigation">
-                <a href="{% url 'tracking:list' %}" class="nav-link tab"><i class="bi bi-activity"></i>
-                    Movimientos</a>
-            </li>
-            {% endif %} {% endcomment %}
-            <!-- END Tracking Movements -->
 
             <!-- START AYUDA -->
             {% if request.user|has_group:"Clients" %}
@@ -374,13 +366,6 @@
             <!-- END AYUDA -->
 
             {% if request.user.is_superuser %}
-            <!-- START Mobile App -->
-            {% comment %} <li class="nav-item {% if selected_tab == 'scanner-tab' %}activetab{% endif %} li-navigation">
-                <a id="scanner-tab" href="{% url 'mobile:index' %}" class="nav-link tab" aria-current="page">
-                    <i class="bi bi-box-arrow-up-right"></i></i> App
-                </a>
-            </li> {% endcomment %}
-            <!-- END Mobile App -->
 
             <!-- START SUPERADMIN -->
             <li class="nav-item li-navigation">
