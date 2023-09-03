@@ -22,7 +22,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
                 Detalle de resumen de cuenta de
-                {% if summary_type == 'client' %}cliente{% elif summary_type == 'employee' %}empleado{% endif %}
+                {% if type == 'client' %}cliente{% elif type == 'employee' %}empleado{% endif %}
             </div>
             <div class="">
                 <a href="{% url 'summaries:client-list' %}">
@@ -235,10 +235,10 @@
     function updateEnvios(query = "") {
         const myQuery = query.toLowerCase()
         envios.forEach(function (envio) {
-            if (envio.destination.toLowerCase().includes(myQuery)
-            || envio.detail.toLowerCase().includes(myQuery)
-            || envio.date_delivered.toString().toLowerCase().includes(myQuery)
-            || envio.price.toString().toLowerCase().includes(myQuery)) {
+            if (envio.destination.toLowerCase().includes(myQuery) ||
+                envio.detail.toLowerCase().includes(myQuery) ||
+                envio.date_delivered.toString().toLowerCase().includes(myQuery) ||
+                envio.price.toString().toLowerCase().includes(myQuery)) {
                 show('envio-' + envio.id, true);
             } else {
                 show('envio-' + envio.id, false);
