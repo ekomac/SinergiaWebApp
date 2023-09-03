@@ -209,7 +209,7 @@ def ticket_detail_view(request, pk):
         def to_html_txt(attachment: Attachment):
             url = attachment.file.url
             truncated = truncate_start(attachment.file.url)
-            return f'<li><a href="{url}">{truncated}</a></li>'
+            return f'<li><a target="_blank" href="{url}">{truncated}</a></li>'
 
         attachments = form.save(ticket_id=ticket.pk)
         attachments = ''.join(map(to_html_txt, attachments))

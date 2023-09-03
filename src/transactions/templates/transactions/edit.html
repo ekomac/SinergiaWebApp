@@ -78,20 +78,11 @@
                 </div>
                 <!-- end TRANSACTION INPUT -->
 
-
-                {% comment %} <!-- start SUMMARY -->
-                <div class="col-12">
-                    <label for="{{form.summary.id_for_label}}" class="form-label">Resumen relacionado</label>
-                    {{ form.summary }}
-                </div>
-                <!-- start SUMMARY --> {% endcomment %}
-
-
                 <!-- start FILES SELECT -->
                 <div class="">
                     {% if proof_of_payment %}
                     <label for="last_proof" class="form-label">Comprobante de transacción actual</label><br>
-                    <a href="{{ proof_of_payment.url }}">{{ proof_of_payment.text }}</a>
+                    <a target="_blank" href="{{ proof_of_payment.url }}">{{ proof_of_payment.text }}</a>
                     <input class="form-check-input ms-3" type="checkbox" name="clean_previous_proof_of_payment"
                         id="id_clean_previous_proof_of_payment">
                     <label class="form-check-label" for="id_clean_previous_proof_of_payment">
