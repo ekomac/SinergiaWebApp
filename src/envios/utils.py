@@ -512,29 +512,39 @@ def get_stats_4_last_12_months() -> Tuple[List[str], List[int]]:
 
 def get_stats_daily_deliveries():
     delivered = Envio.objects.filter(status=Envio.STATUS_DELIVERED)
-    sdate = delivered.order_by('date_delivered').first().date_delivered
+    sdate = (
+        delivered.order_by('date_delivered')
+        .first().date_delivered)
     edate = delivered.order_by('-date_delivered').first().date_delivered
-    date_list = [sdate+timedelta(days=x)
-                 for x in range((edate-sdate).days + 1)]
+
+    range_of_days = range((edate - sdate).days + 2)
+    date_list = [sdate+timedelta(days=x) for x in range_of_days]
+
+    qdelivery = "date_delivered__date"
+    qcount = "envio_count"
+    annotations = {qcount: Count('id')}
+
     result = (
         Envio.objects
         .filter(status=Envio.STATUS_DELIVERED)
-        .values('date_delivered')
-        .annotate(envio_count=Count('id'))
-        .order_by('date_delivered')
+        .values(qdelivery)
+        .annotate(**annotations)
+        .order_by(qdelivery)
     )
 
-    count_dict = (
-        {entry['date_delivered']: entry['envio_count'] for entry in result}
-    )
+    date_fmt = "%d-%m-%y"
 
-    labels = []
-    counts = []
-    for date in date_list:
-        count = count_dict.get(date, 0)
-        counts.append(count)
-        label = date.strftime("%d-%m-%Y") if date.day == 1 else ""
+    def to_str(date): return date.strftime(date_fmt)
+
+    count_dict = {to_str(entry[qdelivery]): entry[qcount] for entry in result}
+
+    labels, counts = [], []
+    for i, date in enumerate(date_list):
+        date_str = to_str(date)
+        label = date_str if (date.day == 1 or i in [0, len(date_list)]) else ""
         labels.append(label)
+        count = count_dict.get(date_str, 0)
+        counts.append(count)
 
     return labels, counts
 
