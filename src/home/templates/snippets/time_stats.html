@@ -35,7 +35,7 @@
     const enviosPerMonthData = {
         labels: enviosPerMonthLabels,
         datasets: [{
-            label: 'Cantidad de envíos en los últimos 12 meses',
+            label: 'Cantidad de envíos entregados en los últimos 12 meses',
             backgroundColor: '#00a950',
             borderColor: '#00a950',
             data: {{ enviosPerMonth.counts | safe }},
@@ -64,7 +64,7 @@
     const enviosPerDayData = {
         labels: enviosPerDayLabels,
         datasets: [{
-            label: 'Cantidad de envíos por día',
+            label: 'Cantidad de envíos entregados por día',
             backgroundColor: '#166a8f',
             borderColor: '#166a8f',
             data: {{ enviosPerDay.counts | safe }},
