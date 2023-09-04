@@ -81,21 +81,124 @@
     }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+{% comment %} <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script> {% endcomment %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <div class="w-100 d-flex flex-column">
-    {% include 'snippets/main_stats.html' %}
-    {% include 'snippets/at_origin/table.html' %}
-    {% include 'snippets/at_deposit/table.html' %}
-    {% include 'snippets/moving/table.html' %}
-    {% include 'snippets/stats.html' %}
+
+    <!-- QUICK DETAILS -->
+    <div class="card mb-2">
+
+        <div class="card-header">
+            Detalles rápidos
+        </div>
+        <div class="card-body">
+            {% include 'snippets/quick_stats.html' %}
+        </div>
+    </div>
+
+    <!-- AT ORIGIN -->
+    <div class="card mb-2">
+
+        <div class="card-header d-flex flex-row align-items-center justify-content-between">
+            <div class="d-flex flex-row align-items-center justify-content-start flex-shrink-1 lh-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="min-width: 16px"
+                    fill="currentColor" class="bi bi-shop-window me-1" viewBox="0 0 16 16">
+                    <path
+                        d="M2.97 1.35A1 1 0 0 1 3.73 1h8.54a1 1 0 0 1 .76.35l2.609 3.044A1.5 1.5 0 0 1 16 5.37v.255a2.375 2.375 0 0 1-4.25 1.458A2.371 2.371 0 0 1 9.875 8 2.37 2.37 0 0 1 8 7.083 2.37 2.37 0 0 1 6.125 8a2.37 2.37 0 0 1-1.875-.917A2.375 2.375 0 0 1 0 5.625V5.37a1.5 1.5 0 0 1 .361-.976l2.61-3.045zm1.78 4.275a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0 1.375 1.375 0 1 0 2.75 0V5.37a.5.5 0 0 0-.12-.325L12.27 2H3.73L1.12 5.045A.5.5 0 0 0 1 5.37v.255a1.375 1.375 0 0 0 2.75 0 .5.5 0 0 1 1 0zM1.5 8.5A.5.5 0 0 1 2 9v6h12V9a.5.5 0 0 1 1 0v6h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1V9a.5.5 0 0 1 .5-.5zm2 .5a.5.5 0 0 1 .5.5V13h8V9.5a.5.5 0 0 1 1 0V13a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5a.5.5 0 0 1 .5-.5z" />
+                </svg>En origen - Esperando para ser retirados
+            </div>
+
+            <button class="btn btn-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#at_origin_card_body"
+                aria-expanded="false">Mostrar/ocultar</button>
+        </div>
+        <div class="card-body show" id="at_origin_card_body">
+            {% include 'snippets/at_origin.html' %}
+        </div>
+    </div>
+
+
+
+    <!-- AT DEPOSIT  -->
+    <div class="card mb-2">
+
+        <div class="card-header d-flex flex-row align-items-center justify-content-between">
+            <div class="d-flex flex-row align-items-center justify-content-start flex-shrink-1 lh-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="min-width: 16px"
+                    fill="currentColor" class="bi bi-shop-window me-1" viewBox="0 0 16 16">
+                    <path
+                        d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z" />
+                </svg>En depósito - Esperando para ser distribuidos
+            </div>
+
+            <button class="btn btn-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#at_deposit_card_body"
+                aria-expanded="false">Mostrar/ocultar</button>
+        </div>
+        <div class="card-body show" id="at_deposit_card_body">
+            {% include 'snippets/at_deposit.html' %}
+        </div>
+    </div>
+
+    <!-- MOVING -->
+    <div class="card mb-2">
+
+        <div class="card-header d-flex flex-row align-items-center justify-content-between">
+            <div class="d-flex flex-row align-items-center justify-content-start flex-shrink-1 lh-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="min-width: 16px"
+                    fill="currentColor" class="bi bi-shop-window me-1" viewBox="0 0 16 16">
+                    <path
+                        d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
+                    />
+                </svg>Viajando - Repartidores con envíos
+            </div>
+            <button class="btn btn-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#moving_card_body"
+                aria-expanded="false">Mostrar/ocultar</button>
+        </div>
+        <div class="card-body show" id="moving_card_body">
+            {% include 'snippets/moving.html' %}
+        </div>
+    </div>
+
+    <!-- TIME STATS -->
+    <div class="card mb-2">
+
+        <div class="card-header d-flex flex-row align-items-center justify-content-between">
+            <div class="d-flex flex-row align-items-center justify-content-start flex-shrink-1 lh-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="min-width: 16px"
+                    fill="currentColor" class="bi bi-shop-window me-1" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07Z" />
+                </svg>Distribución temporal de envíos
+            </div>
+            <button class="btn btn-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#time_stats_card_body"
+                aria-expanded="false">Mostrar/ocultar</button>
+        </div>
+        <div class="card-body show" id="time_stats_card_body">
+            {% include 'snippets/time_stats.html' %}
+        </div>
+    </div>
+
+
+
+    <!-- SHARE STATS -->
+    <div class="card mb-2">
+
+        <div class="card-header d-flex flex-row align-items-center justify-content-between">
+            <div class="d-flex flex-row align-items-center justify-content-start flex-shrink-1 lh-1">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" style="min-width: 16px"
+                    fill="currentColor" class="bi bi-shop-window me-1" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07Z" />
+                </svg>Distribución cuantitativa de envíos
+            </div>
+            <button class="btn btn-secondary btn-sm" data-bs-toggle="collapse" data-bs-target="#distrib_stats_card_body"
+                aria-expanded="false">Mostrar/ocultar</button>
+        </div>
+        <div class="card-body show" id="distrib_stats_card_body">
+            {% include 'snippets/distrib_stats.html' %}
+        </div>
+    </div>
 
 </div>
-
-<script>
-    function onItemClicked(id) {
-        alert(id);
-    }
-</script>
 
 {% endblock content %}

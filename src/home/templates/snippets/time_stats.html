@@ -1,0 +1,95 @@
+
+<style>
+
+    .last-months-card {
+        border: 0.5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        padding: 0.4em 0.7em;
+        box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
+        background-color: white;
+        max-height: 1000px;
+        position: relative;
+        width: 100%;
+        min-height: 300px;
+    }
+
+    @media (min-width: 1400px) {
+        .last-months-card {
+            width: 80%;
+        }
+    }
+</style>
+
+<div>
+    <article class="last-months-card">
+        <canvas id="enviosPerMonthCanvas"></canvas>
+    </article>
+    <article class="last-months-card mt-3">
+        <canvas id="enviosPerDayCanvas"></canvas>
+    </article>
+</div>
+
+<script>
+    const enviosPerMonthLabels = {{ enviosPerMonth.months | safe }}
+
+    const enviosPerMonthData = {
+        labels: enviosPerMonthLabels,
+        datasets: [{
+            label: 'Cantidad de envíos por mes',
+            backgroundColor: '#00a950',
+            borderColor: '#00a950',
+            data: {{ enviosPerMonth.counts | safe }},
+        }]
+    };
+
+    const enviosPerMonthChartConfig = {
+        type: 'line',
+        data: enviosPerMonthData,
+        options: {
+            plugins: {
+                decimation: false, // disable decimation
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+        }
+    };
+
+    const enviosPerMonthChart = new Chart(
+        document.getElementById('enviosPerMonthCanvas'),
+        enviosPerMonthChartConfig
+    );
+
+    const enviosPerDayLabels = {{ enviosPerDay.days | safe }}
+
+    const enviosPerDayData = {
+        labels: enviosPerDayLabels,
+        datasets: [{
+            label: 'Cantidad de envíos por día',
+            backgroundColor: '#166a8f',
+            borderColor: '#166a8f',
+            data: {{ enviosPerDay.counts | safe }},
+        }]
+    };
+
+    const enviosPerDayChartConfig = {
+        type: 'line',
+        data: enviosPerDayData,
+        options: {
+            plugins: {
+                decimation: false, // disable decimation
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            elements: {
+                point:{
+                    radius: 0
+                }
+            }
+        }
+    };
+
+    const enviosPerDayChart = new Chart(
+        document.getElementById('enviosPerDayCanvas'),
+        enviosPerDayChartConfig
+    );
+</script>

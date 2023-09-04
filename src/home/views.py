@@ -2,7 +2,7 @@
 from django.conf import settings
 import json
 from itertools import groupby
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from typing import Dict, List
 
 
@@ -23,7 +23,12 @@ from data.models import Data
 from deposit.models import Deposit
 from envios.models import Envio
 from tracking.models import TrackingMovement
-from envios.utils import get_client_share, get_stats_4_last_12_months
+from envios.utils import (
+    get_client_share,
+    get_stats_4_last_12_months,
+    get_carrier_share,
+    get_stats_daily_deliveries
+)
 
 
 @login_required(login_url='/login/')
@@ -42,12 +47,23 @@ def app_account_change_password_view(request) -> HttpResponse:
     return render(request, 'baseapp_account_change_password.html', {})
 
 
+def get_todays_range():
+    today = datetime.now().date()
+    tomorrow = today + timedelta(days=1)
+    today_start = datetime.combine(today, time())
+    today_end = datetime.combine(tomorrow, time())
+    return today_start, today_end
+
+
 @login_required(login_url='/login/')
 @allowed_users(roles=["Admins"])
 def admin_home_screen_view(request):
     clients_with_envios = get_clients_with_envios()
     deposits_with_envios = get_deposits_with_envios()
     carriers_with_envios = get_carriers_with_envios()
+
+    today_start, today_end = get_todays_range()
+
     main_stats = {
         'at_origin': Envio.objects.filter(
             status=Envio.STATUS_NEW).count(),
@@ -55,11 +71,18 @@ def admin_home_screen_view(request):
             status=Envio.STATUS_STILL).count(),
         'moving': Envio.objects.filter(
             status=Envio.STATUS_MOVING).count(),
+        'delivered_today': TrackingMovement.objects.filter(
+            result=TrackingMovement.RESULT_DELIVERED,
+            date_created__lte=today_end,
+            date_created__gte=today_start
+        ).count(),
         'delivered': TrackingMovement.objects.filter(
             result=TrackingMovement.RESULT_DELIVERED).count(),
     }
     months, months_counts = get_stats_4_last_12_months()
+    days, days_counts = get_stats_daily_deliveries()
     clients, clients_counts = get_client_share()
+    carriers, carriers_counts = get_carrier_share()
     context = {
         'selected_tab': 'home-tab',
         'main_stats': main_stats,
@@ -72,10 +95,19 @@ def admin_home_screen_view(request):
             'months': months,
             'counts': months_counts
         },
+        'enviosPerDay': {
+            'days': days,
+            'counts': days_counts
+        },
         'clientShare': {
             'clients': list(clients),
             'counts': list(clients_counts),
             'len': len(clients_counts)
+        },
+        'carrierShare': {
+            'carriers': list(carriers),
+            'counts': list(carriers_counts),
+            'len': len(carriers_counts)
         },
     }
     return render(request, 'home.html', context)

@@ -1,0 +1,213 @@
+<style>
+    .moving-grid-wrapper {
+        display: grid;
+        grid-gap: 15px;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))));
+    }
+
+    .moving-grid-wrapper>article {
+        border: 0.5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        padding: 0.4em 0.7em;
+        box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
+        background-color: white;
+        max-width: 400px;
+    }
+
+    .moving-svg {
+        min-width: 16px;
+    }
+
+    .moving-envios-count {
+        max-width: 100px;
+    }
+</style>
+
+<div class="moving-grid-wrapper">
+    {% for obj in carriers_with_envios %}
+    {% if obj.envio_count > 0 or obj.priorities > 0 or obj.has_special_delivery_schedule_time %}
+    <article>
+        <div class="d-flex flex-row align-items-top justify-content-start">
+            <div
+                class="d-flex flex-column justify-content-start moving-envios-count p-1 flex-shrink-1 align-top lh-1 me-2">
+                <div class="fs-2 fw-bold ">{{ obj.envio_count }}</div>
+                <div class="fw-bold text-end align-top">envíos</div>
+            </div>
+            <hr>
+            <div class="d-flex flex-column align-items-start w-100 p-1">
+                <div>
+                    <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-geo me-1" viewBox="0 0 16 16">
+                            <path
+                                d="M13.106 7.222c0-2.967-2.249-5.032-5.482-5.032-3.35 0-5.646 2.318-5.646 5.702 0 3.493 2.235 5.708 5.762 5.708.862 0 1.689-.123 2.304-.335v-.862c-.43.199-1.354.328-2.29.328-2.926 0-4.813-1.88-4.813-4.798 0-2.844 1.921-4.881 4.594-4.881 2.735 0 4.608 1.688 4.608 4.156 0 1.682-.554 2.769-1.416 2.769-.492 0-.772-.28-.772-.76V5.206H8.923v.834h-.11c-.266-.595-.881-.964-1.6-.964-1.4 0-2.378 1.162-2.378 2.823 0 1.737.957 2.906 2.379 2.906.8 0 1.415-.39 1.709-1.087h.11c.081.67.703 1.148 1.503 1.148 1.572 0 2.57-1.415 2.57-3.643zm-7.177.704c0-1.197.54-1.907 1.456-1.907.93 0 1.524.738 1.524 1.907S8.308 9.84 7.371 9.84c-.895 0-1.442-.725-1.442-1.914z" />
+                        </svg></span><a href="{% url 'account:employees-detail' obj.pk %}"
+                        rel="noopener noreferrer">{{ obj.username }}</a>
+                </div>
+                <div>
+                    <span class="me-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-shop-window temp-svg" viewBox="0 0 16 16">
+                            <path
+                                d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z" />
+                        </svg>
+                    </span>
+                    {% if obj.client %}
+                    <a href="{% url 'clients:detail' obj.client__pk %}"
+                        rel="noopener noreferrer">{{ obj.client__name }}</a>
+                    {% else %}
+                    Sinergia
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <hr class="my-2">
+
+        <div>
+            <div class="d-flex flex-column align-items-start w-100">
+                <div class="">
+                    <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-geo me-1" viewBox="0 0 16 16">
+                            <path
+                                d="M6.445 11.688V6.354h-.633A12.6 12.6 0 0 0 4.5 7.16v.695c.375-.257.969-.62 1.258-.777h.012v4.61h.675zm1.188-1.305c.047.64.594 1.406 1.703 1.406 1.258 0 2-1.066 2-2.871 0-1.934-.781-2.668-1.953-2.668-.926 0-1.797.672-1.797 1.809 0 1.16.824 1.77 1.676 1.77.746 0 1.23-.376 1.383-.79h.027c-.004 1.316-.461 2.164-1.305 2.164-.664 0-1.008-.45-1.05-.82h-.684zm2.953-2.317c0 .696-.559 1.18-1.184 1.18-.601 0-1.144-.383-1.144-1.2 0-.823.582-1.21 1.168-1.21.633 0 1.16.398 1.16 1.23z" />
+                            <path
+                                d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z" />
+                        </svg></span>Con fecha de entrega: {% if obj.priorities > 0 %}<a
+                        href="{% url 'envios:envio-list' %}?carrier_id={{ obj.pk }}&status=M&has_delivery_date=1"
+                        rel="noopener noreferrer">{{ obj.priorities }}
+                        envío{% if obj.priorities > 1 %}s{% endif %}</a>{% else %}0 envíos{% endif %}
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="d-flex flex-column align-items-start w-100">
+                <div class="">
+                    <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-geo me-1" viewBox="0 0 16 16">
+                            <path
+                                d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
+                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
+                        </svg></span>Con horario de entrega:
+                    {% if obj.has_special_delivery_schedule_time > 0 %}<a
+                        href="{% url 'envios:envio-list' %}?carrier_id={{ obj.pk }}&status=M&is_scheduled=1"
+                        rel="noopener noreferrer">{{ obj.has_special_delivery_schedule_time }}
+                        envío{% if obj.has_special_delivery_schedule_time > 1 %}s{% endif %}</a>{% else %}0
+                    envíos{% endif %}
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="d-flex flex-column align-items-start w-100">
+                <div class="">
+                    <span><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-geo me-1" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z" />
+                            <path
+                                d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z" />
+                        </svg></span>Reprogramados: {% if obj.reprogramed > 0 %}<a
+                        href="{% url 'envios:envio-list' %}?carrier_id={{ obj.pk }}&status=M&has_delivery_attempt=1"
+                        rel="noopener noreferrer">{{ obj.reprogramed }}
+                        envío{% if obj.reprogramed > 1 %}s{% endif %}</a>{% else %}0 envíos{% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if obj.envio_count > 0 %}
+        <hr class="my-2">
+
+        <div class="d-grid">
+            <a href="{% url 'envios:envio-list' %}?carrier_id={{ obj.pk }}&status=M" class="btn btn-primary">Ver
+                todos ({{ obj.envio_count }})</a>
+        </div>
+        {% endif %}
+
+    </article>
+    {% endif %}
+    {% empty %}
+    No hay envíos en movimiento.
+    {% endfor %}
+</div>
+
+{% comment %}
+<div class="row m-0 mt-3 mb-2">
+    <div class="col">
+        <h5 class="card-title font-monospace top-card mx-1"><i class="bi bi-truck" style="color: grey;"></i>
+            VIAJANDO - Repartidores con envíos</h5>
+        <div class="card">
+            <div class="card shadow-lg bg-white">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Apellido y nombre</th>
+                                    <th class="cell-centered">Cantidad de envíos</th>
+                                    <th class="cell-centered">Con fecha de entrega</th>
+                                    <th class="cell-centered">Con horario de entrega</th>
+                                    <th class="cell-centered">Reprogramados</th>
+                                </tr>
+                            </thead>
+                            <tbody id="overrided-1" class="overrided-tbody">
+                                <style>
+
+                                </style>
+                                {% for obj in carriers_with_envios %}
+                                <tr id="tr-{{obj.id}}" class="table-item">
+                                    <td><a href="{% url 'account:employees-detail' obj.pk %}">{{ obj.username }}</a>
+                                    </td>
+                                    <td>{{ obj.full_name }}</td>
+                                    <td class="cell-centered">
+                                        {% if obj.envio_count > 0 %}
+                                        <a href="{% url 'envios:envio-list' %}?carrier_id={{ obj.pk }}&status=M">
+                                            {% endif %}
+                                            {{ obj.envio_count }} envío{% if obj.envio_count != 1 %}s{% endif %}
+                                            {% if obj.envio_count > 0 %}
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="cell-centered">
+                                        {% if obj.priorities > 0 %}
+                                        <a
+                                            href="{% url 'envios:envio-list' %}?carrier_id={{ obj.pk }}&status=M&has_delivery_date=1">
+                                            {% endif %}
+                                            {{ obj.priorities }} envío{% if obj.priorities != 1 %}s{% endif %}
+                                            {% if obj.priorities > 0 %}
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="cell-centered">
+                                        {% if obj.scheduled_time > 0 %}
+                                        <a
+                                            href="{% url 'envios:envio-list' %}?carrier_id={{ obj.pk }}&status=M&is_scheduled=1">
+                                            {% endif %}
+                                            {{ obj.scheduled_time }} envío{% if obj.scheduled_time != 1 %}s{% endif %}
+                                            {% if obj.scheduled_time > 0 %}
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                    <td class="cell-centered">
+                                        {% if obj.reprogramed > 0 %}
+                                        <a
+                                            href="{% url 'envios:envio-list' %}?carrier_id={{ obj.pk }}&status=M&has_delivery_attempt=1">
+                                            {% endif %}
+                                            {{ obj.reprogramed }} envío{% if obj.reprogramed != 1 %}s{% endif %}
+                                            {% if obj.reprogramed > 0 %}
+                                        </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if not carriers_with_envios %}
+                    No hay portadores de envíos.
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endcomment %}

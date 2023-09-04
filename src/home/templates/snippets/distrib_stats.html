@@ -1,0 +1,109 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .distrib-stats-grid-wrapper {
+        display: grid;
+        grid-gap: 15px;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+
+    .distrib-stats-grid-wrapper>article {
+        border: 0.5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        padding: 0.4em 0.7em;
+        box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.1);
+        background-color: white;
+        min-width: 0px;
+        position: relative;
+    }
+
+</style>
+<div class="distrib-stats-grid-wrapper">
+    <article>
+        <canvas style"width: 50px;" id="clientShareCanvas"></canvas>
+    </article>
+    <article>
+        <canvas id="carrierShareCanvas"></canvas>
+    </article>
+</div>
+
+<script>
+    const createBackgroundColors = (total) => {
+        const COLORS = [
+            '#4dc9f6',
+            '#f67019',
+            '#f53794',
+            '#537bc4',
+            '#acc236',
+            '#166a8f',
+            '#00a950',
+            '#58595b',
+            '#8549ba'
+        ];
+
+        let backgroundColors = [];
+
+        let cursor = 0;
+        for (let i = 0; i < total; i++) { 
+            cursor=cursor==9 ? 0 : cursor + 1;
+            backgroundColors.push(COLORS[cursor]); 
+        }
+    }
+
+    const createClientShareChart = ()  => {
+        const clientShareData = {
+            labels: {{ clientShare.clients | safe }},
+            datasets: [{
+                label: 'Share por cliente',
+                backgroundColor: createBackgroundColors({{ clientShare.clients | length }}),
+                data: {{ clientShare.counts | safe }}
+            }]
+        };
+
+        const clientShareChartConfig = {
+            type: 'doughnut',
+            data: clientShareData,
+            //zoomOutPercentage: 80,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                },
+            },
+        };
+
+        const clientShareChart = new Chart(document.getElementById('clientShareCanvas'), clientShareChartConfig);
+    };
+    
+    const createCarrierShareChart = ()  => {
+        const carrierShareData = {
+            labels: {{ carrierShare.carriers | safe }},
+            datasets: [{
+                label: 'Share por carrier',
+                backgroundColor: createBackgroundColors({{ carrierShare.carriers | length }}),
+                data: {{ carrierShare.counts | safe }}
+            }]
+        };
+
+        const carrierShareChartConfig = {
+            type: 'doughnut',
+            data: carrierShareData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                },
+            },
+        };
+
+        const carrierShareChart = new Chart(document.getElementById('carrierShareCanvas'), carrierShareChartConfig);
+    };
+
+    createClientShareChart();
+    createCarrierShareChart();
+</script>
