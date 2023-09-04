@@ -9,6 +9,7 @@ from typing import Any, Callable, Dict, List, Tuple
 from openpyxl import Workbook
 from openpyxl.styles import PatternFill
 import unidecode
+from account.models import Account
 from clients.models import Client, Discount
 from envios.models import BulkLoadEnvios, Envio
 from tracking.models import TrackingMovement
@@ -509,6 +510,35 @@ def get_stats_4_last_12_months() -> Tuple[List[str], List[int]]:
     return months, counts
 
 
+def get_stats_daily_deliveries():
+    delivered = Envio.objects.filter(status=Envio.STATUS_DELIVERED)
+    sdate = delivered.order_by('date_delivered').first().date_delivered
+    edate = delivered.order_by('-date_delivered').first().date_delivered
+    date_list = [sdate+timedelta(days=x)
+                 for x in range((edate-sdate).days + 1)]
+    result = (
+        Envio.objects
+        .filter(status=Envio.STATUS_DELIVERED)
+        .values('date_delivered')
+        .annotate(envio_count=Count('id'))
+        .order_by('date_delivered')
+    )
+
+    count_dict = (
+        {entry['date_delivered']: entry['envio_count'] for entry in result}
+    )
+
+    labels = []
+    counts = []
+    for date in date_list:
+        count = count_dict.get(date, 0)
+        counts.append(count)
+        label = date.strftime("%d-%m-%Y") if date.day == 1 else ""
+        labels.append(label)
+
+    return labels, counts
+
+
 def get_client_share() -> Tuple[Tuple[str], Tuple[int]]:
     """
     Returns a Tuple containing two tuples, one with clients'
@@ -538,3 +568,38 @@ def get_client_share() -> Tuple[Tuple[str], Tuple[int]]:
     clients.append('Otros')
     envios_counts.append(others)
     return clients, envios_counts
+
+
+def get_carrier_share() -> Tuple[Tuple[str], Tuple[int]]:
+    """
+    Returns a Tuple containing two tuples, one with carriers'
+    names and the other with matching shipments count, both
+    ordered by client shipments count descending.
+
+    Returns:
+        Tuple[Tuple[str], Tuple[int]]: The Tuple containing both tuples.
+    """
+    carriers = []
+    envios_counts = []
+    carriers_qs = Account.objects\
+        .filter(envios_delivered_by__gt=0)\
+        .values('username', 'first_name', 'last_name')\
+        .annotate(envio_count=Count('envios_delivered_by'))\
+        .order_by('-envio_count')\
+        .values_list('username', 'first_name', 'last_name', 'envio_count')
+
+    others = 0
+    if carriers_qs.count() > 0:
+        max_count = carriers_qs.first()[-1]
+        for username, first_name, last_name, envio_count in carriers_qs:
+            name = f'{first_name} {last_name} ({username})'
+            ten_percent = 1 * max_count / 100
+            if envio_count > ten_percent:
+                carriers.append(name)
+                envios_counts.append(envio_count)
+            else:
+                others += envio_count
+
+    carriers.append('Otros')
+    envios_counts.append(others)
+    return carriers, envios_counts
