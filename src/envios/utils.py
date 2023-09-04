@@ -497,7 +497,7 @@ def get_stats_4_last_12_months() -> Tuple[List[str], List[int]]:
     months = []
     counts = []
     for _ in range(12):
-        months.insert(0,  MONTHS[now.strftime('%m')])
+        months.insert(0, MONTHS[now.strftime('%m')])
         last_day_in_month = calendar.monthrange(now.year, now.month)[1]
         from_date = datetime(now.year, now.month, 1, 0, 0, 0)
         to_date = datetime(now.year, now.month, last_day_in_month, 23, 59, 59)
