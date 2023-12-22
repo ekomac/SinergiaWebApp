@@ -90,7 +90,6 @@
     "python.workspaceSymbols.enabled": true,
     "python.analysis.completeFunctionParens": true,
     "vsicons.dontShowNewVersionMessage": true,
-    "workbench.editor.untitled.hint": "hidden",
     "[json]": {
         "editor.defaultFormatter": "vscode.json-language-features"
     },
@@ -144,4 +143,5 @@
         "test_*.py"
     ],
     "python.testing.unittestEnabled": true,
+    "workbench.editor.empty.hint": "hidden",
 }

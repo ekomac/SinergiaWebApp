@@ -197,3 +197,6 @@ docs/screenshots/Screenshot-Usuarios-Orden.png
 src/media_cdn/
 src/media_cdn/**.*
 .gitignore
+Scripts/pip3.exe
+Scripts/pip3.12.exe
+Scripts/pip.exe

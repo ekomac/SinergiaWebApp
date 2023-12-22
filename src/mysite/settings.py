@@ -133,8 +133,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'sinergiadb',
-        'USER': 'postgres',
-        'PASSWORD': 'A5euBFju*$XR2&Ct',
+        'USER': 'juan',
+        'PASSWORD': 'abc123',
         'HOST': 'localhost',
         'PORT': '5432',
     },

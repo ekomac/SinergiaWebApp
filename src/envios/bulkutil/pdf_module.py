@@ -10,6 +10,7 @@ from .shipment import Shipment
 
 
 RE_TRACKING_ID = r' Tracking: (?P<result>[0-9]+?) '
+RE_TRACKING_ID_ALT = r' Envio: (?P<result>[0-9]+\s?[0-9]+?) '
 RE_ADDRESS = r' Direccion: (?P<result>.*?) Referencia:'
 RE_REFERENCE = r'Referencia:(?P<result>.*?) Barrio:'
 RE_ZIP_CODE = r' CP: (?P<result>.*?) '
@@ -18,6 +19,12 @@ RE_DELIVERY_DATE = r'Entrega: (?P<result>[0-9]+?\-[a-zA-Z]+)'
 RE_PARTIDO = r'CP: .*\n(?P<result>.*)\n'
 RE_TOWN = r'<SEPARATOR>(?P<result>.*?)(?=<SEPARATOR>)'
 RE_SEPARATOR = r'CP: (.*\n.*\n)?'
+
+
+def get_text_method(page):
+    if hasattr(page, 'getText') and callable(getattr(page, 'getText')):
+        return page.getText
+    return page.get_text
 
 
 class MercadoLibreSubmodule():
@@ -32,7 +39,7 @@ class MercadoLibreSubmodule():
         # Filter last pages containing summary table
         key_phrase = 'Despacha tu producto'
         pages = filter(
-            lambda page: key_phrase not in page.getText(), self._pdf)
+            lambda page: key_phrase not in get_text_method(page)(), self._pdf)
 
         shipments = []
         for page in pages:
@@ -47,7 +54,7 @@ class MercadoLibreSubmodule():
         return ret
 
     def _page_to_shipments(self, page) -> list[Shipment]:
-        page_text = page.getText()
+        page_text = get_text_method(page)()
 
         # LEGACY: Use old module if keyword is not there
         if "Entrega:" not in page_text:
@@ -58,6 +65,10 @@ class MercadoLibreSubmodule():
         # Get tracking id
         regex = re.compile(RE_TRACKING_ID)
         tracking_ids = [self._clean(s) for s in regex.findall(txt_clean)]
+        if (len(tracking_ids) == 0):
+            regex = re.compile(RE_TRACKING_ID_ALT)
+            tracking_ids = [self._clean(s).replace(' ', '')
+                            for s in regex.findall(txt_clean)]
 
         # Get address
         regex = re.compile(RE_ADDRESS)
@@ -96,7 +107,6 @@ class MercadoLibreSubmodule():
         towns = [self._clean(s) for s in regex.findall(last_txt)]
 
         shipments = []
-
         try:
             for i in range(len(tracking_ids)):
                 shipment = Shipment(
@@ -184,7 +194,7 @@ class TiendaNubeSubmodule():
         return list(chain(*list_of_shipments_lists))
 
     def __page_to_shipments(self, page):
-        page_text = page.getText()
+        page_text = get_text_method(page)()
         text = page_text.replace("\n", "<<<")
         try:
             parts = re.findall(r'Enviar a:<<<(.+?)Producto', text)
@@ -239,7 +249,7 @@ class PDFModule(ShipmentExractorModule):
         file: InMemoryUploadedFile = self.file
         with fitz.open(None, file.read(), 'pdf') as pdf:
             first_page = pdf[0]
-            fp_text = first_page.getText()
+            fp_text = get_text_method(first_page)()
             submodule = None
             if self.__is_mercado_libre(fp_text):
                 submodule = MercadoLibreSubmodule(pdf)
