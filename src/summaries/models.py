@@ -147,19 +147,3 @@ class EmployeeSummary(Summary):
         verbose_name = 'Resumen de empleado'
         verbose_name_plural = 'Resúmenes de empleados'
         ordering = ['-date_created']
-
-
-@receiver(post_save, sender=Summary)
-def update_envios_to_client_summary(sender, instance=None, **kwargs):
-
-    Envio.objects.filter(
-        date_delivered__gte=instance.date_from,
-        date_delivered__lte=instance.date_to,
-        status=Envio.STATUS_DELIVERED,
-        client=instance.client,
-    )
-
-
-@receiver(post_save, sender=EmployeeSummary)
-def update_envios_to_employee_summary(sender, instance=None, **kwargs):
-    return True
