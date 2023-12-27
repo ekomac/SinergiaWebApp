@@ -1,7 +1,6 @@
 # Python
 from datetime import timedelta
 from datetime import datetime
-from django.db.models.signals import post_save
 import json
 from decimal import Decimal
 from typing import Any, Dict
@@ -9,7 +8,6 @@ from typing import Any, Dict
 # Django
 from django.conf import settings
 from django.db import models
-from django.dispatch import receiver
 
 # Project
 from envios.models import Envio
