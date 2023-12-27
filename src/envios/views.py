@@ -9,6 +9,7 @@ from openpyxl.writer.excel import save_virtual_workbook
 
 
 # Django
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
@@ -239,20 +240,31 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
 
         updater = "&nbsp;un evento administrativo&nbsp;"
 
-        if envio.updated_by is not None:
-            client = "Sinergia"
-            if envio.updated_by.client:
-                client = envio.updated_by.client.name
+        last_movement = envio.trackingmovement_set.order_by(
+            '-date_created').first()
 
-            updater = ('&nbsp;<a href="#" class="mx-1" '
+        if last_movement.created_by is not None:
+            client = "Sinergia"
+            if last_movement.created_by.client:
+                client = last_movement.created_by.client.name
+
+            updater_url = reverse(
+                'account:employees-detail',
+                kwargs={'pk': last_movement.created_by.pk}
+            )
+            updater = (f'&nbsp;<a href="{updater_url}" class="mx-1" '
                        'data-bs-toggle="tooltip" '
                        'data-bs-html="true" '
                        f'title="{envio.updated_by.first_name} '
                        f'{envio.updated_by.last_name}<em><br>'
                        f' ({client})</em>">'
                        f'@{envio.updated_by.username}</a>&nbsp;')
-
-        date_of_update = envio.date_updated.strftime('%d/%m/%Y a las %H:%M')
+        hours = settings.LOCAL_TIMEZONE_DIFFERENCE.get("hours", 0)
+        minutes = settings.LOCAL_TIMEZONE_DIFFERENCE.get("minutes", 0)
+        tz_aware_update_date = last_movement.date_created + \
+            timedelta(hours=-hours, minutes=-minutes)
+        date_of_update = tz_aware_update_date.strftime(
+            '%d/%m/%Y a las %H:%M')
 
         return f"Última vez actualizado por{updater}el {date_of_update}"
 
