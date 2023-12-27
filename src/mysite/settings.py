@@ -169,6 +169,8 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
+LOCAL_TIMEZONE_DIFFERENCE = {'hours': 0, 'minutes': 0}
+
 USE_I18N = True
 
 USE_L10N = True

@@ -86,11 +86,13 @@ class ClientSummary(Summary):
         blank=True, null=True, related_name="client_summary")
 
     def get_envios_filters(self) -> Dict[str, Any]:
+        offset_hours = settings.LOCAL_TIMEZONE_DIFFERENCE.get("hours")
+        offset_minutes = settings.LOCAL_TIMEZONE_DIFFERENCE.get("minutes")
         _to = datetime(self.date_to.year, self.date_to.month,
-                       self.date_to.day, 0, 0, 0)
+                       self.date_to.day, offset_hours, offset_minutes, 0)
         next_day = _to + timedelta(days=1)
         _from = datetime(self.date_from.year, self.date_from.month,
-                         self.date_from.day, 0, 0, 0)
+                         self.date_from.day, offset_hours, offset_minutes, 0)
         return {
             'date_delivered__gte': _from,
             'date_delivered__lt': next_day,
@@ -122,11 +124,13 @@ class EmployeeSummary(Summary):
         related_name="employee_summary")
 
     def get_envios_filters(self) -> Dict[str, Any]:
+        offset_hours = settings.LOCAL_TIMEZONE_DIFFERENCE.get("hours")
+        offset_minutes = settings.LOCAL_TIMEZONE_DIFFERENCE.get("minutes")
         _to = datetime(self.date_to.year, self.date_to.month,
-                       self.date_to.day, 0, 0, 0)
+                       self.date_to.day, offset_hours, offset_minutes, 0)
         next_day = _to + timedelta(days=1)
         _from = datetime(self.date_from.year, self.date_from.month,
-                         self.date_from.day, 0, 0, 0)
+                         self.date_from.day, offset_hours, offset_minutes, 0)
         return {
             'date_delivered__gte': _from,
             'date_delivered__lt': next_day,
