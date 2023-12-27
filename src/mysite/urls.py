@@ -24,6 +24,7 @@ from home.views import (
     admin_home_screen_view,
     delete_alert_from_session,
     redirect_no_url,
+    timezone_view,
 )
 from account.views import (
     login_view,
@@ -41,6 +42,7 @@ urlpatterns = [
          delete_alert_from_session, name='delete-alert'),
     path('password-change-done/', login_view, name='password_change_done'),
     path('superadmin/', admin.site.urls),
+    path('superadmin/tz', timezone_view),
 
     # ADMIN SITE
     path('admin/', admin_home_screen_view, name='admin-home'),

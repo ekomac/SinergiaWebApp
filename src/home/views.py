@@ -1,4 +1,5 @@
 # Python
+from django.utils import timezone
 from django.conf import settings
 import json
 from itertools import groupby
@@ -304,3 +305,12 @@ def delete_alert_from_session(request, *args, **kwargs):
     return HttpResponse(
         json.dumps({'status': 'ok'}), content_type="application/json"
     )
+
+
+@login_required(login_url='/login/')
+@allowed_users(roles=["Admins"])
+def timezone_view(request):
+    return HttpResponse(
+        json.dumps(
+            {'server-timezone': timezone.now().strftime("%Y-%m-%d %H:%M:%S")}),
+        content_type="application/json")
