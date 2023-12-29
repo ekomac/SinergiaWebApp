@@ -255,10 +255,10 @@ class EnvioDetailView(EnvioContextMixin, LoginRequiredMixin, DetailView):
             updater = (f'&nbsp;<a href="{updater_url}" class="mx-1" '
                        'data-bs-toggle="tooltip" '
                        'data-bs-html="true" '
-                       f'title="{envio.updated_by.first_name} '
-                       f'{envio.updated_by.last_name}<em><br>'
+                       f'title="{last_movement.created_by.first_name} '
+                       f'{last_movement.created_by.last_name}<em><br>'
                        f' ({client})</em>">'
-                       f'@{envio.updated_by.username}</a>&nbsp;')
+                       f'@{last_movement.created_by.username}</a>&nbsp;')
         hours = settings.LOCAL_TIMEZONE_DIFFERENCE.get("hours", 0)
         minutes = settings.LOCAL_TIMEZONE_DIFFERENCE.get("minutes", 0)
         tz_aware_update_date = last_movement.date_created + \
