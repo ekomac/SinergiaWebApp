@@ -295,11 +295,24 @@ class PDFEnviosListReport:
     def _envios_as_list(self, i: int, envio: Envio) -> list[str]:
         styleN = getSampleStyleSheet()["BodyText"]
         styleN.alignment = TA_LEFT
+        phone = ""
+        if envio.phone != "" and envio.phone is not None:
+            phone = f"{envio.phone} (destino)"
+        elif (phone == ""
+              and envio.client
+              and envio.client.contact_phone is not None
+              and envio.client.contact_phone != ""
+              ):
+            phone = f"{envio.client.contact_phone} (cliente)"
+
+        if "None" in phone:
+            phone = ""
 
         ret = [
             str(i+1),
             Paragraph(envio.tracking_id, styleN),
-            Paragraph(str(envio.get_status_display()), styleN),
+            Paragraph(phone, styleN),
+            # Paragraph(str(envio.get_status_display()), styleN),
             Paragraph("Flex" if envio.is_flex else "Mensajería", styleN),
             Paragraph(str(envio.client.name), styleN),
             Paragraph(str(envio.full_address), styleN),
@@ -338,7 +351,7 @@ class PDFEnviosListReport:
                 for i, envio in enumerate(envios)]
 
     def _crete_envios_table(self, envios: Iterable[Envio]) -> Table:
-        header = ['N.°', 'ID', 'Estado', 'Tipo', 'Cliente', 'Destino',
+        header = ['N.°', 'ID', 'Teléfono', 'Tipo', 'Cliente', 'Destino',
                   'Localización', 'Fecha límite',
                   'Horario entrega', 'A cobrar']
         colWidths = [inch*0.5] + [None]*3 + \
