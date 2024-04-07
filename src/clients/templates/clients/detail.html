@@ -61,7 +61,7 @@
                     {% else %}
                     <a href="{% url 'clients:activate' client.id %}" class="btn btn-primary btn-sm me-1"><i class="bi bi-toggle-on me-1"></i></i>Habilitar</a>
                     {% endif %}
-                    <a href="{% url 'clients:delete' client.id %}" class="btn btn-danger btn-sm me-1"><i class="bi bi-trash me-1"></i>Eliminar</a>
+                    {% comment %} <a href="{% url 'clients:delete' client.id %}" class="btn btn-danger btn-sm me-1"><i class="bi bi-trash me-1"></i>Eliminar</a> {% endcomment %}
 
                 </div>
                 <!-- end DETAIL BUTTONS -->
