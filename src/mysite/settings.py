@@ -220,11 +220,11 @@ DEFAULT_RESET_PASSWORD = "Cambiar123"
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.hostinger.com'
 EMAIL_HOST_USER = 'no-reply@sinergiamensajeria.com'
-EMAIL_HOST_PASSWORD = 'b#5wZFJ273j2g'
+EMAIL_HOST_PASSWORD = ''
 EMAIL_PORT = 465
 EMAIL_USE_SSL = True
 # EMAIL_USE_TLS = True
-noreply = '<no-reply@sinergiamensajeria.com>'
+noreply = '<no-reply@a.com>'
 DEFAULT_FROM_EMAIL = f'Administración de SinergiaSoftware {noreply}'
 
 # Django BACKUP:
